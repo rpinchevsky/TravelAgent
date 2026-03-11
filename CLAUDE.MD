@@ -136,10 +136,47 @@ Provide the full operational breakdown, including:
 
 ### HTML Export Workflow
 - **Trigger:** Whenever I ask to "create an HTML page," "export to HTML," or "generate the web view."
-- **Source Selection:** Identify the most recent file matching the pattern `trip_YYYY-MM-DD_HH:mm.md`.
-- **Output Protocol:** When converting Markdown to HTML, strictly follow the requirements and CSS specifications defined in `rendering-config.md`. 
-    - **Source File:** [The identified trip_YYYY-MM-DD_HH:mm.md file] with latest timestamp if not asked explicitly for differnt file.
-    - **Output Filename:** Use the exact same timestamp as the source, resulting in `trip_YYYY-MM-DD_HH:mm.html`.
+- **Source Selection:** Identify the most recent file matching the pattern `trip_YYYY-MM-DD_HH:mm.md` also known as trip.md 
+
+ - **Output Filename:** Use the exact same timestamp as the source, resulting in `trip_YYYY-MM-DD_HH:mm.html` also known as trip_output.html 
+
+
+# 🚀 Trip Generation: Fragment Master Mode
+ - D
+## 🎯 Objective
+Transform raw trip data from `trip.md` into highly structured HTML fragments and assemble them into the `base_layout.html` shell using the Enterprise Design System.
+
+## 🛠️ Step 1: Analyze Data
+Transform raw trip data from `trip.md` into highly structured HTML fragments using the `markdown_to_html` skill and assemble them into the output.html shell.
+- Scan latest trip_YYYY-MM-DD_HH:mm.md or file specified bu user to identify the total number of "Days" or "Major Sections."
+- Map activity types to their corresponding SVG icons as per `@rendering-config.md`.
+
+## 🧩 Step 2: Fragment Generation
+Generate only the necessary HTML strings for the following placeholders:
+
+1. **{{NAV_LINKS}}**: 
+   - Create a list of `<a class="sidebar__link">` tags.
+   - Assign `href="#day-X"` and include the `is-active` class and `aria-current="page"` for the first item only.
+
+2. **{{NAV_PILLS}}**: 
+   - Create a list of `<a class="mobile-nav__pill">` tags.
+   - Assign matching `href="#day-X"` and include the `is-active` class for the first item only.
+
+3. **{{TRIP_CONTENT}}**: 
+   - Convert itinerary data into `<table class="itinerary-table">`.
+   - Wrap specific locations/stops in `<div class="poi-card">`.
+   - Ensure all `<img>` tags include `loading="lazy"`.
+
+## 🏗️ Step 3: Assembly & Final Export
+1. **Read** (do not modify) `base_layout.html` to use as a template.
+2. **Inject** the generated fragments into the placeholders.
+3. **Save/Output** the result as a NEW file named  `trip_output.html`
+4. **Validation:** Ensure the original `base_layout.html` still contains the `{{SLOT}}` tags for future use.
+- **Constraint:** Output the final, fully-assembled HTML file. Do NOT modify `rendering_style_config.css` or `base_layout.html` source files.
+- **Standalone Deployment:** The output HTML must be **fully self-contained** — inline the entire contents of `rendering_style_config.css` inside a `<style>` tag in the `<head>`. This ensures the page renders correctly when hosted without the CSS file alongside it. Never reference `rendering_style_config.css` via `<link>` in the output file.
+- **SVG Resilience:** Every inline `<svg>` element in the output must have explicit `width` and `height` HTML attributes to prevent sizing issues if CSS loads late or fails.
+
+  
     
 - **Post-Action:** Confirm the successful creation of the `.html` file matching the `.md` source's timestamp.
    

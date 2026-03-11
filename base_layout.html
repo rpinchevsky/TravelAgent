@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{PAGE_TITLE}}</title>
+  <link rel="stylesheet" href="rendering_style_config.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="page-wrapper">
+
+<aside class="sidebar" aria-label="Desktop Navigation">
+    <div class="sidebar__logo"><span>🌐 TravelUI</span></div>
+    <nav class="sidebar__nav">
+        {{NAV_LINKS}} </nav>
+</aside>
+
+<nav class="mobile-nav" aria-label="Mobile Navigation">
+  <div class="mobile-nav__scroll">
+    {{NAV_PILLS}} </div>
+</nav>
+
+<main id="main-content" class="main-content">
+    {{TRIP_CONTENT}} </main>
+
+</div>
+</body>
+</html>
