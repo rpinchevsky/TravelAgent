@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Будапешт 2026 — Семейный маршрут</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --sp-1: 4px; --sp-2: 8px; --sp-3: 16px; --sp-4: 24px;
+      --sp-5: 32px; --sp-6: 48px; --sp-7: 64px;
+      --r-card: 12px; --r-el: 6px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --lh-body: 1.5; --lh-head: 1.2;
+
+      /* Light palette */
+      --bg: #F7F8FA;
+      --surface: #FFFFFF;
+      --surface-alt: #F0F2F5;
+      --text: #1A1A2E;
+      --text-muted: #5A6070;
+      --border: rgba(0,0,0,0.08);
+      --accent: #3B5BDB;
+      --accent-hover: #2F4AC0;
+      --accent-light: rgba(59,91,219,0.08);
+      --sidebar-bg: #FFFFFF;
+      --sidebar-border: rgba(0,0,0,0.06);
+      --pill-bg: rgba(0,0,0,0.05);
+      --pill-active: #3B5BDB;
+      --pill-active-text: #FFFFFF;
+      --th-bg: #F0F2F5;
+      --tr-hover: rgba(59,91,219,0.04);
+      --tag-bg: #EEF2FF;
+      --tag-text: #3B5BDB;
+      --holiday-bg: #FFF8E1;
+      --holiday-border: #F59E0B;
+      --holiday-text: #78350F;
+      --plan-b-bg: #F0FDF4;
+      --plan-b-border: #22C55E;
+      --tip-bg: #F0F9FF;
+      --tip-border: #0EA5E9;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111318;
+        --surface: #1C1F26;
+        --surface-alt: #252830;
+        --text: #FAFAFA;
+        --text-muted: #9AA0B2;
+        --border: rgba(255,255,255,0.08);
+        --accent: #6C8EEF;
+        --accent-hover: #8BA4F5;
+        --accent-light: rgba(108,142,239,0.12);
+        --sidebar-bg: #1C1F26;
+        --sidebar-border: rgba(255,255,255,0.06);
+        --pill-bg: rgba(255,255,255,0.08);
+        --pill-active: #6C8EEF;
+        --pill-active-text: #FFFFFF;
+        --th-bg: #252830;
+        --tr-hover: rgba(108,142,239,0.06);
+        --tag-bg: rgba(108,142,239,0.15);
+        --tag-text: #9BB0F5;
+        --holiday-bg: #2D2410;
+        --holiday-border: #D97706;
+        --holiday-text: #FCD34D;
+        --plan-b-bg: #0F2117;
+        --plan-b-border: #16A34A;
+        --tip-bg: #0C1E2A;
+        --tip-border: #0284C7;
+        --shadow: 0 1px 4px rgba(0,0,0,0.4), 0 4px 20px rgba(0,0,0,0.3);
+      }
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: var(--lh-body);
+      color: var(--text);
+      background: var(--bg);
+      display: flex;
+      min-height: 100vh;
+    }
+    a { color: var(--accent); text-decoration: none; transition: color 0.15s; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+    h1 { font-size: 2rem; font-weight: 600; line-height: var(--lh-head); }
+    h2 { font-size: 1.4rem; font-weight: 600; line-height: var(--lh-head); }
+    h3 { font-size: 1.1rem; font-weight: 600; line-height: var(--lh-head); }
+    h4 { font-size: 0.95rem; font-weight: 600; }
+    p { margin-top: var(--sp-2); }
+
+    /* ── Layout ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0; width: 220px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--sidebar-border);
+      overflow-y: auto; padding: var(--sp-4) 0;
+      display: flex; flex-direction: column; gap: var(--sp-1);
+      z-index: 100;
+      box-shadow: 1px 0 8px rgba(0,0,0,0.04);
+    }
+    .sidebar-logo {
+      padding: var(--sp-2) var(--sp-3) var(--sp-3);
+      font-weight: 600; font-size: 0.85rem; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--sidebar-border);
+      margin-bottom: var(--sp-2);
+    }
+    .sidebar a {
+      display: flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-3);
+      color: var(--text-muted);
+      font-size: 0.88rem; font-weight: 500;
+      border-radius: 0;
+      transition: background 0.15s, color 0.15s;
+      text-decoration: none;
+    }
+    .sidebar a:hover { background: var(--accent-light); color: var(--accent); }
+    .sidebar a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+    .sidebar a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .sidebar .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    .main-content {
+      margin-left: 220px;
+      flex: 1;
+      max-width: 960px;
+      padding: var(--sp-5) var(--sp-5);
+    }
+
+    /* ── Mobile pill nav ── */
+    .mobile-nav {
+      display: none;
+      position: sticky; top: 0; z-index: 90;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto; white-space: nowrap;
+      padding: var(--sp-2) var(--sp-3);
+      gap: var(--sp-2);
+      scrollbar-width: none;
+    }
+    .mobile-nav::-webkit-scrollbar { display: none; }
+    .mobile-nav a {
+      display: inline-flex; align-items: center;
+      padding: var(--sp-1) var(--sp-3);
+      background: var(--pill-bg);
+      color: var(--text-muted);
+      border-radius: 100px;
+      font-size: 0.8rem; font-weight: 500;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      border: 1px solid transparent;
+    }
+    .mobile-nav a.active,
+    .mobile-nav a:hover {
+      background: var(--pill-active); color: var(--pill-active-text);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .mobile-nav { display: flex; }
+      .main-content { margin-left: 0; padding: var(--sp-3); }
+      body { flex-direction: column; }
+    }
+
+    /* ── Hero header ── */
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3B5BDB 60%, #6366f1 100%);
+      border-radius: var(--r-card);
+      padding: var(--sp-6) var(--sp-5);
+      color: white;
+      margin-bottom: var(--sp-5);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero h1 { font-size: 2rem; margin-bottom: var(--sp-2); color: white; position: relative; }
+    .hero-meta {
+      display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-3);
+      position: relative;
+    }
+    .hero-tag {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 100px;
+      padding: var(--sp-1) var(--sp-3);
+      font-size: 0.82rem; font-weight: 500; color: rgba(255,255,255,0.95);
+      backdrop-filter: blur(4px);
+    }
+
+    /* ── Holiday advisory ── */
+    .advisory {
+      background: var(--holiday-bg);
+      border: 1px solid var(--holiday-border);
+      border-radius: var(--r-card);
+      padding: var(--sp-4);
+      margin-bottom: var(--sp-5);
+    }
+    .advisory-title {
+      font-weight: 600; color: var(--holiday-text);
+      margin-bottom: var(--sp-2); font-size: 1rem;
+    }
+    .advisory p { color: var(--holiday-text); margin-top: var(--sp-2); font-size: 0.9rem; }
+    .advisory-rows { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-3); }
+    .advisory-row {
+      display: flex; gap: var(--sp-2); align-items: flex-start;
+      font-size: 0.88rem; color: var(--holiday-text);
+    }
+
+    /* ── Day section ── */
+    .day-section {
+      background: var(--surface);
+      border-radius: var(--r-card);
+      padding: var(--sp-5);
+      margin-bottom: var(--sp-4);
+      box-shadow: var(--shadow);
+    }
+    .day-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      flex-wrap: wrap; gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+      padding-bottom: var(--sp-4);
+      border-bottom: 1px solid var(--border);
+    }
+    .day-title { font-size: 1.3rem; font-weight: 600; }
+    .day-sub { color: var(--text-muted); font-size: 0.88rem; margin-top: var(--sp-1); }
+    .map-link {
+      display: inline-flex; align-items: center; gap: var(--sp-1);
+      background: var(--accent); color: white;
+      padding: var(--sp-2) var(--sp-3);
+      border-radius: var(--r-el);
+      font-size: 0.82rem; font-weight: 500;
+      text-decoration: none; white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .map-link:hover { background: var(--accent-hover); color: white; text-decoration: none; }
+    .only-here-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #FEF3C7; border: 1px solid #D97706;
+      color: #92400E; border-radius: 100px;
+      padding: 2px 10px; font-size: 0.75rem; font-weight: 600;
+      margin-left: var(--sp-2);
+    }
+    @media (prefers-color-scheme: dark) {
+      .only-here-badge { background: #2D1F00; border-color: #D97706; color: #FCD34D; }
+    }
+
+    /* ── Schedule table ── */
+    .table-wrapper { overflow-x: auto; margin: var(--sp-3) 0; border-radius: var(--r-el); border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    thead th {
+      background: var(--th-bg); font-weight: 600;
+      padding: var(--sp-2) var(--sp-3);
+      text-align: left; white-space: nowrap;
+      position: sticky; top: 0; z-index: 2;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr { transition: background 0.1s; }
+    tbody tr:hover { background: var(--tr-hover); }
+    tbody td {
+      padding: var(--sp-2) var(--sp-3);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    .time-cell { white-space: nowrap; font-weight: 500; color: var(--accent); }
+    .total-row td { font-weight: 600; background: var(--surface-alt); }
+
+    /* ── POI card ── */
+    .poi-card {
+      background: var(--surface-alt);
+      border-radius: var(--r-card);
+      padding: var(--sp-4);
+      margin: var(--sp-4) 0;
+    }
+    .poi-title { font-size: 1rem; font-weight: 600; margin-bottom: var(--sp-3); }
+    .poi-body { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .poi-field { display: flex; flex-direction: column; gap: 2px; }
+    .poi-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-muted); }
+    .poi-text { font-size: 0.9rem; line-height: 1.6; }
+    .poi-links {
+      display: flex; flex-wrap: wrap; gap: var(--sp-2);
+      margin-top: var(--sp-3); padding-top: var(--sp-3);
+      border-top: 1px solid var(--border);
+    }
+    .poi-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-el);
+      font-size: 0.8rem; font-weight: 500;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .poi-link:hover { background: var(--accent-light); border-color: var(--accent); text-decoration: none; }
+
+    /* ── Plan B ── */
+    .plan-b {
+      background: var(--plan-b-bg);
+      border: 1px solid var(--plan-b-border);
+      border-radius: var(--r-card);
+      padding: var(--sp-4);
+      margin-top: var(--sp-4);
+    }
+    .plan-b-title { font-weight: 600; color: #15803D; margin-bottom: var(--sp-2); }
+    @media (prefers-color-scheme: dark) { .plan-b-title { color: #4ADE80; } }
+    .plan-b-reason {
+      font-size: 0.82rem; font-style: italic;
+      color: var(--text-muted); margin-bottom: var(--sp-3);
+    }
+
+    /* ── Section divider ── */
+    .section-divider {
+      border: none; border-top: 1px solid var(--border);
+      margin: var(--sp-4) 0;
+    }
+
+    /* ── Logistics box ── */
+    .logistics {
+      background: var(--tip-bg);
+      border: 1px solid var(--tip-border);
+      border-radius: var(--r-el);
+      padding: var(--sp-3) var(--sp-4);
+      margin: var(--sp-4) 0;
+      font-size: 0.88rem;
+    }
+    .logistics-title { font-weight: 600; margin-bottom: var(--sp-2); }
+    .logistics p { margin-top: var(--sp-1); }
+
+    /* ── Overview table section ── */
+    .overview-section {
+      background: var(--surface);
+      border-radius: var(--r-card);
+      padding: var(--sp-5);
+      margin-bottom: var(--sp-4);
+      box-shadow: var(--shadow);
+    }
+    .section-heading {
+      font-size: 1.25rem; font-weight: 600;
+      margin-bottom: var(--sp-4);
+      display: flex; align-items: center; gap: var(--sp-2);
+    }
+
+    /* ── Budget section ── */
+    .budget-total {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3B5BDB 100%);
+      border-radius: var(--r-card);
+      padding: var(--sp-4);
+      color: white;
+      margin-top: var(--sp-4);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: var(--sp-3);
+    }
+    .budget-total-label { font-size: 0.9rem; opacity: 0.85; }
+    .budget-total-value { font-size: 1.8rem; font-weight: 600; }
+
+    /* ── Footer ── */
+    .footer {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      text-align: center;
+      padding: var(--sp-5) 0 var(--sp-7);
+      margin-top: var(--sp-6);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Car days table ── */
+    .car-badge {
+      display: inline-flex; align-items: center;
+      background: #FEF9C3; border: 1px solid #CA8A04;
+      color: #713F12; border-radius: 100px;
+      padding: 2px 8px; font-size: 0.75rem; font-weight: 600;
+    }
+    @media (prefers-color-scheme: dark) {
+      .car-badge { background: #1C1400; border-color: #CA8A04; color: #FDE68A; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 1.4rem; }
+      .day-section { padding: var(--sp-3); }
+      .day-header { flex-direction: column; }
+      .poi-card { padding: var(--sp-3); }
+    }
+
+    /* ── Scroll spy helper ── */
+    section[id] { scroll-margin-top: 80px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ SIDEBAR (desktop) ═══════════ -->
+<nav class="sidebar" aria-label="Navigation">
+  <div class="sidebar-logo">🏰 Будапешт 2026</div>
+  <a href="#overview" class="nav-link"><span class="nav-icon">📋</span> Обзор маршрута</a>
+  <a href="#day-1" class="nav-link"><span class="nav-icon">🏊</span> День 1 — 21 авг</a>
+  <a href="#day-2" class="nav-link"><span class="nav-icon">🦁</span> День 2 — 22 авг</a>
+  <a href="#day-3" class="nav-link"><span class="nav-icon">🏰</span> День 3 — 23 авг</a>
+  <a href="#day-4" class="nav-link"><span class="nav-icon">🚂</span> День 4 — 24 авг</a>
+  <a href="#day-5" class="nav-link"><span class="nav-icon">🏡</span> День 5 — 25 авг</a>
+  <a href="#day-6" class="nav-link"><span class="nav-icon">🦈</span> День 6 — 26 авг</a>
+  <a href="#day-7" class="nav-link"><span class="nav-icon">🔬</span> День 7 — 27 авг</a>
+  <a href="#day-8" class="nav-link"><span class="nav-icon">💦</span> День 8 — 28 авг</a>
+  <a href="#day-9" class="nav-link"><span class="nav-icon">🎪</span> День 9 — 29 авг</a>
+  <a href="#day-10" class="nav-link"><span class="nav-icon">🎂</span> День 10 — 30 авг</a>
+  <a href="#budget" class="nav-link"><span class="nav-icon">💰</span> Бюджет</a>
+  <a href="#car-days" class="nav-link"><span class="nav-icon">🚗</span> Авто</a>
+</nav>
+
+<!-- ═══════════ MOBILE PILL NAV ═══════════ -->
+<div class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+  <a href="#overview">📋 Обзор</a>
+  <a href="#day-1">🏊 День 1</a>
+  <a href="#day-2">🦁 День 2</a>
+  <a href="#day-3">🏰 День 3</a>
+  <a href="#day-4">🚂 День 4</a>
+  <a href="#day-5">🏡 День 5</a>
+  <a href="#day-6">🦈 День 6</a>
+  <a href="#day-7">🔬 День 7</a>
+  <a href="#day-8">💦 День 8</a>
+  <a href="#day-9">🎪 День 9</a>
+  <a href="#day-10">🎂 День 10</a>
+  <a href="#budget">💰 Бюджет</a>
+</div>
+
+<!-- ═══════════ MAIN CONTENT ═══════════ -->
+<main class="main-content">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>🏰 Будапешт 2026 — Семейный маршрут</h1>
+    <div class="hero-meta">
+      <span class="hero-tag">👨‍👩‍👧‍👦 Роберт · Анна · Тамир (8 л.) · Ариэль (6 л.) · Итай (3 → 4 л.)</span>
+      <span class="hero-tag">📅 20–31 августа 2026</span>
+      <span class="hero-tag">🇭🇺 Будапешт, Венгрия</span>
+      <span class="hero-tag">🐢 Темп: качество, не количество</span>
+      <span class="hero-tag">⏰ 10:00–18:30</span>
+    </div>
+  </div>
+
+  <!-- Holiday Advisory -->
+  <div class="advisory">
+    <div class="advisory-title">⚠️ ПРАЗДНИЧНОЕ ПРЕДУПРЕЖДЕНИЕ — День Святого Иштвана / День Государственного Основания</div>
+    <p><strong>20 августа 2026 (четверг)</strong> — главный национальный праздник Венгрии. Вы прилетаете в 22:00 — возможно, застанете финал одного из крупнейших фейерверков Европы над Дунаем (старт 21:00, 30 минут, 46 000 пиротехнических эффектов с мостов и барж). Мероприятия проходят с 15 по 21 августа в ~20 локациях по всему городу.</p>
+    <div class="advisory-rows">
+      <div class="advisory-row">⛔ <span><strong>Закрытия:</strong> Продуктовые магазины и большинство госучреждений закрыты 20 августа. Рестораны и туристические объекты работают.</span></div>
+      <div class="advisory-row">🚗 <span><strong>Транспорт:</strong> Набережная Дуная и центральные мосты могут быть перекрыты 20–21 августа. Рекомендуем заселиться и не планировать выезд в ночь прилёта.</span></div>
+      <div class="advisory-row">🎉 <span><strong>Атмосфера:</strong> 21 августа (пятница) — часть программы фестиваля ещё идёт. Парки, купальни и зоопарк работают в обычном режиме.</span></div>
+    </div>
+  </div>
+
+  <!-- Overview table -->
+  <section id="overview" class="overview-section">
+    <div class="section-heading">📅 Обзорная таблица маршрута</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>День</th><th>Дата</th><th>Район</th><th>Утро</th><th>Обед</th><th>Вечер</th><th>Запасной план</th><th>Аудит</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Заезд</td><td>20 авг (Чт)</td><td>Центр</td><td>Прилёт 22:00 🎆</td><td>—</td><td>Заселение / финал фейерверка</td><td>—</td><td>✅</td></tr>
+          <tr><td><a href="#day-1">День 1</a></td><td>21 авг (Пт)</td><td>Маргит-остров</td><td>Пляжный парк Palatinus</td><td>Буфе у бассейна</td><td>Прогулка по острову, Музыкальный фонтан</td><td>Городской парк Városliget</td><td>✅</td></tr>
+          <tr><td><a href="#day-2">День 2</a></td><td>22 авг (Сб)</td><td>Городской парк</td><td>Зоопарк Будапешта</td><td>Robinson у озера</td><td>Детские площадки, замок Vajdahunyad</td><td>Купание в Széchenyi Fürdő</td><td>✅</td></tr>
+          <tr><td><a href="#day-3">День 3</a></td><td>23 авг (Вс)</td><td>Замковый холм</td><td>Рыбацкий бастион, крепость</td><td>Рестораны замкового района</td><td>Прогулка по крепости, вид на Дунай</td><td>Гора Геллерт с подъёмником</td><td>✅</td></tr>
+          <tr><td><a href="#day-4">День 4</a></td><td>24 авг (Пн)</td><td>Будайские горы</td><td>Детская железная дорога Gyermekvasút</td><td>Normafa Buffet</td><td>Площадка Анна-Луг, кресельный подъёмник</td><td>Поход в лесу Хювёшвёльдь</td><td>✅</td></tr>
+          <tr><td><a href="#day-5">День 5</a></td><td>25 авг (Вт)</td><td>Сентендре</td><td>Скансен — Венгерский музей под открытым небом</td><td>Ресторан Скансена</td><td>Прогулка по Сентендре, рынок</td><td>Вышеград</td><td>✅</td></tr>
+          <tr><td><a href="#day-6">День 6</a></td><td>26 авг (Ср)</td><td>Юго-Буда</td><td>Тропикариум — акула-аквариум</td><td>Campona Mall</td><td>Шоппинг, мягкий игровой центр</td><td>CSOPA</td><td>✅</td></tr>
+          <tr><td><a href="#day-7">День 7</a></td><td>27 авг (Чт)</td><td>Обуда</td><td>Дворец чудес CSOPA — 250 экспонатов</td><td>Kehli Vendéglő</td><td>Дунайская набережная, плюшевые магазины</td><td>Аквинкум</td><td>✅</td></tr>
+          <tr><td><a href="#day-8">День 8</a></td><td>28 авг (Пт)</td><td>Север Пешта</td><td>Aquaworld — крытый аквапарк + Bongo Kids</td><td>Внутри Aquaworld</td><td>Горки и ленивая река</td><td>Lupa Beach</td><td>✅</td></tr>
+          <tr><td><a href="#day-9">День 9</a></td><td>29 авг (Сб)</td><td>Центр + Városliget</td><td>Центральный рынок — мясо, ягоды, лангош</td><td>Прилавки рынка</td><td>Круиз по Дунаю, Цирк Nagycirkusz</td><td>Рынок Holló utca</td><td>✅</td></tr>
+          <tr><td><a href="#day-10">День 10</a></td><td>30 авг (Вс) 🎂</td><td>Városliget</td><td>Зоопарк Будапешта + Главная площадка</td><td>Robinson у озера</td><td>Катание на лодках, праздничный ужин Итая</td><td>Детский тематический ресторан</td><td>✅</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════ DAY 1 ═══════ -->
+  <section id="day-1" class="day-section">
+    <div class="day-header">
+      <div>
+        <div class="day-title">📅 День 1 — 21 августа (пятница) — Остров Маргит 🏊</div>
+        <div class="day-sub">Мягкое начало после позднего прилёта. Маргит-остров — зелёный оазис без автомобилей, 2,5 км длины, фонтаны и лучший в городе пляжный парк.</div>
+      </div>
+      <a href="https://www.google.com/maps/dir/Palatinus+Strand+Budapest/Zenélő+szökőkút+Margaret+Island/Margit+Bridge+Budapest/" target="_blank" rel="noopener" class="map-link">🗺️ Маршрут дня</a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Время</th><th>🏷️ Активность</th><th>📍 Где</th><th>⏱️ Длит.</th><th>🚗 Переезд</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">10:00</td><td>🚗 Выезд к Маргит-острову</td><td>Стоянка у Маргит-моста</td><td>—</td><td>Такси / 15 мин</td></tr>
+          <tr><td class="time-cell">10:20</td><td>💦 Palatinus Strand — бассейны, волновой бассейн, горки</td><td>Маргит-остров, северная часть</td><td>3 ч 30 мин</td><td>пешком</td></tr>
+          <tr><td class="time-cell">12:30</td><td>🍽️ Обед — Буфе Palatinus</td><td>Внутри комплекса</td><td>1 ч</td><td>—</td></tr>
+          <tr><td class="time-cell">13:30</td><td>🏛️ Прогулка по острову — Японский сад, Розарий</td><td>Центр острова</td><td>1 ч 30 мин</td><td>пешком</td></tr>
+          <tr><td class="time-cell">15:00</td><td>💦 Музыкальный фонтан Zenélő szökőkút — шоу каждые 30 мин</td><td>Центральная аллея острова</td><td>30 мин</td><td>пешком 5 мин</td></tr>
+          <tr><td class="time-cell">15:45</td><td>🏛️ Руины монастыря XIII века + Башня</td><td>Северная часть</td><td>30 мин</td><td>пешком</td></tr>
+          <tr><td class="time-cell">16:30</td><td>🛒 Прогулка по Маргит-мосту, вид на Дунай</td><td>Юг острова → мост</td><td>30 мин</td><td>пешком</td></tr>
+          <tr><td class="time-cell">17:30</td><td>🚗 Переезд на ужин</td><td>Pécs ул., VI район</td><td>—</td><td>Такси 15 мин</td></tr>
+          <tr><td class="time-cell">18:00</td><td>🍽️ Ужин — Bestia</td><td>Podmaniczky u. 14, VI. ker.</td><td>1 ч 30 мин</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- POI: Palatinus Strand -->
+    <div class="poi-card">
+      <div class="poi-title">🏊 Palatinus Strand / Пляжный парк Палатинус</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Главный городской пляжный парк Будапешта — семь бассейнов разного назначения, волновой бассейн с полутораметровыми волнами и террасы с шезлонгами в окружении столетних платанов создают атмосферу курортного отеля без перелёта.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Термальный бассейн для малышей — вода прогрета до 30°С, глубина по колено. Идеально для Итая: он может самостоятельно войти и выйти.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Отдельные зоны для малышей и детей постарше, вышки для прыжков для Тамира (8 лет), волновой бассейн для Ариэль (6 лет) — всё в одном огороженном парке.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Приходите ровно в 10:00 — очередь ещё невелика, а лучшие шезлонги в тени свободны. После 13:00 в выходные — аншлаг.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Palatinus+Strand+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://en.palatinusstrand.hu" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Palatinus+Strand+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <!-- POI: Musical Fountain -->
+    <div class="poi-card">
+      <div class="poi-title">🎶 Zenélő Szökőkút / Музыкальный Фонтан</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Посреди аллеи острова на каждые полчаса просыпается 26-метровый фонтан с подсветкой — струи воды «танцуют» под классику и венгерские народные мелодии. Дети бегают вокруг, пытаясь уловить брызги.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Позиция прямо у основания — при лёгком ветре брызги достигают ближайших скамеек, и дети приходят в полный восторг.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Абсолютно бесплатно, длится 5–7 минут — идеальный перерыв между бассейном и прогулкой.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Шоу в 15:00 — самое зрелищное (солнце сзади фонтана = радуга в струях).</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Musical+Fountain+Margaret+Island+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.margitsziget.com" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Zenélő+szökőkút+Margit-sziget&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <!-- POI: Bestia -->
+    <div class="poi-card">
+      <div class="poi-title">🍽️ Ужин — Bestia / Бестиа</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Шумная, яркая brasserie, где мясо — главный герой: открытая кухня с угольным грилем, длинные столы и персонал, который не морщится от детей с испачканными руками.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Говяжья рибея на кости с трюфельным маслом — одна из лучших в Будапеште. Детское меню простое и сытное.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Высокие стулья для малышей есть, шум скрывает детские выходки, порции огромные — на семью из 5 хватит 3–4 блюда.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Резервируйте столик онлайн за 2–3 дня: в пятницу вечером мест без брони нет.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Bestia+restaurant+Budapest+Podmaniczky" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.bestia.hu" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Bestia+Budapest+restaurant&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="logistics">
+      <div class="logistics-title">🅿️ Логистика</div>
+      <p><strong>Транспорт:</strong> Остров Маргит закрыт для личных автомобилей. Такси до остановки BKK автобуса 26 у Маргит-моста (южный въезд) — далее пешком до Palatinus (~10 мин).</p>
+      <p><strong>Парковка:</strong> P+R «Margit körút» (~300 м от моста, бесплатно) — оставьте машину здесь и идите пешком.</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Позиция</th><th>Взрослый</th><th>Детский</th><th>Итого семья</th><th>EUR</th></tr></thead>
+        <tbody>
+          <tr><td>Palatinus Strand (будний день)</td><td>~3 500 HUF</td><td>~2 000 HUF</td><td>~13 000 HUF</td><td>≈ €32</td></tr>
+          <tr><td>Ужин Bestia (на семью)</td><td>—</td><td>—</td><td>~25 000 HUF</td><td>≈ €63</td></tr>
+          <tr><td>Такси туда-обратно</td><td>—</td><td>—</td><td>~6 000 HUF</td><td>≈ €15</td></tr>
+          <tr class="total-row"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>~44 000 HUF</strong></td><td><strong>≈ €110</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plan-b">
+      <div class="plan-b-title">🅱️ Запасной план — Городской парк Városliget</div>
+      <div class="plan-b-reason">Причина: Непогода, очереди на Palatinus, или ребёнок устал от воды.</div>
+      <p>Városliget (Городской парк) — 10 минут на такси от центра. Крупнейший интегрированный игровой комплекс города с разными зонами по возрастам. Бесплатный вход в парк. Музыкальная площадка с уличными инструментами рядом с Домом музыки.</p>
+      <div class="poi-links" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--plan-b-border);">
+        <a href="https://www.google.com/maps/search/?api=1&query=Városliget+Children+Playground+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://ligetbudapest.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Сайт</a>
+        <a href="https://www.google.com/search?q=Városliget+playground+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ DAY 2 ═══════ -->
+  <section id="day-2" class="day-section">
+    <div class="day-header">
+      <div>
+        <div class="day-title">📅 День 2 — 22 августа (суббота) — Зоопарк + Городской парк 🦁</div>
+        <div class="day-sub">Один из старейших зоопарков мира (1866), полностью перестроенный — более 1 000 видов животных. После зоопарка — качели, лодки и замок прямо в парке.</div>
+      </div>
+      <a href="https://www.google.com/maps/dir/Budapest+Zoo+Állatkerti+körút/Vajdahunyad+Castle+Budapest/Városliget+Lake+Budapest/" target="_blank" rel="noopener" class="map-link">🗺️ Маршрут дня</a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Время</th><th>🏷️ Активность</th><th>📍 Где</th><th>⏱️ Длит.</th><th>🚗 Переезд</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">10:00</td><td>🏛️ Зоопарк — Африканская саванна, Тропический дом</td><td>Állatkerti körút 6–12</td><td>3 ч</td><td>Такси / 20 мин</td></tr>
+          <tr><td class="time-cell">13:00</td><td>🍽️ Обед — Robinson Restaurant</td><td>Берег озера Városliget</td><td>1 ч</td><td>пешком 7 мин</td></tr>
+          <tr><td class="time-cell">14:15</td><td>🏛️ Замок Vajdahunyad — дворы, рвы, башни</td><td>Városliget</td><td>45 мин</td><td>пешком 5 мин</td></tr>
+          <tr><td class="time-cell">15:00</td><td>🏛️ Главная детская площадка Liget Budapest</td><td>Liget Budapest, Városliget</td><td>1 ч 30 мин</td><td>пешком 5 мин</td></tr>
+          <tr><td class="time-cell">16:30</td><td>💦 Катание на лодках по озеру Városliget</td><td>Озеро у замка</td><td>45 мин</td><td>пешком 3 мин</td></tr>
+          <tr><td class="time-cell">17:30</td><td>🎵 Музыкальная площадка — уличные инструменты</td><td>Рядом с Домом музыки</td><td>30 мин</td><td>пешком 5 мин</td></tr>
+          <tr><td class="time-cell">18:00</td><td>🍽️ Ужин — Hungarikum Bisztró</td><td>Steindl Imre u. 13, V. ker.</td><td>1 ч 30 мин</td><td>Такси 15 мин</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🦁 Fővárosi Állat- és Növénykert / Будапештский зоопарк и ботанический сад</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Один из старейших зоопарков Европы — арт-нуво павильоны с мозаиками Жолнаи, белый медведь в панорамном бассейне, жирафы на уровне глаз со смотровой платформы и запах африканской саванны посреди Будапешта.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">«Тропический дом» (Tropicház) — крупнейшая в Центральной Европе тропическая оранжерея, где ленивцы свисают прямо над дорожкой. Расписание кормлений — у входа.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Детская ферма (Gyermekállat) позволяет Итаю погладить коз и кроликов. Тамир будет в восторге от крокодилов, Ариэль — от слонёнка.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Прийти строго к открытию (10:00) — до 11:30 животные активны. После 13:00 большинство засыпают в тени.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Budapest+Zoo+Állatkerti+körút" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://zoobudapest.com/en" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Budapest+Zoo+Fővárosi+Állatkert&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🏰 Vajdahunyad Vára / Замок Вайдахуняд</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Удивительный «сборный» замок из 4 эпох венгерской архитектуры — романтичная мистификация 1908 года: с одной башни — барокко, с другой — готика, со двора — ренессанс.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Статуя Анонима (средневекового хрониста без лица) — потёртый нос бронзовой фигуры якобы приносит удачу. Тамир и Ариэль обязательно должны потрогать.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Вход на территорию <strong>бесплатный</strong>. Рвы, мосты и башни снаружи — полная «замковая программа» без входного билета. Итай может бегать по мосту над рвом без риска.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Зайдите во двор через западные ворота — самый кинематографичный вид, и в субботу после 15:00 меньше всего туристов.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Vajdahunyad+Castle+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.vajdahunyadcastle.com" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Vajdahunyad+Castle+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🍽️ Обед — Robinson / Робинзон</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Ресторан стоит прямо на воде озера Városliget — терраса на понтоне, утки плавают у столиков, вид на замок Vajdahunyad.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Гуляш-суп с домашними тарканями — классика без туристических компромиссов.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Дети едят на веранде над водой — Итай пытается кормить уток хлебом, Тамир заказывает «рыбацкий суп». Шумно, терпимо, с детьми рады.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Резервация обязательна в субботу. Просите столик «на понтоне у воды» (pontoon terrace).</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Robinson+Restaurant+Városliget+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://robinsonrestaurant.hu" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Robinson+Restaurant+Budapest+lake&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🍽️ Ужин — Hungarikum Bisztró / Хунгарикум Бистро</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Маленький, шумный и насквозь венгерский — деревянные столы, фотографии старого Будапешта на стенах, запах паприки с гриля. Блюда прямо из бабушкиных записок: мангалица, форель, вёдра гуляша.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Свиная рулька мангалицы (mangalica csülök) — венгерская порода с мраморным жиром, в мире таких ресторанов единицы.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Атмосфера «деревенской свадьбы» — никто не смотрит косо на детей с руками в паприке. Порции гигантские.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Резервируйте заранее. Попросите объяснить состав детских блюд — повара идут навстречу с остротой (без паприки для Итая).</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Hungarikum+Bisztró+Budapest+Steindl" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.hungarikumbisztro.hu" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Hungarikum+Bisztro+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="logistics">
+      <div class="logistics-title">🅿️ Логистика</div>
+      <p><strong>Транспорт:</strong> Метро M1 (жёлтая линия) до ст. Széchenyi Fürdő — прямо к зоопарку, 2 мин пешком. Если с детьми и вещами — такси прямо к воротам зоопарка.</p>
+      <p><strong>Парковка:</strong> Hősök tere (Площадь героев) — подземный паркинг. Рекомендуем такси на этот день.</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Позиция</th><th>2 взр.</th><th>3 дет.</th><th>Итого семья</th><th>EUR</th></tr></thead>
+        <tbody>
+          <tr><td>Зоопарк — семейный билет (2 взр. + 3 дет.)</td><td>—</td><td>—</td><td>~21 000 HUF</td><td>≈ €52</td></tr>
+          <tr><td>Катание на лодках (30 мин)</td><td>~1 500 HUF</td><td>—</td><td>~3 000 HUF</td><td>≈ €8</td></tr>
+          <tr><td>Обед Robinson</td><td>—</td><td>—</td><td>~22 000 HUF</td><td>≈ €55</td></tr>
+          <tr><td>Ужин Hungarikum Bisztró</td><td>—</td><td>—</td><td>~20 000 HUF</td><td>≈ €50</td></tr>
+          <tr class="total-row"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>~66 000 HUF</strong></td><td><strong>≈ €165</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plan-b">
+      <div class="plan-b-title">🅱️ Запасной план — Купальня Сечени (Széchenyi Fürdő)</div>
+      <div class="plan-b-reason">Причина: Зоопарк уже посещали, или ребёнок боится некоторых животных.</div>
+      <p>Széchenyi Gyógyfürdő — знаменитая купальня в здании 1913 года прямо в Városliget. Открытые бассейны в барочном дворце: температура воды 38°С, детские зоны, шахматисты в воде. Атмосфера — только здесь. Взрослый: ~8 500 HUF; детский: ~5 500 HUF.</p>
+      <div class="poi-links" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--plan-b-border);">
+        <a href="https://www.google.com/maps/search/?api=1&query=Széchenyi+Fürdő+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.szechenyibath.hu" target="_blank" rel="noopener" class="poi-link">🌐 Сайт</a>
+        <a href="https://www.google.com/search?q=Széchenyi+Baths+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ DAY 3 ═══════ -->
+  <section id="day-3" class="day-section">
+    <div class="day-header">
+      <div>
+        <div class="day-title">📅 День 3 — 23 августа (воскресенье) — Замковый холм 🏰</div>
+        <div class="day-sub">Будайская крепость на скале над Дунаем: белые башни Рыбацкого бастиона, булыжные улочки Варного района и вид, ради которого Будапешт существует. День максимального «вау-эффекта».</div>
+      </div>
+      <a href="https://www.google.com/maps/dir/Fisherman%27s+Bastion+Budapest/Buda+Castle+Budapest/Chain+Bridge+Budapest/" target="_blank" rel="noopener" class="map-link">🗺️ Маршрут дня</a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Время</th><th>🏷️ Активность</th><th>📍 Где</th><th>⏱️ Длит.</th><th>🚗 Переезд</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">10:00</td><td>🏛️ Рыбацкий бастион — башни, виды, фото</td><td>Szentháromság tér, I. ker.</td><td>1 ч</td><td>Такси на холм / 20 мин</td></tr>
+          <tr><td class="time-cell">11:10</td><td>🏛️ Дворы и стены замка Буда</td><td>Budavári Palota</td><td>1 ч 15 мин</td><td>пешком 10 мин</td></tr>
+          <tr><td class="time-cell">12:30</td><td>🍽️ Обед — Vár 1 Bistro</td><td>Úri u. 38, I. ker.</td><td>1 ч</td><td>пешком 5 мин</td></tr>
+          <tr><td class="time-cell">13:45</td><td>🏛️ Улицы замкового района — средневековые подвалы</td><td>Úri utca, Táncsics Mihály u.</td><td>1 ч 15 мин</td><td>пешком</td></tr>
+          <tr><td class="time-cell">15:00</td><td>🏛️ Фуникулёр Sikló — спуск к Цепному мосту</td><td>Замковый холм → Адам Кларк</td><td>10 мин</td><td>пешком к фуникулёру</td></tr>
+          <tr><td class="time-cell">15:20</td><td>🏛️ Цепной мост (Széchenyi Lánchíd) — прогулка</td><td>Набережная Дуная</td><td>30 мин</td><td>пешком</td></tr>
+          <tr><td class="time-cell">16:00</td><td>🏛️ Набережная Корзо — виды на парламент</td><td>Duna-korzó, V. ker.</td><td>45 мин</td><td>пешком</td></tr>
+          <tr><td class="time-cell">17:00</td><td>🚗 Переезд на ужин</td><td>Liszt Ferenc tér, VI. ker.</td><td>—</td><td>Такси 15 мин</td></tr>
+          <tr><td class="time-cell">17:30</td><td>🍽️ Ужин — Menza</td><td>Liszt Ferenc tér 2, VI. ker.</td><td>1 ч 30 мин</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🐟 Halászbástya / Рыбацкий бастион</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Семь белых башен на скале над Дунаем, построенных в 1902 году в неороманском стиле — архитектурная фантазия, которая выглядит как декорация к «Хроникам Нарнии». Вид на парламент, острова и изгиб Дуная открывается с каждого яруса.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Северная башня (платный уровень, ~900 HUF) даёт 360° панораму. Спускайтесь на средний ярус, чтобы поймать кадр с Цепным мостом на фоне.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Нижний ярус — <strong>бесплатный</strong> и полностью открытый. Тамир и Ариэль исследуют все узкие проходы между башнями, Итай бегает по широким перилам с ограждением.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Лучший свет — в 10:15–10:45 утра. В воскресенье к 11:30 прибывают организованные тургруппы — уходите до этого.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Fisherman%27s+Bastion+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.fishermansbastion.com" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Fisherman%27s+Bastion+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🏰 Budavári Palota / Будайская крепость</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Королевский дворец на вершине скалы — сочетание средневекового фундамента, барочной перестройки XVIII века и неоклассических крыльев. Просторные дворы, шатровые ворота и постоянный флаг над башней Матяша.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Ворота «Корвин» с воронами — герб Матьяша Корвина. Попросите детей найти всех трёх каменных воронов в декоре ворот — маленький квест.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Внешние дворы и бастионы абсолютно бесплатны и открыты. Тамир оценит интерактивные стенды о средневековых осадах у Южных ворот.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Спускайтесь с холма на фуникулёре Sikló (историческая достопримечательность с 1870 г.) — детям понравится куда больше, чем пешком вниз по брусчатке.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Buda+Castle+Royal+Palace+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.budacastlebudapest.com" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Buda+Castle+Budapest+Royal+Palace&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🍽️ Ужин — Menza / Менза</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Ностальгически-стильный ресторан на площади Ференца Листа с летней террасой под каштанами — сочетание советской столовой и современной венгерской кухни без пафоса.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Телятина с картофельными кнедлями и сметанным соусом — «Menza классик».</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Открытая терраса позволяет детям наблюдать за улицей. Шумная атмосфера — никто не заметит громких детей.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">После ужина возьмите мороженое в Gelarto Rosa (Rosa u. 3, съедобная роза из желе).</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Menza+Budapest+Liszt+Ferenc+tér" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://menza.co.hu" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Menza+restaurant+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="logistics">
+      <div class="logistics-title">🅿️ Логистика</div>
+      <p><strong>Транспорт:</strong> Такси прямо на Замковый холм (въезд разрешён). Или: такси до фуникулёра Sikló (пл. Адама Кларка), подъём за 500 HUF/взр.</p>
+      <p><strong>Фуникулёр Sikló:</strong> Взрослый 500 HUF / Детский 300 HUF. Работает 7:30–22:00, понедельник — выходной. В воскресенье работает ✅.</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Позиция</th><th>2 взр.</th><th>3 дет.</th><th>Итого семья</th><th>EUR</th></tr></thead>
+        <tbody>
+          <tr><td>Рыбацкий бастион — нижний ярус</td><td>БЕСПЛАТНО</td><td>БЕСПЛАТНО</td><td>0 HUF</td><td>€0</td></tr>
+          <tr><td>Рыбацкий бастион — верхняя башня (по желанию)</td><td>~1 800 HUF</td><td>~900 HUF</td><td>~2 700 HUF</td><td>≈ €7</td></tr>
+          <tr><td>Фуникулёр Sikló (спуск)</td><td>2×500 HUF</td><td>3×300 HUF</td><td>1 900 HUF</td><td>≈ €5</td></tr>
+          <tr><td>Обед Vár 1 Bistro</td><td>—</td><td>—</td><td>~18 000 HUF</td><td>≈ €45</td></tr>
+          <tr><td>Ужин Menza</td><td>—</td><td>—</td><td>~22 000 HUF</td><td>≈ €55</td></tr>
+          <tr class="total-row"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>~44 600 HUF</strong></td><td><strong>≈ €112</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plan-b">
+      <div class="plan-b-title">🅱️ Запасной план — Гора Геллерт (Gellért-hegy)</div>
+      <div class="plan-b-reason">Причина: Жара, усталость от замковых стен, или все башни осмотрены.</div>
+      <p>Подъём на Гора Геллерт (~235 м) пешком (~30 мин) или на такси — Цитадель и Статуя Свободы открыты и бесплатны. Грандиозный вид на весь Будапешт. Детям интересны пушки у Цитадели.</p>
+      <div class="poi-links" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--plan-b-border);">
+        <a href="https://www.google.com/maps/search/?api=1&query=Gellért+Hill+Budapest+Citadel" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.google.com/search?q=Gellért+hegy+Budapest+panorama&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ DAY 4 ═══════ -->
+  <section id="day-4" class="day-section">
+    <div class="day-header">
+      <div>
+        <div class="day-title">📅 День 4 — 24 августа (понедельник) — Детская железная дорога + Нормафа 🚂 <span class="only-here-badge">⭐ ТОЛЬКО ЗДЕСЬ</span></div>
+        <div class="day-sub">Gyermekvasút — единственная в мире узкоколейка, которую обслуживают дети 10–14 лет (рекорд Гиннесса, 11,2 км). После — лесная поляна Нормафа с площадкой Анна-Луг и кресельный подъёмник.</div>
+      </div>
+      <a href="https://www.google.com/maps/dir/Városmajor+Budapest/Széchenyi-hegy+station+Budapest/Normafa+Budapest/" target="_blank" rel="noopener" class="map-link">🗺️ Маршрут дня</a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Время</th><th>🏷️ Активность</th><th>📍 Где</th><th>⏱️ Длит.</th><th>🚗 Переезд</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">10:00</td><td>🚃 Зубчатая дорога (Fogaskerekű) — подъём на Сечени-хедь</td><td>Városmajor → Széchenyi-hegy</td><td>25 мин</td><td>Такси до Városmajor / 20 мин</td></tr>
+          <tr><td class="time-cell">10:30</td><td>🚂 Детская железная дорога — посадка на ст. Széchenyi-hegy</td><td>Széchenyi-hegy</td><td>5 мин</td><td>пешком 2 мин</td></tr>
+          <tr><td class="time-cell">10:40</td><td>🚂 Поездка до остановки Normafa (виды на горы)</td><td>Széchenyi-hegy → Normafa</td><td>15 мин</td><td>в поезде</td></tr>
+          <tr><td class="time-cell">11:00</td><td>🌲 Нормафа — поляна Анна-Луг, деревянная площадка</td><td>Normafa, XII. ker.</td><td>1 ч 30 мин</td><td>пешком 3 мин</td></tr>
+          <tr><td class="time-cell">12:30</td><td>🍽️ Обед — Normafa Kézműves Kávézó</td><td>Anna-rét, Normafa</td><td>45 мин</td><td>пешком 2 мин</td></tr>
+          <tr><td class="time-cell">13:30</td><td>🚂 Детская ж/д — продолжение до конца (Хювёшвёльдь)</td><td>Normafa → Hűvösvölgy</td><td>35 мин</td><td>пешком к станции</td></tr>
+          <tr><td class="time-cell">14:10</td><td>🏛️ Парк Хювёшвёльдь — финальная остановка</td><td>Hűvösvölgy</td><td>45 мин</td><td>у станции</td></tr>
+          <tr><td class="time-cell">15:00</td><td>🚠 Кресельный подъёмник Libegő — от ст. János-hegy</td><td>János-hegy – Zugliget</td><td>15 мин</td><td>Такси от Hűvösvölgy / 10 мин</td></tr>
+          <tr><td class="time-cell">15:30</td><td>🚗 Спуск и возврат в город</td><td>Zugliget</td><td>—</td><td>Такси 25 мин</td></tr>
+          <tr><td class="time-cell">18:00</td><td>🍽️ Ужин — Olympia</td><td>Alpár u. 5, XII. ker.</td><td>1 ч 30 мин</td><td>Такси 10 мин</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🚂 Gyermekvasút / Детская железная дорога <span class="only-here-badge" style="vertical-align:middle;">⭐ ТОЛЬКО В БУДАПЕШТЕ</span></div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Узкоколейный паровозик петляет через дубовые леса Будайских гор под командованием детей-проводников в форменных кепках. 11 км через лесистые холмы с видовыми точками — маленький Тамир чувствует, что попал в фильм про железнодорожников.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Попросите ребят-проводников рассказать, как они «управляют» поездом — это часть программы. Тамир (8 лет) в восторге, Ариэль будет копировать форму.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Итай (3 года) едет бесплатно (до 6 лет), спокойно сидит у окна и смотрит на деревья. Пересадка на ст. Normafa позволяет выйти на площадку, не завершая весь маршрут.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Только наличные (HUF!) — касса не принимает карты. Возьмите мелкие банкноты. Семейный дневной билет (4 000 HUF) выгоднее, если планируете несколько поездок.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Gyermekvasút+Széchenyi-hegy+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://gyermekvasut.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Gyermekvasút+Budapest+Children+Railway&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🌲 Normafa — Anna-rét / Нормафа — Поляна Анны</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Солнечная лесная поляна на 450 м над уровнем моря, окружённая дубами и буками, с деревянным игровым комплексом — будапештцы приезжают сюда в воскресенье семьями, как на дачу. Свежий горный воздух и пение птиц.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Деревянный лабиринт и тарзанка для детей 3–10 лет — Итай может сам пробежать весь лабиринт, Ариэль освоит тарзанку за 10 минут.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Площадка рассчитана на возраст 2–12 лет, рядом скамейки, туалеты и небольшое кафе.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Высота 450 м — даже в 35°C внизу здесь будет прохладно. Возьмите лёгкий свитер для Итая.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Normafa+Anna+rét+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.normafa.hu" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Normafa+Budapest+playground&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🚠 Libegő / Кресельный подъёмник (Янош-хедь)</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Открытые кресла советской эпохи скользят над кронами буков и дубов на 1 040 м — вид с вершины горы Янош (527 м) охватывает весь Будапешт, а спуск — 15 минут в полной тишине над лесом.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Смотровая башня на Янош-хедь — самой высокой точке Будапешта. Видно Дунай, Парламент и холмы до Словакии.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Дети берутся в кресло вместе со взрослым (до 3 человек на кресло). Итай держится за папину руку и смотрит вниз с открытым ртом.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Подъём с нижней станции (Zugliget) → пешком до башни 10 мин. Или начните сверху и катайтесь только вниз — дешевле и быстрее.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Libegő+chairlift+Budapest+János-hegy" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.bkv.hu/en/libego/" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Libegő+chairlift+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="logistics">
+      <div class="logistics-title">🅿️ Логистика</div>
+      <p><strong>Транспорт:</strong> Такси до Városmajor (начало зубчатой дороги). Зубчатая дорога (Fogaskerekű) = BKK маршрут 60. Детская ж/д и Libegő — наличные HUF.</p>
+      <p><strong>Парковка:</strong> Маршрут линейный (Városmajor → Széchenyi → Normafa → Hűvösvölgy → Libegő → город). Лучше такси от отеля туда и обратно.</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Позиция</th><th>2 взр.</th><th>3 дет.</th><th>Итого семья</th><th>EUR</th></tr></thead>
+        <tbody>
+          <tr><td>Зубчатая дорога (BKK)</td><td>2×750 HUF</td><td>3×375 HUF</td><td>2 625 HUF</td><td>≈ €7</td></tr>
+          <tr><td>Детская ж/д — семейный дневной билет</td><td>—</td><td>—</td><td>4 000 HUF</td><td>≈ €10</td></tr>
+          <tr><td>Libegő (кресельный подъём)</td><td>2×1 900 HUF</td><td>3×950 HUF</td><td>6 650 HUF</td><td>≈ €17</td></tr>
+          <tr><td>Обед Normafa Кафе</td><td>—</td><td>—</td><td>~12 000 HUF</td><td>≈ €30</td></tr>
+          <tr><td>Ужин Olympia</td><td>—</td><td>—</td><td>~16 000 HUF</td><td>≈ €40</td></tr>
+          <tr class="total-row"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>~41 275 HUF</strong></td><td><strong>≈ €104</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plan-b">
+      <div class="plan-b-title">🅱️ Запасной план — Лесной поход Хювёшвёльдь</div>
+      <div class="plan-b-reason">Причина: Libegő закрыт на обслуживание, или Итай устал от переездов.</div>
+      <p>Hűvösvölgy — конечная остановка Детской ж/д — парковая зона с рекой, кафе и дорожками. Детская площадка у реки, гуляш в парковом ресторане, возврат в город на автобусе 22. Безопасно, тихо, бесплатно.</p>
+      <div class="poi-links" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--plan-b-border);">
+        <a href="https://www.google.com/maps/search/?api=1&query=Hűvösvölgy+Budapest+park" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.google.com/search?q=Hűvösvölgy+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ DAY 5 ═══════ -->
+  <section id="day-5" class="day-section">
+    <div class="day-header">
+      <div>
+        <div class="day-title">📅 День 5 — 25 августа (вторник) — Скансен + Сентендре 🏡</div>
+        <div class="day-sub">Загородный день (25 км к северу). Skanzen — один из лучших этнографических музеев под открытым небом в Европе. Затем — пряничный городок Сентендре с рынком и мороженым.</div>
+      </div>
+      <a href="https://www.google.com/maps/dir/Budapest+Hungary/Skanzen+Szentendre/Szentendre+town+center/" target="_blank" rel="noopener" class="map-link">🗺️ Маршрут дня</a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Время</th><th>🏷️ Активность</th><th>📍 Где</th><th>⏱️ Длит.</th><th>🚗 Переезд</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">09:15</td><td>🚗 Выезд в Сентендре</td><td>Из отеля</td><td>—</td><td>Авто ~25 мин</td></tr>
+          <tr><td class="time-cell">10:00</td><td>🏛️ Skanzen — вход, ориентация</td><td>Szabadtéri Néprajzi Múzeum, Szentendre</td><td>30 мин</td><td>—</td></tr>
+          <tr><td class="time-cell">10:30</td><td>🐄 Skanzen — Фермерский двор с животными</td><td>Ферма «Alföld» секция</td><td>1 ч</td><td>пешком</td></tr>
+          <tr><td class="time-cell">11:30</td><td>🏺 Skanzen — Детские мастер-классы (лепка, плетение)</td><td>Ремесленный центр</td><td>45 мин</td><td>пешком</td></tr>
+          <tr><td class="time-cell">12:30</td><td>🍽️ Обед — Skanzen Csárda</td><td>На территории музея</td><td>1 ч</td><td>пешком</td></tr>
+          <tr><td class="time-cell">13:30</td><td>🚂 Мини-поезд Skanzen — объезд территории</td><td>Вся территория музея</td><td>30 мин</td><td>у входа</td></tr>
+          <tr><td class="time-cell">14:15</td><td>🛒 Сентендре — центр города: рынок, сувениры</td><td>Fő tér, Szentendre</td><td>1 ч 30 мин</td><td>Авто 5 мин</td></tr>
+          <tr><td class="time-cell">15:45</td><td>🥐 Кюртёшкалач (chimney cake) — на вынос</td><td>Будка на рынке</td><td>15 мин</td><td>пешком</td></tr>
+          <tr><td class="time-cell">16:15</td><td>🚗 Возврат в Будапешт</td><td>—</td><td>—</td><td>Авто ~25 мин</td></tr>
+          <tr><td class="time-cell">18:30</td><td>🍽️ Ужин — Trofea Grill</td><td>Visegrádi u. 50a, XIII. ker.</td><td>1 ч 30 мин</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🏡 Skanzen — Szabadtéri Néprajzi Múzeum / Музей народного быта под открытым небом</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Шагните в Венгрию XIX века — 300+ оригинальных зданий перевезены из всех регионов страны: пастухи в аутентичных костюмах пасут серых венгерских быков, дымятся печи в крестьянских избах, мельницы скрипят под ветром.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Рабочая кузница (kovács műhely) — кузнец в традиционном фартуке кует металл прямо перед детьми. Итай, Тамир и Ариэль могут подуть мехами — незабываемо.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Ферма с живыми животными — лошади, козы, серые венгерские быки. Итай получает максимум от своей любви к животным. Мини-поезд по территории — для Ариэль.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Вторник — самый спокойный день. Купите семейный билет у кассы — самый выгодный вариант для 2 взрослых + до 3 детей.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Skanzen+Hungarian+Open+Air+Museum+Szentendre" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://skanzen.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Skanzen+Szentendre+Open+Air+Museum&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🏘️ Szentendre / Сентендре</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Пряничный барочный городок на берегу Дуная — сербские православные купола над черепичными крышами, художественные галереи в средневековых дворах, аромат паприки и кюртёшкалача с уличных лотков.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Марципановый музей (Marcipán Múzeum, Dumtsa Jenő u. 12) — 600+ фигур из марципана: Мона Лиза, венгерские народные костюмы, замки. Дети в шоке от съедобных скульптур.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Пешеходная зона в центре абсолютно безопасна для детей. Рынок Fő tér — свежие венгерские ягоды, мясные деликатесы, детские глиняные сувениры.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Кюртёшкалач — только у будки у главной площади Fő tér, не в туристических сетевых точках. Берите с корицей и грецким орехом, пока горячий.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Fő+tér+Szentendre+Hungary" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.iranyszentendre.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Szentendre+Hungary+town+center&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="logistics">
+      <div class="logistics-title">🅿️ Логистика</div>
+      <p><strong>Автомобиль обязателен:</strong> Маршрут Будапешт → Скансен → Сентендре → Будапешт. GPS: Skanzen, Sztaravodai út, 2000 Szentendre.</p>
+      <p><strong>Парковка:</strong> У Скансена — <strong>бесплатная</strong>, большая. В Сентендре — P+R у автостанции (Dunakanyar körút), 500 HUF/час, 5 мин пешком до центра.</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Позиция</th><th>2 взр.</th><th>3 дет.</th><th>Итого семья</th><th>EUR</th></tr></thead>
+        <tbody>
+          <tr><td>Skanzen — семейный билет (2 взр. + до 3 дет.)</td><td>—</td><td>—</td><td>7 000 HUF</td><td>≈ €18</td></tr>
+          <tr><td>Мини-поезд Skanzen</td><td>2×800 HUF</td><td>3×600 HUF</td><td>3 400 HUF</td><td>≈ €8</td></tr>
+          <tr><td>Рынок Сентендре — ягоды, деликатесы</td><td>—</td><td>—</td><td>~5 000 HUF</td><td>≈ €12</td></tr>
+          <tr><td>Ужин Trofea Grill (всё включено/чел.)</td><td>2×10 900 HUF</td><td>3×5 500 HUF</td><td>38 300 HUF</td><td>≈ €96</td></tr>
+          <tr><td>Бензин туда-обратно (~50 км)</td><td>—</td><td>—</td><td>~4 000 HUF</td><td>≈ €10</td></tr>
+          <tr class="total-row"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>~57 700 HUF</strong></td><td><strong>≈ €144</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plan-b">
+      <div class="plan-b-title">🅱️ Запасной план — Вышеград (Visegrád)</div>
+      <div class="plan-b-reason">Причина: Скансен уже посещали, или хочется больше природы и приключений.</div>
+      <p>Вышеград (45 км от Будапешта) — средневековая крепость XV века над изгибом Дуная. Детям особенно нравится: экскурсия в кольчуге, рыцарские турниры летом, спуск на катамаране по Дунаю. Взрослый: ~2 500 HUF, детский: ~1 500 HUF.</p>
+      <div class="poi-links" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--plan-b-border);">
+        <a href="https://www.google.com/maps/search/?api=1&query=Visegrád+Castle+Hungary" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.visegrad.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Сайт</a>
+        <a href="https://www.google.com/search?q=Visegrád+Castle+Hungary&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ DAY 6 ═══════ -->
+  <section id="day-6" class="day-section">
+    <div class="day-header">
+      <div>
+        <div class="day-title">📅 День 6 — 26 августа (среда) — Тропикариум + Шоппинг 🦈</div>
+        <div class="day-sub">Тропикариум — крупнейший аквариум Центральной Европы с акулами и скатами, которых можно погладить. После — плюшевые игрушки и мягкий игровой центр — персональный день Итая и Ариэль.</div>
+      </div>
+      <a href="https://www.google.com/maps/dir/Tropicarium+Budapest+Nagytétényi+út/Campona+Mall+Budapest/" target="_blank" rel="noopener" class="map-link">🗺️ Маршрут дня</a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Время</th><th>🏷️ Активность</th><th>📍 Где</th><th>⏱️ Длит.</th><th>🚗 Переезд</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">10:00</td><td>🦈 Тропикариум — туннель с акулами, амазонские рыбы</td><td>Nagytétényi út 37–43, XXII. ker.</td><td>1 ч 30 мин</td><td>Авто 20 мин</td></tr>
+          <tr><td class="time-cell">11:30</td><td>🐟 Бассейн со скатами — трогательный контакт</td><td>Tropicarium Ray Pool</td><td>30 мин</td><td>рядом</td></tr>
+          <tr><td class="time-cell">12:15</td><td>🍽️ Обед — Campona Mall фудкорт</td><td>Campona Mall, XXII. ker.</td><td>1 ч</td><td>пешком 5 мин</td></tr>
+          <tr><td class="time-cell">13:30</td><td>🧸 Магазины плюшевых игрушек: Build-a-Bear</td><td>Campona Mall или Allee Mall</td><td>1 ч 30 мин</td><td>Авто 10 мин</td></tr>
+          <tr><td class="time-cell">15:15</td><td>🏟️ Мягкий игровой центр — батуты, горки</td><td>Allee Play Center, XI. ker.</td><td>1 ч 30 мин</td><td>Авто 15 мин</td></tr>
+          <tr><td class="time-cell">17:00</td><td>🚗 Переезд в центр</td><td>—</td><td>—</td><td>Авто 15 мин</td></tr>
+          <tr><td class="time-cell">18:00</td><td>🍽️ Ужин — Két Szerecsen</td><td>Nagymező u. 14, VI. ker.</td><td>1 ч 30 мин</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🦈 Tropicarium / Тропикариум</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Войдите в 11-метровый стеклянный туннель под водой, где над головой неспешно проплывают 7 видов акул — тиши, пятнистые кошачьи и zebra-акулы. Tropicarium — крупнейший подводный тоннель Центральной Европы.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">«Ray Lagoon» — мелкий бассейн, где скаты свободно плавают у поверхности и позволяют гладить себя ладонью. Незабываемо для всех троих детей.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Итаю (3 года) — бесплатно (до 4 лет). Тропикариум подходит для колясок и всех возрастов. Темновато внутри — стойте рядом с Итаем у туннеля.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Кормление акул — по расписанию на сайте (обычно 14:00 и 17:00). Запланируйте визит под кормление (придите за 15 мин).</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Tropicarium+Budapest+Nagytétényi" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://tropicarium.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Tropicarium+Budapest+aquarium&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🍽️ Ужин — Két Szerecsen / Кет Серечен</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Уютное городское бистро с открытой кухней и летней верандой на пешеходной улице Надьмезё — среднеевропейская кухня с хорошими венгерскими блюдами, без претензий и с живой атмосферой.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Свиная грудинка медленного приготовления с пюре из каштанов — фирменное блюдо.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Детское меню, высокие стулья, открытая веранда — дети могут выйти подышать, пока взрослые заканчивают ужин.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Улица Надьмезё — «Бродвей Будапешта». После ужина прогуляйтесь и посмотрите афиши музыкальных шоу.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Két+Szerecsen+Budapest+Nagymező" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.ketszerecsen.hu" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Két+Szerecsen+restaurant+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="logistics">
+      <div class="logistics-title">🅿️ Логистика</div>
+      <p><strong>Автомобиль:</strong> Тропикариум — в торговом центре Campona (XXII. ker., Nagytétényi út 37–43). Огромная <strong>бесплатная парковка</strong> при торговом центре. Расстояние от центра ~12 км, без пробок 20 мин.</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Позиция</th><th>2 взр.</th><th>3 дет.</th><th>Итого семья</th><th>EUR</th></tr></thead>
+        <tbody>
+          <tr><td>Тропикариум (до 4 — бесплатно)</td><td>2×4 500 HUF</td><td>2×2 500 HUF + 0</td><td>14 000 HUF</td><td>≈ €35</td></tr>
+          <tr><td>Мягкий игровой центр</td><td>—</td><td>—</td><td>~6 000 HUF</td><td>≈ €15</td></tr>
+          <tr><td>Плюшевые игрушки (бюджет)</td><td>—</td><td>—</td><td>~15 000 HUF</td><td>≈ €38</td></tr>
+          <tr><td>Обед Campona фудкорт</td><td>—</td><td>—</td><td>~12 000 HUF</td><td>≈ €30</td></tr>
+          <tr><td>Ужин Két Szerecsen</td><td>—</td><td>—</td><td>~20 000 HUF</td><td>≈ €50</td></tr>
+          <tr class="total-row"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>~67 000 HUF</strong></td><td><strong>≈ €168</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plan-b">
+      <div class="plan-b-title">🅱️ Запасной план — Csodák Palotája (Дворец Чудес / CSOPA)</div>
+      <div class="plan-b-reason">Причина: Итай переутомился от Тропикариума, или Тамиру хочется более активного формата.</div>
+      <p>Перенести День 7 (CSOPA) на этот день — Дворец Чудес в Обуде по маршруту обратно. 250+ интерактивных научных экспонатов: можно дотронуться до всего, разобрать и собрать, нажать и покрутить.</p>
+      <div class="poi-links" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--plan-b-border);">
+        <a href="https://www.google.com/maps/search/?api=1&query=Csodák+Palotája+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.csopa.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Сайт</a>
+        <a href="https://www.google.com/search?q=Csodák+Palotája+Palace+of+Wonders+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ DAY 7 ═══════ -->
+  <section id="day-7" class="day-section">
+    <div class="day-header">
+      <div>
+        <div class="day-title">📅 День 7 — 27 августа (четверг) — Дворец Чудес + Обуда 🔬</div>
+        <div class="day-sub">Csodák Palotája (CSOPA) — крупнейший интерактивный научный центр Венгрии: 5 000 м² с более чем 250 экспонатами. День для Тамира — магия и наука — его мир.</div>
+      </div>
+      <a href="https://www.google.com/maps/dir/Csodák+Palotája+Budapest/Kehli+Vendéglő+Budapest/Danube+Promenade+Óbuda/" target="_blank" rel="noopener" class="map-link">🗺️ Маршрут дня</a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Время</th><th>🏷️ Активность</th><th>📍 Где</th><th>⏱️ Длит.</th><th>🚗 Переезд</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">10:00</td><td>🔬 CSOPA — зал оптических иллюзий, зеркальный лабиринт</td><td>Mátyás király út 24, III. ker.</td><td>1 ч</td><td>Такси 20 мин</td></tr>
+          <tr><td class="time-cell">11:00</td><td>⚡ CSOPA — зал физики (торнадо, молния, ветер)</td><td>Зал «Физика в действии»</td><td>1 ч</td><td>внутри</td></tr>
+          <tr><td class="time-cell">12:00</td><td>🎬 CSOPA — 9D кинотеатр (15 мин)</td><td>Кинозал CSOPA</td><td>20 мин</td><td>внутри</td></tr>
+          <tr><td class="time-cell">12:30</td><td>🍽️ Обед — Kehli Vendéglő</td><td>Mókus u. 22, III. ker.</td><td>1 ч 15 мин</td><td>пешком 7 мин</td></tr>
+          <tr><td class="time-cell">14:00</td><td>🌊 Набережная Обуды — Дунай, старые баржи, Роман-парк</td><td>Óbuda Danube promenade</td><td>1 ч</td><td>Такси 10 мин</td></tr>
+          <tr><td class="time-cell">15:15</td><td>🧸 Óbuda: магазины игрушек, плюшевые</td><td>Flórián tér, III. ker.</td><td>1 ч</td><td>пешком 10 мин</td></tr>
+          <tr><td class="time-cell">16:30</td><td>🚗 Переезд на ужин</td><td>Центр</td><td>—</td><td>Такси 15 мин</td></tr>
+          <tr><td class="time-cell">18:00</td><td>🍽️ Ужин — Hungarikum Bisztró</td><td>Steindl Imre u. 13, V. ker.</td><td>1 ч 30 мин</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🔬 Csodák Palotája / Дворец Чудес (CSOPA)</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Три этажа контролируемого научного хаоса: 250 экспонатов, которые надо крутить, нажимать, дёргать и опрокидывать — волоконно-оптические арфы, торнадо в цилиндре, комната с «невозможными» иллюзиями и молниевый шар Теслы в полный рост.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">«Whisper Dish» — два параболических блюда на расстоянии 10 м: Тамир шепчет в одно, Ариэль слышит идеально в другом. Физическое объяснение магии для 8-летнего — лучший момент дня.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Дети 2–12 лет обожают CSOPA потому что здесь нельзя «сидеть» — нужно постоянно двигаться. Итай (3 года) наблюдает за старшими и повторяет. Весь центр безопасен для маленьких.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Четверг — наименее загруженный день. Приходите к открытию (10:00): перед 9D кинотеатром очередь нарастает к 11:30. Записывайтесь на сеанс при входе.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Csodák+Palotája+CSOPA+Budapest+Mátyás" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.csopa.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Csodák+Palotája+Budapest+interactive&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🍽️ Обед — Kehli Vendéglő / Ресторан Кехли</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Легендарный будапештский ресторан 1899 года в Обуде, воспетый писателем Дьюлой Крюди — тёмные дубовые панели, скатерти с монограммами и гуляш из котла, который не менялся 130 лет.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Костный мозг с хрустящим хлебом (velő pirítóson) — будапештский деликатес, который взрослые оценят по-настоящему.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Тихий, с достоинством — но без строгого дресс-кода. Детское меню простое: суп, жареное мясо, десерт. Персонал внимателен к семьям.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Резервируйте на 12:30 — к 13:00 будут местные обедающие будапештцы.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Kehli+Vendéglő+Budapest+Mókus" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.kehli.hu" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Kehli+Vendéglő+Budapest+restaurant&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="logistics">
+      <div class="logistics-title">🅿️ Логистика</div>
+      <p><strong>Транспорт:</strong> Такси от отеля до CSOPA (~20 мин). Обуда — III. район, выше по Дунаю. Парковка у CSOPA ограничена — лучше такси. После обеда — пешеходная прогулка по набережной Обуды.</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Позиция</th><th>2 взр.</th><th>3 дет.</th><th>Итого семья</th><th>EUR</th></tr></thead>
+        <tbody>
+          <tr><td>CSOPA — взрослый / детский</td><td>2×5 900 HUF</td><td>3×4 900 HUF</td><td>26 500 HUF</td><td>≈ €66</td></tr>
+          <tr><td>9D кино (доплата)</td><td>2×1 500 HUF</td><td>3×1 200 HUF</td><td>6 600 HUF</td><td>≈ €17</td></tr>
+          <tr><td>Обед Kehli Vendéglő</td><td>—</td><td>—</td><td>~20 000 HUF</td><td>≈ €50</td></tr>
+          <tr><td>Ужин Hungarikum Bisztró</td><td>—</td><td>—</td><td>~20 000 HUF</td><td>≈ €50</td></tr>
+          <tr class="total-row"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>~73 100 HUF</strong></td><td><strong>≈ €183</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plan-b">
+      <div class="plan-b-title">🅱️ Запасной план — Аквинкум (Aquincum)</div>
+      <div class="plan-b-reason">Причина: CSOPA уже посещали (обменяли с Днём 6), или ребёнок устал от закрытых помещений.</div>
+      <p>Аквинкум — руины римского города I–IV вв. н.э. в III. kerület. Открытый раскоп с настоящими мозаиками, банями и акведуком + небольшой музей. Детям нравятся «настоящие развалины» — можно ходить между колоннами. Взрослый: ~2 200 HUF, детский: ~1 100 HUF.</p>
+      <div class="poi-links" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--plan-b-border);">
+        <a href="https://www.google.com/maps/search/?api=1&query=Aquincum+Roman+Ruins+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.aquincum.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Сайт</a>
+        <a href="https://www.google.com/search?q=Aquincum+Budapest+Roman+ruins&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ DAY 8 ═══════ -->
+  <section id="day-8" class="day-section">
+    <div class="day-header">
+      <div>
+        <div class="day-title">📅 День 8 — 28 августа (пятница) — Aquaworld Аквапарк 💦</div>
+        <div class="day-sub">Полный день в крупнейшем крытом аквапарке Центральной Европы. 14 водных аттракционов, тропические горки под стеклянным куполом, ленивая река, Bongo Kids Club для малышей.</div>
+      </div>
+      <a href="https://www.google.com/maps/dir/Aquaworld+Resort+Budapest+Íves+út/" target="_blank" rel="noopener" class="map-link">🗺️ Маршрут дня</a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Время</th><th>🏷️ Активность</th><th>📍 Где</th><th>⏱️ Длит.</th><th>🚗 Переезд</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">09:45</td><td>🚗 Выезд в Aquaworld</td><td>Íves út 16, XV. ker.</td><td>—</td><td>Авто ~20 мин</td></tr>
+          <tr><td class="time-cell">10:00</td><td>💦 Aquaworld — тропические горки, ленивая река</td><td>Главный зал с куполом</td><td>2 ч</td><td>—</td></tr>
+          <tr><td class="time-cell">12:00</td><td>🧒 Bongo Kids Club — мягкий игровой центр для малышей</td><td>Bongo Kids Club внутри</td><td>1 ч</td><td>внутри</td></tr>
+          <tr><td class="time-cell">13:00</td><td>🍽️ Обед — рестораны Aquaworld</td><td>Фудкорт Aquaworld</td><td>45 мин</td><td>внутри</td></tr>
+          <tr><td class="time-cell">14:00</td><td>💦 Волновой бассейн, термальный бассейн</td><td>Наружный и внутренний зоны</td><td>2 ч 30 мин</td><td>внутри</td></tr>
+          <tr><td class="time-cell">16:30</td><td>🎢 Горки «Kamikaze» для Тамира (мин. 8 лет)</td><td>Горки зона Aquaworld</td><td>45 мин</td><td>внутри</td></tr>
+          <tr><td class="time-cell">17:30</td><td>🚗 Отдых, душ, выезд</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td class="time-cell">19:00</td><td>🍽️ Ужин — Pesti Disznó</td><td>Nagymező u. 19, VI. ker.</td><td>1 ч 30 мин</td><td>Авто / Такси</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">💦 Aquaworld Budapest / Аквамир Будапешт</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Под стеклянным тропическим куполом — круглый год лето: пальмы, 30°C, голубая вода и 14 горок от «ленивых» до почти вертикальных. Крупнейший крытый аквапарк Центральной Европы.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">«Ленивая река» — медленный круговой поток через джунгли, по которому дети дрейфуют на кругах 30–40 минут. Итай забудет обо всём остальном.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Bongo Kids Club — закрытый мягкий игровой центр для детей 2–10 лет. Пока Тамир штурмует горки, Итай в безопасном пространстве. Термальная зона (38°С) — для уставших родителей.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Пятница — будний день, дешевле и спокойнее. Купите билеты онлайн заранее. Локеры для вещей: ~1 000 HUF залог.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Aquaworld+Resort+Budapest+Íves+út" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.aquaworldresort.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Aquaworld+Budapest+water+park&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="logistics">
+      <div class="logistics-title">🅿️ Логистика</div>
+      <p><strong>Автомобиль:</strong> Aquaworld — Íves út 16, XV. kerület. <strong>Бесплатная парковка</strong> на территории. 20 км от центра, 20–25 мин без пробок. Выезжайте в 17:30 — пробки в пятницу вечером минимальны.</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Позиция</th><th>2 взр.</th><th>3 дет.</th><th>Итого семья</th><th>EUR</th></tr></thead>
+        <tbody>
+          <tr><td>Aquaworld — будний день целый день</td><td>2×8 500 HUF</td><td>3×4 900 HUF</td><td>31 700 HUF</td><td>≈ €79</td></tr>
+          <tr><td>Обед внутри Aquaworld</td><td>—</td><td>—</td><td>~14 000 HUF</td><td>≈ €35</td></tr>
+          <tr><td>Ужин Pesti Disznó</td><td>—</td><td>—</td><td>~20 000 HUF</td><td>≈ €50</td></tr>
+          <tr class="total-row"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>~65 700 HUF</strong></td><td><strong>≈ €164</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plan-b">
+      <div class="plan-b-title">🅱️ Запасной план — Lupa Beach / Пляж Лупа</div>
+      <div class="plan-b-reason">Причина: Солнечный день, Aquaworld переполнен, или хочется природы вместо крытого комплекса.</div>
+      <p>Lupa Beach (Budakalász, 15 мин от Будапешта) — природное озеро с пляжными зонами, детским бассейном, деревянными горками и водным парком. Мелководная зона специально для малышей (глубина по колено). Цены ~3 500–4 500 HUF/взрослый.</p>
+      <div class="poi-links" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--plan-b-border);">
+        <a href="https://www.google.com/maps/search/?api=1&query=Lupa+Beach+Budakalász+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://lupabeach.com/en" target="_blank" rel="noopener" class="poi-link">🌐 Сайт</a>
+        <a href="https://www.google.com/search?q=Lupa+Beach+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ DAY 9 ═══════ -->
+  <section id="day-9" class="day-section">
+    <div class="day-header">
+      <div>
+        <div class="day-title">📅 День 9 — 29 августа (суббота) — Рынок + Дунай + Цирк 🎪 <span class="only-here-badge">⭐ ТОЛЬКО ЗДЕСЬ</span></div>
+        <div class="day-sub">День трёх кульминаций: Центральный рынок, круиз по Дунаю и Fővárosi Nagycirkusz — единственное постоянное каменное здание цирка в Центральной Европе (1891).</div>
+      </div>
+      <a href="https://www.google.com/maps/dir/Central+Market+Hall+Budapest/MAHART+PassNave+Budapest+pier/Fővárosi+Nagycirkusz+Budapest/" target="_blank" rel="noopener" class="map-link">🗺️ Маршрут дня</a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Время</th><th>🏷️ Активность</th><th>📍 Где</th><th>⏱️ Длит.</th><th>🚗 Переезд</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">10:00</td><td>🛒 Центральный рынок — мясо, ягоды, специи</td><td>Vámház körút 1–3, IX. ker.</td><td>1 ч 30 мин</td><td>Такси 15 мин</td></tr>
+          <tr><td class="time-cell">11:30</td><td>🍽️ Обед — лангош и колбасы на верхнем этаже рынка</td><td>2-й этаж Центрального рынка</td><td>1 ч</td><td>внутри</td></tr>
+          <tr><td class="time-cell">12:45</td><td>🚶 Пешком до причала MAHART</td><td>Пирс у Vigadó tér</td><td>—</td><td>пешком 15 мин</td></tr>
+          <tr><td class="time-cell">13:00</td><td>🚢 Круиз по Дунаю — MAHART Hop-On Hop-Off</td><td>Причал Vigadó tér</td><td>1 ч 30 мин</td><td>на борту</td></tr>
+          <tr><td class="time-cell">14:30</td><td>🚗 Переезд к цирку</td><td>Városliget, XIV. ker.</td><td>—</td><td>Такси 15 мин</td></tr>
+          <tr><td class="time-cell">15:00</td><td>🎪 Fővárosi Nagycirkusz — шоу (начало 15:00 или 16:00)</td><td>Állatkerti körút 12a</td><td>1 ч 45 мин</td><td>у входа</td></tr>
+          <tr><td class="time-cell">17:00</td><td>🌳 Városliget — вечерняя прогулка, мороженое</td><td>Городской парк</td><td>30 мин</td><td>пешком</td></tr>
+          <tr><td class="time-cell">18:00</td><td>🍽️ Ужин — Bagolyvár</td><td>Állatkerti körút 2, XIV. ker.</td><td>1 ч 30 мин</td><td>пешком 5 мин</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🛒 Nagyvásárcsarnok / Центральный рынок (Большой рынок)</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Крупнейший рынок Будапешта под цветной черепицей Жолнаи — трёхэтажный собор торговли 1897 года: внизу свежие мясные ряды с мангалицей, наверху — жареный лангош с кислой сметаной и паприкой.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Прилавки с венгерской salami Pick и Mangalica колбасами — купите на завтрак или в дорогу. Сезон августа = пик малины, вишни, сливы у местных фермеров (1-й этаж, левое крыло).</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Ряды с сувенирами на 2-м этаже — Ариэль найдёт вышитые плюшевые сумочки, Итай — кукол в народных костюмах. Лангош — идеальный завтрак для всех трёх детей.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Суббота — самый оживлённый день. Приходите к 10:00 — к 11:30 толпа достигает пика. Рынок работает до 16:00.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Central+Market+Hall+Nagycsarnok+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://nagycsarnok.com" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Central+Market+Hall+Budapest+interior&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🚢 MAHART PassNave — Дунайский круиз</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">С борта MAHART открывается вся панорама Будапешта за один час — Цепной мост, Парламент, Рыбацкий бастион и замок с воды, где их видели венгерские короли.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Позиция на носу верхней палубы (левый борт при движении вверх по Дунаю) — прямо напротив Парламента открывается кадр для поколений.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Дети стоят у перил на верхней палубе, машут мостам, считают баржи. Итай без устали смотрит на воду. Маршрут Hop-On Hop-Off позволяет гибко менять планы.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Купите билеты у причала или онлайн. Приходите за 15 мин до отправления. Проверьте расписание на сайте MAHART под дату визита.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=MAHART+PassNave+pier+Vigadó+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://mahartpassnave.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=MAHART+Danube+cruise+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🎪 Fővárosi Nagycirkusz / Столичный цирк <span class="only-here-badge" style="vertical-align:middle;">⭐ ТОЛЬКО В БУДАПЕШТЕ</span></div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Единственное постоянное каменное здание цирка в Центральной Европе (1891) — красный бархат, запах опилок и смолы, золотые лепнины под куполом. Программа «Летний фестиваль» — международные акробаты, воздушные гимнасты, клоуны.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Воздушные гимнасты без страховки под самым куполом — Тамир смотрит не дыша. Клоуны выходят в зал между номерами — Итай получит «красный нос» в подарок.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Продолжительность ~1:45 ч без антракта — Итай (3 г.) выдерживает комфортно. Возьмите снеки и воду. Категория I — центральные места 5–8 ряд — оптимально для детей.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Категория I (6 400 HUF) = ряды 5–8 — достаточно близко, но не пугающе близко для Итая.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Fővárosi+Nagycirkusz+Budapest+Állatkerti" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://fnc.hu/en" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Fővárosi+Nagycirkusz+Budapest+circus&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🍽️ Ужин — Bagolyvár / Баголивар</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Элегантная, но семейная столовая в отдельном флигеле знаменитого Gundel — меню по рецептам венгерских бабушек: домашние супы, тушёная утка, ягодный штрудель из печи.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Телячий паприкаш со сметаной и тарконями — образцово-показательная венгерская классика.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Детское меню, наличие стульев, расположение в 3 минутах от цирка. Сад с огромными дубами и деревянные качели для детей.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Резервация обязательна — популярен среди гостей цирка. Укажите: «after circus, children meal needed».</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Bagolyvár+Restaurant+Budapest+Állatkerti" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.gundel.hu/bagolyvar" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Bagolyvár+restaurant+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="logistics">
+      <div class="logistics-title">🅿️ Логистика</div>
+      <p><strong>Центральный рынок:</strong> Такси от отеля. Обратно к причалу MAHART — 15 мин пешком по набережной.</p>
+      <p><strong>Цирк:</strong> Парковка «Hősök tere» подземный гараж (~600 м от цирка). Или такси прямо ко входу. Забронируйте такси после шоу заранее (Bolt/Uber) — у цирка после спектакля ажиотаж.</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Позиция</th><th>2 взр.</th><th>3 дет.</th><th>Итого семья</th><th>EUR</th></tr></thead>
+        <tbody>
+          <tr><td>Покупки на рынке (мясо, ягоды, лангош)</td><td>—</td><td>—</td><td>~12 000 HUF</td><td>≈ €30</td></tr>
+          <tr><td>MAHART круиз Hop-On</td><td>2×6 000 HUF</td><td>3×3 000 HUF</td><td>21 000 HUF</td><td>≈ €52</td></tr>
+          <tr><td>Цирк — Cat. I (ряды 5–8)</td><td>2×6 400 HUF</td><td>3×3 600 HUF</td><td>23 600 HUF</td><td>≈ €59</td></tr>
+          <tr><td>Ужин Bagolyvár</td><td>—</td><td>—</td><td>~24 000 HUF</td><td>≈ €60</td></tr>
+          <tr class="total-row"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>~80 600 HUF</strong></td><td><strong>≈ €201</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plan-b">
+      <div class="plan-b-title">🅱️ Запасной план — Рынок Holló utca + Будайская набережная</div>
+      <div class="plan-b-reason">Причина: Цирк не идёт в этот день, или дети устали от крытых мест.</div>
+      <p>Holló utca Antikvitás Piac (блошиный и антикварный рынок) + вечерняя прогулка по Будайской набережной у подножия замкового холма. Бесплатно, атмосферно, local. Детям интересны старые игрушки на прилавках.</p>
+      <div class="poi-links" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--plan-b-border);">
+        <a href="https://www.google.com/maps/search/?api=1&query=Holló+utca+flea+market+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.google.com/search?q=Holló+utca+antique+market+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ DAY 10 ═══════ -->
+  <section id="day-10" class="day-section">
+    <div class="day-header">
+      <div>
+        <div class="day-title">📅 День 10 — 30 августа (воскресенье) — 🎂 День Рождения Итая! — 4 года</div>
+        <div class="day-sub">Итаю сегодня исполняется 4 года! День строится вокруг его любимых вещей: животных, поездов и мягких игрушек. Зоопарк, лодки — и праздничный ужин с тортом!</div>
+      </div>
+      <a href="https://www.google.com/maps/dir/Városliget+Main+Playground+Budapest/Budapest+Zoo/Robinson+Restaurant+Budapest/" target="_blank" rel="noopener" class="map-link">🗺️ Маршрут дня</a>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Время</th><th>🏷️ Активность</th><th>📍 Где</th><th>⏱️ Длит.</th><th>🚗 Переезд</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">10:00</td><td>🎡 Városliget — Главная площадка: именинник выбирает горку!</td><td>Liget Budapest Main Playground</td><td>1 ч</td><td>Такси 15 мин</td></tr>
+          <tr><td class="time-cell">11:00</td><td>🎵 Музыкальная площадка Városliget — инструменты</td><td>Дом музыки, Városliget</td><td>30 мин</td><td>пешком 5 мин</td></tr>
+          <tr><td class="time-cell">11:30</td><td>🦆 Катание на лодках-«утках» на озере Városliget</td><td>Озеро Városliget</td><td>45 мин</td><td>пешком 3 мин</td></tr>
+          <tr><td class="time-cell">12:30</td><td>🍽️ Праздничный обед — Robinson (столик у воды для именинника)</td><td>Városliget lake</td><td>1 ч 15 мин</td><td>пешком 3 мин</td></tr>
+          <tr><td class="time-cell">14:00</td><td>🦁 Зоопарк Будапешта — только детская ферма и слоны</td><td>Állatkerti körút 6–12</td><td>1 ч 30 мин</td><td>пешком 5 мин</td></tr>
+          <tr><td class="time-cell">15:30</td><td>🧸 Магазин подарков у зоопарка — плюшевый слон для Итая</td><td>Сувенирный магазин зоопарка</td><td>30 мин</td><td>у выхода</td></tr>
+          <tr><td class="time-cell">16:15</td><td>🚗 Возврат в отель, отдых, переодевание</td><td>—</td><td>45 мин</td><td>Такси</td></tr>
+          <tr><td class="time-cell">18:00</td><td>🎂 Праздничный ужин — Trofea Grill (всё включено, торт!)</td><td>Visegrádi u. 50a, XIII. ker.</td><td>2 ч</td><td>Такси 15 мин</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🎡 Városliget — Главная площадка / Главная площадка Городского парка</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Крупнейший интегрированный игровой комплекс Будапешта — деревянные замки, верёвочные лабиринты, двойные горки и карусели разбросаны по огромной поляне в окружении дубов Városliget.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Двойная горка с канатной дорогой — Тамир с Ариэль переганяются, кто быстрее. Итай находит «маленький» вариант той же горки рядом.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">Зоны разделены по возрастам (2–5 / 5–12 лет). Итай в своей зоне в абсолютной безопасности. Вход <strong>бесплатный</strong>.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Воскресенье утром в Городском парке — будапештцы приходят семьями. Вся атмосфера — именно то, что нужно для дня рождения в хорошей компании.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Városliget+Main+Playground+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://ligetbudapest.hu/en/visitor-information/childrens-park" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Városliget+playground+Budapest+children&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="poi-card">
+      <div class="poi-title">🎂 Праздничный ужин — Trofea Grill (День рождения Итая)</div>
+      <div class="poi-body">
+        <div class="poi-field"><div class="poi-label">🎭 Вайб</div><div class="poi-text">Финальная гастрономическая кульминация поездки — безлимитный шведский стол с мангалицей, жареной дичью, свежими ягодами и домашними десертами в шумной и радостной атмосфере.</div></div>
+        <div class="poi-field"><div class="poi-label">⭐ Не пропустить</div><div class="poi-text">Попросите персонал принести торт-сюрприз для именинника — при предварительном заказе Trofea Grill делает это бесплатно. Позвоните за 2 дня.</div></div>
+        <div class="poi-field"><div class="poi-label">👨‍👩‍👧‍👦 Семейный фактор</div><div class="poi-text">У Итая сегодня шведский стол — он выбирает сам. Все три ребёнка в режиме «сам накладываю» — и это само по себе приключение.</div></div>
+        <div class="poi-field"><div class="poi-label">💡 Про-тип</div><div class="poi-text">Забронируйте стол на 18:00 с пометкой «день рождения», попросите воздушные шары — обычно делают без доплаты. В воскресенье вечером — резервация обязательна.</div></div>
+      </div>
+      <div class="poi-links">
+        <a href="https://www.google.com/maps/search/?api=1&query=Trofea+Grill+Budapest+Visegrádi" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.trofeagrill.com" target="_blank" rel="noopener" class="poi-link">🌐 Официальный сайт</a>
+        <a href="https://www.google.com/search?q=Trofea+Grill+Budapest+food&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+
+    <div class="logistics">
+      <div class="logistics-title">🅿️ Логистика</div>
+      <p><strong>Транспорт:</strong> Такси / BKK M1 (жёлтая линия) до Hősök tere. Зоопарк, площадка и Robinson — в пешей доступности в Városliget. Вечером — такси к Trofea Grill (1,5 км от парка).</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Позиция</th><th>2 взр.</th><th>3 дет.</th><th>Итого семья</th><th>EUR</th></tr></thead>
+        <tbody>
+          <tr><td>Главная площадка Városliget</td><td>БЕСПЛАТНО</td><td>БЕСПЛАТНО</td><td>0 HUF</td><td>€0</td></tr>
+          <tr><td>Катание на лодках (45 мин)</td><td>—</td><td>—</td><td>~3 500 HUF</td><td>≈ €9</td></tr>
+          <tr><td>Зоопарк (повторный — семейный)</td><td>—</td><td>—</td><td>~21 000 HUF</td><td>≈ €52</td></tr>
+          <tr><td>Плюшевый слон для Итая (подарок)</td><td>—</td><td>—</td><td>~5 000 HUF</td><td>≈ €13</td></tr>
+          <tr><td>Обед Robinson</td><td>—</td><td>—</td><td>~22 000 HUF</td><td>≈ €55</td></tr>
+          <tr><td>Ужин Trofea Grill (всё включено)</td><td>2×10 900 HUF</td><td>3×5 500 HUF</td><td>38 300 HUF</td><td>≈ €96</td></tr>
+          <tr class="total-row"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>~89 800 HUF</strong></td><td><strong>≈ €225</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plan-b">
+      <div class="plan-b-title">🅱️ Запасной план — День Рождения в детском ресторане</div>
+      <div class="plan-b-reason">Причина: Trofea Grill забронирован, или ищете более «детскую» атмосферу для именинника.</div>
+      <p>Ресторан с детской игровой зоной в центре Будапешта. Тематическое оформление, детское меню, возможность принести свой торт. В крупных торговых центрах (Aréna Mall, Westend) всегда есть детские кафе с игровой зоной.</p>
+      <div class="poi-links" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--plan-b-border);">
+        <a href="https://www.google.com/maps/search/?api=1&query=family+restaurant+play+area+Budapest" target="_blank" rel="noopener" class="poi-link">📍 Google Maps</a>
+        <a href="https://www.google.com/search?q=children+birthday+restaurant+Budapest&tbm=isch" target="_blank" rel="noopener" class="poi-link">📸 Фото</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ BUDGET ═══════ -->
+  <section id="budget" class="overview-section">
+    <div class="section-heading">💰 Сводный бюджет поездки</div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>День</th><th>Дата</th><th>Главная активность</th><th>HUF (ориент.)</th><th>EUR (ориент.)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>21 авг</td><td>Palatinus Strand + Остров Маргит</td><td>~44 000</td><td>≈ €110</td></tr>
+          <tr><td>2</td><td>22 авг</td><td>Зоопарк + Városliget</td><td>~66 000</td><td>≈ €165</td></tr>
+          <tr><td>3</td><td>23 авг</td><td>Замковый холм</td><td>~44 600</td><td>≈ €112</td></tr>
+          <tr><td>4</td><td>24 авг</td><td>Детская ж/д + Нормафа</td><td>~41 275</td><td>≈ €104</td></tr>
+          <tr><td>5</td><td>25 авг</td><td>Skanzen + Сентендре</td><td>~57 700</td><td>≈ €144</td></tr>
+          <tr><td>6</td><td>26 авг</td><td>Тропикариум + Шоппинг</td><td>~67 000</td><td>≈ €168</td></tr>
+          <tr><td>7</td><td>27 авг</td><td>CSOPA + Обуда</td><td>~73 100</td><td>≈ €183</td></tr>
+          <tr><td>8</td><td>28 авг</td><td>Aquaworld</td><td>~65 700</td><td>≈ €164</td></tr>
+          <tr><td>9</td><td>29 авг</td><td>Рынок + Круиз + Цирк</td><td>~80 600</td><td>≈ €201</td></tr>
+          <tr><td>10 🎂</td><td>30 авг</td><td>ДР Итая + Зоопарк</td><td>~89 800</td><td>≈ €225</td></tr>
+          <tr class="total-row"><td colspan="3"><strong>ИТОГО</strong></td><td><strong>~629 775 HUF</strong></td><td><strong>≈ €1 576</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="budget-total">
+      <div>
+        <div class="budget-total-label">Общий бюджет на активности и питание</div>
+        <div style="font-size:0.8rem; opacity:0.7; margin-top:4px;">Без авиабилетов, отеля, страховки. Курс: 400 HUF ≈ 1 EUR</div>
+      </div>
+      <div>
+        <div class="budget-total-label" style="text-align:right;">~629 775 HUF</div>
+        <div class="budget-total-value">≈ €1 576</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ CAR DAYS ═══════ -->
+  <section id="car-days" class="overview-section">
+    <div class="section-heading">🚗 Дни с автомобилем (рекомендуется аренда)</div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>День</th><th>Дата</th><th>Маршрут</th><th>Км</th><th>Парковка</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="car-badge">🚗 День 5</span></td>
+            <td>25 авг (Вт)</td>
+            <td>Будапешт → Skanzen → Сентендре → Будапешт</td>
+            <td>~55 км</td>
+            <td>Бесплатно (Skanzen)</td>
+          </tr>
+          <tr>
+            <td><span class="car-badge">🚗 День 6</span></td>
+            <td>26 авг (Ср)</td>
+            <td>Будапешт → Campona (Тропикариум) → Allee</td>
+            <td>~30 км</td>
+            <td>Бесплатно</td>
+          </tr>
+          <tr>
+            <td><span class="car-badge">🚗 День 8</span></td>
+            <td>28 авг (Пт)</td>
+            <td>Будапешт → Aquaworld → Будапешт</td>
+            <td>~40 км</td>
+            <td>Бесплатно</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="logistics" style="margin-top: var(--sp-3);">
+      <div class="logistics-title">💡 Совет по аренде</div>
+      <p>Арендуйте автомобиль на 3 дня подряд (25–27 августа) или на Дни 5, 6 и 8 отдельно — в зависимости от условий аренды. Дни 1–4, 7, 9–10 эффективно закрываются такси + пешком.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>Маршрут создан: 10 марта 2026 · Budapest Family Trip 2026</p>
+    <p style="margin-top:4px;">Роберт + Анна + Тамир (8 л.) + Ариэль (6 л.) + Итай (3 г. → 4 г. 30.08) 🎂</p>
+  </footer>
+
+</main>
+
+<script>
+  // ── Sidebar scroll spy ──
+  const sections = document.querySelectorAll('section[id], .hero');
+  const navLinks = document.querySelectorAll('.sidebar .nav-link, .mobile-nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id || 'overview';
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

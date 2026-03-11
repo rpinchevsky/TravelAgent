@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:vanbudapest.com)",
+      "WebFetch(domain:legenda.hu)",
+      "WebFetch(domain:www.budapestbylocals.com)",
+      "Bash(node --version)",
+      "Bash(wkhtmltopdf --version)",
+      "Bash(pandoc --version)",
+      "Bash(python -c \"import weasyprint; print\\(''weasyprint ok''\\)\")",
+      "Bash(python -c \"import pdfkit; print\\(''pdfkit ok''\\)\")",
+      "Bash(python -c \"import reportlab; print\\(''reportlab ok''\\)\")",
+      "Bash(python -c \"import fpdf; print\\(''fpdf ok''\\)\")",
+      "Bash(python -c \"import markdown; print\\(''markdown ok''\\)\")"
+    ]
+  }
+}

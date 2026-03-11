@@ -1,0 +1,26 @@
+{
+  "initialPermissionMode": "bypassPermissions",
+  "env": {
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "65536"
+  },
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "WebFetch",
+      "WebSearch",
+      "Grep",
+      "LS",
+      "Glob"
+    ]
+},
+  "sandbox": {
+    "network": {
+      "allowedDomains": [
+        "*"
+      ]
+    }
+  }
+}
