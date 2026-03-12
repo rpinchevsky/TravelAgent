@@ -23,6 +23,48 @@
 - **Lazy Loading:** Ensure any images in the MD are exported with `loading="lazy"`.
 - **Fluid Layout:** Use CSS Grid for the itinerary layout to allow cards to wrap naturally on smaller screens without breaking the table logic.
 
+## 🧩 Component Usage Rules (Mandatory)
+
+### POI Cards Layout
+- **MUST** wrap all POI cards within a day inside `<div class="itinerary-grid">`. This enables CSS Grid side-by-side layout on desktop.
+- Never stack POI cards vertically without the grid wrapper.
+
+### POI Card Structure
+- Tag: `<span class="poi-card__tag">` with emoji prefix (e.g., `🏊 Бассейн`, `🍽️ Ужин`, `🏛️ Музей`)
+- Name: Use `<h3 class="poi-card__name">` (semantic heading), NOT `<div>`
+- Links: Use emoji prefixes: `📍 Maps`, `🌐 Сайт`, `📸 Фото`
+
+### Activity Labels in Itinerary Tables
+- Use emoji icons in `<span class="activity-label">` (e.g., `🚗 Выезд`, `💦 Palatinus`, `🍽️ Обед`, `🏛️ Зоопарк`, `🛒 Шоппинг`, `🚂 Поезд`)
+- Do NOT use inline SVG icons inside activity labels.
+
+### Pricing Display
+- **MUST** use `pricing-grid` with `pricing-cell` components for all daily cost sections.
+- Structure: `<div class="pricing-grid">` containing `<div class="pricing-cell">` items, each with `.pricing-cell__label`, `.pricing-cell__amount`, `.pricing-cell__currency`.
+- Do NOT use `itinerary-table` for pricing data.
+
+### Plan B (Backup Plan) Sections
+- **MUST** use `<div class="advisory advisory--info">` with the info SVG icon.
+- Title format: `🅱️ Запасной план — [Name]`
+- Do NOT use `card card--featured` for Plan B sections.
+
+### Day 0 / Arrival Section
+- Always include a Day 0 (`id="day-0"`) arrival section when the trip data contains arrival information.
+- Include it in both sidebar navigation and mobile pills.
+
+### Overview Section
+- Render as standalone `<h2 class="section-title">` + `<div class="itinerary-table-wrapper">` table.
+- Do NOT wrap the overview in a `day-card` with a banner.
+
+### Sidebar Logo
+- Include emoji in sidebar logo: `🌐 TravelUI`
+
+### Banner Titles
+- Use emoji in `day-card__banner-title` (e.g., `День 1 — Остров Маргит 🏊`)
+
+### SVG Accessibility
+- All decorative `<svg>` elements MUST include `aria-hidden="true"` attribute.
+
 ## 🔗 Interactive Elements
 - **Navigation:** - Desktop only: Fixed sidebar with active-state tracking. Sidebar shall use Auto-Dark Mode
   - Mobile: Horizontal scrollable pill row pinned to top.

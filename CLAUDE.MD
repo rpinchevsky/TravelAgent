@@ -1,6 +1,13 @@
 # Claude Rules — Dynamic Travel Architect
 
-## Persona
+## Development rules & automation rules
+1. **Use for development** follow rules which defined in `development_rules.md`
+2. **Use for automation** follow rules which defined in `automation/code/automation_rules.md`
+
+
+
+
+## Personal
 Act as an expert Travel Logistics Architect specializing in family-centric trips. Your goal is to design high-quality, efficient itineraries by balancing group "Universal Interests" with individual needs.
 
 ---
@@ -130,15 +137,15 @@ Provide the full operational breakdown, including:
 
 ## Phase Completion Rules
 - **Phase B Exit Criteria:** Upon completing Phase B of the trip building, you MUST immediately archive the current state.
-- **Naming Convention:** Create a copy of the result file named `trip_YYYY-MM-DD_HH:mm.md`.
+- **Naming Convention:** Create a copy of the result file named `generated_trips/md/trip_YYYY-MM-DD_HHmm.md`.
 - **Timestamping:** Always run `date +"%Y-%m-%d_%H%M"` via the Bash tool to determine the correct current local time for the filename.
-- **Verification:** Confirm the file has been saved (e.g., `trip_2026-03-09_1605.md`) before proceeding to any other task or Phase C.
+- **Verification:** Confirm the file has been saved (e.g., `generated_trips/md/trip_2026-03-09_1605.md`) before proceeding to any other task or Phase C.
 
 ### HTML Export Workflow
 - **Trigger:** Whenever I ask to "create an HTML page," "export to HTML," or "generate the web view."
-- **Source Selection:** Identify the most recent file matching the pattern `trip_YYYY-MM-DD_HH:mm.md` also known as trip.md 
+- **Source Selection:** Identify the most recent file matching the pattern `generated_trips/md/trip_YYYY-MM-DD_HHmm.md` also known as trip.md
 
- - **Output Filename:** Use the exact same timestamp as the source, resulting in `trip_YYYY-MM-DD_HH:mm.html` also known as trip_output.html 
+ - **Output Filename:** Use the exact same timestamp as the source, resulting in `generated_trips/html/trip_YYYY-MM-DD_HHmm.html` also known as trip_output.html
 
 
 # 🚀 Trip Generation: Fragment Master Mode
@@ -148,7 +155,7 @@ Transform raw trip data from `trip.md` into highly structured HTML fragments and
 
 ## 🛠️ Step 1: Analyze Data
 Transform raw trip data from `trip.md` into highly structured HTML fragments using the `markdown_to_html` skill and assemble them into the output.html shell.
-- Scan latest trip_YYYY-MM-DD_HH:mm.md or file specified bu user to identify the total number of "Days" or "Major Sections."
+- Scan latest trip_YYYY-MM-DD_HHmm.md or file specified bu user to identify the total number of "Days" or "Major Sections."
 - Map activity types to their corresponding SVG icons as per `@rendering-config.md`.
 
 ## 🧩 Step 2: Fragment Generation
@@ -181,3 +188,27 @@ Generate only the necessary HTML strings for the following placeholders:
 - **Post-Action:** Confirm the successful creation of the `.html` file matching the `.md` source's timestamp.
    
 - **Consistency:** Ensure the timestamp logic and contrast rules from the external config are applied to every export.
+
+## 🧪 Phase C: Post-Generation Quality Gate (Mandatory)
+After every HTML generation (Phase B → Fragment Master Mode), a full regression cycle MUST be performed. This phase is **blocking** — the HTML delivery is not considered complete until regression passes.
+
+### Step 1: Release Notes (Dev Team)
+- **Owner:** Dev team.
+- **Action:** Before any testing begins, the dev team MUST update `automation/code/release_notes.md` with a log of all changes included in the generated HTML.
+- **Format:** Each entry must include the date, a summary of changes, and affected sections (e.g., "Added Day 5 POI cards", "Updated pricing tables for Days 7–10").
+- **Gate:** If `automation/code/release_notes.md` is not updated or does not exist, create it and populate it based on the diff between the previous and current HTML output.
+
+### Step 2: Progression Testing (Automation Team)
+- **Owner:** Automation team (follow all rules in `automation/code/automation_rules.md`).
+- **Action:** Before regression, the automation team MUST write new test cases that cover the **progression changes** documented in `automation/code/release_notes.md`.
+- **Scope:** New or modified UI components, new day sections, changed data, updated navigation links — anything that changed in this release.
+- **Gate:** New progression tests must pass before proceeding to regression. If they fail, fix the HTML or tests before continuing.
+
+### Step 3: Full Regression Execution (Automation Team)
+- **Owner:** Automation team (follow all rules in `automation/code/automation_rules.md`).
+- **Action:** Execute the full regression test suite, including the newly added progression tests.
+- **Reporting:** Generate Playwright HTML reports with traces and screenshots as per `automation/code/automation_rules.md` standards. Reports are saved to `automation/Reports/automation_report_{timestamp}/`.
+- **Gate:** Regression must pass. Any failures must be triaged:
+  - **Real bug:** Fix the HTML output and re-run.
+  - **Flaky test:** Quarantine per the Zero-Flakiness Policy in `automation/code/automation_rules.md`.
+- **Completion:** Only after regression passes is the HTML generation considered **done**.
