@@ -122,7 +122,7 @@ export class TripPage {
   }
 
   getDayLogistics(dayNumber: number): Locator {
-    return this.page.locator(`#day-${dayNumber} .card--flat`).filter({ hasText: 'Логистика' });
+    return this.page.locator(`#day-${dayNumber} .advisory--info`).filter({ hasText: 'Логистика' });
   }
 
   getDayPricingTable(dayNumber: number): Locator {

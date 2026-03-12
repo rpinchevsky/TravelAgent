@@ -76,6 +76,6 @@
   "language_preference":
   {
     "reporting_language": "Russian",
-    "POI names": ["Hungarian", "Russian"]
+    "poi_languages": ["Hungarian", "Russian"]
   }
 }

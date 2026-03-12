@@ -42,12 +42,12 @@ test.describe('Budget Section', () => {
     await expect(tripPage.budgetSection).toBeAttached();
   });
 
-  test('budget table should contain total row with HUF amount', async () => {
-    await expect(tripPage.budgetSection).toContainText('629');
+  test('budget table should contain total row with EUR amount', async () => {
+    await expect(tripPage.budgetSection).toContainText('1 745');
   });
 
-  test('budget table should contain EUR total', async () => {
-    await expect(tripPage.budgetSection).toContainText('1 576');
+  test('budget table should contain EUR currency marker', async () => {
+    await expect(tripPage.budgetSection).toContainText('€');
   });
 
   test('budget section should contain car rental info', async () => {

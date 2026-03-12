@@ -19,6 +19,7 @@ Before any planning or answering, perform these two steps:
    - Use these calculated ages for all "Age Filters" and the "Kids' Fun Index."
    - *Example:* If the youngest is calculated as 4, apply the 4-year-old safety/engagement rules.
 3. **Language** use languages from `language_preference`
+4. **POI** all points of interest that advised to be visited shall use languages from `language_preference.poi_languages`
 ---
 
 ## Network & Connectivity Rules
@@ -81,21 +82,21 @@ Before presenting any "Day" to the user, you must pass this self-check:
 - [ ] Does it hit at least one Universal Interest?
 - [ ] Provide additional options in area if we wont like some of adviced POI.
 - [ ] Is the logistics/transportation plan efficient?
+- [ ] Does the number of POI cards in the HTML match the number of `###` POI sections in the markdown for this day? (POI Parity Check)
 For Plan B provide what might be the reason to use that plan. Output of Plan B shall follow same rules and format as planned point of interests
 - This part is for travel agent validation, no need to share results of the review
 ---
 
 ## 📋 Output Workflow & Formats
 
-### Phase A: High-Level Summary (Approval Required)
+### Phase A: High-Level Summary
 Provide a table with:
 - Day/Date/Area.
 - Morning/Lunch/Afternoon summary.
-- Plan B.
 - CEO Audit Status ✅/❌.
 *Note: No links or prices in this phase.*
 
-## Phase B: Detailed Operational Plan (Post-Approval)
+## Phase B: Detailed Operational Plan 
 Provide the full operational breakdown, including:
 ### 1. **Interactive Map Display** 🗺️
    - Immediately call the mapping tool to display all locations for the day.
@@ -120,7 +121,7 @@ Provide the full operational breakdown, including:
    - Apply all standards from the "Operational Data Standards" section:
      - **Verified Hours**: Confirmed for the specific dates of the visit.
      - **Pricing**: Detailed breakdown (Adults / Children / Family) in both local currency and EUR.
-     - **Expert Notes**: Mention if pre-booking is required, expected crowd levels, and specific tips for the 4-year-old.
+     - **Expert Notes**: Mention if pre-booking is required, expected crowd levels, and specific tips for the youngest child in family.
 
 
 ## Content Guidelines for Trip Points
@@ -169,10 +170,23 @@ Generate only the necessary HTML strings for the following placeholders:
    - Create a list of `<a class="mobile-nav__pill">` tags.
    - Assign matching `href="#day-X"` and include the `is-active` class for the first item only.
 
-3. **{{TRIP_CONTENT}}**: 
+3. **{{TRIP_CONTENT}}**:
    - Convert itinerary data into `<table class="itinerary-table">`.
    - Wrap specific locations/stops in `<div class="poi-card">`.
    - Ensure all `<img>` tags include `loading="lazy"`.
+   - **POI Parity Rule (Mandatory):** Every `###` section in the markdown source that describes a POI (i.e., NOT Логистика / Стоимость / Запасной план) **MUST** produce exactly one `<div class="poi-card">` in the HTML output. No POI may be silently dropped, truncated, or merged. After generation, verify that the count of `poi-card` elements per day matches the count of `###` POI sections per day in the source markdown.
+
+## 📋 Step 2.5: Agent Prompt Contract (Mandatory)
+When delegating HTML generation to a sub-agent, the prompt MUST include these 7 items to prevent structural mismatches:
+1. The full `TripPage.ts` — defines the structural contract (CSS classes, IDs, locators)
+2. The `rendering-config.md` — component structure and design system rules
+3. Explicit list of required section IDs: `#overview`, `#budget`, `#day-1` to `#day-N`
+4. Advisory class rules: `.advisory--warning` = Holiday Advisory ONLY; `.advisory--info` = Plan B + Logistics
+5. Pro-tip rule: wrap in `<div class="pro-tip">`, not just `<strong>` text
+6. SVG rule: sidebar links need inline `<svg>` with explicit `width`/`height`
+7. CSS inlining rule: full CSS in `<style>` tag, never `<link>`
+
+**Gate:** Never delegate HTML generation without all 7 items in the prompt. See `development_rules.md` Rule 4.
 
 ## 🏗️ Step 3: Assembly & Final Export
 1. **Read** (do not modify) `base_layout.html` to use as a template.
@@ -189,8 +203,34 @@ Generate only the necessary HTML strings for the following placeholders:
    
 - **Consistency:** Ensure the timestamp logic and contrast rules from the external config are applied to every export.
 
+## 🔎 Step 3.5: Pre-Regression Structural Validation (Mandatory)
+After HTML generation and BEFORE any Playwright test execution, perform a quick structural validation by searching the generated HTML for required elements. This step catches structural bugs in seconds instead of waiting for the full test suite.
+
+**Validation checks (all must pass):**
+1. Required section IDs exist: `#overview`, `#budget`, `#day-1` through `#day-N`
+2. Day IDs are on `.day-card` elements (not `<section>`)
+3. `.pro-tip` class exists (not just bold text)
+4. `.advisory--warning` appears only once (Holiday Advisory)
+5. `.sidebar__link` elements contain `<svg>` with `width` and `height`
+6. CSS is inlined in `<style>`, no `<link>` to external CSS
+7. POI parity: `.poi-card` count per day matches markdown `###` POI count
+8. Navigation: `sidebar__link` count equals `mobile-nav__pill` count
+
+**Gate:** If ANY check fails, fix the HTML and re-validate before proceeding to Phase C.
+
+**Reference:** See `development_rules.md` Rule 2 for the full validation procedure.
+
+## 🔄 Step 3.6: Test Data Synchronization (Mandatory)
+When trip content has changed, review and update hardcoded test assertions BEFORE running regression:
+- Budget amounts in `overview-budget.spec.ts`
+- Day titles/dates in `day-cards.spec.ts`
+- SVG count thresholds in `svg-integrity.spec.ts`
+- Visual snapshots via `--update-snapshots`
+
+**Gate:** Hardcoded test values must match the new HTML content. See `development_rules.md` Rule 3 for the full synchronization matrix.
+
 ## 🧪 Phase C: Post-Generation Quality Gate (Mandatory)
-After every HTML generation (Phase B → Fragment Master Mode), a full regression cycle MUST be performed. This phase is **blocking** — the HTML delivery is not considered complete until regression passes.
+After every HTML generation (Phase B → Fragment Master Mode) and after Steps 3.5–3.6 pass, a full regression cycle MUST be performed. This phase is **blocking** — the HTML delivery is not considered complete until regression passes.
 
 ### Step 1: Release Notes (Dev Team)
 - **Owner:** Dev team.

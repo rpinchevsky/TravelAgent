@@ -1,2 +1,3 @@
 node_modules/
 automation/code/tests/regression/visual.spec.ts-snapshots/
+automation/code/test-results/

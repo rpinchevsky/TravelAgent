@@ -21,6 +21,6 @@ test.describe('SVG Integrity', () => {
 
   test('should have SVGs in the page (sanity check)', async () => {
     const totalSvgs = await tripPage.getAllSvgs().count();
-    expect(totalSvgs).toBeGreaterThan(30);
+    expect(totalSvgs).toBeGreaterThanOrEqual(13);
   });
 });

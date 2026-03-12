@@ -34,6 +34,12 @@
 - Name: Use `<h3 class="poi-card__name">` (semantic heading), NOT `<div>`
 - Links: Use emoji prefixes: `📍 Maps`, `🌐 Сайт`, `📸 Фото`
 
+### POI Card Parity Rule (Mandatory)
+- Every `###` section in the source markdown that describes a Point of Interest (attractions, restaurants, activities — anything that is NOT Логистика, Стоимость, or Запасной план) **MUST** be rendered as exactly one `<div class="poi-card">` in the HTML output.
+- **No silent truncation:** Do NOT cap the number of POI cards per day. If a day has 4 POI descriptions in the markdown, the HTML must contain 4 `poi-card` elements for that day.
+- **No merging:** Each POI gets its own card — never combine two POIs into one card.
+- **Validation:** After HTML generation, the count of `.poi-card` elements inside each `#day-N` section must equal the count of `###` POI headings for that day in the source markdown.
+
 ### Activity Labels in Itinerary Tables
 - Use emoji icons in `<span class="activity-label">` (e.g., `🚗 Выезд`, `💦 Palatinus`, `🍽️ Обед`, `🏛️ Зоопарк`, `🛒 Шоппинг`, `🚂 Поезд`)
 - Do NOT use inline SVG icons inside activity labels.
