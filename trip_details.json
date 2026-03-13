@@ -11,6 +11,7 @@
       "buffer_time_minutes": 20
     },
     "universal_interests": [
+        "Arcade Games & Family Entertainment Centers (Racing Simulators, Air Hockey, Claw Machines, Prize Redemption)",
         "Animals & Petting Zoos",
         "Castles & History (Kid-Friendly)",
         "Interactive Water Parks",
@@ -56,19 +57,19 @@
       { 
         "name": "Tamir", 
         "dob": "2018-06-12", 
-        "specific_interests": ["Circus", "Magic", "Animals"],
+        "specific_interests": ["Circus", "Magic", "Animals", "Arcade Games", "Racing Simulators"],
         "notes": "Eats everything"
       },
       { 
         "name": "Ariel", 
         "dob": "2020-05-20", 
-        "specific_interests": ["Plushies", "Trains", "Construction Vehicles", "Animals"],
+        "specific_interests": ["Plushies", "Trains", "Construction Vehicles", "Animals", "Arcade Games", "Claw Machines"],
         "notes": "Loves animals"
       },
       { 
         "name": "Itay", 
         "dob": "2022-08-30", 
-        "specific_interests": ["Plushies", "Soft Play Areas", "Animals"],
+        "specific_interests": ["Plushies", "Soft Play Areas", "Animals", "Arcade Games", "Claw Machines"],
         "notes": "Active, no stroller"
       }
     ]

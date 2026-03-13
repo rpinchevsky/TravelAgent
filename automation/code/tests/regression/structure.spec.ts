@@ -52,4 +52,19 @@ test.describe('Structural Integrity', () => {
     const lang = await page.locator('html').getAttribute('lang');
     expect(lang).toBe('ru');
   });
+
+  test('country flag should be an inline SVG, not an emoji', async ({ page }) => {
+    const title = tripPage.pageTitle;
+    const flagSvg = title.locator('svg[role="img"]');
+    await expect(flagSvg).toBeAttached();
+    await expect(flagSvg).toHaveAttribute('aria-label', /flag/i);
+    await expect(flagSvg).toHaveAttribute('width', '28');
+    await expect(flagSvg).toHaveAttribute('height', '20');
+  });
+
+  test('page title should not contain flag emoji characters', async () => {
+    const titleText = await tripPage.pageTitle.textContent();
+    const flagEmojiPattern = /[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/;
+    expect(titleText).not.toMatch(flagEmojiPattern);
+  });
 });

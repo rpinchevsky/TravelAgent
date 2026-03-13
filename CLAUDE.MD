@@ -206,6 +206,7 @@ When delegating HTML generation to a sub-agent, the prompt MUST include these 7 
 - **Constraint:** Output the final, fully-assembled HTML file. Do NOT modify `rendering_style_config.css` or `base_layout.html` source files.
 - **Standalone Deployment:** The output HTML must be **fully self-contained** — inline the entire contents of `rendering_style_config.css` inside a `<style>` tag in the `<head>`. This ensures the page renders correctly when hosted without the CSS file alongside it. Never reference `rendering_style_config.css` via `<link>` in the output file.
 - **SVG Resilience:** Every inline `<svg>` element in the output must have explicit `width` and `height` HTML attributes to prevent sizing issues if CSS loads late or fails.
+- **Country Flag Rule (Mandatory):** Windows does not render country flag emojis — it displays two-letter ISO codes (e.g., "HU" instead of 🇭🇺). Therefore, **never use flag emojis** in the HTML output. Instead, render the destination country's flag as an inline `<svg>` with the correct horizontal tricolor/bicolor/pattern for that country. The SVG must have `width="28" height="20"`, `role="img"`, `aria-label="{Country} flag"`, `style="vertical-align:middle;display:inline-block;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.1)"`. Look up the official flag colors for the destination from `trip_details.json → trip_context.destination`. This ensures consistent flag rendering on Windows desktops and tablets/mobile alike.
 
   
     
