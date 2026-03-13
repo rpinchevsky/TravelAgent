@@ -140,8 +140,15 @@ Each `day_XX.md` is self-contained and follows this structure:
 
 Each day file MUST include all of the following:
 
-#### 1. Interactive Map Display
-- Provide a direct link to a Google Maps search query or a GeoJSON object containing all POIs for the day.
+#### 1. Daily Route Map Link
+- **Required** on every `day_XX.md` (including Day 0 and the final departure day — use airport as sole waypoint).
+- **Placement:** Immediately after the `### Расписание` table's closing `---` separator, before the first POI section.
+- **Format (Markdown):**
+  ```
+  🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/POI1+Budapest/POI2+Budapest/.../)
+  ```
+- **URL construction:** `https://www.google.com/maps/dir/` followed by each POI name (spaces → `+`, append `+Budapest` or `+Budapest+Hungary`), separated by `/`. Include all POIs in visit order.
+- **HTML rendering:** The link maps to `<a class="map-link" ...>` — see `rendering-config.md`.
 
 #### 2. Hourly Table (trip_context.daily_schedule)
 - Structured schedule with specific arrival/departure times.

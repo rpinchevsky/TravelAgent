@@ -39,6 +39,8 @@
 | 11 | Пн, 31.08 | Отъезд | Сборы, завтрак | — | Вылет 11:55 | ✅ |
 
 
+---
+
 # День 0 — Прилёт ✈️
 **Дата:** Четверг, 20 августа 2026
 **Район:** Аэропорт Ференц Лист → Отель
@@ -50,6 +52,10 @@
 | 22:00 | ✈️ Прилёт | Budapest Ferenc Liszt International Airport (BUD) |
 | 22:30 | 🚕 Трансфер | Такси/трансфер в отель (~30–40 мин в центр) |
 | 23:15 | 🏨 Заселение | Размещение, отдых |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Budapest+Ferenc+Liszt+International+Airport/)
 
 ---
 
@@ -81,6 +87,8 @@
 - 🌐 [BKK — маршрут 100E](https://bkk.hu/en/travel-information/public-transport/airport-shuttle/)
 
 
+---
+
 # День 1 — Маргит-сигет 🏊
 **Дата:** Пятница, 21 августа 2026
 **Район:** Margitsziget / Остров Маргит
@@ -98,6 +106,10 @@
 | 18:00 | 🚗 Переезд | В SuperFly (~15 мин) |
 | 18:30 | 🦘 SuperFly Trambulinpark / Суперфлай | Батутный парк: 30+ батутов, ниндзя-полоса, пена |
 | 19:30 | 🚗 Возвращение | В отель на отдых и ужин |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Palatinus+Strand+Budapest/Margitsziget+Mini+Zoo+Budapest/Margitsziget+Playground+Budapest/SuperFly+Budapest/)
 
 ---
 
@@ -213,6 +225,8 @@
 - 🌐 [Сайт](https://csaszarkomjadi.hu/)
 
 
+---
+
 # День 2 — Варошлигет — Зоопарк и Цирк 🦁
 **Дата:** Суббота, 22 августа 2026
 **Район:** Városliget / Городской парк (XIV район)
@@ -230,6 +244,10 @@
 | 18:00 | 🚗 Переезд | В Gamerland, Óбуда (~20 мин) |
 | 18:30 | 🎮 Gamerland / Геймерлэнд | VR-шлемы, аркадные автоматы, гоночные симуляторы |
 | 20:00 | 🚗 Возвращение | В отель |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Budapest+Zoo+and+Botanical+Garden/Fővárosi+Nagycirkusz+Budapest/Vajdahunyad+Castle+Budapest/Városliget+Café+Budapest/Gamerland+Budapest/)
 
 ---
 
@@ -344,6 +362,8 @@
 - 🌐 [Сайт](https://www.szechenyibath.hu/)
 
 
+---
+
 # День 3 — Будайские холмы 🚂
 **Дата:** Воскресенье, 23 августа 2026
 **Район:** Budai-hegység / Будайские холмы (II, XII район)
@@ -362,6 +382,10 @@
 | 16:30 | 🛝 Elevenpark / Элевенпарк | Крытый парк: горки, скалодром, батуты |
 | 18:00 | 🚗 Переезд | В ресторан VakVarjú (~20 мин) |
 | 18:30 | 🍽️ Ужин | Ресторан VakVarjú (район XIII) |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Széchenyihegy+station+Budapest/Libegő+Budapest/Normafa+Playground+Budapest/Elevenpark+Budapest/VakVarjú+Étterem+Budapest/)
 
 ---
 
@@ -480,6 +504,8 @@
 - 🌐 [Сайт](https://www.budakeszivadaspark.hu/)
 
 
+---
+
 # День 4 — Центр Пешта 🚂🎮
 **Дата:** Понедельник, 24 августа 2026
 **Район:** Belváros / Центр Пешта (V, VII район)
@@ -498,6 +524,10 @@
 | 17:00 | 🚶 Переход | Трамвай 4/6 до Mester utca (~10 мин) |
 | 17:15 | 🕹️ Gameroom Budapest / Геймрум | Хайтек-аркада: лазеры, бросалки, физические игры |
 | 18:30 | 🚗 Возвращение | В отель |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Miniversum+Budapest/Nagyvásárcsarnok+Budapest/Let's+Go+Arcade+Budapest/Gameroom+Budapest/)
 
 ---
 
@@ -613,6 +643,8 @@
 - 🌐 [Сайт](https://www.pinballbudapest.com/)
 
 
+---
+
 # День 5 — Будайская крепость и Дунай 🏰
 **Дата:** Вторник, 25 августа 2026
 **Район:** Várnegyed / Крепостной район (I район) + Дунай
@@ -630,6 +662,10 @@
 | 15:30 | 🚢 Duna hajókirándulás / Дунайский круиз | Часовая прогулка по Дунаю |
 | 17:00 | 🚶 Набережная Пешта | Туфли на набережной, прогулка |
 | 18:00 | 🚗 Возвращение | В отель |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Fisherman's+Bastion+Budapest/Budavári+Labirintus+Budapest/Buda+Castle+District+Budapest/Budapest+Danube+cruise+Vigadó+tér/Baltazár+Budapest/)
 
 ---
 
@@ -747,6 +783,8 @@
 - 🌐 [Сайт](https://www.sziklakorhaz.eu/en/)
 
 
+---
+
 # День 6 — Тропикариум 🦈
 **Дата:** Среда, 26 августа 2026
 **Район:** Campona / Юг Будапешта (XXII район)
@@ -764,6 +802,10 @@
 | 16:30 | 🦘 CyberJump Trambulinpark / КиберДжамп | Батутный парк: 1 400 м² батутов |
 | 17:30 | 🚗 Возвращение | В отель, отдых |
 | 18:00 | 🍽️ Ужин | Рядом с отелем, спокойный вечер |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Tropicarium+Budapest+Campona/Campona+Shopping+Center+Budapest/CyberJump+Budapest/)
 
 ---
 
@@ -858,6 +900,8 @@
 - 📍 [Google Maps — Budafoki park](https://maps.google.com/?q=Budafoki+Szabadidőpark)
 
 
+---
+
 # День 7 — Дворец чудес и Железнодорожный музей 🔬🚂
 **Дата:** Четверг, 27 августа 2026
 **Район:** Óbuda (III район) + XIV район
@@ -874,6 +918,10 @@
 | 17:00 | 🚗 Переезд | В Flippermúzeum, XIII район (~15 мин) |
 | 17:30 | 🕹️ Flippermúzeum / Музей пинбола | 160+ пинбол-машин, безлимитная игра |
 | 19:00 | 🚗 Возвращение | В отель |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Csodák+Palotája+Budapest/Új+Sipos+Halászkert+Budapest/Magyar+Vasúttörténeti+Park+Budapest/Flippermúzeum+Budapest/)
 
 ---
 
@@ -972,6 +1020,8 @@
 - 🌐 [Сайт](https://aquincum.hu/en/)
 
 
+---
+
 # День 8 — Аквауорлд 💦
 **Дата:** Пятница, 28 августа 2026
 **Район:** Aquaworld Resort / Север Будапешта (IV район)
@@ -987,6 +1037,10 @@
 | 16:00 | 🎮 Aquaworld Játékterem / Игровой зал | Аркадные автоматы, Air Hockey, аэрохоккей |
 | 17:00 | 🛝 Játszóház / Игровая зона | Сухопутная игровая для малышей |
 | 17:30 | 🚗 Возвращение | В отель |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Aquaworld+Resort+Budapest/)
 
 ---
 
@@ -1078,6 +1132,8 @@
 - 🌐 [Сайт](https://www.dagalyfurdo.hu/)
 
 
+---
+
 # День 9 — Городской парк — площадка и лодки 🛶
 **Дата:** Суббота, 29 августа 2026
 **Район:** Városliget / Городской парк (XIV район)
@@ -1094,6 +1150,10 @@
 | 16:30 | 🕹️ VR Vidámpark / VR-парк | VR-аттракционы и симуляторы |
 | 17:30 | 🏰 Hősök tere / Площадь Героев | Фото у колонн, мороженое |
 | 18:30 | 🚗 Возвращение | В отель, подготовка к дню рождения |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Városligeti+Játszótér+Budapest/VakVarjú+Étterem+Budapest/Városligeti+tó+Budapest/Andrássy+út+Budapest/VR+Park+Budapest/Hősök+tere+Budapest/)
 
 ---
 
@@ -1226,6 +1286,8 @@
 - 📍 [Google Maps — Palatinus](https://maps.google.com/?q=Palatinus+Strand+Budapest)
 
 
+---
+
 # День 10 — День рождения Итая! 🎂
 **Дата:** Воскресенье, 30 августа 2026
 **Район:** Margitsziget + Центр (Итаю исполняется 4 года!)
@@ -1242,6 +1304,10 @@
 | 16:30 | 🍦 Мороженое | Gelarto Rosa — мороженое-букет |
 | 17:15 | 🎮 Let's Go Arcade / Аркейд (именинная!) | Именинная аркада — призы для Итая! |
 | 18:30 | 🚗 Возвращение | В отель |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Palatinus+Strand+Budapest/Riso+Ristorante+Budapest/Margitsziget+Mini+Zoo+Budapest/Gelarto+Rosa+Budapest/Let's+Go+Arcade+Budapest/)
 
 ---
 
@@ -1362,6 +1428,8 @@
 - 📍 [Google Maps — Цирк](https://maps.google.com/?q=Fővárosi+Nagycirkusz+Budapest)
 
 
+---
+
 # День 11 — Отъезд ✈️
 **Дата:** Понедельник, 31 августа 2026
 **Район:** Отель → Аэропорт Ференц Лист
@@ -1375,6 +1443,10 @@
 | 09:30 | 🚕 Выезд | Трансфер в аэропорт (~35–45 мин) |
 | 10:15 | ✈️ Аэропорт | Регистрация, паспортный контроль |
 | 11:55 | ✈️ Вылет | Рейс домой |
+
+---
+
+🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/Budapest+Ferenc+Liszt+International+Airport/)
 
 ---
 
@@ -1424,6 +1496,8 @@
 
 Если пробки на дороге в аэропорт (понедельник утро — час пик): выезжайте в 09:00, а не в 09:30. Альтернативно — закажите Bolt Premium (приоритетный маршрут). Маршрут M5 → M0 обычно быстрее, чем через центр.
 
+
+---
 
 # Бюджет поездки — Будапешт 2026
 
