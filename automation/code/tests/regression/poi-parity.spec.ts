@@ -33,16 +33,27 @@ function getExpectedPoiCountsFromMarkdown(): Record<number, { count: number; nam
 
   const result: Record<number, { count: number; names: string[] }> = {};
   let currentDay: number | null = null;
+  let skipNextHeading = false;
 
   for (const line of lines) {
-    const dayMatch = line.match(/<a\s+id="day-(\d+)"/);
-    if (dayMatch) {
-      currentDay = parseInt(dayMatch[1], 10);
-      result[currentDay] = { count: 0, names: [] };
+    // Support both formats: <a id="day-X"> anchors and ## День X headings
+    const anchorMatch = line.match(/<a\s+id="day-(\d+)"/);
+    const headingMatch = line.match(/^#{1,2}\s+День\s+(\d+)/);
+    if (anchorMatch || headingMatch) {
+      currentDay = parseInt((anchorMatch || headingMatch)![1], 10);
+      if (!result[currentDay]) {
+        result[currentDay] = { count: 0, names: [] };
+      }
+      // When using ## День format, the first ### is the area title (banner), not a POI
+      skipNextHeading = !!headingMatch;
       continue;
     }
 
     if (currentDay !== null && line.startsWith('### ')) {
+      if (skipNextHeading) {
+        skipNextHeading = false;
+        continue;
+      }
       const isExcluded = EXCLUDED_SECTIONS.some(s => line.includes(s));
       if (!isExcluded) {
         result[currentDay].count++;

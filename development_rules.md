@@ -51,12 +51,12 @@ After HTML generation and BEFORE running Playwright regression, perform an autom
 ### Validation Checklist (run as grep/search commands):
 
 ```
-1. Section IDs exist:        #overview, #budget, #day-1 through #day-N
+1. Section IDs exist:        #overview, #budget, #day-0 (if arrival), #day-1 through #day-N
 2. Day IDs on correct element: .day-card[id^="day-"] (not <section>)
 3. Required classes present:  .pro-tip, .poi-card, .poi-card__name, .poi-card__link
 4. Advisory class uniqueness: .advisory--warning appears only in Holiday Advisory
 5. Sidebar SVGs:              .sidebar__link elements contain <svg>
-6. Inlined CSS:               <style> tag in <head>, no <link> to .css
+6. Inlined CSS:               <style> tag in <head>, no <link> to rendering_style_config.css (Google Fonts <link> OK)
 7. SVG attributes:            All <svg> have explicit width="" and height=""
 8. POI parity:                Count of .poi-card per day matches markdown ### POI count
 9. Navigation completeness:   sidebar__link count matches mobile-nav__pill count
@@ -89,17 +89,7 @@ When trip content changes (new trip generated, budget updated, dates changed), t
 
 ## 4. HTML Generation Agent Prompt Requirements
 
-When delegating HTML generation to a sub-agent, the prompt MUST include:
-
-1. **The full TripPage.ts file** — so the agent knows the structural contract
-2. **The rendering-config.md** — for component structure and CSS classes
-3. **Explicit list of required section IDs** — `#overview`, `#budget`, `#day-1` to `#day-N`
-4. **Advisory class rules** — `.advisory--warning` for Holiday Advisory ONLY; `.advisory--info` for Plan B and Logistics
-5. **Pro-tip rule** — Must be wrapped in `<div class="pro-tip">`, not just bold text
-6. **SVG rule** — Sidebar links must contain inline `<svg>` with explicit `width` and `height`
-7. **Inlining rule** — CSS must be in `<style>` tag, not `<link>`
-
-**Never delegate HTML generation without these 7 items in the prompt.**
+When delegating HTML generation to a sub-agent, follow the **8-item Agent Prompt Contract** defined in `rendering-config.md` → Step 2.5. Never delegate without all 8 items in the prompt.
 
 ---
 
@@ -119,13 +109,32 @@ Before running regression, classify each change and predict affected test areas:
 
 ---
 
-## 6. Definition of Done — HTML Generation
+## 6. Post-Generation Quality Gate (Phase C) & Definition of Done
 
-An HTML generation task is NOT complete until:
+After every HTML generation and after Rules 2–3 pass, a full regression cycle MUST be performed. This phase is **blocking** — the HTML delivery is not considered complete until regression passes.
 
+**Definition of Done checklist:**
 - [ ] Pre-regression validation gate passes (Rule 2)
 - [ ] Test data is synchronized (Rule 3)
 - [ ] Release notes updated (`automation/code/release_notes.md`)
 - [ ] Progression tests written for new/changed features
 - [ ] Full regression passes with 0 failures
 - [ ] Visual snapshots updated if layout changed
+
+### Step 1: Release Notes (Dev Team)
+- **Action:** Before any testing begins, update `automation/code/release_notes.md` with a log of all changes included in the generated HTML.
+- **Format:** Each entry must include the date, a summary of changes, and affected sections.
+- **Gate:** If `automation/code/release_notes.md` is not updated, create it and populate it based on the diff between the previous and current HTML output.
+
+### Step 2: Progression Testing (Automation Team)
+- **Action:** Before regression, write new test cases that cover the **progression changes** documented in `automation/code/release_notes.md`.
+- **Scope:** New or modified UI components, new day sections, changed data, updated navigation links — anything that changed in this release.
+- **Gate:** New progression tests must pass before proceeding to regression. If they fail, fix the HTML or tests before continuing.
+
+### Step 3: Full Regression Execution (Automation Team)
+- **Action:** Execute the full regression test suite, including the newly added progression tests. Follow all standards in `automation/code/automation_rules.md` (POM pattern, zero-flakiness policy, reporting standards).
+- **Reporting:** Generate Playwright HTML reports with traces and screenshots. Reports are saved to `automation/Reports/automation_report_{timestamp}/`.
+- **Gate:** Regression must pass. Any failures must be triaged:
+  - **Real bug:** Fix the HTML output and re-run.
+  - **Flaky test:** Quarantine per the Zero-Flakiness Policy in `automation/code/automation_rules.md`.
+- **Completion:** Only after regression passes is the HTML generation considered **done**.

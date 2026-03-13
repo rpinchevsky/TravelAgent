@@ -134,7 +134,7 @@ export class TripPage {
   }
 
   getDayPricingTable(dayNumber: number): Locator {
-    return this.page.locator(`#day-${dayNumber} .itinerary-table`).last();
+    return this.page.locator(`#day-${dayNumber} .pricing-grid`);
   }
 
   getPoiCardLinks(poiCard: Locator): Locator {

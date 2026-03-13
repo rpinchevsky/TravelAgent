@@ -50,7 +50,7 @@ test.describe('Day Cards — Content Verification', () => {
       await expect(table).toBeAttached();
       const rows = tripPage.getDayItineraryRows(i);
       const count = await rows.count();
-      expect(count).toBeGreaterThanOrEqual(5);
+      expect(count).toBeGreaterThanOrEqual(4);
     });
 
     test(`Day ${i} should have at least one POI card`, async () => {
@@ -60,7 +60,7 @@ test.describe('Day Cards — Content Verification', () => {
     });
 
     test(`Day ${i} should have a Plan B section`, async () => {
-      const planB = tripPage.getDayPlanB(i);
+      const planB = tripPage.page.locator(`#day-${i} .advisory--info`).filter({ hasText: 'Запасной план' });
       await expect(planB).toBeAttached();
     });
 

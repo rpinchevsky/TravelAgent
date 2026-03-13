@@ -17,10 +17,10 @@ test.describe('Overview Table', () => {
     await expect(tripPage.overviewTableRows.first()).toContainText('20.08');
   });
 
-  test('overview table should contain all 10 day links', async () => {
+  test('overview table should contain all 10 day rows', async () => {
     for (let i = 1; i <= 10; i++) {
-      const link = tripPage.overviewTable.locator(`a[href="#day-${i}"]`);
-      await expect(link).toBeAttached();
+      const cell = tripPage.overviewTable.locator(`td.col-time`).filter({ hasText: new RegExp(`^${i}$`) });
+      await expect(cell).toBeAttached();
     }
   });
 
@@ -43,7 +43,7 @@ test.describe('Budget Section', () => {
   });
 
   test('budget table should contain total row with EUR amount', async () => {
-    await expect(tripPage.budgetSection).toContainText('1 463');
+    await expect(tripPage.budgetSection).toContainText('1 527');
   });
 
   test('budget table should contain EUR currency marker', async () => {

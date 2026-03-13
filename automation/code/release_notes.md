@@ -1,5 +1,45 @@
 # Release Notes
 
+## 2026-03-13_1216 — Revised Trip with 28 POI Cards and Restructured Days
+
+### Changes
+
+#### Trip Content (New Generation)
+- **Full 11-day trip regenerated** with revised itinerary: 28 POI cards (was 34).
+- **POI distribution:** Day 0: 0, Day 1: 3, Day 2: 4, Day 3: 4, Day 4: 5, Day 5: 2, Day 6: 2, Day 7: 2, Day 8: 1, Day 9: 2, Day 10: 3, Day 11: 0
+- **Budget total**: ~1 527 EUR / ~607 200 HUF (was ~1 463 EUR).
+- **12 day sections**, **14 navigation links** (unchanged structure).
+- **28 clickable activity labels** linking to POI cards.
+- **New/changed POIs:**
+  - Day 1: Margitsziget Szokokut (Musical Fountain), Margitsziget Jatszóter (playground) — replaced Kisallatkert, Japankert, Zenelo szokokut
+  - Day 3: House of Houdini, Riso Ristorante, Dunai Hajokirandulas — replaced Szimpla Kert, Labirintus, Ruszwurm
+  - Day 4: Zugligeti Libego, Anna-reti Jatszóter, IDE Etterem — restructured as Budai Hills day (was different theme)
+  - Day 5: Medveotthon (Bear Sanctuary) — now on Day 5 (was Day 6 area)
+  - Day 6: Tropicarium + Flippermuzeum (2 POIs, was 5)
+  - Day 7: Kozponti Vasarcsarnok + Miniversum (2 POIs, was 2)
+  - Day 8: Aquaworld only (1 POI, was 4)
+  - Day 10: Let's Go Arcade, VakVarju Buda, Allatkert revisit
+- **Title fixed** to Cyrillic: "Будапешт 2026 — Семейный маршрут"
+
+#### Config Changes
+- **playwright.config.ts**: Updated `filePath` to point to `trip_2026-03-13_1216.html`.
+
+#### Test Data Synchronized
+- **overview-budget.spec.ts**: Budget EUR 1 463 -> 1 527.
+- **poi-cards.spec.ts**: Min POI threshold 30 -> 25 (28 total POIs now).
+
+#### New Progression Tests
+- **progression-2026-03-13_1216.spec.ts**: 28 POI count, per-day POI counts, new POI presence checks (Houdini, Zugligeti Libego, Medveotthon, Let's Go Arcade), updated budget 1 527.
+
+### Affected Sections
+- All day sections (Day 0-11) — full content regeneration
+- Navigation — 14 items (unchanged count)
+- Overview table — 12 rows (unchanged count)
+- Budget section — new totals (1 527 EUR)
+- 28 POI cards — revised descriptions, dual-language names
+
+---
+
 ## 2026-03-13_0109 — Enhanced Trip with 34 POI Cards and New Attractions
 
 ### Changes
