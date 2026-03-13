@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { TripPage } from '../pages/TripPage';
+import { test, expect } from '../fixtures/shared-page';
 import {
   loadPoiLanguageConfig,
   findMissingLanguages,
@@ -77,14 +76,7 @@ test.beforeAll(() => {
 });
 
 test.describe('Activity Labels — Language Compliance (poi_languages)', () => {
-  let tripPage: TripPage;
-
-  test.beforeEach(async ({ page, baseURL }) => {
-    tripPage = new TripPage(page);
-    await page.goto(baseURL!);
-  });
-
-  test('POI-referencing activity labels should contain all configured poi_languages', async () => {
+  test('POI-referencing activity labels should contain all configured poi_languages', async ({ tripPage }) => {
     const count = await tripPage.activityLabels.count();
     expect(count).toBeGreaterThan(0);
 
@@ -112,7 +104,7 @@ test.describe('Activity Labels — Language Compliance (poi_languages)', () => {
     ).toHaveLength(0);
   });
 
-  test('POI-referencing activity labels should use "/" separator between languages', async () => {
+  test('POI-referencing activity labels should use "/" separator between languages', async ({ tripPage }) => {
     test.skip(
       !requiresMultipleScripts(config.poiLanguages),
       'All poi_languages use the same script — separator check not applicable'
@@ -138,7 +130,7 @@ test.describe('Activity Labels — Language Compliance (poi_languages)', () => {
     ).toHaveLength(0);
   });
 
-  test('generic action labels should not be flagged (sanity check)', async () => {
+  test('generic action labels should not be flagged (sanity check)', async ({ tripPage }) => {
     const count = await tripPage.activityLabels.count();
     expect(count).toBeGreaterThan(0);
 

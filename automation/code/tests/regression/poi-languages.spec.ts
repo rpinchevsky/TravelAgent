@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { TripPage } from '../pages/TripPage';
+import { test, expect } from '../fixtures/shared-page';
 import {
   loadPoiLanguageConfig,
   findMissingLanguages,
@@ -21,14 +20,7 @@ test.beforeAll(() => {
 });
 
 test.describe('POI Cards — Language Compliance (poi_languages)', () => {
-  let tripPage: TripPage;
-
-  test.beforeEach(async ({ page, baseURL }) => {
-    tripPage = new TripPage(page);
-    await page.goto(baseURL!);
-  });
-
-  test('at least 95% of POI card names should contain all configured poi_languages', async () => {
+  test('at least 95% of POI card names should contain all configured poi_languages', async ({ tripPage }) => {
     const count = await tripPage.poiCards.count();
     expect(count).toBeGreaterThan(0);
 
@@ -55,7 +47,7 @@ test.describe('POI Cards — Language Compliance (poi_languages)', () => {
     ).toBeLessThanOrEqual(maxAllowed);
   });
 
-  test('most POI card names should use "/" separator between languages', async () => {
+  test('most POI card names should use "/" separator between languages', async ({ tripPage }) => {
     // Only meaningful when multiple distinct scripts are configured
     test.skip(
       !requiresMultipleScripts(config.poiLanguages),

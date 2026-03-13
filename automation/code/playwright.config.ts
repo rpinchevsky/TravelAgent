@@ -32,12 +32,8 @@ export default defineConfig({
       name: 'desktop-chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'mobile-chromium',
-      use: {
-        ...devices['iPhone SE'],
-        defaultBrowserType: 'chromium',
-      },
-    },
+    // Mobile-specific tests (responsive.spec.ts, visual.spec.ts) set their own
+    // viewport via test.use(). No need for a separate mobile project — it would
+    // only duplicate viewport-agnostic DOM tests for zero added coverage.
   ],
 });

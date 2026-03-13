@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { TripPage } from '../pages/TripPage';
+import { test, expect } from '../fixtures/shared-page';
 
 const DAY_TITLES = [
   'День 0',
@@ -32,46 +31,36 @@ const DAY_DATES = [
 ];
 
 test.describe('Day Cards — Content Verification', () => {
-  let tripPage: TripPage;
-
-  test.beforeEach(async ({ page, baseURL }) => {
-    tripPage = new TripPage(page);
-    await page.goto(baseURL!);
-  });
-
   for (let i = 0; i <= 11; i++) {
-    test(`Day ${i} should have a banner with title and date`, async () => {
+    test(`Day ${i} should have complete card structure`, async ({ tripPage, sharedPage }) => {
+      // Banner title and date
       const bannerTitle = tripPage.getDayBannerTitle(i);
       const bannerDate = tripPage.getDayBannerDate(i);
-      await expect(bannerTitle).toBeVisible();
-      await expect(bannerDate).toBeVisible();
-      await expect(bannerTitle).toContainText(DAY_TITLES[i]);
-      await expect(bannerDate).toContainText(DAY_DATES[i]);
-    });
+      await expect.soft(bannerTitle, `Day ${i}: banner title visible`).toBeVisible();
+      await expect.soft(bannerDate, `Day ${i}: banner date visible`).toBeVisible();
+      await expect.soft(bannerTitle, `Day ${i}: title text`).toContainText(DAY_TITLES[i]);
+      await expect.soft(bannerDate, `Day ${i}: date text`).toContainText(DAY_DATES[i]);
 
-    test(`Day ${i} should have an itinerary table with rows`, async () => {
+      // Itinerary table with rows
       const table = tripPage.getDayItineraryTable(i);
-      await expect(table).toBeAttached();
+      await expect.soft(table, `Day ${i}: itinerary table`).toBeAttached();
       const rows = tripPage.getDayItineraryRows(i);
-      const count = await rows.count();
-      expect(count).toBeGreaterThanOrEqual(3);
-    });
+      const rowCount = await rows.count();
+      expect.soft(rowCount, `Day ${i}: itinerary row count >= 3`).toBeGreaterThanOrEqual(3);
 
-    test(`Day ${i} should have at least one POI card`, async () => {
+      // At least one POI card
       const pois = tripPage.getDayPoiCards(i);
-      const count = await pois.count();
-      expect(count).toBeGreaterThanOrEqual(1);
-    });
+      const poiCount = await pois.count();
+      expect.soft(poiCount, `Day ${i}: POI card count >= 1`).toBeGreaterThanOrEqual(1);
 
-    test(`Day ${i} should have a Plan B section`, async () => {
-      const planB = tripPage.page.locator(`#day-${i} .advisory--info`).filter({ hasText: 'Запасной план' });
-      await expect(planB).toBeAttached();
-    });
+      // Plan B section
+      const planB = sharedPage.locator(`#day-${i} .advisory--info`).filter({ hasText: 'Запасной план' });
+      await expect.soft(planB, `Day ${i}: Plan B section`).toBeAttached();
 
-    test(`Day ${i} should have a Plan B or advisory section`, async () => {
-      const advisory = tripPage.page.locator(`#day-${i} .advisory`);
-      const count = await advisory.count();
-      expect(count).toBeGreaterThanOrEqual(1);
+      // Advisory section
+      const advisory = sharedPage.locator(`#day-${i} .advisory`);
+      const advisoryCount = await advisory.count();
+      expect.soft(advisoryCount, `Day ${i}: advisory count >= 1`).toBeGreaterThanOrEqual(1);
     });
   }
 });

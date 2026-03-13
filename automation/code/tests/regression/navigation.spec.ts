@@ -1,25 +1,17 @@
-import { test, expect } from '@playwright/test';
-import { TripPage } from '../pages/TripPage';
+import { test, expect } from '../fixtures/shared-page';
 
 test.describe('Navigation — Desktop Sidebar', () => {
-  let tripPage: TripPage;
-
-  test.beforeEach(async ({ page, baseURL }) => {
-    tripPage = new TripPage(page);
-    await page.goto(baseURL!);
-  });
-
-  test('should have exactly 14 sidebar links', async () => {
+  test('should have exactly 14 sidebar links', async ({ tripPage }) => {
     await expect(tripPage.sidebarLinks).toHaveCount(14);
   });
 
-  test('should have first sidebar link as active with aria-current', async () => {
+  test('should have first sidebar link as active with aria-current', async ({ tripPage }) => {
     await expect(tripPage.sidebarActiveLink).toHaveCount(1);
     await expect(tripPage.sidebarActiveLink).toHaveAttribute('aria-current', 'page');
     await expect(tripPage.sidebarActiveLink).toHaveAttribute('href', '#overview');
   });
 
-  test('should have correct sidebar link hrefs', async () => {
+  test('should have correct sidebar link hrefs', async ({ tripPage }) => {
     const expectedHrefs = [
       '#overview',
       '#day-0', '#day-1', '#day-2', '#day-3', '#day-4', '#day-5',
@@ -31,7 +23,7 @@ test.describe('Navigation — Desktop Sidebar', () => {
     }
   });
 
-  test('should have SVG icon in each sidebar link', async () => {
+  test('should have SVG icon in each sidebar link', async ({ tripPage }) => {
     const count = await tripPage.sidebarLinks.count();
     for (let i = 0; i < count; i++) {
       const svg = tripPage.sidebarLinks.nth(i).locator('svg');
@@ -41,23 +33,16 @@ test.describe('Navigation — Desktop Sidebar', () => {
 });
 
 test.describe('Navigation — Mobile Pills', () => {
-  let tripPage: TripPage;
-
-  test.beforeEach(async ({ page, baseURL }) => {
-    tripPage = new TripPage(page);
-    await page.goto(baseURL!);
-  });
-
-  test('should have exactly 14 mobile pills', async () => {
+  test('should have exactly 14 mobile pills', async ({ tripPage }) => {
     await expect(tripPage.mobilePills).toHaveCount(14);
   });
 
-  test('should have first pill as active', async () => {
+  test('should have first pill as active', async ({ tripPage }) => {
     await expect(tripPage.mobileActivePill).toHaveCount(1);
     await expect(tripPage.mobileActivePill).toHaveAttribute('href', '#overview');
   });
 
-  test('should have correct pill hrefs', async () => {
+  test('should have correct pill hrefs', async ({ tripPage }) => {
     const expectedHrefs = [
       '#overview',
       '#day-0', '#day-1', '#day-2', '#day-3', '#day-4', '#day-5',

@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { TripPage } from '../pages/TripPage';
+import { test, expect } from '../fixtures/shared-page';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -65,26 +64,20 @@ function getExpectedPoiCountsFromMarkdown(): Record<number, { count: number; nam
   return result;
 }
 
+let expectedPois: Record<number, { count: number; names: string[] }>;
+
+test.beforeAll(() => {
+  expectedPois = getExpectedPoiCountsFromMarkdown();
+});
+
 test.describe('POI Parity — Markdown vs HTML Card Count', () => {
-  let tripPage: TripPage;
-  let expectedPois: Record<number, { count: number; names: string[] }>;
-
-  test.beforeAll(() => {
-    expectedPois = getExpectedPoiCountsFromMarkdown();
-  });
-
-  test.beforeEach(async ({ page, baseURL }) => {
-    tripPage = new TripPage(page);
-    await page.goto(baseURL!);
-  });
-
   test('should have parsed at least one day from markdown source', () => {
     const days = Object.keys(expectedPois);
     expect(days.length).toBeGreaterThan(0);
   });
 
   for (let day = 0; day <= 11; day++) {
-    test(`Day ${day}: HTML POI card count should match markdown POI section count`, async () => {
+    test(`Day ${day}: HTML POI card count should match markdown POI section count`, async ({ tripPage }) => {
       const expected = expectedPois[day];
       expect(expected, `Day ${day} not found in markdown source`).toBeDefined();
 
@@ -98,7 +91,7 @@ test.describe('POI Parity — Markdown vs HTML Card Count', () => {
     });
   }
 
-  test('total POI cards in HTML should match total POI sections in markdown', async () => {
+  test('total POI cards in HTML should match total POI sections in markdown', async ({ tripPage }) => {
     let expectedTotal = 0;
     for (const day of Object.values(expectedPois)) {
       expectedTotal += day.count;

@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { TripPage } from '../pages/TripPage';
+import { test, expect } from '../fixtures/shared-page';
 
 /**
  * Validates the structural linking between activity labels in itinerary tables
@@ -15,14 +14,7 @@ import { TripPage } from '../pages/TripPage';
 const POI_ID_PATTERN = /^poi-day-(\d+)-(\d+)$/;
 
 test.describe('Activity Label → POI Card Linking', () => {
-  let tripPage: TripPage;
-
-  test.beforeEach(async ({ page, baseURL }) => {
-    tripPage = new TripPage(page);
-    await page.goto(baseURL!);
-  });
-
-  test('every POI card should have a valid anchor ID matching poi-day-{D}-{N} pattern', async () => {
+  test('every POI card should have a valid anchor ID matching poi-day-{D}-{N} pattern', async ({ tripPage }) => {
     const count = await tripPage.poiCards.count();
     expect(count).toBeGreaterThan(0);
 
@@ -43,7 +35,7 @@ test.describe('Activity Label → POI Card Linking', () => {
     ).toHaveLength(0);
   });
 
-  test('POI card IDs should be unique', async () => {
+  test('POI card IDs should be unique', async ({ tripPage }) => {
     const count = await tripPage.poiCards.count();
     const ids: string[] = [];
     for (let i = 0; i < count; i++) {
@@ -58,7 +50,7 @@ test.describe('Activity Label → POI Card Linking', () => {
     ).toHaveLength(0);
   });
 
-  test('POI card IDs within each day should be sequentially numbered starting at 1', async () => {
+  test('POI card IDs within each day should be sequentially numbered starting at 1', async ({ tripPage }) => {
     const dayCount = await tripPage.daySections.count();
     const failures: string[] = [];
 
@@ -82,12 +74,12 @@ test.describe('Activity Label → POI Card Linking', () => {
     ).toHaveLength(0);
   });
 
-  test('clickable activity labels should exist', async () => {
+  test('clickable activity labels should exist', async ({ tripPage }) => {
     const count = await tripPage.clickableActivityLabels.count();
     expect(count).toBeGreaterThan(0);
   });
 
-  test('every clickable activity label href should point to an existing POI card', async ({ page }) => {
+  test('every clickable activity label href should point to an existing POI card', async ({ tripPage, sharedPage }) => {
     const count = await tripPage.clickableActivityLabels.count();
     expect(count).toBeGreaterThan(0);
 
@@ -101,7 +93,7 @@ test.describe('Activity Label → POI Card Linking', () => {
       }
 
       const targetId = href.substring(1);
-      const target = page.locator(`#${targetId}`);
+      const target = sharedPage.locator(`#${targetId}`);
       const targetCount = await target.count();
       if (targetCount === 0) {
         const text = await tripPage.clickableActivityLabels.nth(i).textContent();
@@ -115,7 +107,7 @@ test.describe('Activity Label → POI Card Linking', () => {
     ).toHaveLength(0);
   });
 
-  test('clickable activity labels should be <a> elements, not <span>', async () => {
+  test('clickable activity labels should be <a> elements, not <span>', async ({ tripPage }) => {
     const count = await tripPage.clickableActivityLabels.count();
     for (let i = 0; i < count; i++) {
       const tagName = await tripPage.clickableActivityLabels.nth(i).evaluate(el => el.tagName);
@@ -123,7 +115,7 @@ test.describe('Activity Label → POI Card Linking', () => {
     }
   });
 
-  test('generic activity labels should remain as <span> elements', async ({ page }) => {
+  test('generic activity labels should remain as <span> elements', async ({ tripPage, sharedPage }) => {
     const allLabels = await tripPage.activityLabels.count();
     const clickableLabels = await tripPage.clickableActivityLabels.count();
 
@@ -132,19 +124,19 @@ test.describe('Activity Label → POI Card Linking', () => {
     expect(genericCount).toBeGreaterThan(0);
 
     // Verify generic labels are spans
-    const spans = page.locator('span.activity-label');
+    const spans = sharedPage.locator('span.activity-label');
     const spanCount = await spans.count();
     expect(spanCount).toBe(genericCount);
   });
 
-  test('clicking a linked activity label should scroll to its POI card', async ({ page }) => {
+  test('clicking a linked activity label should scroll to its POI card', async ({ tripPage, sharedPage }) => {
     // Pick the first clickable label for the scroll test
     const firstLink = tripPage.clickableActivityLabels.first();
     await expect(firstLink).toBeAttached();
 
     const href = await firstLink.getAttribute('href');
     const targetId = href!.substring(1);
-    const targetCard = page.locator(`#${targetId}`);
+    const targetCard = sharedPage.locator(`#${targetId}`);
 
     await expect(targetCard).toBeAttached();
 
@@ -155,7 +147,7 @@ test.describe('Activity Label → POI Card Linking', () => {
     await expect(targetCard).toBeInViewport({ timeout: 3000 });
   });
 
-  test('each active day with POI cards should have at least one clickable activity label', async () => {
+  test('each active day with POI cards should have at least one clickable activity label', async ({ tripPage }) => {
     const failures: string[] = [];
     // Skip arrival (day 0) and departure (day 11) — they may have POI cards
     // but use non-clickable activity labels for logistical actions

@@ -1,21 +1,13 @@
-import { test, expect } from '@playwright/test';
-import { TripPage } from '../pages/TripPage';
+import { test, expect } from '../fixtures/shared-page';
 
 test.describe('POI Cards — Content & Links', () => {
-  let tripPage: TripPage;
-
-  test.beforeEach(async ({ page, baseURL }) => {
-    tripPage = new TripPage(page);
-    await page.goto(baseURL!);
-  });
-
-  test('should have POI cards across all days', async () => {
+  test('should have POI cards across all days', async ({ tripPage }) => {
     const totalPois = await tripPage.poiCards.count();
-    // 12 days × at least 2 POIs = at least 35
-    expect(totalPois).toBeGreaterThanOrEqual(35);
+    // 12 days × at least 2 POIs = at least 45
+    expect(totalPois).toBeGreaterThanOrEqual(45);
   });
 
-  test('every POI card should have a name', async () => {
+  test('every POI card should have a name', async ({ tripPage }) => {
     const count = await tripPage.poiCards.count();
     for (let i = 0; i < count; i++) {
       const name = tripPage.getPoiCardName(tripPage.poiCards.nth(i));
@@ -25,7 +17,7 @@ test.describe('POI Cards — Content & Links', () => {
     }
   });
 
-  test('most POI cards should have a pro-tip', async () => {
+  test('most POI cards should have a pro-tip', async ({ tripPage }) => {
     const count = await tripPage.poiCards.count();
     let proTipCount = 0;
     for (let i = 0; i < count; i++) {
@@ -36,7 +28,7 @@ test.describe('POI Cards — Content & Links', () => {
     expect(proTipCount).toBeGreaterThanOrEqual(Math.floor(count * 0.75));
   });
 
-  test('every POI card should have at least 1 link (Maps required)', async () => {
+  test('every POI card should have at least 1 link (Maps required)', async ({ tripPage }) => {
     const count = await tripPage.poiCards.count();
     for (let i = 0; i < count; i++) {
       const links = tripPage.getPoiCardLinks(tripPage.poiCards.nth(i));
@@ -45,7 +37,7 @@ test.describe('POI Cards — Content & Links', () => {
     }
   });
 
-  test('POI card links should have href attributes', async () => {
+  test('POI card links should have href attributes', async ({ tripPage }) => {
     const count = await tripPage.poiCards.count();
     for (let i = 0; i < count; i++) {
       const links = tripPage.getPoiCardLinks(tripPage.poiCards.nth(i));
@@ -58,7 +50,7 @@ test.describe('POI Cards — Content & Links', () => {
     }
   });
 
-  test('every POI card should have a description', async () => {
+  test('every POI card should have a description', async ({ tripPage }) => {
     const count = await tripPage.poiCards.count();
     for (let i = 0; i < count; i++) {
       const desc = tripPage.poiCards.nth(i).locator('.poi-card__description');

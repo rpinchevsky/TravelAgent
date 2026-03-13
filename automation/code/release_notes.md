@@ -1,5 +1,42 @@
 # Release Notes
 
+## 2026-03-13_1830 — Arcade & Indoor Entertainment Expansion (51 POI Cards)
+
+### Changes
+
+#### Trip Content (Incremental Edit — 10 New POIs)
+- **10 new POI cards added** (1 per day, Days 1-10): total now 51 POIs (was 41).
+- **Theme:** arcade games, trampoline parks, VR, pinball, indoor entertainment.
+- **POI distribution:** Day 0:1, 1:5, 2:5, 3:5, 4:5, 5:5, 6:4, 7:4, 8:4, 9:6, 10:5, 11:2
+- **Budget total**: ~1 854 EUR / ~703 640 HUF (was ~1 572 EUR / ~596 140 HUF).
+- **New POIs by day:**
+  - Day 1: SuperFly Trambulinpark (trampoline park, XIII district)
+  - Day 2: Gamerland (VR + arcade center, III district, Sat evening)
+  - Day 3: Elevenpark Játszóház (indoor playground, XI district)
+  - Day 4: Gameroom Budapest (high-tech interactive arcade, IX district)
+  - Day 5: Budavári Labirintus (underground labyrinth, promoted from backup)
+  - Day 6: CyberJump Trambulinpark (trampoline park, XI district)
+  - Day 7: Flippermúzeum (pinball museum, 160+ machines, XIII district)
+  - Day 8: Aquaworld Játékterem (arcade game zone at resort)
+  - Day 9: VR Vidámpark Budapest (VR amusement park)
+  - Day 10: Let's Go Arcade revisit (birthday arcade treat)
+
+#### Test Data Synchronized
+- **poi-cards.spec.ts**: Min POI threshold 35 → 45 (51 total POIs now).
+- **overview-budget.spec.ts**: Budget EUR 1 572 → 1 854.
+- **progression-2026-03-13_1557.spec.ts**: Removed (replaced by new progression).
+
+#### New Progression Tests
+- **progression-2026-03-13_1830.spec.ts**: 51 POI count, per-day counts, 10 new POI presence checks, updated budget 1 854, previous POIs still present checks.
+
+### Affected Sections
+- Day 1-10 sections — new POI cards added
+- Budget section — new totals (1 854 EUR / 703 640 HUF)
+- Navigation — 14 items (unchanged count)
+- Overview table — 12 rows (unchanged count)
+
+---
+
 ## 2026-03-13_1557 — Expanded Trip with 41 POI Cards and Full Day Coverage
 
 ### Changes
