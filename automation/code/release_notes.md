@@ -1,5 +1,78 @@
 # Release Notes
 
+## 2026-03-13_0109 — Enhanced Trip with 34 POI Cards and New Attractions
+
+### Changes
+
+#### Trip Content (New Generation)
+- **Full 11-day trip regenerated** with enriched itinerary: 34 POI cards (was 23).
+- **New POIs added:**
+  - Day 1: Zenélő szökőkút (Musical Fountain) — 4th POI
+  - Day 2: VakVarjú Étterem (restaurant with babysitter), Városligeti Nagyjátszótér (13k m² playground) — 5 POIs total
+  - Day 3: Szimpla Kert Vasárnapi piac (Sunday farmers market), Ruszwurm Cukrászda — 5 POIs total
+  - Day 6: Fogaskerekű Vasút (Cogwheel Railway), Libegő (Chairlift), Normafa Delikat (mountain café) — 5 POIs total
+  - Day 8: Magyar Zene Háza (House of Music), Menza Étterem — 4 POIs total
+  - Day 10: VakVarjú for birthday, Daubner Cukrászda — 3 POIs total
+- **POI distribution:** Day 0: 0, Day 1: 4, Day 2: 5, Day 3: 5, Day 4: 2, Day 5: 3, Day 6: 5, Day 7: 2, Day 8: 4, Day 9: 1, Day 10: 3, Day 11: 0
+- **Budget total**: ~1 463 EUR / ~570 250 HUF (was ~1 334 EUR).
+- **12 day sections**, **14 navigation links** (unchanged structure).
+- **34 clickable activity labels** linking to POI cards.
+
+#### Config Changes
+- **playwright.config.ts**: Updated `filePath` to point to `trip_2026-03-13_0109.html`.
+
+#### Test Data Synchronized
+- **overview-budget.spec.ts**: Budget EUR 1 334 → 1 463.
+- **poi-cards.spec.ts**: Min POI threshold 20 → 30.
+- **svg-integrity.spec.ts**: Min SVG threshold 13 → 14.
+- **activity-poi-linking.spec.ts**: Day loop 0..10 → 0..11.
+
+#### New Progression Tests
+- **progression-2026-03-13_0109.spec.ts**: 34 POI count, per-day POI counts, new POI presence checks (Zene Háza, Szimpla Kert, Fogaskerekű, Libegő), updated budget 1 463.
+
+### Affected Sections
+- All day sections (Day 0–11) — full content regeneration
+- Navigation — 14 items (unchanged count)
+- Overview table — 12 rows (unchanged count)
+- Budget section — new totals (1 463 EUR)
+- 34 POI cards — enriched descriptions, dual-language names
+
+---
+
+## 2026-03-13_0030 — Full Trip Regeneration with New Itinerary
+
+### Changes
+
+#### Trip Content (New Generation)
+- **Full 11-day trip regenerated** with new itinerary structure: Days 0 (arrival) through 11 (departure).
+- **Day 11 (departure)** added as a new day section with minimal content (no POIs, no Plan B).
+- **12 day sections** total (was 11): `#day-0` through `#day-11`.
+- **14 navigation links** (was 13): overview + 12 days + budget.
+- **23 POI cards** total (was 36): leaner itinerary with quality-over-quantity approach.
+  - Day 1: 3, Day 2: 3, Day 3: 3, Day 4: 2, Day 5: 3, Day 6: 2, Day 7: 2, Day 8: 2, Day 9: 1, Day 10: 2
+- **POI names in dual language** (Hungarian / Russian) per `poi_languages` setting.
+- **Budget total**: ~1 334 EUR (was ~1 745 EUR). No car rental in this trip.
+- **Overview table**: 12 data rows (was 11) — includes Day 11 departure row.
+- **Holiday advisory**: St. Stephen's Day (Aug 20) — single `advisory--warning`.
+- **Activity label linking**: 23 clickable `<a class="activity-label">` elements linking to POI cards.
+
+#### Config Changes
+- **playwright.config.ts**: Updated `filePath` to point to `trip_2026-03-13_0030.html`.
+
+#### Test Data Synchronized
+- **structure.spec.ts**: Day section count 11 → 12.
+- **navigation.spec.ts**: Sidebar/pill count 13 → 14, added `#day-11` href.
+- **overview-budget.spec.ts**: Overview rows 11 → 12, budget EUR amount 1 745 → 1 334, removed car rental assertion.
+
+### Affected Sections
+- All day sections (Day 0–11) — full content regeneration
+- Navigation (sidebar + mobile pills) — 14 items
+- Overview table — 12 rows
+- Budget section — new totals
+- All 23 POI cards — dual-language names
+
+---
+
 ## 2026-03-12_2215 — Full Trip Regeneration with POI Parity & Language Compliance
 
 ### Changes
@@ -11,7 +84,7 @@
   - Day 1: 3, Day 2: 4, Day 3: 5, Day 4: 4, Day 5: 4, Day 6: 3, Day 7: 4, Day 8: 2, Day 9: 4, Day 10: 3 (Total: 36)
 - **Holiday advisory** rendered as `advisory--warning` before overview table.
 - **Day 0** (arrival) included in navigation and content.
-- **Overview table** rendered as standalone `section-title` + `itinerary-table-wrapper` (not wrapped in day-card).
+- **Overview table** rendered as standalone `section-title` + `itinerary-table-wrapper` table.
 - **Pricing sections** use `pricing-grid` with `pricing-cell` components (not itinerary-table).
 - **Plan B sections** use `advisory advisory--info` (not card--featured).
 - **Logistics sections** use `advisory advisory--info`.
@@ -28,10 +101,6 @@
 - Holiday advisory — new rendering
 - Budget summary — new section
 - All 36 POI cards — dual-language names, full descriptions
-
-### Previous Known Failures (Should Now Be Resolved)
-- **poi-parity**: Previously failed on Days 2, 3, 4, 9 due to dropped restaurant cards. New HTML has correct counts.
-- **poi-languages**: Previously failed due to single-language POI names. New HTML uses "Hungarian Name / Russian Name" format.
 
 ---
 

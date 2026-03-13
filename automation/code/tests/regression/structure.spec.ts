@@ -27,9 +27,9 @@ test.describe('Structural Integrity', () => {
     await expect(tripPage.pageSubtitle).toContainText('Итай');
   });
 
-  test('should render all 11 day sections (day-0 arrival + days 1-10)', async () => {
-    await expect(tripPage.daySections).toHaveCount(11);
-    for (let i = 0; i <= 10; i++) {
+  test('should render all 12 day sections (day-0 arrival + days 1-10 + day-11 departure)', async () => {
+    await expect(tripPage.daySections).toHaveCount(12);
+    for (let i = 0; i <= 11; i++) {
       await expect(tripPage.getDaySection(i)).toBeAttached();
     }
   });

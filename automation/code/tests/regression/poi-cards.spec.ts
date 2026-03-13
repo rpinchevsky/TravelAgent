@@ -11,8 +11,8 @@ test.describe('POI Cards — Content & Links', () => {
 
   test('should have POI cards across all days', async () => {
     const totalPois = await tripPage.poiCards.count();
-    // 10 days × at least 2 POIs (attraction + restaurant) = at least 20
-    expect(totalPois).toBeGreaterThanOrEqual(20);
+    // 10 days × at least 2 POIs (attraction + restaurant) = at least 30
+    expect(totalPois).toBeGreaterThanOrEqual(30);
   });
 
   test('every POI card should have a name', async () => {

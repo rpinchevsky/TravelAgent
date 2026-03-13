@@ -97,7 +97,7 @@ test.describe('Progression — Budget Summary Section', () => {
 
   test('should contain a pricing-grid or budget table in budget section', async ({ page }) => {
     const budgetContent = page.locator('#budget');
-    await expect(budgetContent).toContainText('ИТОГО');
+    await expect(budgetContent).toContainText('Итого');
   });
 });
 

@@ -19,7 +19,7 @@ Before any planning or answering, perform these two steps:
    - Use these calculated ages for all "Age Filters" and the "Kids' Fun Index."
    - *Example:* If the youngest is calculated as 4, apply the 4-year-old safety/engagement rules.
 3. **Language** use languages from `language_preference`
-4. **POI** all points of interest that advised to be visited shall use languages from `language_preference.poi_languages`
+4. **POI** all points of interest that advised to be visited shall use languages from `language_preference.poi_languages` — this applies **everywhere** the POI name appears: POI card headings, activity labels in itinerary tables (including restaurants, stations, and any named location in the 🏷️ Activity column), and any other reference. Format per `poi_languages` order, separated by ` / `.
 ---
 
 ## Network & Connectivity Rules
@@ -36,12 +36,20 @@ Before any planning or answering, perform these two steps:
 - **Conflict Resolution:** If a "Universal" interest and a "Specific" interest conflict, prioritize the "Universal" activity but mention the "Specific" one as an alternative or quick stop.
 - **Primary:** Avoid `trip_context.places_to_avoid`. Those are places that you shall avoid during your trip creation.
 
-- **The "Only Here" Rule** - Search for attractions that exist only in this city or country 
+- **The "Only Here" Rule** - Search for attractions that exist only in this city or country
 
+### 5. "Only Here" Research Gate (Mandatory)
+After initial itinerary draft, perform a dedicated research pass:
+1. Search: "[destination] unique attractions NOT found elsewhere + [each child's specific_interests]"
+2. Search: "[destination] endemic experiences families children animals/trains/etc"
+3. Cross-reference every traveler's `specific_interests` against results
+4. Replace generic POIs (soft play, generic mall) with "Only Here" alternatives
+
+**Priority order:** "Only Here" POI > Universal Interest match > Generic attraction
 
 ### 2. The "Age-Appropriate" Filter
 - **Safety:** Every activity must be safe for the *calculated* age of the youngest child.
-- **Pace:** Adhere strictly to the `pace_preference`.
+- **Pace:** Adhere strictly to the `pace_preference`. Note: `pace_preference` controls the *tempo* between activities (no rushing, buffer time), NOT the number of POIs per day. Each full day should include 3–5 POI cards (attractions + restaurants + secondary stops).
 - **Movement:** Prioritize according to `universal_interests` and `specific_interests` of persons in trip.
 
 ### 3. Geographic Clustering (Zero Waste Time)
@@ -172,7 +180,8 @@ Generate only the necessary HTML strings for the following placeholders:
 
 3. **{{TRIP_CONTENT}}**:
    - Convert itinerary data into `<table class="itinerary-table">`.
-   - Wrap specific locations/stops in `<div class="poi-card">`.
+   - Wrap specific locations/stops in `<div class="poi-card">`. Each POI card MUST have `id="poi-day-{D}-{N}"` (D = day number, N = 1-based POI index within that day).
+   - **Activity Label → POI Linking (Mandatory):** When an activity label in the itinerary table references a POI that has a corresponding `poi-card` in the same day, render it as `<a class="activity-label" href="#poi-day-{D}-{N}">` instead of `<span>`. Generic actions without a POI card remain as `<span class="activity-label">`.
    - Ensure all `<img>` tags include `loading="lazy"`.
    - **POI Parity Rule (Mandatory):** Every `###` section in the markdown source that describes a POI (i.e., NOT Логистика / Стоимость / Запасной план) **MUST** produce exactly one `<div class="poi-card">` in the HTML output. No POI may be silently dropped, truncated, or merged. After generation, verify that the count of `poi-card` elements per day matches the count of `###` POI sections per day in the source markdown.
 
@@ -185,8 +194,9 @@ When delegating HTML generation to a sub-agent, the prompt MUST include these 7 
 5. Pro-tip rule: wrap in `<div class="pro-tip">`, not just `<strong>` text
 6. SVG rule: sidebar links need inline `<svg>` with explicit `width`/`height`
 7. CSS inlining rule: full CSS in `<style>` tag, never `<link>`
+8. Activity label linking rule: POI-referencing labels use `<a class="activity-label" href="#poi-day-{D}-{N}">`, POI cards have matching `id="poi-day-{D}-{N}"`
 
-**Gate:** Never delegate HTML generation without all 7 items in the prompt. See `development_rules.md` Rule 4.
+**Gate:** Never delegate HTML generation without all 8 items in the prompt. See `development_rules.md` Rule 4.
 
 ## 🏗️ Step 3: Assembly & Final Export
 1. **Read** (do not modify) `base_layout.html` to use as a template.
@@ -215,6 +225,8 @@ After HTML generation and BEFORE any Playwright test execution, perform a quick 
 6. CSS is inlined in `<style>`, no `<link>` to external CSS
 7. POI parity: `.poi-card` count per day matches markdown `###` POI count
 8. Navigation: `sidebar__link` count equals `mobile-nav__pill` count
+9. POI card anchors: every `.poi-card` has `id="poi-day-{D}-{N}"`
+10. Activity label links: POI-referencing activity labels are `<a>` with `href` matching a `.poi-card` id
 
 **Gate:** If ANY check fails, fix the HTML and re-validate before proceeding to Phase C.
 

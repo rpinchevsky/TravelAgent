@@ -606,6 +606,39 @@ table {
   color: var(--color-text-primary);
 }
 
+/* Clickable activity labels that link to POI cards */
+a.activity-label {
+  text-decoration: none;
+  color: var(--color-text-primary);
+  border-bottom: 1px dashed var(--color-brand-accent-alt);
+  transition: color var(--transition-base), border-color var(--transition-base);
+  cursor: pointer;
+}
+
+a.activity-label:hover {
+  color: var(--color-brand-accent);
+  border-bottom-style: solid;
+}
+
+a.activity-label:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-interactive);
+}
+
+/* POI card highlight when navigated to via anchor */
+.poi-card:target {
+  box-shadow: var(--shadow-md);
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+  animation: poi-highlight 1.5s ease-out;
+}
+
+@keyframes poi-highlight {
+  0% { outline-color: var(--color-brand-accent); }
+  100% { outline-color: transparent; }
+}
+
 .activity-label svg {
   width: 16px;
   height: 16px;

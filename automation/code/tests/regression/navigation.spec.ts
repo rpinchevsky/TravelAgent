@@ -9,8 +9,8 @@ test.describe('Navigation — Desktop Sidebar', () => {
     await page.goto(baseURL!);
   });
 
-  test('should have exactly 13 sidebar links', async () => {
-    await expect(tripPage.sidebarLinks).toHaveCount(13);
+  test('should have exactly 14 sidebar links', async () => {
+    await expect(tripPage.sidebarLinks).toHaveCount(14);
   });
 
   test('should have first sidebar link as active with aria-current', async () => {
@@ -23,7 +23,7 @@ test.describe('Navigation — Desktop Sidebar', () => {
     const expectedHrefs = [
       '#overview',
       '#day-0', '#day-1', '#day-2', '#day-3', '#day-4', '#day-5',
-      '#day-6', '#day-7', '#day-8', '#day-9', '#day-10',
+      '#day-6', '#day-7', '#day-8', '#day-9', '#day-10', '#day-11',
       '#budget',
     ];
     for (let i = 0; i < expectedHrefs.length; i++) {
@@ -48,8 +48,8 @@ test.describe('Navigation — Mobile Pills', () => {
     await page.goto(baseURL!);
   });
 
-  test('should have exactly 13 mobile pills', async () => {
-    await expect(tripPage.mobilePills).toHaveCount(13);
+  test('should have exactly 14 mobile pills', async () => {
+    await expect(tripPage.mobilePills).toHaveCount(14);
   });
 
   test('should have first pill as active', async () => {
@@ -61,7 +61,7 @@ test.describe('Navigation — Mobile Pills', () => {
     const expectedHrefs = [
       '#overview',
       '#day-0', '#day-1', '#day-2', '#day-3', '#day-4', '#day-5',
-      '#day-6', '#day-7', '#day-8', '#day-9', '#day-10',
+      '#day-6', '#day-7', '#day-8', '#day-9', '#day-10', '#day-11',
       '#budget',
     ];
     for (let i = 0; i < expectedHrefs.length; i++) {

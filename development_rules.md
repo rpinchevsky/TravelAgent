@@ -27,10 +27,11 @@ Every locator in `automation/code/tests/pages/TripPage.ts` defines a **structura
 | `.day-card__banner` | Banner inside each day card |
 | `.day-card__banner-title` | Day title in banner |
 | `.day-card__banner-date` | Date in banner |
-| `.poi-card` | POI card wrapper |
+| `.poi-card[id^="poi-day-"]` | POI card wrapper with anchor ID (`poi-day-{D}-{N}`) |
 | `.poi-card__name` | POI name element |
 | `.poi-card__link` | Links inside POI cards |
 | `.pro-tip` | Pro-tip wrapper div (NOT just bold text) |
+| `a.activity-label[href^="#poi-day-"]` | Clickable activity labels linking to POI cards |
 | `.advisory--info` | Plan B and Logistics sections |
 | `#budget` | `<section id="budget">` |
 | `head style` | Inlined CSS (no external `<link>`) |
@@ -59,6 +60,8 @@ After HTML generation and BEFORE running Playwright regression, perform an autom
 7. SVG attributes:            All <svg> have explicit width="" and height=""
 8. POI parity:                Count of .poi-card per day matches markdown ### POI count
 9. Navigation completeness:   sidebar__link count matches mobile-nav__pill count
+10. POI card anchors:          Every .poi-card has id="poi-day-{D}-{N}"
+11. Activity label links:      POI-referencing .activity-label elements are <a> with href matching a .poi-card id
 ```
 
 ### How to run:

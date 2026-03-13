@@ -9,12 +9,12 @@ test.describe('Overview Table', () => {
     await page.goto(baseURL!);
   });
 
-  test('should have overview table with 11 data rows (arrival + 10 days)', async () => {
-    await expect(tripPage.overviewTableRows).toHaveCount(11);
+  test('should have overview table with 12 data rows (arrival + 10 days + departure)', async () => {
+    await expect(tripPage.overviewTableRows).toHaveCount(12);
   });
 
   test('overview table should contain arrival row', async () => {
-    await expect(tripPage.overviewTableRows.first()).toContainText('Заезд');
+    await expect(tripPage.overviewTableRows.first()).toContainText('20.08');
   });
 
   test('overview table should contain all 10 day links', async () => {
@@ -26,7 +26,7 @@ test.describe('Overview Table', () => {
 
   test('all overview rows should have Plan B column', async () => {
     const count = await tripPage.overviewTableRows.count();
-    expect(count).toBeGreaterThanOrEqual(11);
+    expect(count).toBeGreaterThanOrEqual(12);
   });
 });
 
@@ -43,15 +43,11 @@ test.describe('Budget Section', () => {
   });
 
   test('budget table should contain total row with EUR amount', async () => {
-    await expect(tripPage.budgetSection).toContainText('1 745');
+    await expect(tripPage.budgetSection).toContainText('1 463');
   });
 
   test('budget table should contain EUR currency marker', async () => {
-    await expect(tripPage.budgetSection).toContainText('€');
-  });
-
-  test('budget section should contain car rental info', async () => {
-    await expect(tripPage.budgetSection).toContainText('автомобил');
+    await expect(tripPage.budgetSection).toContainText('EUR');
   });
 });
 

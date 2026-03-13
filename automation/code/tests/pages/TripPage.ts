@@ -39,6 +39,10 @@ export class TripPage {
   // --- POI cards ---
   readonly poiCards: Locator;
 
+  // --- Activity labels (itinerary tables) ---
+  readonly activityLabels: Locator;
+  readonly clickableActivityLabels: Locator;
+
   // --- Budget ---
   readonly budgetSection: Locator;
 
@@ -79,6 +83,10 @@ export class TripPage {
 
     // POI
     this.poiCards = page.locator('.poi-card');
+
+    // Activity labels
+    this.activityLabels = page.locator('.activity-label');
+    this.clickableActivityLabels = page.locator('a.activity-label[href^="#poi-day-"]');
 
     // Budget
     this.budgetSection = page.locator('#budget');
@@ -139,6 +147,18 @@ export class TripPage {
 
   getPoiCardProTip(poiCard: Locator): Locator {
     return poiCard.locator('.pro-tip');
+  }
+
+  getDayActivityLabels(dayNumber: number): Locator {
+    return this.page.locator(`#day-${dayNumber} .activity-label`);
+  }
+
+  getDayClickableActivityLabels(dayNumber: number): Locator {
+    return this.page.locator(`#day-${dayNumber} a.activity-label[href^="#poi-day-"]`);
+  }
+
+  getDayPoiCardById(dayNumber: number, poiIndex: number): Locator {
+    return this.page.locator(`#poi-day-${dayNumber}-${poiIndex}`);
   }
 
   getAllSvgs(): Locator {

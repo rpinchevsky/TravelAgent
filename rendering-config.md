@@ -30,6 +30,7 @@
 - Never stack POI cards vertically without the grid wrapper.
 
 ### POI Card Structure
+- **Anchor ID (Mandatory):** Every `<div class="poi-card">` MUST have a unique `id` attribute following the pattern `id="poi-day-{D}-{N}"` where `{D}` is the day number and `{N}` is the 1-based POI index within that day. Example: `id="poi-day-1-1"`, `id="poi-day-1-2"`, `id="poi-day-2-1"`.
 - Tag: `<span class="poi-card__tag">` with emoji prefix (e.g., `🏊 Бассейн`, `🍽️ Ужин`, `🏛️ Музей`)
 - Name: Use `<h3 class="poi-card__name">` (semantic heading), NOT `<div>`
 - Links: Use emoji prefixes: `📍 Maps`, `🌐 Сайт`, `📸 Фото`
@@ -41,7 +42,9 @@
 - **Validation:** After HTML generation, the count of `.poi-card` elements inside each `#day-N` section must equal the count of `###` POI headings for that day in the source markdown.
 
 ### Activity Labels in Itinerary Tables
-- Use emoji icons in `<span class="activity-label">` (e.g., `🚗 Выезд`, `💦 Palatinus`, `🍽️ Обед`, `🏛️ Зоопарк`, `🛒 Шоппинг`, `🚂 Поезд`)
+- **Clickable POI Link (Mandatory):** When an activity label references a specific POI that has a corresponding `<div class="poi-card">` in the same day, the label MUST be rendered as a clickable anchor: `<a class="activity-label" href="#poi-day-{D}-{N}">` instead of a plain `<span>`. The `href` must match the `id` of the target POI card. Generic actions (transport, walks without a named POI) that have no corresponding POI card remain as `<span class="activity-label">`.
+- Use emoji icons in activity labels (e.g., `🚗 Выезд`, `💦 Palatinus Strand / Палатинус`, `🍽️ Обед`, `🏛️ Állatkert / Зоопарк`, `🛒 Шоппинг`, `🚂 Поезд`)
+- **POI Language Rule (Mandatory):** When an activity label references a specific POI (attraction, restaurant, park, landmark), the name MUST follow the `language_preference.poi_languages` format — `Hungarian Name / Russian Name`. Generic actions (Выезд, Обед, Переезд) remain in the reporting language only.
 - Do NOT use inline SVG icons inside activity labels.
 
 ### Pricing Display
