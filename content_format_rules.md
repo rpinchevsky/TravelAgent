@@ -6,22 +6,25 @@ Each trip is stored in its own timestamped folder under `generated_trips/`:
 
 ```
 generated_trips/
-  trip_YYYY-MM-DD_HHmm/          # Trip folder (timestamp = trip creation time)
-    manifest.json                  # Trip metadata + day index + state tracker
-    overview.md                    # Phase A table + trip header + holiday advisory
-    day_00.md                      # Day 0 (arrival, if applicable)
-    day_01.md                      # Day 1
-    day_02.md ... day_NN.md        # One file per day
-    budget.md                      # Aggregated budget from all days
-    trip_full.md                   # Auto-assembled from all parts (generated, not hand-edited)
-    trip_full.html                 # Final HTML output
+  trip_YYYY-MM-DD_HHmm/           # Trip folder (one folder per trip, all languages inside)
+    manifest.json                  # Trip metadata + day index + per-language state
+    overview_LANG.md               # Phase A table (e.g., overview_ru.md, overview_en.md)
+    day_00_LANG.md                 # Day 0 (e.g., day_00_ru.md)
+    day_01_LANG.md                 # Day 1
+    day_NN_LANG.md                 # One file per day per language
+    budget_LANG.md                 # Aggregated budget
+    trip_full_LANG.md              # Auto-assembled from all parts for that language
+    trip_full_LANG.html            # Final HTML output for that language
 ```
 
 ### Naming Rules
-- **Folder name:** `trip_YYYY-MM-DD_HHmm` — same timestamp convention as before.
+- **Folder name:** `trip_YYYY-MM-DD_HHmm` — timestamp only. One folder holds all language variants of the same trip.
+- **File language suffix:** Every content file includes a two-letter ISO 639-1 language code before the extension: `day_01_ru.md`, `day_01_en.md`, `overview_he.md`, `trip_full_ru.html`, etc. This ensures reports in different languages coexist without overwriting each other.
+- **Language code mapping:** Russian → `ru`, English → `en`, Hebrew → `he`, German → `de`, French → `fr`, Spanish → `es`, etc. Derived from `language_preference.reporting_language` in `trip_details.json`.
 - **Timestamping:** Always run `date +"%Y-%m-%d_%H%M"` via the Bash tool to determine the correct current local time.
-- **Day files:** `day_00.md` through `day_NN.md` — zero-padded two-digit day number.
-- **Legacy trips:** Older monolithic trips in `generated_trips/md/` and `generated_trips/html/` remain as-is. New trips use the folder structure.
+- **Re-generation in another language:** When regenerating an existing trip in a different language, write new `_LANG` files into the **same** trip folder. The manifest tracks each language's state independently.
+- **Day files:** `day_00_LANG.md` through `day_NN_LANG.md` — zero-padded two-digit day number + language code.
+- **Legacy trips:** Older trips without language suffixes (e.g., `day_01.md`) are treated as the default language. New trips must use the `_LANG` suffix.
 
 ### manifest.json Schema
 
@@ -34,23 +37,28 @@ Created during Phase A, updated after each day is generated:
   "departure": "2026-08-31",
   "total_days": 11,
   "created": "2026-03-15T09:00:00",
-  "phase_a_complete": true,
-  "days": {
-    "day_00": { "status": "complete", "title": "Прилёт", "last_modified": "2026-03-15T09:05:00" },
-    "day_01": { "status": "complete", "title": "Остров Маргит", "last_modified": "2026-03-15T09:08:00" },
-    "day_02": { "status": "pending", "title": "Варошлигет", "last_modified": null }
-  },
-  "budget_complete": false,
-  "assembly": {
-    "trip_full_md_built": "2026-03-15T09:30:00",
-    "trip_full_html_built": "2026-03-15T09:45:00",
-    "stale_days": []
+  "languages": {
+    "ru": {
+      "phase_a_complete": true,
+      "days": {
+        "day_00": { "status": "complete", "title": "Прилёт", "last_modified": "2026-03-15T09:05:00" },
+        "day_01": { "status": "complete", "title": "Остров Маргит", "last_modified": "2026-03-15T09:08:00" },
+        "day_02": { "status": "pending", "title": "Варошлигет", "last_modified": null }
+      },
+      "budget_complete": false,
+      "assembly": {
+        "trip_full_md_built": "2026-03-15T09:30:00",
+        "trip_full_html_built": "2026-03-15T09:45:00",
+        "stale_days": []
+      }
+    }
   }
 }
 ```
 
 **Field rules:**
-- `days` keys match filenames exactly (e.g., `day_00` → `day_00.md`).
+- `languages` — keyed by ISO 639-1 code. Each language has its own `phase_a_complete`, `days`, `budget_complete`, and `assembly` state. Adding a new language creates a new key (e.g., `"en": { ... }`).
+- `days` keys match filenames without the language suffix (e.g., `day_00` → `day_00_ru.md`).
 - `status` values: `"pending"` | `"complete"`.
 - `title` is populated from the Phase A overview table.
 - `stale_days` lists any days modified after the last full assembly — triggers incremental rebuild.
@@ -70,11 +78,11 @@ Provide a table with:
 ### Phase A Output
 
 1. Create the trip folder: `generated_trips/trip_YYYY-MM-DD_HHmm/`.
-2. Write `overview.md` containing:
+2. Write `overview_LANG.md` (e.g., `overview_ru.md`) containing:
    - Trip title and subtitle (destination, dates, travelers with ages).
    - Holiday advisory (if applicable).
    - Phase A summary table.
-3. Write `manifest.json` with all days listed as `"pending"`, `phase_a_complete: true`.
+3. Write `manifest.json` with the language key under `languages`, all days listed as `"pending"`, `phase_a_complete: true`.
 4. Proceed directly to Phase B (do not wait for user approval).
 
 ---
@@ -85,16 +93,16 @@ Phase B generates **one day at a time**, each into its own file. This avoids out
 
 ### Generation Context per Day
 
-When generating `day_XX.md`, load only:
+When generating `day_XX_LANG.md`, load only:
 1. `trip_details.json` — travelers, interests, schedule preferences.
-2. `overview.md` — the Phase A master plan (for cross-day context).
+2. `overview_LANG.md` — the Phase A master plan (for cross-day context).
 3. The current day's row from the Phase A table.
 
 Do NOT load other day files — Phase A provides all cross-day coordination.
 
 ### Per-Day File Format
 
-Each `day_XX.md` is self-contained and follows this structure:
+Each `day_XX_LANG.md` is self-contained and follows this structure:
 
 ```markdown
 # День {N} — {Title} {Emoji}
@@ -130,10 +138,10 @@ Each `day_XX.md` is self-contained and follows this structure:
 
 ### Day Generation Protocol
 
-1. Generate `day_00.md` (arrival) first, if applicable.
-2. Generate `day_01.md` through `day_NN.md` sequentially.
+1. Generate `day_00_LANG.md` (arrival) first, if applicable.
+2. Generate `day_01_LANG.md` through `day_NN_LANG.md` sequentially.
 3. After writing each day file:
-   - Update `manifest.json`: set that day's `status` to `"complete"`, record `last_modified`.
+   - Update `manifest.json`: under `languages.LANG`, set that day's `status` to `"complete"`, record `last_modified`.
 4. After all days are complete, proceed to Budget and Assembly.
 
 ### Per-Day Content Requirements
@@ -141,7 +149,7 @@ Each `day_XX.md` is self-contained and follows this structure:
 Each day file MUST include all of the following:
 
 #### 1. Daily Route Map Link
-- **Required** on every `day_XX.md` (including Day 0 and the final departure day — use airport as sole waypoint).
+- **Required** on every `day_XX_LANG.md` (including Day 0 and the final departure day — use airport as sole waypoint).
 - **Placement:** Immediately after the `### Расписание` table's closing `---` separator, before the first POI section.
 - **Format (Markdown):**
   ```
@@ -191,9 +199,9 @@ For **EVERY** location mentioned (attractions, landmarks, parks, and restaurants
 
 ## Budget Assembly
 
-After all days are complete:
-1. Read the `### Стоимость дня` section from each `day_XX.md`.
-2. Write `budget.md` with:
+After all days are complete for a given language:
+1. Read the `### Стоимость дня` section from each `day_XX_LANG.md`.
+2. Write `budget_LANG.md` with:
    - Per-day summary (day number, title, day total in HUF and EUR).
    - Grand total across all days.
    - Category breakdown if possible (attractions, food, transport).
@@ -202,13 +210,13 @@ After all days are complete:
 
 ## Trip Assembly (Mechanical Step)
 
-After all days + budget are complete, assemble `trip_full.md`:
+After all days + budget are complete for a given language, assemble `trip_full_LANG.md`:
 
-1. Start with the contents of `overview.md`.
-2. Append `day_00.md` through `day_NN.md` in order, with `---` separators.
-3. Append `budget.md` at the end.
-4. Write the result to `trip_full.md` in the trip folder.
-5. Update `manifest.json`: set `assembly.trip_full_md_built` timestamp, clear `stale_days`.
+1. Start with the contents of `overview_LANG.md`.
+2. Append `day_00_LANG.md` through `day_NN_LANG.md` in order, with `---` separators.
+3. Append `budget_LANG.md` at the end.
+4. Write the result to `trip_full_LANG.md` in the trip folder.
+5. Update `manifest.json`: under `languages.LANG.assembly`, set `trip_full_md_built` timestamp, clear `stale_days`.
 
 **This is a mechanical concatenation** — no LLM generation needed. Use file read + write operations.
 
@@ -216,19 +224,19 @@ After all days + budget are complete, assemble `trip_full.md`:
 
 ## Incremental Edit Workflow
 
-When the user requests changes to a specific day:
+When the user requests changes to a specific day (within a given language):
 
-1. **Regenerate** only the affected `day_XX.md`.
-2. **Update manifest:** set `last_modified` on the changed day, add to `stale_days`.
-3. **Re-assemble** `trip_full.md` (mechanical concat — fast).
-4. **Rebuild HTML** for only the changed day's fragment, then re-assemble `trip_full.html` (see `rendering-config.md` incremental rebuild rules).
+1. **Regenerate** only the affected `day_XX_LANG.md`.
+2. **Update manifest:** under `languages.LANG`, set `last_modified` on the changed day, add to `stale_days`.
+3. **Re-assemble** `trip_full_LANG.md` (mechanical concat — fast).
+4. **Rebuild HTML** for only the changed day's fragment, then re-assemble `trip_full_LANG.html` (see `rendering-config.md` incremental rebuild rules).
 5. **Run validation** only on changed-day tests + structural tests.
 
 ---
 
 ## HTML Export Workflow
 - **Trigger:** Whenever asked to "create an HTML page," "export to HTML," or "generate the web view."
-- **Source Selection:** Identify the most recent trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`.
-- **Source Files:** Read all day files from the trip folder (or use `trip_full.md` if assembled).
-- **Output Filename:** `trip_full.html` inside the same trip folder.
+- **Source Selection:** Identify the most recent trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`. If no language is specified, use the current `language_preference.reporting_language` from `trip_details.json`.
+- **Source Files:** Read all `day_XX_LANG.md` files for the target language (or use `trip_full_LANG.md` if assembled).
+- **Output Filename:** `trip_full_LANG.html` inside the same trip folder (e.g., `trip_full_ru.html`).
 - **Next step:** Follow the **HTML Generation Pipeline** in `rendering-config.md` (Fragment Master Mode) to produce the HTML, then validate per `development_rules.md`.

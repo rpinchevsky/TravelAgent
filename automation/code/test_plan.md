@@ -45,3 +45,12 @@ Regression and progression testing for the generated trip HTML output (`generate
 
 ### 10. Visual (`visual.spec.ts`)
 - Screenshot comparison for key components
+
+### 11. RTL Layout (`rtl-layout.spec.ts`)
+- Runs on `desktop-chromium-rtl` project (Hebrew HTML file)
+- **Structural:** `dir="rtl"` and RTL lang attribute, inline CSS, all day/overview/budget sections present
+- **Desktop Grid Layout:** Sidebar renders on the RIGHT side, main content takes full width (not squeezed into 260px), page-wrapper uses CSS Grid
+- **Navigation:** 14 sidebar links and 14 mobile pills with correct hrefs
+- **Mobile:** Sidebar hidden, mobile nav visible and sticky
+- **CSS Overrides:** Pro-tip border on right side (not left), table headers right-aligned, SVGs have width/height
+- **Day Cards:** Each day has banner, itinerary table (3+ rows), and POI cards (days 1–10)

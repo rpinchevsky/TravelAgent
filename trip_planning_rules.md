@@ -31,7 +31,7 @@ After initial itinerary draft, perform a dedicated research pass:
 
 ### 3. The "Age-Appropriate" Filter
 - **Safety:** Every activity must be safe for the *calculated* age of the youngest child.
-- **Pace:** Adhere strictly to the `pace_preference`. Note: `pace_preference` controls the *tempo* between activities (no rushing, buffer time), NOT the number of POIs per day. Each full day should include 3–5 POI cards (attractions + restaurants + secondary stops).
+- **Pace:** Adhere strictly to the `pace_preference`. Note: `pace_preference` controls the *tempo* between activities (no rushing, buffer time), NOT the number of POIs per day. Each full day should include 4–5 POI cards (attractions + restaurants + secondary stops).
 - **Movement:** Prioritize according to `universal_interests` and `specific_interests` of persons in trip.
 
 ### 4. Geographic Clustering (Zero Waste Time)
