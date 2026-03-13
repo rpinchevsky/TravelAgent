@@ -16,7 +16,7 @@ Budapest/
 ├── base_layout.html         # HTML template shell
 ├── rendering_style_config.css  # Design system styles
 ├── rendering-config.md      # SVG/icon mapping config
-├── trip_details.json        # Trip input data (travelers, preferences, dates)
+├── trip_details.md          # Trip input data (travelers, preferences, dates)
 └── CLAUDE.md                # AI agent instructions
 ```
 

@@ -8,7 +8,7 @@ import {
 
 /**
  * Validates that all POI card names follow the language_preference.poi_languages
- * rule from trip_details.json.
+ * rule from trip_details.md.
  *
  * Languages and scripts are loaded dynamically — no hardcoded assumptions.
  */

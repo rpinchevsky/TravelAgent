@@ -20,7 +20,7 @@ generated_trips/
 ### Naming Rules
 - **Folder name:** `trip_YYYY-MM-DD_HHmm` — timestamp only. One folder holds all language variants of the same trip.
 - **File language suffix:** Every content file includes a two-letter ISO 639-1 language code before the extension: `day_01_ru.md`, `day_01_en.md`, `overview_he.md`, `trip_full_ru.html`, etc. This ensures reports in different languages coexist without overwriting each other.
-- **Language code mapping:** Russian → `ru`, English → `en`, Hebrew → `he`, German → `de`, French → `fr`, Spanish → `es`, etc. Derived from `language_preference.reporting_language` in `trip_details.json`.
+- **Language code mapping:** Russian → `ru`, English → `en`, Hebrew → `he`, German → `de`, French → `fr`, Spanish → `es`, etc. Derived from `language_preference.reporting_language` in `trip_details.md`.
 - **Timestamping:** Always run `date +"%Y-%m-%d_%H%M"` via the Bash tool to determine the correct current local time.
 - **Re-generation in another language:** When regenerating an existing trip in a different language, write new `_LANG` files into the **same** trip folder. The manifest tracks each language's state independently.
 - **Day files:** `day_00_LANG.md` through `day_NN_LANG.md` — zero-padded two-digit day number + language code.
@@ -94,7 +94,7 @@ Phase B generates **one day at a time**, each into its own file. This avoids out
 ### Generation Context per Day
 
 When generating `day_XX_LANG.md`, load only:
-1. `trip_details.json` — travelers, interests, schedule preferences.
+1. `trip_details.md` — travelers, interests, schedule preferences.
 2. `overview_LANG.md` — the Phase A master plan (for cross-day context).
 3. The current day's row from the Phase A table.
 
@@ -236,7 +236,7 @@ When the user requests changes to a specific day (within a given language):
 
 ## HTML Export Workflow
 - **Trigger:** Whenever asked to "create an HTML page," "export to HTML," or "generate the web view."
-- **Source Selection:** Identify the most recent trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`. If no language is specified, use the current `language_preference.reporting_language` from `trip_details.json`.
+- **Source Selection:** Identify the most recent trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`. If no language is specified, use the current `language_preference.reporting_language` from `trip_details.md`.
 - **Source Files:** Read all `day_XX_LANG.md` files for the target language (or use `trip_full_LANG.md` if assembled).
 - **Output Filename:** `trip_full_LANG.html` inside the same trip folder (e.g., `trip_full_ru.html`).
 - **Next step:** Follow the **HTML Generation Pipeline** in `rendering-config.md` (Fragment Master Mode) to produce the HTML, then validate per `development_rules.md`.

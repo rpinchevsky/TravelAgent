@@ -8,7 +8,7 @@ import {
 
 /**
  * Validates that activity labels in itinerary tables follow the
- * language_preference.poi_languages rule from trip_details.json.
+ * language_preference.poi_languages rule from trip_details.md.
  *
  * Rule: When an activity label references a specific POI (attraction,
  * restaurant, park, landmark), the name MUST include all poi_languages.

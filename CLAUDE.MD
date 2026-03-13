@@ -15,7 +15,7 @@ Act as an expert Travel Logistics Architect specializing in family-centric trips
 **Read the relevant rule file(s) before starting any task.** For trip generation, read all rule files listed above.
 
 ## Trip Generation Pipeline (Execute in Order)
-1. **Plan** — Read `trip_details.json`, calculate ages, research destination (`trip_planning_rules.md`)
+1. **Plan** — Read `trip_details.md`, calculate ages, research destination (`trip_planning_rules.md`)
 2. **Phase A** — High-level summary table → create trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`, write `overview.md` + `manifest.json` (`content_format_rules.md`)
 3. **Phase B** — Day-by-day generation: write `day_00.md` through `day_NN.md`, update manifest after each day (`content_format_rules.md`)
 4. **Budget** — Aggregate per-day costs into `budget.md` (`content_format_rules.md`)

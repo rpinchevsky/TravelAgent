@@ -56,20 +56,27 @@ export interface PoiLanguageConfig {
 }
 
 /**
- * Reads trip_details.json and returns language validators for poi_languages.
+ * Reads trip_details.md and returns language validators for poi_languages.
+ * Parses the markdown "Language Preference" section for:
+ *   - **Reporting language:** <value>
+ *   - **POI languages:** <comma-separated values>
  * Throws if a configured language has no script mapping.
  */
 export function loadPoiLanguageConfig(): PoiLanguageConfig {
   const projectRoot = path.resolve(__dirname, '..', '..', '..', '..');
-  const tripDetailsPath = path.resolve(projectRoot, 'trip_details.json');
+  const tripDetailsPath = path.resolve(projectRoot, 'trip_details.md');
   const raw = fs.readFileSync(tripDetailsPath, 'utf-8');
-  const tripDetails = JSON.parse(raw);
 
-  const poiLangs: string[] = tripDetails.language_preference?.poi_languages ?? [];
-  const reportingLang: string = tripDetails.language_preference?.reporting_language ?? 'English';
+  const reportingMatch = raw.match(/\*\*Reporting language:\*\*\s*(.+)/i);
+  const poiMatch = raw.match(/\*\*POI languages:\*\*\s*(.+)/i);
+
+  const reportingLang = reportingMatch ? reportingMatch[1].trim() : 'English';
+  const poiLangs: string[] = poiMatch
+    ? poiMatch[1].split(',').map(s => s.trim()).filter(Boolean)
+    : [];
 
   if (poiLangs.length === 0) {
-    throw new Error('trip_details.json: language_preference.poi_languages is empty or missing');
+    throw new Error('trip_details.md: Language Preference → POI languages is empty or missing');
   }
 
   const validators: LanguageValidator[] = poiLangs.map(lang => {

@@ -19,7 +19,7 @@ Regression and progression testing for the generated trip HTML output (`generate
 
 ### 5. POI Cards — Language Compliance (`poi-languages.spec.ts`)
 - Every POI card name must contain both Hungarian (Latin) and Russian (Cyrillic) text
-- Per `trip_details.json → language_preference.poi_languages: ["Hungarian", "Russian"]`
+- Per `trip_details.md → language_preference.poi_languages: ["Hungarian", "Russian"]`
 - **Assertions:**
   - Latin script characters present in every `.poi-card__name`
   - Cyrillic script characters present in every `.poi-card__name`

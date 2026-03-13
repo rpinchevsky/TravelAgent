@@ -201,7 +201,7 @@
 
 #### Trip Content (New Generation)
 - **Full 10-day trip regenerated** from scratch with updated rules applied throughout.
-- **POI names in dual language** (Hungarian + Russian) for all 36 POI cards across 10 days, per `trip_details.json → language_preference.poi_languages: ["Hungarian", "Russian"]`.
+- **POI names in dual language** (Hungarian + Russian) for all 36 POI cards across 10 days, per `trip_details.md → language_preference.poi_languages: ["Hungarian", "Russian"]`.
 - **POI Parity enforced**: Every `###` POI section in the markdown produces exactly one `poi-card` in the HTML. Expected counts:
   - Day 1: 3, Day 2: 4, Day 3: 5, Day 4: 4, Day 5: 4, Day 6: 3, Day 7: 4, Day 8: 2, Day 9: 4, Day 10: 3 (Total: 36)
 - **Holiday advisory** rendered as `advisory--warning` before overview table.

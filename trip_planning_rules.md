@@ -2,12 +2,13 @@
 
 ## Pre-Flight Setup (Mandatory)
 Before any planning or answering, perform these steps:
-1. **Data Retrieval:** Read `trip_details.json`.
+1. **Data Retrieval:** Read `trip_details.md`.
 2. **Age Calculation:** Calculate the exact age of each traveler at the time of `trip_context.timing.arrival`.
    - Use these calculated ages for all "Age Filters" and the "Kids' Fun Index."
    - *Example:* If the youngest is calculated as 4, apply the 4-year-old safety/engagement rules.
 3. **Language:** Use languages from `language_preference`.
 4. **POI:** All points of interest shall use languages from `language_preference.poi_languages` — this applies **everywhere** the POI name appears: POI card headings, activity labels in itinerary tables (including restaurants, stations, and any named location in the Activity column), and any other reference. Format per `poi_languages` order, separated by ` / `.
+    - Add along the way as an optional visit places from `kids_interests`
 
 ---
 
@@ -42,6 +43,7 @@ After initial itinerary draft, perform a dedicated research pass:
 - Match restaurants to `culinary_profile.dietary_style` and `must_haves`.
 - Respect `vibe_preference` (e.g., casual/loud/outdoor).
 - Strictly avoid anything in `dislikes_or_avoid`.
+- If there are michelin restaurants that might be good fit for us, please advice and put special svg. Always provide alternative to micheline restaurant.
 
 ---
 
@@ -50,7 +52,7 @@ If `Google Search` detects a local holiday, major festival, or "bridge day" duri
 
 ### 1. Identify "Family-First" Programming
 - Actively search for `trip_context.destination` + `[Identified Holiday]` + "children's activities" or "interactive workshops".
-- Prioritize events that align with the `trip_context.universal_interests` found in `trip_details.json`.
+- Prioritize events that align with the `trip_context.universal_interests` found in `trip_details.md`.
 
 ### 2. Infrastructure & Mobility Alert
 - Identify specific closures of **Bridges**, **Main Squares**, or **Transit Hubs** due to festivities.
