@@ -3,7 +3,7 @@ import * as path from 'path';
 
 // Project root is two levels up from automation/code/
 const projectRoot = path.resolve(__dirname, '..', '..');
-const filePath = path.resolve(projectRoot, 'generated_trips', 'html', 'trip_2026-03-13_1216.html').replace(/\\/g, '/');
+const filePath = path.resolve(projectRoot, 'generated_trips', 'html', 'trip_2026-03-13_1557.html').replace(/\\/g, '/');
 const TRIP_HTML = `file:///${filePath}`;
 
 // Extract timestamp from trip filename for report naming

@@ -44,7 +44,30 @@ Review all `*.spec.ts` files in `automation/code/tests/regression/` for hardcode
 
 ---
 
-## 2. Pre-Regression Validation Gate (Step 2.5)
+## 2. Trip Completeness Validation (Modular Architecture)
+
+After Phase B day-by-day generation and BEFORE assembly, validate the trip folder is complete:
+
+### Completeness Checklist:
+
+```
+1. Manifest exists:           manifest.json present in trip folder
+2. All days complete:         Every day in manifest.days has status: "complete"
+3. Day files exist:           Every key in manifest.days has a matching .md file in the folder
+4. Day count matches:         Number of day files == manifest.total_days (including day_00 if applicable)
+5. Overview exists:           overview.md present and non-empty
+6. Per-day budget:            Each day_XX.md contains a "### Стоимость дня" section
+7. No orphan files:           No day_XX.md files exist that aren't listed in manifest.days
+8. POI minimum count:         Each full day (excluding day_00 arrival and last-day departure) has >= 3 POI
+                              headings (### sections that are NOT Расписание/Стоимость/Запасной план/Логистика)
+```
+
+### How to run:
+Read `manifest.json`, then verify each item with file existence checks and grep. If ANY check fails, fix the missing/incomplete day BEFORE proceeding to assembly.
+
+---
+
+## 3. Pre-Regression Validation Gate (Step 2.5)
 
 After HTML generation and BEFORE running Playwright regression, perform an automated structural validation. This catches 80%+ of failures instantly without waiting for full test execution.
 
@@ -58,7 +81,7 @@ After HTML generation and BEFORE running Playwright regression, perform an autom
 5. Sidebar SVGs:              .sidebar__link elements contain <svg>
 6. Inlined CSS:               <style> tag in <head>, no <link> to rendering_style_config.css (Google Fonts <link> OK)
 7. SVG attributes:            All <svg> have explicit width="" and height=""
-8. POI parity:                Count of .poi-card per day matches markdown ### POI count
+8. POI parity:                Count of .poi-card per day matches markdown ### POI count in source day_XX.md
 9. Navigation completeness:   sidebar__link count matches mobile-nav__pill count
 10. POI card anchors:          Every .poi-card has id="poi-day-{D}-{N}"
 11. Activity label links:      POI-referencing .activity-label elements are <a> with href matching a .poi-card id
@@ -69,7 +92,7 @@ Use simple text searches (grep/regex) on the generated HTML file. If ANY check f
 
 ---
 
-## 3. Test Data Synchronization Rule
+## 4. Test Data Synchronization Rule
 
 When trip content changes (new trip generated, budget updated, dates changed), the following test artifacts MUST be reviewed and updated BEFORE regression:
 
@@ -87,19 +110,21 @@ When trip content changes (new trip generated, budget updated, dates changed), t
 
 ---
 
-## 4. HTML Generation Agent Prompt Requirements
+## 5. HTML Generation Agent Prompt Requirements
 
-When delegating HTML generation to a sub-agent, follow the **8-item Agent Prompt Contract** defined in `rendering-config.md` → Step 2.5. Never delegate without all 8 items in the prompt.
+When delegating HTML generation to a sub-agent, follow the **9-item Agent Prompt Contract** defined in `rendering-config.md` → Step 2.5. Never delegate without all 9 items in the prompt.
 
 ---
 
-## 5. Change Impact Matrix
+## 6. Change Impact Matrix
 
 Before running regression, classify each change and predict affected test areas:
 
 | Change Type | Impact Area | Action |
 |---|---|---|
 | New trip generated | ALL tests | Full regression + update hardcoded values |
+| Single day edited | Day-specific tests + structural | Incremental HTML rebuild + targeted regression |
+| Days added/removed | Navigation + structural tests | Full HTML rebuild + update nav counts |
 | CSS class renamed | TripPage.ts locators | Update POM + all specs using affected locators |
 | New section added | Navigation tests | Update nav link counts |
 | Layout restructured | Visual regression | Update snapshots |
@@ -109,13 +134,14 @@ Before running regression, classify each change and predict affected test areas:
 
 ---
 
-## 6. Post-Generation Quality Gate (Phase C) & Definition of Done
+## 7. Post-Generation Quality Gate (Phase C) & Definition of Done
 
-After every HTML generation and after Rules 2–3 pass, a full regression cycle MUST be performed. This phase is **blocking** — the HTML delivery is not considered complete until regression passes.
+After every HTML generation and after Rules 2–4 pass, a full regression cycle MUST be performed. This phase is **blocking** — the HTML delivery is not considered complete until regression passes.
 
 **Definition of Done checklist:**
-- [ ] Pre-regression validation gate passes (Rule 2)
-- [ ] Test data is synchronized (Rule 3)
+- [ ] Trip completeness validation passes (Rule 2)
+- [ ] Pre-regression validation gate passes (Rule 3)
+- [ ] Test data is synchronized (Rule 4)
 - [ ] Release notes updated (`automation/code/release_notes.md`)
 - [ ] Progression tests written for new/changed features
 - [ ] Full regression passes with 0 failures

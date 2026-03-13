@@ -1,5 +1,50 @@
 # Release Notes
 
+## 2026-03-13_1557 — Expanded Trip with 41 POI Cards and Full Day Coverage
+
+### Changes
+
+#### Trip Content (New Generation)
+- **Full 12-day trip regenerated** with expanded itinerary: 41 POI cards (was 28).
+- **All days now have POI cards** — Day 0 (arrival) and Day 11 (departure) now include POIs.
+- **POI distribution:** Day 0: 1, Day 1: 4, Day 2: 4, Day 3: 4, Day 4: 4, Day 5: 4, Day 6: 3, Day 7: 3, Day 8: 3, Day 9: 5, Day 10: 4, Day 11: 2
+- **Budget total**: ~1 572 EUR / ~596 140 HUF (was ~1 527 EUR / ~607 200 HUF).
+- **12 day sections**, **14 navigation links** (unchanged structure).
+- **New/changed POIs:**
+  - Day 0: Airport POI card added (was 0 POIs)
+  - Day 1: Added lunch POI (4 total, was 3)
+  - Day 2: Added cafe POI (Városliget Café) — 4 total (was 4)
+  - Day 4: Restructured as Pest Center day — Miniversum, Market, Arcade
+  - Day 5: Halászbástya + Budai Várnegyed + Danube cruise (was 2 POIs, now 4)
+  - Day 6: Tropicarium + Campona shopping (3 total, was 2)
+  - Day 7: Csodák Palotája + Railway Museum (3 total, was 2)
+  - Day 8: Aquaworld + Aqua Spray Park (3 total, was 1)
+  - Day 9: Playground + Lake + Andrássy shopping + Hősök tere (5 total, was 2)
+  - Day 10: Birthday — Palatinus + Riso + Mini Zoo + Gelarto Rosa (4 total, was 3)
+  - Day 11: Airport + Aran Bakery (2 total, was 0)
+
+#### Config Changes
+- **playwright.config.ts**: Updated `filePath` to point to `trip_2026-03-13_1557.html`.
+
+#### Test Data Synchronized
+- **day-cards.spec.ts**: Day loop 1..10 → 0..11, added Day 0/11 titles and dates, min itinerary rows 4 → 3.
+- **overview-budget.spec.ts**: Budget EUR 1 527 → 1 572, overview day loop uses `td` instead of `td.col-time`.
+- **poi-cards.spec.ts**: Min POI threshold 25 → 35 (41 total POIs now).
+- **poi-parity.spec.ts**: Day loop 1..10 → 0..11.
+- **Visual snapshots**: Cleared for regeneration.
+
+#### New Progression Tests
+- **progression-2026-03-13_1557.spec.ts**: 41 POI count, per-day POI counts, new POI presence checks (Gelarto Rosa, Hősök tere, Aqua Spray Park, Campona, Day 0/11 POI coverage), updated budget 1 572.
+
+### Affected Sections
+- All day sections (Day 0-11) — full content regeneration
+- Navigation — 14 items (unchanged count)
+- Overview table — 12 rows (unchanged count)
+- Budget section — new totals (1 572 EUR / 596 140 HUF)
+- 41 POI cards — expanded descriptions, dual-language names
+
+---
+
 ## 2026-03-13_1216 — Revised Trip with 28 POI Cards and Restructured Days
 
 ### Changes

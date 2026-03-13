@@ -109,14 +109,31 @@
 ## HTML Generation Pipeline (Fragment Master Mode)
 
 ### Objective
-Transform raw trip data from `trip.md` into highly structured HTML fragments and assemble them into the `base_layout.html` shell using the Enterprise Design System.
+Transform trip data from the modular trip folder (`generated_trips/trip_YYYY-MM-DD_HHmm/`) into per-day HTML fragments and assemble them into the `base_layout.html` shell using the Enterprise Design System.
+
+### Source: Modular Trip Folder
+The pipeline reads from the trip folder structure defined in `content_format_rules.md`:
+- `overview.md` — header, holiday advisory, Phase A table → `#overview` section
+- `day_00.md` through `day_NN.md` — each day → one `#day-{N}` section
+- `budget.md` — aggregated budget → `#budget` section
 
 ### Step 1: Analyze Data
-- Scan latest `trip_YYYY-MM-DD_HHmm.md` (or file specified by user) to identify the total number of "Days" or "Major Sections."
+- Read `manifest.json` from the trip folder to determine total days and their status.
+- Verify all days have `status: "complete"` before full HTML generation.
 - Map activity types to their corresponding SVG icons as per the Component Usage Rules above.
 
-### Step 2: Fragment Generation
-Generate the necessary HTML strings for these 4 placeholders in `base_layout.html`:
+### Step 2: Per-Day Fragment Generation
+
+Generate HTML **one day at a time**. Each `day_XX.md` produces one HTML fragment containing:
+- The `<div class="day-card" id="day-{N}">` wrapper with banner.
+- The itinerary table for that day.
+- All POI cards for that day.
+- The daily budget pricing grid.
+- Plan B advisory section.
+
+This per-day approach avoids output token limits — each day's HTML is generated independently.
+
+#### Shell Fragments (generated once from overview.md + manifest.json):
 
 1. **{{PAGE_TITLE}}**:
    - Derive from destination and year: `"{Destination} {Year} — Семейный маршрут"`.
@@ -131,36 +148,58 @@ Generate the necessary HTML strings for these 4 placeholders in `base_layout.htm
    - Assign matching `href="#day-X"` and include the `is-active` class for the first item only.
    - **Ordering:** Must match `{{NAV_LINKS}}` exactly.
 
-4. **{{TRIP_CONTENT}}**:
-   - Convert itinerary data into `<table class="itinerary-table">`.
-   - Wrap specific locations/stops in `<div class="poi-card">`. Each POI card MUST have `id="poi-day-{D}-{N}"`.
+4. **{{TRIP_CONTENT}}** — assembled from per-day fragments:
+   - `#overview` section (from `overview.md`): itinerary summary table.
+   - `#day-0` through `#day-N` sections (from `day_XX.md` files): day cards with POI cards.
+   - `#budget` section (from `budget.md`): aggregated budget table.
+   - Each POI card MUST have `id="poi-day-{D}-{N}"`.
    - **Activity Label Linking:** POI-referencing labels use `<a class="activity-label" href="#poi-day-{D}-{N}">`. Generic actions remain as `<span class="activity-label">`.
    - Ensure all `<img>` tags include `loading="lazy"`.
-   - **POI Parity:** Verify per-day `.poi-card` count matches markdown `###` POI count.
+   - **POI Parity:** Verify per-day `.poi-card` count matches markdown `###` POI count in the source day file.
 
 ### Step 2.5: Agent Prompt Contract (Mandatory)
-When delegating HTML generation to a sub-agent, the prompt MUST include these 8 items:
+When delegating HTML generation to a sub-agent, the prompt MUST include these 9 items:
 1. The full `TripPage.ts` — defines the structural contract (CSS classes, IDs, locators)
 2. The `rendering-config.md` — component structure and design system rules
-3. Explicit list of required section IDs: `#overview`, `#budget`, `#day-1` to `#day-N`
+3. Explicit list of required section IDs: `#overview`, `#budget`, `#day-0` (if applicable) through `#day-N`
 4. Advisory class rules: `.advisory--warning` = Holiday Advisory ONLY; `.advisory--info` = Plan B + Logistics
 5. Pro-tip rule: wrap in `<div class="pro-tip">`, not just `<strong>` text
 6. SVG rule: sidebar links need inline `<svg>` with explicit `width`/`height`
 7. CSS inlining rule: full CSS in `<style>` tag, never `<link>`
 8. Activity label linking rule: POI-referencing labels use `<a class="activity-label" href="#poi-day-{D}-{N}">`, POI cards have matching `id="poi-day-{D}-{N}"`
+9. **Modular source rule:** HTML is generated per-day from individual `day_XX.md` files, not from a monolithic trip file. The agent must read each day file separately and produce one HTML fragment per day.
 
-**Gate:** Never delegate HTML generation without all 8 items in the prompt. See `development_rules.md` Rule 4.
+**Gate:** Never delegate HTML generation without all 9 items in the prompt. See `development_rules.md` Rule 4.
 
 ### Step 3: Assembly & Final Export
 1. **Read** (do not modify) `base_layout.html` to use as a template.
-2. **Inject** the generated fragments into the placeholders.
-3. **Save/Output** the result as a NEW file named `trip_output.html`.
-4. **Validation:** Ensure the original `base_layout.html` still contains its `{{PAGE_TITLE}}`, `{{NAV_LINKS}}`, `{{NAV_PILLS}}`, `{{TRIP_CONTENT}}` placeholders for future use.
+2. **Assemble** `{{TRIP_CONTENT}}` by concatenating: overview fragment + day fragments (in order) + budget fragment.
+3. **Inject** all fragments into the placeholders.
+4. **Save** the result as `trip_full.html` inside the trip folder.
+5. **Validation:** Ensure the original `base_layout.html` still contains its `{{PAGE_TITLE}}`, `{{NAV_LINKS}}`, `{{NAV_PILLS}}`, `{{TRIP_CONTENT}}` placeholders for future use.
+
+### Incremental HTML Rebuild
+
+When a single day is edited (detected via `manifest.json → assembly.stale_days`):
+
+1. **Regenerate** only the HTML fragment for the stale day(s) from their updated `day_XX.md`.
+2. **Re-assemble** `trip_full.html`:
+   - Read the existing `trip_full.html`.
+   - Locate the `<div class="day-card" id="day-{N}">` section for the stale day.
+   - Replace that section's HTML with the newly generated fragment.
+   - If navigation changed (days added/removed), regenerate `{{NAV_LINKS}}` and `{{NAV_PILLS}}`.
+3. **Update** `manifest.json`: clear the rebuilt days from `stale_days`, update `assembly.trip_full_html_built`.
+4. **Run** pre-regression validation (see `development_rules.md`) on the rebuilt HTML.
+
+**When to do a full rebuild instead:**
+- Days were added or removed (not just edited).
+- Overview or budget changed.
+- More than half the days are stale.
 
 **Constraints:**
 - Output the final, fully-assembled HTML file. Do NOT modify `rendering_style_config.css` or `base_layout.html` source files.
 - **CSS Inlining (Mandatory):** During assembly, replace the `<link rel="stylesheet" href="rendering_style_config.css">` tag in `base_layout.html` with a `<style>` block containing the full contents of `rendering_style_config.css`. The Google Fonts `<link>` tags may remain (they are external CDN resources). The output must never reference `rendering_style_config.css` via `<link>`.
 - **SVG Resilience:** Every inline `<svg>` element in the output must have explicit `width` and `height` HTML attributes.
 - **Country Flag Rule (Mandatory):** Windows does not render country flag emojis — it displays two-letter ISO codes (e.g., "HU" instead of a flag). Therefore, **never use flag emojis** in the HTML output. Instead, render the destination country's flag as an inline `<svg>` with the correct colors. The SVG must have `width="28" height="20"`, `role="img"`, `aria-label="{Country} flag"`, `style="vertical-align:middle;display:inline-block;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.1)"`. Look up the official flag colors for the destination from `trip_details.json → trip_context.destination`.
-- **Post-Action:** Confirm the successful creation of the `.html` file matching the `.md` source's timestamp.
+- **Post-Action:** Confirm the successful creation of `trip_full.html` in the trip folder.
 - **Consistency:** Ensure the timestamp logic and contrast rules from the external config are applied to every export.

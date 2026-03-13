@@ -10,12 +10,12 @@ test.describe('Structural Integrity', () => {
   });
 
   test('should have correct page title', async ({ page }) => {
-    await expect(page).toHaveTitle('Будапешт 2026 — Семейный маршрут');
+    await expect(page).toHaveTitle('Budapest 2026 — Семейный маршрут');
   });
 
   test('should display main heading', async () => {
     await expect(tripPage.pageTitle).toBeVisible();
-    await expect(tripPage.pageTitle).toContainText('Будапешт 2026');
+    await expect(tripPage.pageTitle).toContainText('Budapest 2026');
   });
 
   test('should display page subtitle with family info', async () => {

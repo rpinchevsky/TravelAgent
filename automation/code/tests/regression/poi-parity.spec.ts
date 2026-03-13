@@ -83,7 +83,7 @@ test.describe('POI Parity — Markdown vs HTML Card Count', () => {
     expect(days.length).toBeGreaterThan(0);
   });
 
-  for (let day = 1; day <= 10; day++) {
+  for (let day = 0; day <= 11; day++) {
     test(`Day ${day}: HTML POI card count should match markdown POI section count`, async () => {
       const expected = expectedPois[day];
       expect(expected, `Day ${day} not found in markdown source`).toBeDefined();

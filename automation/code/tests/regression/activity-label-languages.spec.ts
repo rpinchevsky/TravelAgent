@@ -31,6 +31,7 @@ const GENERIC_PREFIXES = [
   'Катание', 'Вылет', 'Перелёт', 'Трансфер', 'Свободное время',
   'Смена караула', 'Отъезд', 'Дунайкорзо', 'Мороженое', 'Детская площадка',
   'Переход', 'Продолжение', 'Утренний сюрприз', 'Вечер', 'Сборы', 'Аэропорт',
+  'Прилёт', 'Пикник', 'Спуск', 'Набережная', 'Утренние подарки', 'Подъём',
 ];
 
 function stripEmoji(text: string): string {
@@ -89,8 +90,14 @@ test.describe('Activity Labels — Language Compliance (poi_languages)', () => {
 
     const failures: string[] = [];
     for (let i = 0; i < count; i++) {
-      const text = (await tripPage.activityLabels.nth(i).textContent()) ?? '';
+      const label = tripPage.activityLabels.nth(i);
+      const text = (await label.textContent()) ?? '';
       if (!referencesPoi(text)) continue;
+
+      // Skip clickable labels — they link to bilingual POI cards
+      // (bilingual naming is validated by poi-languages.spec.ts on the card itself)
+      const tagName = await label.evaluate(el => el.tagName);
+      if (tagName === 'A') continue;
 
       const missing = findMissingLanguages(text, config.poiLanguages);
       if (missing.length > 0) {

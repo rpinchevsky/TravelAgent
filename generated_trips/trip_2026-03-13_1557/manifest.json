@@ -1,0 +1,28 @@
+{
+  "destination": "Budapest, Hungary",
+  "arrival": "2026-08-20",
+  "departure": "2026-08-31",
+  "total_days": 12,
+  "created": "2026-03-13T15:57:00",
+  "phase_a_complete": true,
+  "days": {
+    "day_00": { "status": "complete", "title": "Прилёт", "last_modified": "2026-03-13T16:00:00" },
+    "day_01": { "status": "complete", "title": "Маргит-сигет", "last_modified": "2026-03-13T16:02:00" },
+    "day_02": { "status": "complete", "title": "Варошлигет — Зоопарк и Цирк", "last_modified": "2026-03-13T16:04:00" },
+    "day_03": { "status": "complete", "title": "Будайские холмы", "last_modified": "2026-03-13T16:06:00" },
+    "day_04": { "status": "complete", "title": "Центр Пешта", "last_modified": "2026-03-13T16:08:00" },
+    "day_05": { "status": "complete", "title": "Будайская крепость и Дунай", "last_modified": "2026-03-13T16:10:00" },
+    "day_06": { "status": "complete", "title": "Тропикариум", "last_modified": "2026-03-13T16:12:00" },
+    "day_07": { "status": "complete", "title": "Дворец чудес и Ж/д музей", "last_modified": "2026-03-13T16:14:00" },
+    "day_08": { "status": "complete", "title": "Аквауорлд", "last_modified": "2026-03-13T16:16:00" },
+    "day_09": { "status": "complete", "title": "Варошлигет — площадка и лодки", "last_modified": "2026-03-13T16:18:00" },
+    "day_10": { "status": "complete", "title": "День рождения Итая", "last_modified": "2026-03-13T16:20:00" },
+    "day_11": { "status": "complete", "title": "Отъезд", "last_modified": "2026-03-13T16:22:00" }
+  },
+  "budget_complete": true,
+  "assembly": {
+    "trip_full_md_built": "2026-03-13T16:25:00",
+    "trip_full_html_built": "2026-03-13T16:45:00",
+    "stale_days": []
+  }
+}

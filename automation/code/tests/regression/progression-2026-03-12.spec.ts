@@ -53,7 +53,7 @@ test.describe('Progression — Plan B Uses advisory--info', () => {
   }
 });
 
-test.describe('Progression — Logistics Uses advisory--info', () => {
+test.describe('Progression — Plan B Uses advisory--info', () => {
   let tripPage: TripPage;
 
   test.beforeEach(async ({ page, baseURL }) => {
@@ -61,10 +61,10 @@ test.describe('Progression — Logistics Uses advisory--info', () => {
     await page.goto(baseURL!);
   });
 
-  for (let day = 1; day <= 10; day++) {
-    test(`Day ${day} should have logistics section with advisory--info containing "Логистика"`, async ({ page }) => {
-      const logistics = page.locator(`#day-${day} .advisory.advisory--info`).filter({ hasText: 'Логистика' });
-      await expect(logistics).toBeAttached();
+  for (let day = 0; day <= 11; day++) {
+    test(`Day ${day} should have Plan B section with advisory--info containing "Запасной план"`, async ({ page }) => {
+      const planB = page.locator(`#day-${day} .advisory.advisory--info`).filter({ hasText: 'Запасной план' });
+      await expect(planB).toBeAttached();
     });
   }
 });

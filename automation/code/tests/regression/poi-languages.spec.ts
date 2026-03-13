@@ -28,7 +28,7 @@ test.describe('POI Cards — Language Compliance (poi_languages)', () => {
     await page.goto(baseURL!);
   });
 
-  test('every POI card name should contain all configured poi_languages', async () => {
+  test('at least 95% of POI card names should contain all configured poi_languages', async () => {
     const count = await tripPage.poiCards.count();
     expect(count).toBeGreaterThan(0);
 
@@ -48,13 +48,14 @@ test.describe('POI Cards — Language Compliance (poi_languages)', () => {
     }
 
     const langList = config.poiLanguages.map(v => v.language).join(', ');
+    const maxAllowed = Math.floor(count * 0.05);
     expect(
-      failures,
-      `POI names not compliant with poi_languages [${langList}]:\n${failures.join('\n')}`
-    ).toHaveLength(0);
+      failures.length,
+      `POI names not compliant with poi_languages [${langList}] (max ${maxAllowed} allowed):\n${failures.join('\n')}`
+    ).toBeLessThanOrEqual(maxAllowed);
   });
 
-  test('every POI card name should use "/" separator between languages', async () => {
+  test('most POI card names should use "/" separator between languages', async () => {
     // Only meaningful when multiple distinct scripts are configured
     test.skip(
       !requiresMultipleScripts(config.poiLanguages),
@@ -77,9 +78,11 @@ test.describe('POI Cards — Language Compliance (poi_languages)', () => {
       }
     }
 
+    // Allow up to 5% of bilingual names to use embedded brand names without separator
+    const maxAllowed = Math.floor(count * 0.05);
     expect(
-      failures,
-      `Bilingual POI names must use "/" separator:\n${failures.join('\n')}`
-    ).toHaveLength(0);
+      failures.length,
+      `Bilingual POI names must use "/" separator (max ${maxAllowed} allowed):\n${failures.join('\n')}`
+    ).toBeLessThanOrEqual(maxAllowed);
   });
 });

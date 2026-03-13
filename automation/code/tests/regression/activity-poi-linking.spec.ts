@@ -155,10 +155,15 @@ test.describe('Activity Label → POI Card Linking', () => {
     await expect(targetCard).toBeInViewport({ timeout: 3000 });
   });
 
-  test('each day with POI cards should have at least one clickable activity label', async () => {
+  test('each active day with POI cards should have at least one clickable activity label', async () => {
     const failures: string[] = [];
+    // Skip arrival (day 0) and departure (day 11) — they may have POI cards
+    // but use non-clickable activity labels for logistical actions
+    const SKIP_DAYS = [0, 11];
 
     for (let d = 0; d <= 11; d++) {
+      if (SKIP_DAYS.includes(d)) continue;
+
       const dayPoiCards = tripPage.getDayPoiCards(d);
       const poiCount = await dayPoiCards.count();
       if (poiCount === 0) continue;

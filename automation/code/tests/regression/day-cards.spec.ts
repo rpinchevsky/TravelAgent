@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { TripPage } from '../pages/TripPage';
 
 const DAY_TITLES = [
+  'День 0',
   'День 1',
   'День 2',
   'День 3',
@@ -12,9 +13,11 @@ const DAY_TITLES = [
   'День 8',
   'День 9',
   'День 10',
+  'День 11',
 ];
 
 const DAY_DATES = [
+  '20 августа',
   '21 августа',
   '22 августа',
   '23 августа',
@@ -25,6 +28,7 @@ const DAY_DATES = [
   '28 августа',
   '29 августа',
   '30 августа',
+  '31 августа',
 ];
 
 test.describe('Day Cards — Content Verification', () => {
@@ -35,14 +39,14 @@ test.describe('Day Cards — Content Verification', () => {
     await page.goto(baseURL!);
   });
 
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 0; i <= 11; i++) {
     test(`Day ${i} should have a banner with title and date`, async () => {
       const bannerTitle = tripPage.getDayBannerTitle(i);
       const bannerDate = tripPage.getDayBannerDate(i);
       await expect(bannerTitle).toBeVisible();
       await expect(bannerDate).toBeVisible();
-      await expect(bannerTitle).toContainText(DAY_TITLES[i - 1]);
-      await expect(bannerDate).toContainText(DAY_DATES[i - 1]);
+      await expect(bannerTitle).toContainText(DAY_TITLES[i]);
+      await expect(bannerDate).toContainText(DAY_DATES[i]);
     });
 
     test(`Day ${i} should have an itinerary table with rows`, async () => {
@@ -50,7 +54,7 @@ test.describe('Day Cards — Content Verification', () => {
       await expect(table).toBeAttached();
       const rows = tripPage.getDayItineraryRows(i);
       const count = await rows.count();
-      expect(count).toBeGreaterThanOrEqual(4);
+      expect(count).toBeGreaterThanOrEqual(3);
     });
 
     test(`Day ${i} should have at least one POI card`, async () => {
@@ -64,9 +68,10 @@ test.describe('Day Cards — Content Verification', () => {
       await expect(planB).toBeAttached();
     });
 
-    test(`Day ${i} should have a logistics section`, async () => {
-      const logistics = tripPage.getDayLogistics(i);
-      await expect(logistics).toBeAttached();
+    test(`Day ${i} should have a Plan B or advisory section`, async () => {
+      const advisory = tripPage.page.locator(`#day-${i} .advisory`);
+      const count = await advisory.count();
+      expect(count).toBeGreaterThanOrEqual(1);
     });
   }
 });

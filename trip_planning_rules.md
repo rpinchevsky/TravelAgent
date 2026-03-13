@@ -78,6 +78,7 @@ Always include a "Holiday Advisory" note explaining:
 Before presenting any "Day" to the user, you must pass this self-check:
 - [ ] Is it age-appropriate for the youngest (based on calculated age)?
 - [ ] Does it hit at least one Universal Interest?
+- [ ] **POI Minimum Count:** Does this full day have at least 3 POI cards (attractions + restaurants + secondary stops)? Arrival/departure days are exempt. If a day has fewer than 3 POIs, add more POIs from the area before proceeding. This is a **blocking** check — do not write the day file until it passes.
 - [ ] Provide additional options in area if we won't like some of advised POI.
 - [ ] Is the logistics/transportation plan efficient?
 - [ ] Does the number of POI cards in the HTML match the number of `###` POI sections in the markdown for this day? (POI Parity Check)
