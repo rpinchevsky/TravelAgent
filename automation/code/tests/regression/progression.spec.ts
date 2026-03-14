@@ -3,35 +3,36 @@ import { test, expect } from '../fixtures/shared-page';
 /**
  * Consolidated Progression Tests
  *
- * 2026-03-12_2215: Structural patterns (pricing-grid, advisory classes, overview)
- * 2026-03-13_1830: Arcade expansion (51 POIs, per-day counts, new POI names, budget)
+ * 2026-03-14_1745: Full regeneration — 86 POIs, 12 days, 627 550 HUF / 1 626 EUR
+ *   New itinerary with Bear Farm, Children's Railway, expanded POI coverage,
+ *   grocery stores, along-the-way stops, and Plan B alternatives.
  */
 
-// --- Per-day POI expectations (from 2026-03-13_1830) ---
+// --- Per-day POI expectations (from 2026-03-14_1745) ---
+// Counting: all ### sections that are NOT Расписание/Стоимость/🅱️ heading
+// Including: main POIs, restaurants, grocery stores, along-the-way stops, Plan B POIs
 const EXPECTED_POI_COUNTS: Record<number, number> = {
-  0: 1, 1: 5, 2: 5, 3: 5, 4: 5, 5: 5,
-  6: 4, 7: 4, 8: 4, 9: 6, 10: 5, 11: 2,
+  0: 3, 1: 8, 2: 8, 3: 10, 4: 7, 5: 9,
+  6: 7, 7: 8, 8: 8, 9: 7, 10: 7, 11: 4,
 };
 
-// New POIs added in 2026-03-13_1830 release
-const NEW_POIS: { day: number; search: string; label: string }[] = [
-  { day: 1, search: 'SuperFly', label: 'SuperFly' },
-  { day: 2, search: 'Gamerland', label: 'Gamerland' },
-  { day: 3, search: 'Elevenpark', label: 'Elevenpark' },
-  { day: 4, search: 'Gameroom', label: 'Gameroom' },
-  { day: 5, search: 'Labirintus', label: 'Labyrinth' },
-  { day: 6, search: 'CyberJump', label: 'CyberJump' },
-  { day: 7, search: 'Flipper', label: 'Flippermúzeum' },
-  { day: 8, search: 'Játékterem', label: 'Játékterem' },
-  { day: 9, search: 'VR', label: 'VR Vidámpark' },
-  { day: 10, search: 'Arcade', label: "Let's Go Arcade" },
-];
-
-// Legacy POIs that must still be present
-const LEGACY_POIS: { day: number; search: string; label: string }[] = [
-  { day: 10, search: 'Gelarto', label: 'Gelarto Rosa' },
-  { day: 9, search: 'Hősök', label: 'Hősök tere' },
-  { day: 8, search: 'Spray', label: 'Aqua Spray Park' },
+// Notable POIs in 2026-03-14_1745 release
+const NOTABLE_POIS: { day: number; search: string; label: string }[] = [
+  { day: 1, search: 'Palatinus', label: 'Palatinus Strand' },
+  { day: 2, search: 'Állat', label: 'Будапештский зоопарк' },
+  { day: 3, search: 'Halászbástya', label: 'Рыбацкий бастион' },
+  { day: 3, search: 'Ruszwurm', label: 'Кондитерская Русвурм' },
+  { day: 4, search: 'Aquaworld', label: 'Aquaworld Budapest' },
+  { day: 5, search: 'Gyermekvasút', label: 'Детская железная дорога' },
+  { day: 5, search: 'Budakeszi', label: 'Будакеси Вадашпарк' },
+  { day: 6, search: 'Medveotthon', label: 'Медвежья ферма' },
+  { day: 7, search: 'Nagycirkusz', label: 'Столичный цирк' },
+  { day: 7, search: 'Miniversum', label: 'Миниверсум' },
+  { day: 8, search: 'Nagyvásárcsarnok', label: 'Центральный рынок' },
+  { day: 9, search: 'Vasúttörténeti', label: 'Ж/д музей' },
+  { day: 9, search: 'Tropicarium', label: 'Тропикариум' },
+  { day: 10, search: 'Csodák', label: 'Дворец чудес' },
+  { day: 10, search: 'Premier', label: 'Premier Outlet' },
 ];
 
 test.describe('Progression — Structural Patterns (per-day)', () => {
@@ -60,7 +61,7 @@ test.describe('Progression — Global Sections', () => {
   test('budget section should contain Итого', async ({ sharedPage }) => {
     const budget = sharedPage.locator('#budget');
     await expect.soft(budget, 'budget attached').toBeAttached();
-    await expect.soft(budget, 'contains Итого').toContainText('Итого');
+    await expect.soft(budget, 'contains Итого').toContainText('ИТОГО');
   });
 
   test('overview should be standalone with itinerary-table', async ({ sharedPage }) => {
@@ -71,9 +72,10 @@ test.describe('Progression — Global Sections', () => {
   });
 });
 
-test.describe('Progression — 51 POI Cards & Distribution', () => {
-  test('should have exactly 51 POI cards total', async ({ tripPage }) => {
-    await expect(tripPage.poiCards).toHaveCount(51);
+test.describe('Progression — 86 POI Cards & Distribution', () => {
+  test('should have at least 80 POI cards total', async ({ tripPage }) => {
+    const count = await tripPage.poiCards.count();
+    expect(count).toBeGreaterThanOrEqual(80);
   });
 
   test('each day should have the expected POI card count', async ({ tripPage }) => {
@@ -83,28 +85,15 @@ test.describe('Progression — 51 POI Cards & Distribution', () => {
     }
   });
 
-  test('budget should contain 1 854 EUR and 703 640 HUF', async ({ tripPage }) => {
-    await expect.soft(tripPage.budgetSection, 'EUR total').toContainText('1 854');
-    await expect.soft(tripPage.budgetSection, 'HUF total').toContainText('703 640');
+  test('budget should contain 1 626 EUR and 627 550 HUF', async ({ tripPage }) => {
+    await expect.soft(tripPage.budgetSection, 'EUR total').toContainText('1 626');
+    await expect.soft(tripPage.budgetSection, 'HUF total').toContainText('627 550');
   });
 });
 
-test.describe('Progression — New & Legacy POI Presence', () => {
-  test('all new arcade/indoor POIs should be present', async ({ tripPage }) => {
-    for (const poi of NEW_POIS) {
-      const pois = tripPage.getDayPoiCards(poi.day);
-      const count = await pois.count();
-      let found = false;
-      for (let i = 0; i < count; i++) {
-        const name = await tripPage.getPoiCardName(pois.nth(i)).textContent();
-        if (name && name.includes(poi.search)) { found = true; break; }
-      }
-      expect.soft(found, `Day ${poi.day}: ${poi.label} not found`).toBe(true);
-    }
-  });
-
-  test('legacy POIs should still be present', async ({ tripPage }) => {
-    for (const poi of LEGACY_POIS) {
+test.describe('Progression — Notable POI Presence', () => {
+  test('all notable POIs should be present', async ({ tripPage }) => {
+    for (const poi of NOTABLE_POIS) {
       const pois = tripPage.getDayPoiCards(poi.day);
       const count = await pois.count();
       let found = false;

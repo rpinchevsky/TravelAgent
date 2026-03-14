@@ -1,20 +1,52 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as path from 'path';
+import * as fs from 'fs';
 
 // Project root is two levels up from automation/code/
 const projectRoot = path.resolve(__dirname, '..', '..');
 
+/**
+ * Auto-discovers the latest trip folder containing the target file.
+ * Reuses the proven pattern from poi-parity.spec.ts — scans generated_trips/
+ * for timestamp-named folders, sorts descending, returns first match.
+ */
+function resolveLatestTrip(root: string, filename: string): string {
+  const tripsDir = path.resolve(root, 'generated_trips');
+  const folders = fs.readdirSync(tripsDir)
+    .filter(f => /^trip_\d{4}-\d{2}-\d{2}_\d{4}$/.test(f) && fs.statSync(path.join(tripsDir, f)).isDirectory())
+    .sort()
+    .reverse();
+
+  for (const folder of folders) {
+    const candidate = path.join(tripsDir, folder, filename);
+    if (fs.existsSync(candidate)) {
+      return candidate.replace(/\\/g, '/');
+    }
+  }
+
+  throw new Error(
+    `No trip folder found containing "${filename}". Scanned ${folders.length} folders in ${tripsDir}: ${folders.join(', ') || '(none)'}`
+  );
+}
+
 // LTR trip (Russian) — main regression target
-const ltrPath = path.resolve(projectRoot, 'generated_trips', 'html', 'trip_2026-03-13_1557.html').replace(/\\/g, '/');
+// Accepts TRIP_LTR_HTML env var override; falls back to auto-discovery
+const ltrPath = process.env.TRIP_LTR_HTML
+  ? path.resolve(process.env.TRIP_LTR_HTML).replace(/\\/g, '/')
+  : resolveLatestTrip(projectRoot, 'trip_full_ru.html');
 const LTR_HTML = `file:///${ltrPath}`;
 
 // RTL trip (Hebrew) — RTL layout regression target
-const rtlPath = path.resolve(projectRoot, 'generated_trips', 'trip_2026-03-13_1557', 'trip_full_he.html').replace(/\\/g, '/');
+// Accepts TRIP_RTL_HTML env var override; falls back to auto-discovery
+const rtlPath = process.env.TRIP_RTL_HTML
+  ? path.resolve(process.env.TRIP_RTL_HTML).replace(/\\/g, '/')
+  : resolveLatestTrip(projectRoot, 'trip_full_he.html');
 const RTL_HTML = `file:///${rtlPath}`;
 
-// Extract timestamp from trip filename for report naming
-const tripMatch = path.basename(ltrPath).match(/trip_(\d{4}-\d{2}-\d{2}_\d{4})/);
-const tripTimestamp = tripMatch ? tripMatch[1] : new Date().toISOString().replace(/[:.]/g, '').slice(0, 15);
+// Extract timestamp from resolved trip folder for report naming
+const ltrFolder = path.basename(path.dirname(ltrPath));
+const folderMatch = ltrFolder.match(/^trip_(\d{4}-\d{2}-\d{2}_\d{4})$/);
+const tripTimestamp = folderMatch ? folderMatch[1] : new Date().toISOString().replace(/[:.]/g, '').slice(0, 15);
 const reportDir = path.resolve(__dirname, '..', 'Reports', `automation_report_${tripTimestamp}`);
 
 export default defineConfig({

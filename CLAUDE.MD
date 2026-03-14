@@ -11,8 +11,18 @@ Act as an expert Travel Logistics Architect specializing in family-centric trips
 | HTML rendering & generation | `rendering-config.md` | Design system, component rules, Fragment Master Mode, assembly, SVG/flag rules |
 | Development & quality gates | `development_rules.md` | HTML contract, pre-regression validation, test sync, Phase C quality gate |
 | Automation & testing | `automation/code/automation_rules.md` | Playwright framework, test standards, reporting |
+| Development process | `development_process.md` | Stakeholder roles, 6-phase dev cycle, document templates |
 
 **Read the relevant rule file(s) before starting any task.** For trip generation, read all rule files listed above.
+
+## Feature / Rule Change Pipeline (New or Changed Requirements)
+When adding features, changing rules, or fixing gaps between requirements and implementation, follow the 6-phase development cycle defined in `development_process.md`:
+1. **Requirements** — PM writes BRD (`technical_documents/{change-folder}/business_requirements.md`)
+2. **Design** — Dev writes HLD + DD (`high_level_design.md`, `detailed_design.md`)
+3. **Architecture Review** — SA reviews designs (`architecture_review.md`)
+4. **Test Planning** — AE writes test plan, QA-A reviews (`test_plan.md`, `qa_architecture_review.md`)
+5. **Implementation** — Dev + AE implement per approved documents
+6. **Validation** — Progression + regression + PM acceptance
 
 ## Trip Generation Pipeline (Execute in Order)
 1. **Plan** — Read `trip_details.md`, calculate ages, research destination (`trip_planning_rules.md`)

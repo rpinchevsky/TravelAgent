@@ -34,6 +34,9 @@
 - Tag: `<span class="poi-card__tag">` with emoji prefix (e.g., `🏊 Бассейн`, `🍽️ Ужин`, `🏛️ Музей`)
 - Name: Use `<h3 class="poi-card__name">` (semantic heading), NOT `<div>`
 - Links: Use emoji prefixes: `📍 Maps`, `🌐 Сайт`, `📸 Фото`
+- **Link Label Consistency (Mandatory):** All website/site links MUST use the exact label `🌐 Сайт`. Never replace with brand names, abbreviations, or custom text (e.g., do NOT use `🌐 CBA`, `🌐 Инфо`, `🌐 Меню`). The label is always `Сайт` regardless of the destination URL.
+- Grocery tag: `<span class="poi-card__tag">🛒 МАГАЗИН</span>`
+- Optional stop tag: `<span class="poi-card__tag">🎯 ПО ПУТИ</span>`
 
 ### POI Card Parity Rule (Mandatory)
 - Every `###` section in the source markdown that describes a Point of Interest (attractions, restaurants, activities — anything that is NOT Логистика, Стоимость, or Запасной план) **MUST** be rendered as exactly one `<div class="poi-card">` in the HTML output.
@@ -70,6 +73,7 @@
 - Wrap in `<section id="overview">` — this is what TripPage.ts `#overview` locator targets.
 - Inside: `<h2 class="section-title">` + `<div class="itinerary-table-wrapper">` table.
 - Do NOT wrap the overview in a `day-card` with a banner.
+- **No day-number column:** The overview table must NOT include a "День" column with numeric day indices (0, 1, 2…). Start with "Дата" (date) as the first column.
 
 ### Budget Section
 - Wrap in `<section id="budget">` — this is what TripPage.ts `#budget` locator targets.

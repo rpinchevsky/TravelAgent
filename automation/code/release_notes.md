@@ -1,5 +1,104 @@
 # Release Notes
 
+## 2026-03-14_1745 — Full Trip Regeneration — 86 POIs, Expanded Coverage
+
+### Changes
+
+#### Trip Content (Full Regeneration)
+- **Full 12-day trip regenerated** with comprehensive POI coverage: 86 POI cards (was 39).
+- **POI distribution:** Day 0:3, 1:8, 2:8, 3:10, 4:7, 5:9, 6:7, 7:8, 8:8, 9:7, 10:7, 11:4
+- **Budget total**: 627 550 HUF / 1 626 EUR (was 656 100 HUF / 1 643 EUR).
+- **New "Only Here" attractions:**
+  - Day 5: Children's Railway (Gyermekvasút) + Cogwheel Railway (Fogaskerekű)
+  - Day 5: Budakeszi Wildlife Park with Dino Park
+  - Day 6: Bear Farm Veresegyház (Medveotthon) — 42 rescued bears
+  - Day 7: Capital Circus (Fővárosi Nagycirkusz) + Miniversum
+  - Day 10: Palace of Wonders (Csodák Palotája) for Itay's 4th birthday
+- **Enhanced daily coverage:** Each day now includes grocery store, along-the-way stops, and Plan B alternatives as full POI cards
+- **New folder:** `generated_trips/trip_2026-03-14_1745/`
+- **Multi-language file naming:** All files use `_ru` suffix per content_format_rules.md
+
+#### Config Changes
+- **playwright.config.ts**: Updated LTR path to `generated_trips/trip_2026-03-14_1745/trip_full_ru.html`.
+
+#### Test Data Synchronized
+- **overview-budget.spec.ts**: Budget EUR 1 643 -> 1 626.
+- **poi-cards.spec.ts**: Min POI threshold 24 -> 60 (86 total POIs).
+- **progression.spec.ts**: Updated to 86 POI count, new per-day distribution, budget 1 626 EUR / 627 550 HUF, 15 notable POIs.
+
+### Affected Sections
+- All day sections (Day 0-11) — full content regeneration
+- Navigation — 14 items (unchanged count)
+- Overview table — 12 rows (unchanged count)
+- Budget section — new totals (627 550 HUF / 1 626 EUR)
+- 86 POI cards — dual-language names, expanded descriptions
+
+---
+
+## 2026-03-14_1054 — New Trip with Outlet Shopping & Grocery Stores — 39 POIs
+
+### Changes
+
+#### Trip Content (Full Regeneration)
+- **Full 12-day trip regenerated** with new universal interests: Outlet Shopping and Grocery Stores.
+- **39 POI cards** total (was 50): streamlined itinerary focusing on quality over quantity.
+- **POI distribution:** Day 0:1, 1:5, 2:4, 3:5, 4:4, 5:3, 6:4, 7:3, 8:2, 9:4, 10:2, 11:2
+- **Budget total**: 656 100 HUF / 1 643 EUR (was 730 000 HUF / 1 825 EUR).
+- **New features:**
+  - Day 9: Premier Outlet Center (Nike, Adidas, Tommy Hilfiger, 150+ brands)
+  - Daily grocery store recommendations (SPAR, Tesco, Lidl, CBA, Penny, Auchan)
+  - kids_interests integrated as optional along-the-way visits
+- **New folder:** `generated_trips/trip_2026-03-14_1054/`
+- **Multi-language file naming:** All files use `_ru` suffix per content_format_rules.md
+
+#### Config Changes
+- **playwright.config.ts**: Updated LTR path to `generated_trips/trip_2026-03-14_1054/trip_full_ru.html`.
+
+#### Test Data Synchronized
+- **overview-budget.spec.ts**: Budget EUR 1 825 -> 1 643.
+- **poi-cards.spec.ts**: Min POI threshold 48 -> 24 (39 total POIs).
+- **progression.spec.ts**: Updated to 39 POI count, new per-day distribution, budget 1 643 EUR / 656 100 HUF.
+
+### Affected Sections
+- All day sections (Day 0-11) — full content regeneration
+- Navigation — 14 items (unchanged count)
+- Overview table — 12 rows (unchanged count)
+- Budget section — new totals (656 100 HUF / 1 643 EUR)
+- 39 POI cards — dual-language names
+
+---
+
+## 2026-03-14_0120 — New Trip Generation — Budapest Aug 20-31 2026, 12 Days, 50 POIs
+
+### Changes
+
+#### Trip Content (Full Regeneration)
+- **Full 12-day trip regenerated** with new folder structure (language suffixes): `trip_2026-03-14_0120/trip_full_ru.html`.
+- **50 POI cards** total (was 51): refined itinerary with restructured days.
+- **POI distribution:** Day 0:1, 1:5, 2:5, 3:6, 4:5, 5:4, 6:7, 7:4, 8:3, 9:4, 10:4, 11:2
+- **Budget total**: 730 000 HUF / 1 825 EUR (was ~703 640 HUF / ~1 854 EUR).
+- **12 day sections**, **14 navigation links** (unchanged structure).
+- **1 advisory--warning** (Holiday Advisory), **13 advisory--info** sections.
+- **New folder structure:** Trip files now in `generated_trips/trip_YYYY-MM-DD_HHmm/` with language-suffixed filenames (`trip_full_ru.html`, `day_XX_ru.md`).
+
+#### Config Changes
+- **playwright.config.ts**: Updated LTR path to `generated_trips/trip_2026-03-14_0120/trip_full_ru.html`.
+
+#### Test Data Synchronized
+- **overview-budget.spec.ts**: Budget EUR 1 854 -> 1 825.
+- **poi-cards.spec.ts**: Min POI threshold 45 -> 48 (50 total POIs now).
+- **poi-parity.spec.ts**: Updated markdown reader to support new folder structure with fallback to legacy md/ directory.
+- **progression.spec.ts**: Updated to 50 POI count, new per-day distribution, new POI names, budget 1 825 EUR / 730 000 HUF.
+
+### Affected Sections
+- All day sections (Day 0-11) — full content regeneration
+- Navigation — 14 items (unchanged count)
+- Overview table — 12 rows (unchanged count)
+- Budget section — new totals (730 000 HUF / 1 825 EUR)
+- 50 POI cards — dual-language names
+
+---
+
 ## 2026-03-13_1830 — Arcade & Indoor Entertainment Expansion (51 POI Cards)
 
 ### Changes

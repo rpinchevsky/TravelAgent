@@ -14,20 +14,42 @@ import * as path from 'path';
  *   - Запасной план (Plan B)
  */
 
-const EXCLUDED_SECTIONS = ['Логистика', 'Стоимость', 'Запасной план'];
+const EXCLUDED_SECTIONS = ['Логистика', 'Стоимость', 'Запасной план', 'Ближайший магазин', 'По пути'];
 
 function getExpectedPoiCountsFromMarkdown(): Record<number, { count: number; names: string[] }> {
-  const mdDir = path.resolve(__dirname, '..', '..', '..', '..', 'generated_trips', 'md');
-  const mdFiles = fs.readdirSync(mdDir)
-    .filter(f => /^trip_\d{4}-\d{2}-\d{2}_\d{4}\.md$/.test(f))
+  // Try new folder structure first (trip_YYYY-MM-DD_HHmm/trip_full_ru.md)
+  const tripsDir = path.resolve(__dirname, '..', '..', '..', '..', 'generated_trips');
+  const tripFolders = fs.readdirSync(tripsDir)
+    .filter(f => /^trip_\d{4}-\d{2}-\d{2}_\d{4}$/.test(f) && fs.statSync(path.join(tripsDir, f)).isDirectory())
     .sort()
     .reverse();
 
-  if (mdFiles.length === 0) {
-    throw new Error(`No trip markdown files found in ${mdDir}`);
+  let latestMdContent: string | null = null;
+
+  for (const folder of tripFolders) {
+    const fullMdPath = path.join(tripsDir, folder, 'trip_full_ru.md');
+    if (fs.existsSync(fullMdPath)) {
+      latestMdContent = fs.readFileSync(fullMdPath, 'utf-8');
+      break;
+    }
   }
 
-  const latestMd = fs.readFileSync(path.join(mdDir, mdFiles[0]), 'utf-8');
+  // Fallback to legacy md/ directory
+  if (!latestMdContent) {
+    const mdDir = path.join(tripsDir, 'md');
+    const mdFiles = fs.readdirSync(mdDir)
+      .filter(f => /^trip_\d{4}-\d{2}-\d{2}_\d{4}\.md$/.test(f))
+      .sort()
+      .reverse();
+
+    if (mdFiles.length === 0) {
+      throw new Error(`No trip markdown files found in trip folders or ${mdDir}`);
+    }
+
+    latestMdContent = fs.readFileSync(path.join(mdDir, mdFiles[0]), 'utf-8');
+  }
+
+  const latestMd = latestMdContent;
   const lines = latestMd.split('\n');
 
   const result: Record<number, { count: number; names: string[] }> = {};

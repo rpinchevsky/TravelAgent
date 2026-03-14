@@ -8,7 +8,7 @@ Before any planning or answering, perform these steps:
    - *Example:* If the youngest is calculated as 4, apply the 4-year-old safety/engagement rules.
 3. **Language:** Use languages from `language_preference`.
 4. **POI:** All points of interest shall use languages from `language_preference.poi_languages` — this applies **everywhere** the POI name appears: POI card headings, activity labels in itinerary tables (including restaurants, stations, and any named location in the Activity column), and any other reference. Format per `poi_languages` order, separated by ` / `.
-    - Add along the way as an optional visit places from `kids_interests`
+    - **Optional Along-the-Way Stops (Mandatory per day):** For each day, identify 1–2 places from `kids_interests` that are geographically close to the day's route (within 5–10 min detour). Present them as a dedicated `### 🎯 По пути` section in the day file — not embedded inside other POI cards. Each optional stop must include: name (in `poi_languages`), one-line description, Google Maps link, and why it fits the kids' interests. These are "bonus" stops the family can grab if energy/time allows.
 
 ---
 

@@ -32,6 +32,8 @@
 - Kid-Friendly Historical Sites with Interactive Elements (e.g., Buda Castle, Fisherman's Bastion)
 - Family-Friendly Restaurants with Play Areas or Themed Decor
 - Outdoor Markets with Local Crafts and Food Stalls
+- Outlet Shopping (known brands: Nike, Adidas, Tommy Hilfiger, etc.) — limit to one day, schedule in second half of day
+- Grocery Stores — add recommended local supermarkets as optional daily visits (nearest to day's route)
 
 ### Kids Interests
 

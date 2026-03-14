@@ -9,9 +9,10 @@ test.describe('Overview Table', () => {
     await expect(tripPage.overviewTableRows.first()).toContainText('20.08');
   });
 
-  test('overview table should contain all day rows (0-11)', async ({ tripPage }) => {
-    for (let i = 0; i <= 11; i++) {
-      const cell = tripPage.overviewTable.locator(`td`).filter({ hasText: new RegExp(`^${i}$`) });
+  test('overview table should contain all day date rows', async ({ tripPage }) => {
+    const dates = ['20.08', '21.08', '22.08', '23.08', '24.08', '25.08', '26.08', '27.08', '28.08', '29.08', '30.08', '31.08'];
+    for (const date of dates) {
+      const cell = tripPage.overviewTable.locator(`td`).filter({ hasText: date });
       await expect(cell).toBeAttached();
     }
   });
@@ -28,7 +29,7 @@ test.describe('Budget Section', () => {
   });
 
   test('budget table should contain total row with EUR amount', async ({ tripPage }) => {
-    await expect(tripPage.budgetSection).toContainText('1 854');
+    await expect(tripPage.budgetSection).toContainText('1 626');
   });
 
   test('budget table should contain EUR currency marker', async ({ tripPage }) => {
@@ -46,6 +47,6 @@ test.describe('Holiday Advisory', () => {
   });
 
   test('advisory should mention closures', async ({ tripPage }) => {
-    await expect(tripPage.holidayAdvisory).toContainText('Закрытия');
+    await expect(tripPage.holidayAdvisory).toContainText('закрыт');
   });
 });

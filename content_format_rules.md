@@ -69,9 +69,10 @@ Created during Phase A, updated after each day is generated:
 ## Phase A: High-Level Summary
 
 Provide a table with:
-- Day/Date/Area.
+- Date/Day-of-week/Area.
 - Morning/Lunch/Afternoon summary.
 - CEO Audit Status (pass/fail).
+- **No day-number column:** Do NOT include a "День" / day-number column (0, 1, 2…). Use the date column as the primary row identifier.
 
 *Note: No links or prices in this phase.*
 
@@ -132,6 +133,12 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 | ...    | ... | ... |
 | **Итого день {N}** | **...** | **...** |
 
+### 🛒 Ближайший магазин
+{Nearest supermarket(s) to the day's route — name, chain, walking distance from nearest POI, Google Maps link. This is a full POI section and MUST be rendered as a `poi-card` in HTML.}
+
+### 🎯 По пути (опционально)
+{1–2 optional kid-interest stops near the day's route. Each entry: POI name in `poi_languages`, one-line description, Google Maps link, which kid interest it matches. Rendered as `poi-card` elements in HTML with tag `🎯 ПО ПУТИ`.}
+
 ### 🅱️ Запасной план — {Name}
 {Backup plan content}
 ```
@@ -184,6 +191,17 @@ For **EVERY** location mentioned (attractions, landmarks, parks, and restaurants
 
 #### 7. Backup Plan (Plan B)
 - At least one alternative activity for the day in case of weather/closures.
+
+#### 8. Grocery Store (Nearest Supermarket)
+- **Required** on every day (including Day 0 — note if stores are closed due to holidays).
+- Format as a full `###` POI section with: store name + chain, distance from nearest day POI, Google Maps link.
+- This section MUST be rendered as a `poi-card` in HTML (tag: `🛒 МАГАЗИН`).
+
+#### 9. Optional Along-the-Way Stops
+- **Required** on every full day (Day 0 / departure day exempt).
+- Include 1–2 places from `kids_interests` that are within a 5–10 minute detour from the day's planned route.
+- Format as a `###` POI section with: name in `poi_languages`, one-line hook, Google Maps link, matched interest.
+- Rendered as `poi-card` in HTML (tag: `🎯 ПО ПУТИ`).
 
 ---
 
