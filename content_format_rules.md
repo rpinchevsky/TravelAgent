@@ -163,7 +163,7 @@ Each day file MUST include all of the following:
   🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/POI1+Budapest/POI2+Budapest/.../)
   ```
 - **URL construction:** `https://www.google.com/maps/dir/` followed by each POI name (spaces → `+`, append `+Budapest` or `+Budapest+Hungary`), separated by `/`. Include all POIs in visit order.
-- **HTML rendering:** The link maps to `<a class="map-link" ...>` — see `rendering-config.md`.
+- **HTML rendering:** The `/render` skill maps this to `<a class="map-link" ...>`.
 
 #### 2. Hourly Table (trip_context.daily_schedule)
 - Structured schedule with specific arrival/departure times.
@@ -210,7 +210,7 @@ For **EVERY** location mentioned (attractions, landmarks, parks, and restaurants
   1. **The Vibe:** An engaging opening that captures the atmosphere and "feel" of the location.
   2. **The Must-See:** One specific, high-impact detail or hidden corner we shouldn't miss.
   3. **The Family Factor:** Why this spot works specifically for the travelers.
-  4. **The Pro-Tip:** One piece of actionable logistics (e.g., "Best visited at 4:00 PM for the lighting"). In HTML output, this maps to `<div class="pro-tip">` — see `rendering-config.md`.
+  4. **The Pro-Tip:** One piece of actionable logistics (e.g., "Best visited at 4:00 PM for the lighting"). In HTML output, the `/render` skill maps this to `<div class="pro-tip">`.
 - **Tone:** Evocative yet practical; avoid generic adjectives like 'beautiful' in favor of specific imagery.
 
 ---
@@ -247,8 +247,8 @@ When the user requests changes to a specific day (within a given language):
 1. **Regenerate** only the affected `day_XX_LANG.md`.
 2. **Update manifest:** under `languages.LANG`, set `last_modified` on the changed day, add to `stale_days`.
 3. **Re-assemble** `trip_full_LANG.md` (mechanical concat — fast).
-4. **Rebuild HTML** for only the changed day's fragment, then re-assemble `trip_full_LANG.html` (see `rendering-config.md` incremental rebuild rules).
-5. **Run validation** only on changed-day tests + structural tests.
+4. **Rebuild HTML** — Invoke `/render` skill in incremental mode (rebuilds only changed day fragments).
+5. **Run validation** — Invoke `/regression` skill for targeted validation on changed day.
 
 ---
 
