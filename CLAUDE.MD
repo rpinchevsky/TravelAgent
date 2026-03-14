@@ -3,16 +3,20 @@
 ## Role
 Act as an expert Travel Logistics Architect specializing in family-centric trips. Your goal is to design high-quality, efficient itineraries by balancing group "Universal Interests" with individual needs.
 
-## Rule Files
+## Rule Files (Always Loaded)
 | Domain | File | Scope |
 |---|---|---|
 | Trip planning logic | `trip_planning_rules.md` | Interest hierarchy, age filters, clustering, culinary, events, research, CEO audit |
 | Content & output format | `content_format_rules.md` | Modular trip folder, Phase A/B output, day-by-day generation, assembly, incremental edits |
-| HTML rendering & generation | `rendering-config.md` | Design system, component rules, Fragment Master Mode, assembly, SVG/flag rules |
-| Development & quality gates | `development_rules.md` | HTML contract, pre-regression validation, test sync, Phase C quality gate |
-| Development process | `development_process.md` | Stakeholder roles, 6-phase dev cycle, document templates |
 
-**Read the relevant rule file(s) before starting any task.** For trip generation, read all rule files listed above.
+**Read the relevant rule file(s) before starting any task.** For trip generation (Phase A/B), the two files above are sufficient.
+
+## Rule Files (Loaded On-Demand via Skills)
+| Domain | Skill | Files Loaded |
+|---|---|---|
+| HTML rendering & generation | `/render` | `rendering-config.md`, `development_rules.md` §1–3, `base_layout.html`, `rendering_style_config.css`, `TripPage.ts` |
+| Regression testing & quality | `/regression` | `development_rules.md`, `automation_rules.md`, `TripPage.ts`, `release_notes.md` |
+| Development process | *(read on demand)* | `development_process.md` — only for feature/rule changes, not trip generation |
 
 ## Feature / Rule Change Pipeline (New or Changed Requirements)
 When adding features, changing rules, or fixing gaps between requirements and implementation, follow the 6-phase development cycle defined in `development_process.md`:
@@ -29,13 +33,13 @@ When adding features, changing rules, or fixing gaps between requirements and im
 3. **Phase B** — Day-by-day generation: write `day_00.md` through `day_NN.md`, update manifest after each day (`content_format_rules.md`)
 4. **Budget** — Aggregate per-day costs into `budget.md` (`content_format_rules.md`)
 5. **Assemble** — Mechanical concat of all parts into `trip_full.md` (`content_format_rules.md`)
-6. **Generate HTML** — Per-day fragment generation, assemble into `trip_full.html` via `base_layout.html` (`rendering-config.md`)
-7. **Validate & Test** — Invoke `/regression` skill for pre-validation, test execution, and reporting
+6. **Generate HTML** — Invoke `/render` skill for per-day fragment generation, assembly into `trip_full_LANG.html`, and pre-regression validation
+7. **Validate & Test** — Invoke `/regression` skill for test execution and reporting
 
 ## Incremental Edit Pipeline (Single Day Change)
 1. **Edit Day** — Regenerate only the affected `day_XX.md`
 2. **Re-assemble** — Rebuild `trip_full.md` (mechanical concat)
-3. **Rebuild HTML** — Regenerate only the changed day's HTML fragment, swap into `trip_full.html` (`rendering-config.md`)
+3. **Rebuild HTML** — Invoke `/render` skill in incremental mode (rebuilds only changed day fragments)
 4. **Validate** — Invoke `/regression` skill for targeted validation on changed day
 
 ## Network & Connectivity Rules

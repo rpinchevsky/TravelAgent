@@ -254,7 +254,5 @@ When the user requests changes to a specific day (within a given language):
 
 ## HTML Export Workflow
 - **Trigger:** Whenever asked to "create an HTML page," "export to HTML," or "generate the web view."
-- **Source Selection:** Identify the most recent trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`. If no language is specified, use the current `language_preference.reporting_language` from `trip_details.md`.
-- **Source Files:** Read all `day_XX_LANG.md` files for the target language (or use `trip_full_LANG.md` if assembled).
-- **Output Filename:** `trip_full_LANG.html` inside the same trip folder (e.g., `trip_full_ru.html`).
-- **Next step:** Follow the **HTML Generation Pipeline** in `rendering-config.md` (Fragment Master Mode) to produce the HTML, then validate per `development_rules.md`.
+- **Action:** Invoke the `/render` skill. It handles source discovery, fragment generation, assembly, and pre-regression validation.
+- **Output:** `trip_full_LANG.html` inside the trip folder (e.g., `trip_full_ru.html`).

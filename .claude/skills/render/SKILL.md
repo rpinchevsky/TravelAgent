@@ -1,0 +1,90 @@
+---
+name: render
+description: "Generate trip HTML from markdown day files. Use when: generate HTML, create HTML page, export to HTML, render trip, build HTML, rebuild HTML, html generation, incremental HTML rebuild."
+---
+
+# HTML Render Skill
+
+Generate per-day HTML fragments from trip markdown and assemble into `trip_full_LANG.html` using the Enterprise Design System.
+
+## Argument Parsing
+
+- If the user provides a trip folder path, use it as the source.
+- If no argument is provided, auto-discover the latest `generated_trips/trip_YYYY-MM-DD_HHmm/` folder via `manifest.json`.
+- Language: use the `_LANG` suffix from existing day files, or default to `language_preference.reporting_language` from `trip_details.md`.
+
+## Before You Start — Load Context
+
+Read these files (they are NOT loaded into conversation context by default):
+
+1. **`rendering-config.md`** — Design system, component rules, Fragment Master Mode pipeline, SVG/flag rules, assembly constraints. **This is the authoritative source for all rendering rules.**
+2. **`development_rules.md` §1–3 only** — HTML Generation Contract (§1), Trip Completeness Validation (§2), Pre-Regression Validation Gate (§3). Sections §4–7 are `/regression` concerns — skip them.
+3. **`base_layout.html`** — Template shell with `{{PAGE_TITLE}}`, `{{NAV_LINKS}}`, `{{NAV_PILLS}}`, `{{TRIP_CONTENT}}` placeholders
+4. **`rendering_style_config.css`** — Full CSS to inline into `<style>` tag (replaces the `<link>` in base_layout.html)
+5. **`automation/code/tests/pages/TripPage.ts`** — Page Object Model defining the structural contract (CSS classes, IDs, locators the tests expect)
+
+## Workflow
+
+### Step 1: Trip Completeness Validation
+
+Before generating HTML, validate the trip folder per `development_rules.md` §2:
+1. `manifest.json` exists and all days have `status: "complete"`
+2. All day files exist and match manifest
+3. Each full day has >= 3 POI headings
+4. Overview and budget files exist
+
+If ANY check fails, report and stop — do NOT generate HTML from incomplete data.
+
+### Step 2: Per-Day Fragment Generation
+
+Follow `rendering-config.md` → "HTML Generation Pipeline (Fragment Master Mode)":
+1. Generate shell fragments (PAGE_TITLE, NAV_LINKS, NAV_PILLS) from `overview_LANG.md` + `manifest.json`
+2. Generate one HTML fragment per `day_XX_LANG.md` — each produces a `<div class="day-card" id="day-{N}">` block
+3. Generate overview fragment from `overview_LANG.md`
+4. Generate budget fragment from `budget_LANG.md`
+
+All component rules, CSS class requirements, POI card structure, activity label linking, SVG attributes, CSS inlining, and flag rendering rules are defined in `rendering-config.md`. Follow that file — it is the single source of truth for rendering.
+
+### Step 3: Assembly & Export
+
+1. Read `base_layout.html` (do not modify the template)
+2. Assemble `{{TRIP_CONTENT}}` = overview + day fragments (in order) + budget
+3. Inject all placeholders
+4. Write `trip_full_LANG.html` to the trip folder
+5. Update `manifest.json`: set `assembly.trip_full_html_built` timestamp
+
+### Step 4: Pre-Regression Validation Gate
+
+After HTML generation, run the 11-point structural validation from `development_rules.md` §3 using Grep/Read on the output HTML. This catches 80%+ of failures before Playwright runs.
+
+If validation fails, fix the HTML and re-run validation before reporting success.
+
+**Note:** `/regression` also runs this validation as its Step 1. This is intentional defense-in-depth — catching issues here avoids wasting time on Playwright execution against broken HTML.
+
+### Incremental Rebuild Mode
+
+When only specific days changed (detected via `manifest.json → assembly.stale_days`):
+1. Regenerate only the HTML fragments for stale days
+2. In the existing `trip_full_LANG.html`, find and replace the `<div class="day-card" id="day-{N}">` sections
+3. If days were added/removed, regenerate NAV_LINKS and NAV_PILLS too
+4. Run Step 4 validation on the rebuilt file
+
+## Agent Prompt Contract
+
+When delegating HTML generation to a sub-agent, the prompt MUST include all 9 items defined in `rendering-config.md` §2.5. Never delegate without the full contract.
+
+## Reference Files
+
+- `rendering-config.md` — Design system + Fragment Master Mode pipeline
+- `development_rules.md` — HTML contract (§1), completeness (§2), pre-regression gate (§3)
+- `base_layout.html` — HTML template shell
+- `rendering_style_config.css` — CSS to inline
+- `automation/code/tests/pages/TripPage.ts` — Structural contract (POM locators)
+- `content_format_rules.md` — Day file format, manifest schema
+
+## Important
+
+- All commands MUST use `rtk` prefix per global CLAUDE.md rules
+- Never modify `base_layout.html` or `rendering_style_config.css` — they are source templates
+- Always inline CSS — the output HTML must never reference external CSS files (Google Fonts `<link>` OK)
+- POI parity is non-negotiable — markdown POI count must match HTML poi-card count per day
