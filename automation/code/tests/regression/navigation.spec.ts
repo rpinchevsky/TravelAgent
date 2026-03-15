@@ -6,6 +6,9 @@ test.describe('Navigation — Desktop Sidebar', () => {
   });
 
   test('should have first sidebar link as active with aria-current', async ({ tripPage }) => {
+    // Scroll to top to ensure IntersectionObserver highlights #overview
+    await tripPage.page.evaluate(() => window.scrollTo(0, 0));
+    await tripPage.page.waitForTimeout(300);
     await expect(tripPage.sidebarActiveLink).toHaveCount(1);
     await expect(tripPage.sidebarActiveLink).toHaveAttribute('aria-current', 'page');
     await expect(tripPage.sidebarActiveLink).toHaveAttribute('href', '#overview');
@@ -38,6 +41,8 @@ test.describe('Navigation — Mobile Pills', () => {
   });
 
   test('should have first pill as active', async ({ tripPage }) => {
+    await tripPage.page.evaluate(() => window.scrollTo(0, 0));
+    await tripPage.page.waitForTimeout(300);
     await expect(tripPage.mobileActivePill).toHaveCount(1);
     await expect(tripPage.mobileActivePill).toHaveAttribute('href', '#overview');
   });

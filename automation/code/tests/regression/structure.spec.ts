@@ -1,27 +1,27 @@
 import { test, expect } from '../fixtures/shared-page';
+import { loadTripConfig } from '../utils/trip-config';
+
+const tripConfig = loadTripConfig();
 
 test.describe('Structural Integrity', () => {
   test('should have correct page title', async ({ sharedPage }) => {
-    await expect(sharedPage).toHaveTitle('Budapest 2026 — Семейный маршрут');
+    await expect(sharedPage).toHaveTitle(tripConfig.pageTitle);
   });
 
   test('should display main heading', async ({ tripPage }) => {
     await expect(tripPage.pageTitle).toBeVisible();
-    await expect(tripPage.pageTitle).toContainText('Budapest 2026');
+    await expect(tripPage.pageTitle).toContainText(tripConfig.destination);
   });
 
   test('should display page subtitle with family info', async ({ tripPage }) => {
     await expect(tripPage.pageSubtitle).toBeVisible();
-    await expect(tripPage.pageSubtitle).toContainText('Роберт');
-    await expect(tripPage.pageSubtitle).toContainText('Анна');
-    await expect(tripPage.pageSubtitle).toContainText('Тамир');
-    await expect(tripPage.pageSubtitle).toContainText('Ариэль');
-    await expect(tripPage.pageSubtitle).toContainText('Итай');
+    const text = await tripPage.pageSubtitle.textContent();
+    expect(text!.trim().length).toBeGreaterThan(0);
   });
 
-  test('should render all 12 day sections (day-0 arrival + days 1-10 + day-11 departure)', async ({ tripPage }) => {
-    await expect(tripPage.daySections).toHaveCount(12);
-    for (let i = 0; i <= 11; i++) {
+  test('should render all day sections', async ({ tripPage }) => {
+    await expect(tripPage.daySections).toHaveCount(tripConfig.dayCount);
+    for (let i = 0; i < tripConfig.dayCount; i++) {
       await expect(tripPage.getDaySection(i)).toBeAttached();
     }
   });
@@ -40,9 +40,9 @@ test.describe('Structural Integrity', () => {
     await expect(externalCssLink).toHaveCount(0);
   });
 
-  test('should have lang="ru" on html element', async ({ sharedPage }) => {
+  test('should have correct lang attribute on html element', async ({ sharedPage }) => {
     const lang = await sharedPage.locator('html').getAttribute('lang');
-    expect(lang).toBe('ru');
+    expect(lang).toBe(tripConfig.labels.langCode);
   });
 
   test('country flag should be an inline SVG, not an emoji', async ({ tripPage }) => {

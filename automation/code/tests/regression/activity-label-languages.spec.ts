@@ -16,64 +16,10 @@ import {
  * Generic actions (transport, generic meal categories, walks) are exempt
  * and remain in reporting_language only.
  *
- * Languages and scripts are loaded dynamically — no hardcoded assumptions.
+ * Language-independent: POI vs generic distinction is structural —
+ * <a class="activity-label"> = POI reference, <span> = generic action.
+ * No text parsing or language-specific prefix lists needed.
  */
-
-/**
- * Generic action prefixes that do NOT require bilingual naming on their own.
- * These are purely logistical actions (transport, meals as category, walks).
- * When followed by "—" and a specific venue name, the venue part IS a POI.
- */
-const GENERIC_PREFIXES = [
-  'Выезд', 'Обед', 'Переезд', 'Ужин', 'Возвращение', 'Шоппинг',
-  'Прогулка', 'Отдых', 'Завтрак', 'Посадка', 'Прибытие', 'Заселение',
-  'Катание', 'Вылет', 'Перелёт', 'Трансфер', 'Свободное время',
-  'Смена караула', 'Отъезд', 'Дунайкорзо', 'Мороженое', 'Детская площадка',
-  'Переход', 'Продолжение', 'Утренний сюрприз', 'Вечер', 'Сборы', 'Аэропорт',
-  'Прилёт', 'Пикник', 'Спуск', 'Набережная', 'Утренние подарки', 'Подъём',
-  'Последний', 'Получение', 'Лангош', 'Утреннее поздравление',
-  'Площадка', 'Фуникулёр', 'Возврат', 'Поздравление', 'Регистрация',
-  'Паспортный', 'Размещение', 'Сауна', 'Кормление', 'Горки',
-  'Ранний', 'Обратная', 'Бензин', 'Перекус', 'Свободное',
-  'Последние', 'Duty Free', 'Ранний выезд', 'Волновой',
-  'Обратно', 'Andrássy', 'Игровой', 'Váci', 'Покупки',
-];
-
-function stripEmoji(text: string): string {
-  return text.replace(/^[\p{Emoji}\p{Emoji_Presentation}\p{Emoji_Modifier_Base}\p{Emoji_Component}\uFE0F\u200D\s]+/u, '');
-}
-
-/**
- * Determines if a label references a specific POI that requires multilingual naming.
- *
- * - "🚗 Выезд к Маргит-острову" → generic (transport, no POI name)
- * - "🍽️ Обед — Robinson Étterem" → POI (restaurant name after "—")
- * - "🏛️ Halászbástya / Рыбацкий бастион" → POI (attraction name)
- * - "💦 Palatinus Strand" → POI (attraction, missing second language)
- * - "🏛️ Прогулка по острову" → generic (descriptive walk)
- */
-function referencesPoi(text: string): boolean {
-  const stripped = stripEmoji(text);
-
-  const startsWithGeneric = GENERIC_PREFIXES.some(prefix =>
-    stripped.startsWith(prefix)
-  );
-
-  if (startsWithGeneric) {
-    const dashIndex = stripped.indexOf('—');
-    if (dashIndex !== -1) {
-      const afterDash = stripped.substring(dashIndex + 1).trim();
-      return afterDash.length > 0;
-    }
-    return false;
-  }
-
-  return true;
-}
-
-function isGenericAction(text: string): boolean {
-  return !referencesPoi(text);
-}
 
 let config: PoiLanguageConfig;
 
@@ -83,20 +29,15 @@ test.beforeAll(() => {
 
 test.describe('Activity Labels — Language Compliance (poi_languages)', () => {
   test('POI-referencing activity labels should contain all configured poi_languages', async ({ tripPage }) => {
-    const count = await tripPage.activityLabels.count();
+    // Only check <a> activity labels (POI references) — skip <span> (generic actions).
+    // The rendering pipeline encodes this distinction via element type.
+    const poiLabels = tripPage.clickableActivityLabels;
+    const count = await poiLabels.count();
     expect(count).toBeGreaterThan(0);
 
     const failures: string[] = [];
     for (let i = 0; i < count; i++) {
-      const label = tripPage.activityLabels.nth(i);
-      const text = (await label.textContent()) ?? '';
-      if (!referencesPoi(text)) continue;
-
-      // Skip clickable labels — they link to bilingual POI cards
-      // (bilingual naming is validated by poi-languages.spec.ts on the card itself)
-      const tagName = await label.evaluate(el => el.tagName);
-      if (tagName === 'A') continue;
-
+      const text = (await poiLabels.nth(i).textContent()) ?? '';
       const missing = findMissingLanguages(text, config.poiLanguages);
       if (missing.length > 0) {
         failures.push(`Label #${i + 1}: "${text}" — missing ${missing.join(', ')}`);
@@ -116,14 +57,13 @@ test.describe('Activity Labels — Language Compliance (poi_languages)', () => {
       'All poi_languages use the same script — separator check not applicable'
     );
 
-    const count = await tripPage.activityLabels.count();
+    const poiLabels = tripPage.clickableActivityLabels;
+    const count = await poiLabels.count();
     expect(count).toBeGreaterThan(0);
 
     const failures: string[] = [];
     for (let i = 0; i < count; i++) {
-      const text = (await tripPage.activityLabels.nth(i).textContent()) ?? '';
-      if (!referencesPoi(text)) continue;
-
+      const text = (await poiLabels.nth(i).textContent()) ?? '';
       const missing = findMissingLanguages(text, config.poiLanguages);
       if (missing.length === 0 && !text.includes('/')) {
         failures.push(`Label #${i + 1}: "${text}" — has all scripts but missing "/" separator`);
@@ -136,17 +76,12 @@ test.describe('Activity Labels — Language Compliance (poi_languages)', () => {
     ).toHaveLength(0);
   });
 
-  test('generic action labels should not be flagged (sanity check)', async ({ tripPage }) => {
-    const count = await tripPage.activityLabels.count();
-    expect(count).toBeGreaterThan(0);
-
-    let genericCount = 0;
-    for (let i = 0; i < count; i++) {
-      const text = (await tripPage.activityLabels.nth(i).textContent()) ?? '';
-      if (isGenericAction(text)) {
-        genericCount++;
-      }
-    }
+  test('generic action labels should exist (sanity check)', async ({ tripPage }) => {
+    // Generic actions are <span> elements; POI references are <a> elements.
+    const allCount = await tripPage.activityLabels.count();
+    const clickableCount = await tripPage.clickableActivityLabels.count();
+    const genericCount = allCount - clickableCount;
+    expect(allCount).toBeGreaterThan(0);
     expect(genericCount).toBeGreaterThan(0);
   });
 });

@@ -33,7 +33,7 @@
 - **Anchor ID (Mandatory):** Every `<div class="poi-card">` MUST have a unique `id` attribute following the pattern `id="poi-day-{D}-{N}"` where `{D}` is the day number and `{N}` is the 1-based POI index within that day. Example: `id="poi-day-1-1"`, `id="poi-day-1-2"`, `id="poi-day-2-1"`.
 - Tag: `<span class="poi-card__tag">` with emoji prefix (e.g., `🏊 Бассейн`, `🍽️ Ужин`, `🏛️ Музей`)
 - Name: Use `<h3 class="poi-card__name">` (semantic heading), NOT `<div>`
-- Links: Use emoji prefixes: `📍 Maps`, `🌐 Сайт`, `📸 Фото`
+- Links: **Emoji prefixes are MANDATORY** in the rendered `<a>` text: `📍 Maps`, `🌐 Сайт`, `📸 Фото`. The SVG icon is purely decorative; the emoji is part of the visible label and must always appear after the `</svg>` and before the text word.
 - **Link Label Consistency (Mandatory):** All website/site links MUST use the exact label `🌐 Сайт`. Never replace with brand names, abbreviations, or custom text (e.g., do NOT use `🌐 CBA`, `🌐 Инфо`, `🌐 Меню`). The label is always `Сайт` regardless of the destination URL.
 - Grocery tag: `<span class="poi-card__tag">🛒 МАГАЗИН</span>`
 - Optional stop tag: `<span class="poi-card__tag">🎯 ПО ПУТИ</span>`
@@ -54,6 +54,10 @@
 - **MUST** use `pricing-grid` with `pricing-cell` components for all daily cost sections.
 - Structure: `<div class="pricing-grid">` containing `<div class="pricing-cell">` items, each with `.pricing-cell__label`, `.pricing-cell__amount`, `.pricing-cell__currency`.
 - Do NOT use `itinerary-table` for pricing data.
+
+### Daily Route Map Link
+- **Placement:** Render `<a class="map-link">` **before** the `<div class="itinerary-table-wrapper">`, immediately after the `<div class="day-card__content">` opening tag.
+- Do NOT place it after the itinerary table.
 
 ### Plan B (Backup Plan) Sections
 - **MUST** use `<div class="advisory advisory--info">` with the info SVG icon.

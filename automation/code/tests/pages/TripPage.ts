@@ -1,8 +1,10 @@
 import { type Page, type Locator } from '@playwright/test';
-
 /**
  * Page Object Model for the Trip HTML page.
  * Covers: header, navigation, day sections, POI cards, tables, budget.
+ *
+ * Language-independent: all selectors use CSS classes, IDs, or data attributes.
+ * No text-based filtering in any language.
  */
 export class TripPage {
   readonly page: Page;
@@ -126,11 +128,11 @@ export class TripPage {
   }
 
   getDayPlanB(dayNumber: number): Locator {
-    return this.page.locator(`#day-${dayNumber} .advisory--info`);
+    return this.page.locator(`#day-${dayNumber} .advisory--info[data-section-type="plan-b"]`);
   }
 
   getDayLogistics(dayNumber: number): Locator {
-    return this.page.locator(`#day-${dayNumber} .advisory--info`).filter({ hasText: 'Логистика' });
+    return this.page.locator(`#day-${dayNumber} .advisory--info[data-section-type="logistics"]`);
   }
 
   getDayPricingTable(dayNumber: number): Locator {

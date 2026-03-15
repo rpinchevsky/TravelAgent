@@ -16,16 +16,33 @@ Act as an expert Travel Logistics Architect specializing in family-centric trips
 |---|---|---|
 | HTML rendering & generation | `/render` | `rendering-config.md`, `development_rules.md` §1–3, `base_layout.html`, `rendering_style_config.css`, `TripPage.ts` |
 | Regression testing & quality | `/regression` | `development_rules.md`, `automation_rules.md`, `TripPage.ts`, `release_notes.md` |
-| Development process | *(read on demand)* | `development_process.md` — only for feature/rule changes, not trip generation |
 
-## Feature / Rule Change Pipeline (New or Changed Requirements)
-When adding features, changing rules, or fixing gaps between requirements and implementation, follow the 6-phase development cycle defined in `development_process.md`:
-1. **Requirements** — PM writes BRD (`technical_documents/{change-folder}/business_requirements.md`)
-2. **Design** — Dev writes HLD + DD (`high_level_design.md`, `detailed_design.md`)
-3. **Architecture Review** — SA reviews designs (`architecture_review.md`)
-4. **Test Planning** — AE writes test plan, QA-A reviews (`test_plan.md`, `qa_architecture_review.md`)
-5. **Implementation** — Dev + AE implement per approved documents
-6. **Validation** — Progression + regression + PM acceptance
+## Feature / Rule Change Pipeline (Autonomous Subagent Orchestration)
+When adding features, changing rules, or fixing gaps between requirements and implementation, run the 6-phase development cycle automatically. Each phase runs as a **subagent** that loads only its own context, writes its deliverable to disk, and returns a short summary. The main context stays clean.
+
+**Setup:** Create `technical_documents/YYYY-MM-DD_change-name/` folder for all deliverables.
+
+**How to spawn:** Use the Agent tool with each prompt file's content as the task description. Substitute `{change_folder}` with the actual path (e.g., `technical_documents/2026-03-15_my-change/`). Include the user's original request verbatim when spawning the PM subagent. After each subagent returns, verify its deliverable file exists on disk before proceeding to the next phase.
+
+**Phase sequence — all phases auto-proceed, no user approval gates:**
+
+| # | Role | Subagent Prompt | Reads from disk | Writes to disk |
+|---|---|---|---|---|
+| 1 | PM | `.claude/skills/dev-cycle/prompts/pm.md` | Rule files relevant to request | `business_requirements.md` |
+| 2 | Dev | `.claude/skills/dev-cycle/prompts/dev-design.md` | BRD + affected rule files | `high_level_design.md`, `detailed_design.md` |
+| 3 | SA | `.claude/skills/dev-cycle/prompts/sa-review.md` | BRD + HLD + DD + architecture rule files | `architecture_review.md` |
+| 4a | AE | `.claude/skills/dev-cycle/prompts/ae-test-plan.md` | BRD + DD + automation rules | `test_plan.md` |
+| 4b | QA-A | `.claude/skills/dev-cycle/prompts/qa-review.md` | BRD + test plan + automation rules | `qa_architecture_review.md` |
+| 5 | Dev + AE | `.claude/skills/dev-cycle/prompts/dev-impl.md` + `ae-impl.md` | DD + test plan + relevant files | Code & test changes |
+| 6 | — | `/render` → `/regression` (as subagents, not skills) | Generated trip files | HTML + test reports |
+
+**Orchestration rules:**
+- **Rejection loops:** If SA (Phase 3) rejects, re-spawn Dev (Phase 2) with `architecture_review.md` included in context, then re-run SA. If QA-A (Phase 4b) rejects, re-spawn AE (Phase 4a) with `qa_architecture_review.md` included in context, then re-run QA-A. Max 2 retry rounds per loop — escalate to user only if still blocked.
+- **Parallel execution:** Phase 5 runs Dev and AE subagents in parallel. File ownership: Dev owns rule files and content/rendering code. AE owns test specs, `TripPage.ts`, and `release_notes.md`. Neither modifies the other's files.
+- **Phase 6:** Run as subagents (not skills) to keep main context clean. The subagent reads the render/regression skill files internally. Invoke render first (HTML must be fully generated), then regression.
+- **Change types:** Bug fixes use abbreviated cycle (Phase 1 + 5 + 6). Test-only updates use Phase 4 + 5 + 6. Content-only regeneration skips this pipeline — use Trip Generation Pipeline.
+- **PM acceptance:** After Phase 6, report BRD acceptance criteria coverage to the user based on regression results.
+- **Reference doc:** `development_process.md` has full stakeholder responsibilities (not loaded into context — read only if needed).
 
 ## Trip Generation Pipeline (Execute in Order)
 1. **Plan** — Read `trip_details.md`, calculate ages, research destination (`trip_planning_rules.md`)

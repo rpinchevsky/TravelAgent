@@ -115,6 +115,10 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 | Время | Активность | Детали |
 |-------|-----------|--------|
 | ...   | ...       | ...    |
+<!-- Quick food stops (street food, grab-and-go snacks) go here as schedule rows,
+     NOT as separate ### POI sections. Example:
+     | 14:00 | 🍩 Кюртёшкалач | Édes Mackó — дымковый торт на углях, ~1 500 HUF 📍 [Maps](link) |
+     The "Детали" column carries the venue name, one-line description, price, and optional Maps link. -->
 
 ---
 
@@ -157,7 +161,7 @@ Each day file MUST include all of the following:
 
 #### 1. Daily Route Map Link
 - **Required** on every `day_XX_LANG.md` (including Day 0 and the final departure day — use airport as sole waypoint).
-- **Placement:** Immediately after the `### Расписание` table's closing `---` separator, before the first POI section.
+- **Placement:** Immediately **before** the `### Расписание` table (after the day banner/header, before the itinerary table).
 - **Format (Markdown):**
   ```
   🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/POI1+Budapest/POI2+Budapest/.../)

@@ -1,14 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as path from 'path';
 import * as fs from 'fs';
+import { loadTripConfig } from './tests/utils/trip-config';
 
 // Project root is two levels up from automation/code/
 const projectRoot = path.resolve(__dirname, '..', '..');
 
 /**
  * Auto-discovers the latest trip folder containing the target file.
- * Reuses the proven pattern from poi-parity.spec.ts — scans generated_trips/
- * for timestamp-named folders, sorts descending, returns first match.
  */
 function resolveLatestTrip(root: string, filename: string): string {
   const tripsDir = path.resolve(root, 'generated_trips');
@@ -29,25 +28,60 @@ function resolveLatestTrip(root: string, filename: string): string {
   );
 }
 
-// LTR trip (Russian) — main regression target
-// Accepts TRIP_LTR_HTML env var override; falls back to auto-discovery
-const ltrPath = process.env.TRIP_LTR_HTML
-  ? path.resolve(process.env.TRIP_LTR_HTML).replace(/\\/g, '/')
-  : resolveLatestTrip(projectRoot, 'trip_full_ru.html');
-const LTR_HTML = `file:///${ltrPath}`;
+// Load trip configuration — direction and filenames derived from reporting language
+const tripConfig = loadTripConfig();
 
-// RTL trip (Hebrew) — RTL layout regression target
-// Accepts TRIP_RTL_HTML env var override; falls back to auto-discovery
-const rtlPath = process.env.TRIP_RTL_HTML
-  ? path.resolve(process.env.TRIP_RTL_HTML).replace(/\\/g, '/')
-  : resolveLatestTrip(projectRoot, 'trip_full_he.html');
-const RTL_HTML = `file:///${rtlPath}`;
+// Main regression target — always the reporting language's HTML.
+// Direction (ltr/rtl) is an inherent property of the script, not configured separately.
+const mainPath = process.env.TRIP_HTML_OVERRIDE
+  ? path.resolve(process.env.TRIP_HTML_OVERRIDE).replace(/\\/g, '/')
+  : resolveLatestTrip(projectRoot, tripConfig.htmlFilename);
+const MAIN_HTML = `file:///${mainPath}`;
+
+// Secondary direction HTML (optional — only if env var provided).
+// Single-language trips have no secondary HTML; the project is simply omitted.
+const secondaryEnvVar = tripConfig.direction === 'ltr'
+  ? process.env.TRIP_RTL_HTML
+  : process.env.TRIP_LTR_HTML;
+let secondaryHtml: string | null = null;
+if (secondaryEnvVar) {
+  secondaryHtml = `file:///${path.resolve(secondaryEnvVar).replace(/\\/g, '/')}`;
+}
 
 // Extract timestamp from resolved trip folder for report naming
-const ltrFolder = path.basename(path.dirname(ltrPath));
-const folderMatch = ltrFolder.match(/^trip_(\d{4}-\d{2}-\d{2}_\d{4})$/);
+const mainFolder = path.basename(path.dirname(mainPath));
+const folderMatch = mainFolder.match(/^trip_(\d{4}-\d{2}-\d{2}_\d{4})$/);
 const tripTimestamp = folderMatch ? folderMatch[1] : new Date().toISOString().replace(/[:.]/g, '').slice(0, 15);
 const reportDir = path.resolve(__dirname, '..', 'Reports', `automation_report_${tripTimestamp}`);
+
+// Build project list dynamically based on direction
+const projects: Array<{
+  name: string;
+  use: Record<string, unknown>;
+  testIgnore?: RegExp;
+  testMatch?: RegExp;
+}> = [
+  {
+    name: tripConfig.direction === 'ltr' ? 'desktop-chromium' : 'desktop-chromium-rtl',
+    use: { ...devices['Desktop Chrome'], baseURL: MAIN_HTML },
+    testIgnore: tripConfig.direction === 'ltr' ? /rtl-/ : undefined,
+    testMatch: tripConfig.direction === 'rtl' ? /rtl-/ : undefined,
+  },
+];
+
+// Add secondary direction project only if HTML is available
+if (secondaryHtml) {
+  projects.push({
+    name: tripConfig.direction === 'ltr' ? 'desktop-chromium-rtl' : 'desktop-chromium',
+    use: { ...devices['Desktop Chrome'], baseURL: secondaryHtml },
+    testMatch: tripConfig.direction === 'ltr' ? /rtl-/ : undefined,
+    testIgnore: tripConfig.direction === 'rtl' ? /rtl-/ : undefined,
+  });
+}
+
+// Mobile-specific tests (responsive.spec.ts, visual.spec.ts) set their own
+// viewport via test.use(). No need for a separate mobile project — it would
+// only duplicate viewport-agnostic DOM tests for zero added coverage.
 
 export default defineConfig({
   testDir: './tests',
@@ -64,22 +98,5 @@ export default defineConfig({
     video: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
-  projects: [
-    {
-      name: 'desktop-chromium',
-      use: { ...devices['Desktop Chrome'], baseURL: LTR_HTML },
-      testIgnore: /rtl-/,
-    },
-    // RTL project: runs only rtl-*.spec.ts files against the Hebrew HTML.
-    // This is NOT viewport duplication — it targets a different HTML file
-    // with distinct layout concerns (dir="rtl", mirrored grid, border sides).
-    {
-      name: 'desktop-chromium-rtl',
-      use: { ...devices['Desktop Chrome'], baseURL: RTL_HTML },
-      testMatch: /rtl-/,
-    },
-    // Mobile-specific tests (responsive.spec.ts, visual.spec.ts) set their own
-    // viewport via test.use(). No need for a separate mobile project — it would
-    // only duplicate viewport-agnostic DOM tests for zero added coverage.
-  ],
+  projects,
 });

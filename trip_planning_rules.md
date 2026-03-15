@@ -32,7 +32,7 @@ After initial itinerary draft, perform a dedicated research pass:
 
 ### 3. The "Age-Appropriate" Filter
 - **Safety:** Every activity must be safe for the *calculated* age of the youngest child.
-- **Pace:** Adhere strictly to the `pace_preference`. Note: `pace_preference` controls the *tempo* between activities (no rushing, buffer time), NOT the number of POIs per day. Each full day should include 4–5 POI cards (attractions + restaurants + secondary stops).
+- **Pace:** Adhere strictly to the `pace_preference`. Note: `pace_preference` controls the *tempo* between activities (no rushing, buffer time), NOT the number of POIs per day. Each full day should include 4–5 POI cards (attractions + sit-down restaurants + secondary stops). Quick snacks and street food do not count toward this target (see §5 Culinary Selection).
 - **Movement:** Prioritize according to `universal_interests` and `specific_interests` of persons in trip.
 
 ### 4. Geographic Clustering (Zero Waste Time)
@@ -44,6 +44,9 @@ After initial itinerary draft, perform a dedicated research pass:
 - Respect `vibe_preference` (e.g., casual/loud/outdoor).
 - Strictly avoid anything in `dislikes_or_avoid`.
 - If there are michelin restaurants that might be good fit for us, please advice and put special svg. Always provide alternative to micheline restaurant.
+- **Sit-down vs. grab-and-go distinction:**
+  - **Sit-down restaurants** (meals where the family sits for 30+ minutes) → full `###` POI section with hours, prices, links, pro-tip.
+  - **Quick snacks / street food / grab-and-go** (kürtőskalács stand, gelato cart, lángos window, etc.) → do NOT create a separate POI card. Instead, mention inline in the schedule table's "Детали" column (e.g., `Édes Mackó — kürtőskalács на углях, ~1 500 HUF`) or as a pro-tip inside the nearest POI card. Include a Google Maps link in the details text if available.
 
 ---
 

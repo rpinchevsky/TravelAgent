@@ -58,3 +58,22 @@ Minimize test count and execution time without losing regression coverage.
 * When a new release adds progression checks, **append** them to the existing file.
 * Use data-driven patterns (arrays/records of expectations) rather than one `test()` per item.
 * Consolidate per-day loops into a single test with `expect.soft()` where possible.
+
+## 7. Language Independence
+
+All automation tests must be language-independent and trip-independent.
+
+### 7.1 No Hardcoded Natural Language Text
+* **Rule:** No spec file, page object, or fixture may contain hardcoded text in any natural language (Russian, English, Hebrew, etc.) for content assertions or element filtering.
+* **Source of Truth:** All language-dependent values (day titles, section names, month names, page title) must come from `tests/utils/trip-config.ts`.
+* **Structural Preferred:** When the DOM already encodes semantic distinctions (e.g., `<a>` vs `<span>` for activity labels, `data-section-type` for advisory boxes), use structural CSS selectors instead of text matching.
+
+### 7.2 No Hardcoded Trip-Specific Constants
+* **Rule:** No spec file may contain trip-specific constants (POI names, budget amounts, traveler names, day counts, dates) as string or number literals.
+* **Source of Truth:** All trip-specific values must be derived from `trip_details.md` (via `trip-config.ts`) or extracted from the generated markdown (via `markdown-pois.ts`).
+* **Exception:** Visual regression snapshot filenames are inherently trip-specific and are exempt.
+
+### 7.3 Enforcement
+* QA-A and SA are jointly responsible for catching violations during Phase 3 (Architecture Review) and Phase 4 (Test Planning).
+* Any PR that introduces hardcoded language or trip content in test code must be rejected.
+* The `code-quality/language-independence.spec.ts` lint guard automatically scans for Cyrillic literals, hardcoded filenames, and `hasText` filters with string constants. It runs as part of the regression suite.
