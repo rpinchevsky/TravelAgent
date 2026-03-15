@@ -59,6 +59,9 @@ When adding features, changing rules, or fixing gaps between requirements and im
 3. **Rebuild HTML** — Invoke `/render` skill in incremental mode (rebuilds only changed day fragments)
 4. **Validate** — Invoke `/regression` skill for targeted validation on changed day
 
+## Language-Agnostic Rule
+All code, refactoring, new features, and automation tests **must be language-agnostic**. The trip generator produces output in multiple languages (controlled by `trip_details.md`). No logic — in content generation, HTML rendering, or test assertions — may depend on a specific language. Tests must validate structure, element presence, and behavior without matching language-specific strings.
+
 ## Network & Connectivity Rules
 - **Retry Policy:** If a tool requiring internet access fails due to connectivity issues, attempt exactly one more time after a brief delay.
 - **Termination Policy:** If the second attempt also fails, STOP all execution immediately. Do not guess data or continue offline.

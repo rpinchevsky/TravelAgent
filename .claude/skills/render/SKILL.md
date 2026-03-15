@@ -38,12 +38,27 @@ If ANY check fails, report and stop — do NOT generate HTML from incomplete dat
 ### Step 2: Per-Day Fragment Generation
 
 Follow `rendering-config.md` → "HTML Generation Pipeline (Fragment Master Mode)":
+
+**Step 2a — Sequential fragments:**
 1. Generate shell fragments (PAGE_TITLE, NAV_LINKS, NAV_PILLS) from `overview_LANG.md` + `manifest.json`
-2. Generate one HTML fragment per `day_XX_LANG.md` — each produces a `<div class="day-card" id="day-{N}">` block
-3. Generate overview fragment from `overview_LANG.md`
-4. Generate budget fragment from `budget_LANG.md`
+2. Generate overview fragment from `overview_LANG.md`
+3. Generate budget fragment from `budget_LANG.md`
+
+**Step 2b — Batch assignment:**
+4. Determine batch count from the batch sizing table in `rendering-config.md` § Step 2b (same table as Phase B in `content_format_rules.md`).
+5. Assign days to batches in chronological order.
+
+**Step 2c — Parallel day fragment generation:**
+6. Spawn one Agent-tool subagent per batch in a **single response block** (parallel execution).
+7. Each subagent receives: the 9-item core contract (§ 2.5) + batch-specific items 10-13. It reads its assigned `day_XX_LANG.md` files and writes `fragment_day_XX_LANG.html` files to the trip folder.
+
+**Step 2d — Verification:**
+8. Verify all `fragment_day_XX_LANG.html` files exist (day_00 through day_NN).
+9. If any missing: re-spawn failed batch subagent(s) once. If still missing after retry, report and stop.
 
 All component rules, CSS class requirements, POI card structure, activity label linking, SVG attributes, CSS inlining, and flag rendering rules are defined in `rendering-config.md`. Follow that file — it is the single source of truth for rendering.
+
+**Incremental rebuild exception:** When in incremental mode (stale_days), generate only the stale day fragment(s) sequentially — do not use batch parallelization.
 
 ### Step 3: Assembly & Export
 
@@ -71,7 +86,7 @@ When only specific days changed (detected via `manifest.json → assembly.stale_
 
 ## Agent Prompt Contract
 
-When delegating HTML generation to a sub-agent, the prompt MUST include all 9 items defined in `rendering-config.md` §2.5. Never delegate without the full contract.
+When delegating HTML generation to a sub-agent, the prompt MUST include all 9 core items defined in `rendering-config.md` §2.5. For parallel batch subagents, items 10-13 (batch-specific context) are also mandatory. Never delegate without the full contract.
 
 ## Reference Files
 

@@ -35,11 +35,11 @@
 - Name: Use `<h3 class="poi-card__name">` (semantic heading), NOT `<div>`
 - Links: **Emoji prefixes are MANDATORY** in the rendered `<a>` text: `📍 Maps`, `🌐 Сайт`, `📸 Фото`. The SVG icon is purely decorative; the emoji is part of the visible label and must always appear after the `</svg>` and before the text word.
 - **Link Label Consistency (Mandatory):** All website/site links MUST use the exact label `🌐 Сайт`. Never replace with brand names, abbreviations, or custom text (e.g., do NOT use `🌐 CBA`, `🌐 Инфо`, `🌐 Меню`). The label is always `Сайт` regardless of the destination URL.
-- Grocery tag: `<span class="poi-card__tag">🛒 МАГАЗИН</span>`
-- Optional stop tag: `<span class="poi-card__tag">🎯 ПО ПУТИ</span>`
+- **Grocery store tag (Mandatory POI):** Every `### 🛒` section in the markdown MUST render as a full `poi-card` with tag `<span class="poi-card__tag">🛒 …</span>` (emoji + localized label). Do NOT skip or treat as logistics.
+- **Optional stop tag (Mandatory POI):** Every `### 🎯` section in the markdown MUST render as a full `poi-card` with tag `<span class="poi-card__tag">🎯 …</span>` (emoji + localized label). Do NOT skip or treat as logistics.
 
 ### POI Card Parity Rule (Mandatory)
-- Every `###` section in the source markdown that describes a Point of Interest (attractions, restaurants, activities — anything that is NOT Логистика, Стоимость, or Запасной план) **MUST** be rendered as exactly one `<div class="poi-card">` in the HTML output.
+- Every `###` section in the source markdown that describes a Point of Interest **MUST** be rendered as exactly one `<div class="poi-card">` in the HTML output. POI sections are identified by their heading emoji: 🛒 (grocery store), 🎯 (optional along-the-way stop), and all other POI types (attractions, restaurants, activities, etc.). The only `###` sections that are NOT POIs are those starting with logistics, cost, or backup-plan markers. Grocery and optional stops are full POIs — they get `poi-card` treatment like any other POI.
 - **No silent truncation:** Do NOT cap the number of POI cards per day. If a day has 4 POI descriptions in the markdown, the HTML must contain 4 `poi-card` elements for that day.
 - **No merging:** Each POI gets its own card — never combine two POIs into one card.
 - **Validation:** After HTML generation, the count of `.poi-card` elements inside each `#day-N` section must equal the count of `###` POI headings for that day in the source markdown.
@@ -132,7 +132,7 @@ The pipeline reads from the trip folder structure defined in `content_format_rul
 
 ### Step 2: Per-Day Fragment Generation
 
-Generate HTML **one day at a time**. Each `day_XX.md` produces one HTML fragment containing:
+Generate per-day HTML fragments using batched parallel subagents for full generation mode. Each `day_XX.md` produces one HTML fragment file containing:
 - The `<div class="day-card" id="day-{N}">` wrapper with banner.
 - The itinerary table for that day.
 - All POI cards for that day.
@@ -141,7 +141,11 @@ Generate HTML **one day at a time**. Each `day_XX.md` produces one HTML fragment
 
 This per-day approach avoids output token limits — each day's HTML is generated independently.
 
-#### Shell Fragments (generated once from overview.md + manifest.json):
+#### Step 2a: Shell, Overview, and Budget Fragments (Sequential)
+
+Generate shell fragments, the overview fragment, and the budget fragment sequentially. These are fast and provide context needed by day fragment subagents.
+
+**Shell Fragments (generated once from overview.md + manifest.json):**
 
 1. **{{PAGE_TITLE}}**:
    - Derive from destination and year: `"{Destination} {Year} — Семейный маршрут"`.
@@ -158,15 +162,65 @@ This per-day approach avoids output token limits — each day's HTML is generate
 
 4. **{{TRIP_CONTENT}}** — assembled from per-day fragments:
    - `#overview` section (from `overview.md`): itinerary summary table.
-   - `#day-0` through `#day-N` sections (from `day_XX.md` files): day cards with POI cards.
+   - `#day-0` through `#day-N` sections (from `fragment_day_XX_LANG.html` files): day cards with POI cards.
    - `#budget` section (from `budget.md`): aggregated budget table.
    - Each POI card MUST have `id="poi-day-{D}-{N}"`.
    - **Activity Label Linking:** POI-referencing labels use `<a class="activity-label" href="#poi-day-{D}-{N}">`. Generic actions remain as `<span class="activity-label">`.
    - Ensure all `<img>` tags include `loading="lazy"`.
    - **POI Parity:** Verify per-day `.poi-card` count matches markdown `###` POI count in the source day file.
 
+#### Step 2b: Batch Assignment for Day Fragments
+
+Divide all days (day_00 through day_NN) into contiguous batches using the same sizing table as Phase B (see `content_format_rules.md` § Day Generation Protocol):
+
+| Total Days (N) | Batch Count | Batch Size |
+|---|---|---|
+| 0 | 0 | — (no day fragments to generate) |
+| 1 | 1 | 1 |
+| 2-3 | 2 | ceil(N/2) |
+| 4-11 | 3 | ceil(N/3) |
+| 12+ | 4 | ceil(N/4) |
+
+Batches are assigned in chronological order: batch 1 gets the lowest-numbered days, batch 2 the next range, etc. The last batch may contain fewer days (remainder). Every day must appear in exactly one batch — no gaps, no overlaps.
+
+**Example:** 12 days (day_00 through day_11), 4 batches of ceil(12/4) = 3:
+- Batch 1: day_00, day_01, day_02
+- Batch 2: day_03, day_04, day_05
+- Batch 3: day_06, day_07, day_08
+- Batch 4: day_09, day_10, day_11
+
+#### Step 2c: Parallel Subagent Execution
+
+Spawn one subagent per batch using the Agent tool. **All subagent calls must appear in the same response block** so they execute in parallel, not sequentially.
+
+Each subagent receives the context defined in Step 2.5 (Agent Prompt Contract) plus its batch-specific day assignment.
+
+Each subagent:
+- Reads only its assigned `day_XX_LANG.md` files from the trip folder.
+- Generates one `fragment_day_XX_LANG.html` file per assigned day, written to the trip folder.
+- Each fragment file contains only the `<div class="day-card" id="day-{N}">...</div>` block — no `<html>`, `<head>`, or `<body>` wrappers.
+- Does NOT read or write fragment files outside its assigned day range.
+- Does NOT modify `manifest.json`, shell fragments, overview, or budget.
+
+Fragment files are ephemeral build artifacts: overwritten on each full generation and not used by incremental rebuild mode.
+
+#### Step 2d: Fragment Verification
+
+After all subagents return, verify that every expected fragment file (`fragment_day_00_LANG.html` through `fragment_day_NN_LANG.html`) exists in the trip folder.
+
+- **All present:** Proceed to Step 3 (Assembly).
+- **Missing fragments:** Identify the failed batch(es). Re-spawn one subagent per failed batch (single retry). After retry, verify again:
+  - All present: proceed to Step 3.
+  - Still missing: report the missing day numbers and stop. Do NOT proceed to assembly with incomplete fragments.
+
+Verification checks fragment file existence only — content validation happens in Step 4 (pre-regression gate).
+
+**Incremental rebuild exception:** When operating in incremental rebuild mode (single-day edits via `stale_days`), skip batch assignment and generate only the stale fragment(s) sequentially. Parallel batching applies only to full generation mode.
+
 ### Step 2.5: Agent Prompt Contract (Mandatory)
-When delegating HTML generation to a sub-agent, the prompt MUST include these 9 items:
+When delegating HTML fragment generation to a sub-agent (whether for full parallel generation or single-day incremental rebuild), the prompt MUST include these items:
+
+#### Core Contract (9 mandatory items)
 1. The full `TripPage.ts` — defines the structural contract (CSS classes, IDs, locators)
 2. The `rendering-config.md` — component structure and design system rules
 3. Explicit list of required section IDs: `#overview`, `#budget`, `#day-0` (if applicable) through `#day-N`
@@ -175,15 +229,21 @@ When delegating HTML generation to a sub-agent, the prompt MUST include these 9 
 6. SVG rule: sidebar links need inline `<svg>` with explicit `width`/`height`
 7. CSS inlining rule: full CSS in `<style>` tag, never `<link>`
 8. Activity label linking rule: POI-referencing labels use `<a class="activity-label" href="#poi-day-{D}-{N}">`, POI cards have matching `id="poi-day-{D}-{N}"`
-9. **Modular source rule:** HTML is generated per-day from individual `day_XX.md` files, not from a monolithic trip file. The agent must read each day file separately and produce one HTML fragment per day.
+9. **Modular source rule:** HTML is generated per-day from individual `day_XX.md` files, not from a monolithic trip file. The agent must read each day file separately and produce one HTML fragment file per day.
 
-**Gate:** Never delegate HTML generation without all 9 items in the prompt. See `development_rules.md` Rule 4.
+#### Batch-Specific Context (for parallel day fragment generation)
+10. **Assigned day list:** Explicit list of day numbers the subagent must generate (e.g., "Generate fragments for day_03, day_04, day_05"). The subagent generates ONLY these days.
+11. **Day source files:** Only the `day_XX_LANG.md` files for the assigned batch — not all day files.
+12. **Shell context (read-only):** `overview_LANG.md` and `manifest.json` for cross-referencing (trip metadata, navigation structure). The subagent does NOT regenerate shell, overview, or budget fragments.
+13. **Fragment output path:** The trip folder path where `fragment_day_XX_LANG.html` files must be written.
+
+**Gate:** Never delegate HTML generation without all 9 core items in the prompt. For parallel batch subagents, items 10-13 are also mandatory. See `development_rules.md` Rule 4.
 
 ### Step 3: Assembly & Final Export
 1. **Read** (do not modify) `base_layout.html` to use as a template.
-2. **Assemble** `{{TRIP_CONTENT}}` by concatenating: overview fragment + day fragments (in order) + budget fragment.
+2. **Assemble** `{{TRIP_CONTENT}}` by concatenating: overview fragment + day fragment files (read `fragment_day_00_LANG.html` through `fragment_day_NN_LANG.html` in chronological order) + budget fragment.
 3. **Inject** all fragments into the placeholders.
-4. **Save** the result as `trip_full.html` inside the trip folder.
+4. **Save** the result as `trip_full_LANG.html` inside the trip folder.
 5. **Validation:** Ensure the original `base_layout.html` still contains its `{{PAGE_TITLE}}`, `{{NAV_LINKS}}`, `{{NAV_PILLS}}`, `{{TRIP_CONTENT}}` placeholders for future use.
 
 ### Incremental HTML Rebuild
@@ -191,8 +251,8 @@ When delegating HTML generation to a sub-agent, the prompt MUST include these 9 
 When a single day is edited (detected via `manifest.json → assembly.stale_days`):
 
 1. **Regenerate** only the HTML fragment for the stale day(s) from their updated `day_XX.md`.
-2. **Re-assemble** `trip_full.html`:
-   - Read the existing `trip_full.html`.
+2. **Re-assemble** `trip_full_LANG.html`:
+   - Read the existing `trip_full_LANG.html`.
    - Locate the `<div class="day-card" id="day-{N}">` section for the stale day.
    - Replace that section's HTML with the newly generated fragment.
    - If navigation changed (days added/removed), regenerate `{{NAV_LINKS}}` and `{{NAV_PILLS}}`.
