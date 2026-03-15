@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { loadTripConfig } from './trip-config';
+import { getLatestTripFolderPath } from './trip-folder';
 
 /**
  * Extracts expected POI counts per day from the generated trip markdown.
@@ -11,25 +12,17 @@ import { loadTripConfig } from './trip-config';
  */
 export function getExpectedPoiCountsFromMarkdown(): Record<number, { count: number; names: string[] }> {
   const tripConfig = loadTripConfig();
-  const tripsDir = path.resolve(__dirname, '..', '..', '..', '..', 'generated_trips');
-  const tripFolders = fs.readdirSync(tripsDir)
-    .filter(f => /^trip_\d{4}-\d{2}-\d{2}_\d{4}$/.test(f) && fs.statSync(path.join(tripsDir, f)).isDirectory())
-    .sort()
-    .reverse();
-
+  const tripFolder = getLatestTripFolderPath(tripConfig.markdownFilename);
+  const fullMdPath = path.join(tripFolder, tripConfig.markdownFilename);
   let latestMdContent: string | null = null;
 
-  for (const folder of tripFolders) {
-    const fullMdPath = path.join(tripsDir, folder, tripConfig.markdownFilename);
-    if (fs.existsSync(fullMdPath)) {
-      latestMdContent = fs.readFileSync(fullMdPath, 'utf-8');
-      break;
-    }
+  if (fs.existsSync(fullMdPath)) {
+    latestMdContent = fs.readFileSync(fullMdPath, 'utf-8');
   }
 
   if (!latestMdContent) {
     throw new Error(
-      `No trip markdown file "${tripConfig.markdownFilename}" found in any trip folder under ${tripsDir}`
+      `No trip markdown file "${tripConfig.markdownFilename}" found in trip folder ${tripFolder}`
     );
   }
 

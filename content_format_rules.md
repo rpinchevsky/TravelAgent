@@ -28,7 +28,7 @@ generated_trips/
 
 ### manifest.json Schema
 
-Created during Phase A, updated after each day is generated:
+Created during Phase A, updated after all days are generated (see Day Generation Protocol):
 
 ```json
 {
@@ -90,7 +90,7 @@ Provide a table with:
 
 ## Phase B: Detailed Operational Plan (Day-by-Day Generation)
 
-Phase B generates **one day at a time**, each into its own file. This avoids output token limits and enables per-day editing.
+Phase B generates **each day into its own file**, using parallel subagents for faster execution. This avoids output token limits and enables per-day editing.
 
 ### Generation Context per Day
 
@@ -149,11 +149,63 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 
 ### Day Generation Protocol
 
-1. Generate `day_00_LANG.md` (arrival) first, if applicable.
-2. Generate `day_01_LANG.md` through `day_NN_LANG.md` sequentially.
-3. After writing each day file:
-   - Update `manifest.json`: under `languages.LANG`, set that day's `status` to `"complete"`, record `last_modified`.
-4. After all days are complete, proceed to Budget and Assembly.
+Phase B generates days in parallel across multiple subagents for faster wall-clock execution. Each day file is self-contained (Phase A provides all cross-day coordination), so days can be generated independently.
+
+#### Step 1: Batch Assignment
+
+The main agent divides all days (day_00 through day_NN) into contiguous batches:
+
+| Total Days (N) | Batch Count | Batch Size |
+|---|---|---|
+| 0 | 0 | — (skip Phase B, proceed to Budget) |
+| 1 | 1 | 1 |
+| 2-3 | 2 | ceil(N/2) |
+| 4-11 | 3 | ceil(N/3) |
+| 12+ | 4 | ceil(N/4) |
+
+Batches are assigned in chronological order: batch 1 gets the lowest-numbered days, batch 2 the next range, etc. The last batch may contain fewer days (remainder). Every day must appear in exactly one batch -- no gaps, no overlaps.
+
+**Example:** 12 days (day_00 through day_11), 4 batches:
+- Batch 1: day_00, day_01, day_02
+- Batch 2: day_03, day_04, day_05
+- Batch 3: day_06, day_07, day_08
+- Batch 4: day_09, day_10, day_11
+
+#### Step 2: Parallel Subagent Execution
+
+The main agent spawns one subagent per batch using the Agent tool. **All subagent calls must appear in the same response block** so they execute in parallel, not sequentially.
+
+Each subagent receives this context:
+1. `trip_details.md` -- travelers, interests, schedule preferences.
+2. `overview_LANG.md` -- the Phase A master plan (for cross-day context).
+3. The assigned day rows from the Phase A table (only the rows for this batch).
+4. The trip folder path and language code.
+5. The list of day numbers to generate (e.g., "Generate day_03, day_04, day_05").
+
+Each subagent:
+- Generates its assigned `day_XX_LANG.md` files following the Per-Day File Format and Per-Day Content Requirements (unchanged).
+- Writes only its own day files to the trip folder.
+- Does NOT write to `manifest.json`.
+- Does NOT read or write day files outside its assigned range.
+
+#### Step 3: Verification
+
+After all subagents return, the main agent verifies that every expected day file (`day_00_LANG.md` through `day_NN_LANG.md`) exists on disk.
+
+- If all files are present: proceed to Step 4.
+- If any files are missing: identify the failed batch(es) and re-spawn one subagent per failed batch (single retry). After the retry, verify again:
+  - If all files are now present: proceed to Step 4.
+  - If files are still missing after retry: report the missing day numbers and their batch assignment. Do NOT proceed to Budget or Assembly.
+
+#### Step 4: Manifest Update
+
+Write `manifest.json` once with all days set to `"complete"`:
+- Under `languages.LANG.days`, set every day's `status` to `"complete"` and `last_modified` to the current timestamp.
+- This is a single write operation, not incremental.
+
+#### Step 5: Proceed
+
+After manifest is written, proceed to Budget and Assembly as normal.
 
 ### Per-Day Content Requirements
 

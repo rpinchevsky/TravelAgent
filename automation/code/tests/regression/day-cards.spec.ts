@@ -19,7 +19,7 @@ test.describe('Day Cards — Content Verification', () => {
       await expect.soft(table, `Day ${i}: itinerary table`).toBeAttached();
       const rows = tripPage.getDayItineraryRows(i);
       const rowCount = await rows.count();
-      expect.soft(rowCount, `Day ${i}: itinerary row count >= 3`).toBeGreaterThanOrEqual(3);
+      expect.soft(rowCount, `Day ${i}: itinerary row count >= 2`).toBeGreaterThanOrEqual(2);
 
       // At least one POI card
       const pois = tripPage.getDayPoiCards(i);

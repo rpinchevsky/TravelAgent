@@ -81,7 +81,7 @@ test.describe('Trip Config — Completeness (TC-001)', () => {
   });
 
   test('should return a page title containing destination and year', () => {
-    expect(config.pageTitle).toContain(config.destination);
+    expect(config.pageTitle).toContain(config.localizedDestination);
     expect(config.pageTitle).toContain(String(config.tripYear));
   });
 

@@ -10,7 +10,7 @@ test.describe('Structural Integrity', () => {
 
   test('should display main heading', async ({ tripPage }) => {
     await expect(tripPage.pageTitle).toBeVisible();
-    await expect(tripPage.pageTitle).toContainText(tripConfig.destination);
+    await expect(tripPage.pageTitle).toContainText(tripConfig.localizedDestination);
   });
 
   test('should display page subtitle with family info', async ({ tripPage }) => {

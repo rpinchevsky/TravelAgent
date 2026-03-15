@@ -1,12 +1,16 @@
 import { test, expect } from '../fixtures/shared-page';
 import { loadTripConfig } from '../utils/trip-config';
+import { getExpectedPoiCountsFromMarkdown } from '../utils/markdown-pois';
 
 const tripConfig = loadTripConfig();
 
 test.describe('POI Cards — Content & Links', () => {
-  test('should have POI cards across all days', async ({ tripPage }) => {
+  test('should have POI cards matching markdown count', async ({ tripPage }) => {
+    const expected = getExpectedPoiCountsFromMarkdown();
+    const expectedTotal = Object.values(expected).reduce((sum, d) => sum + d.count, 0);
     const totalPois = await tripPage.poiCards.count();
-    expect(totalPois).toBeGreaterThanOrEqual(60);
+    // HTML may include extra tagged cards (🛒 grocery, 🎯 along-the-way) beyond markdown POI sections
+    expect(totalPois).toBeGreaterThanOrEqual(expectedTotal);
   });
 
   test('every POI card should have a name', async ({ tripPage }) => {

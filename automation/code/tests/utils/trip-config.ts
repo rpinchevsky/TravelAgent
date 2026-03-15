@@ -30,6 +30,8 @@ export interface LanguageLabels {
   pageTitlePattern: (destination: string, year: number) => string;
   fileSuffix: string;
   dayHeadingRegex: RegExp;
+  /** Maps English destination names to localized equivalents for title/heading assertions */
+  destinationNames: Record<string, string>;
 }
 
 export const LANGUAGE_LABELS: Record<string, LanguageLabels> = {
@@ -54,6 +56,7 @@ export const LANGUAGE_LABELS: Record<string, LanguageLabels> = {
     pageTitlePattern: (dest, year) => `${dest} ${year} — Семейный маршрут`,
     fileSuffix: 'ru',
     dayHeadingRegex: /^#{1,2}\s+День\s+(\d+)/,
+    destinationNames: { 'Budapest': 'Будапешт' },
   },
   English: {
     langCode: 'en',
@@ -76,6 +79,7 @@ export const LANGUAGE_LABELS: Record<string, LanguageLabels> = {
     pageTitlePattern: (dest, year) => `${dest} ${year} — Family Itinerary`,
     fileSuffix: 'en',
     dayHeadingRegex: /^#{1,2}\s+Day\s+(\d+)/,
+    destinationNames: {},
   },
   Hebrew: {
     langCode: 'he',
@@ -98,6 +102,7 @@ export const LANGUAGE_LABELS: Record<string, LanguageLabels> = {
     pageTitlePattern: (dest, year) => `${dest} ${year} — מסלול משפחתי`,
     fileSuffix: 'he',
     dayHeadingRegex: /^#{1,2}\s+יום\s+(\d+)/,
+    destinationNames: { 'Budapest': 'בודפשט' },
   },
 };
 
@@ -107,6 +112,8 @@ export const LANGUAGE_LABELS: Record<string, LanguageLabels> = {
 
 export interface TripConfig {
   destination: string;
+  /** Destination name in the reporting language (e.g., "Будапешт" for Russian) */
+  localizedDestination: string;
   arrivalDate: Date;
   departureDate: Date;
   dayCount: number;
@@ -199,6 +206,7 @@ export function loadTripConfig(): TripConfig {
   }
 
   const tripYear = arrivalDate.getFullYear();
+  const localizedDestination = labels.destinationNames[destination] || destination;
 
   // Build excluded sections list from language labels
   const excludedSections = [
@@ -216,6 +224,7 @@ export function loadTripConfig(): TripConfig {
 
   const result: TripConfig = {
     destination,
+    localizedDestination,
     arrivalDate,
     departureDate,
     dayCount,
@@ -225,7 +234,7 @@ export function loadTripConfig(): TripConfig {
     dayTitles,
     dayDates,
     tripYear,
-    pageTitle: labels.pageTitlePattern(destination, tripYear),
+    pageTitle: labels.pageTitlePattern(localizedDestination, tripYear),
     markdownFilename: `trip_full_${labels.fileSuffix}.md`,
     htmlFilename: `trip_full_${labels.fileSuffix}.html`,
     direction: labels.direction,

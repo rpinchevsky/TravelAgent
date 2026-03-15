@@ -47,7 +47,7 @@ When adding features, changing rules, or fixing gaps between requirements and im
 ## Trip Generation Pipeline (Execute in Order)
 1. **Plan** — Read `trip_details.md`, calculate ages, research destination (`trip_planning_rules.md`)
 2. **Phase A** — High-level summary table → create trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`, write `overview.md` + `manifest.json` (`content_format_rules.md`)
-3. **Phase B** — Day-by-day generation: write `day_00.md` through `day_NN.md`, update manifest after each day (`content_format_rules.md`)
+3. **Phase B** — Parallel day generation: spawn subagents to write `day_00.md` through `day_NN.md`, verify all files, update manifest once (`content_format_rules.md`)
 4. **Budget** — Aggregate per-day costs into `budget.md` (`content_format_rules.md`)
 5. **Assemble** — Mechanical concat of all parts into `trip_full.md` (`content_format_rules.md`)
 6. **Generate HTML** — Invoke `/render` skill for per-day fragment generation, assembly into `trip_full_LANG.html`, and pre-regression validation

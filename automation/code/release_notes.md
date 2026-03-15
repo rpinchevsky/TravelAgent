@@ -1,5 +1,30 @@
 # Release Notes
 
+## 2026-03-15 — Parallel Phase B: Progression Tests for POI Uniqueness & Manifest Integrity
+
+### Changes
+
+#### New Progression Tests (appended to `progression.spec.ts`)
+- **TC-004 — POI Uniqueness:** Verifies no duplicate POI names appear across different days. Extracts all POIs from markdown, strips emoji prefixes, and checks for exact-match duplicates. Hard assert — duplicate POIs are a critical defect.
+- **TC-005/TC-006 — Manifest Integrity (consolidated per QF-1):** Reads `manifest.json` from the latest trip folder, verifies every day has `status: "complete"` and a non-empty `last_modified` string. Uses `expect.soft()` per day for granular failure reporting.
+
+#### New Utility: `tests/utils/trip-folder.ts` (QF-2)
+- Shared trip folder discovery logic extracted from `markdown-pois.ts`.
+- Exports `getTripFolders()`, `getLatestTripFolderPath(filename?)`, and `getManifestPath()`.
+- `markdown-pois.ts` refactored to use `getLatestTripFolderPath()` instead of inline folder scanning.
+
+#### Files Modified
+- `tests/regression/progression.spec.ts` — 2 new test blocks appended (3 test cases total: 1 POI uniqueness + 1 manifest integrity)
+- `tests/utils/markdown-pois.ts` — refactored to use shared `trip-folder.ts`
+
+#### Files Added
+- `tests/utils/trip-folder.ts` — shared trip folder discovery utility
+
+### Affected Sections
+- No HTML or content changes — test-only update
+
+---
+
 ## 2026-03-14_1745 — Full Trip Regeneration — 86 POIs, Expanded Coverage
 
 ### Changes

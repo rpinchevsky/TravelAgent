@@ -1,6 +1,8 @@
+import * as fs from 'fs';
 import { test, expect } from '../fixtures/shared-page';
 import { loadTripConfig } from '../utils/trip-config';
 import { getExpectedPoiCountsFromMarkdown } from '../utils/markdown-pois';
+import { getManifestPath } from '../utils/trip-folder';
 
 /**
  * Consolidated Progression Tests
@@ -53,9 +55,12 @@ test.describe('Progression — Global Sections', () => {
 });
 
 test.describe('Progression — POI Cards & Distribution', () => {
-  test('should have at least 60 POI cards total', async ({ tripPage }) => {
+  test('should have POI cards matching markdown count', async ({ tripPage }) => {
+    const expected = getExpectedPoiCountsFromMarkdown();
+    const expectedTotal = Object.values(expected).reduce((sum, d) => sum + d.count, 0);
     const count = await tripPage.poiCards.count();
-    expect(count).toBeGreaterThanOrEqual(60);
+    // HTML may include extra tagged cards (🛒 grocery, 🎯 along-the-way) beyond markdown POI sections
+    expect(count).toBeGreaterThanOrEqual(expectedTotal);
   });
 
   test('budget should contain a recognized currency code', async ({ tripPage }) => {
@@ -70,23 +75,94 @@ test.describe('Progression — Dynamic POI Presence (FB-7)', () => {
     for (const [dayStr, data] of Object.entries(expected)) {
       const day = parseInt(dayStr, 10);
       if (data.names.length === 0) continue;
-      // Take first POI name; split on "/" to get first-language portion
-      const firstPoiName = data.names[0].split('/')[0].trim();
-      // Strip leading emoji
-      const cleaned = firstPoiName.replace(/^[\p{Emoji}\p{Emoji_Presentation}\p{Emoji_Modifier_Base}\p{Emoji_Component}\uFE0F\u200D\s]+/u, '');
-      if (cleaned.length === 0) continue;
+      // Split on "/" to get all language portions, strip emoji from each
+      const segments = data.names[0].split('/').map(s =>
+        s.trim().replace(/^[\p{Emoji}\p{Emoji_Presentation}\p{Emoji_Modifier_Base}\p{Emoji_Component}\uFE0F\u200D\s]+/u, '').trim()
+      ).filter(s => s.length > 0);
+      if (segments.length === 0) continue;
 
       const dayCards = tripPage.getDayPoiCards(day);
       const count = await dayCards.count();
       let found = false;
       for (let i = 0; i < count; i++) {
         const name = await tripPage.getPoiCardName(dayCards.nth(i)).textContent();
-        if (name && name.includes(cleaned)) {
+        if (name && segments.some(seg => name.includes(seg))) {
           found = true;
           break;
         }
       }
-      expect.soft(found, `Day ${day}: first POI "${cleaned}" not found in rendered cards`).toBe(true);
+      expect.soft(found, `Day ${day}: first POI "${segments.join(' / ')}" not found in rendered cards`).toBe(true);
+    }
+  });
+});
+
+test.describe('Progression — POI Uniqueness (TC-004)', () => {
+  test('no duplicate POI names across different days', async () => {
+    const expected = getExpectedPoiCountsFromMarkdown();
+    const stripEmoji = (s: string) =>
+      s.replace(/^[\p{Emoji}\p{Emoji_Presentation}\p{Emoji_Modifier_Base}\p{Emoji_Component}\uFE0F\u200D\s]+/u, '').trim();
+
+    // Collect all POI names with their day number
+    const seen = new Map<string, number>();
+    const duplicates: string[] = [];
+
+    for (const [dayStr, data] of Object.entries(expected)) {
+      const day = parseInt(dayStr, 10);
+      for (const rawName of data.names) {
+        const cleaned = stripEmoji(rawName.split('/')[0].trim());
+        if (cleaned.length === 0) continue;
+        if (seen.has(cleaned)) {
+          duplicates.push(`"${cleaned}" appears in Day ${seen.get(cleaned)} and Day ${day}`);
+        } else {
+          seen.set(cleaned, day);
+        }
+      }
+    }
+
+    expect(duplicates, `Duplicate POIs found: ${duplicates.join('; ')}`).toHaveLength(0);
+  });
+});
+
+test.describe('Progression — Manifest Integrity (TC-005/TC-006)', () => {
+  test('all days should have status complete and non-null last_modified', async () => {
+    const tripConfig = loadTripConfig();
+    const manifestPath = getManifestPath();
+    const raw = fs.readFileSync(manifestPath, 'utf-8');
+
+    let manifest: Record<string, unknown>;
+    try {
+      manifest = JSON.parse(raw);
+    } catch {
+      throw new Error(`Failed to parse manifest.json at ${manifestPath}: invalid JSON`);
+    }
+
+    // Navigate to languages.LANG.days
+    const languages = manifest['languages'] as Record<string, Record<string, unknown>> | undefined;
+    expect(languages, 'manifest should have "languages" key').toBeTruthy();
+
+    const langKey = tripConfig.labels.langCode;
+    const langEntry = languages![langKey] as Record<string, unknown> | undefined;
+    expect(langEntry, `manifest should have language entry for "${langKey}"`).toBeTruthy();
+
+    const days = langEntry!['days'] as Record<string, Record<string, unknown>> | undefined;
+    expect(days, `manifest.languages.${langKey} should have "days" key`).toBeTruthy();
+
+    for (let i = 0; i < tripConfig.dayCount; i++) {
+      const dayKey = `day_${String(i).padStart(2, '0')}`;
+      const dayEntry = days![dayKey] || days![`day_${i}`];
+      expect.soft(dayEntry, `Day ${i}: entry missing in manifest`).toBeTruthy();
+      if (!dayEntry) continue;
+
+      expect.soft(
+        dayEntry['status'],
+        `Day ${i}: status should be "complete", got "${dayEntry['status']}"`
+      ).toBe('complete');
+
+      const lastModified = dayEntry['last_modified'];
+      expect.soft(
+        lastModified && typeof lastModified === 'string' && lastModified.length > 0,
+        `Day ${i}: last_modified should be a non-empty string, got "${lastModified}"`
+      ).toBe(true);
     }
   });
 });
