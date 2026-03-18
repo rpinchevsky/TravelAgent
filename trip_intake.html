@@ -1,0 +1,3372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Your Dream Trip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* === Design Tokens === */
+    :root {
+      --space-1: 4px; --space-2: 8px; --space-3: 16px; --space-4: 24px;
+      --space-5: 32px; --space-6: 48px; --space-7: 64px;
+      --radius-container: 12px; --radius-interactive: 6px;
+      --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-weight-regular: 400; --font-weight-medium: 500;
+      --font-weight-semibold: 600; --font-weight-bold: 700;
+      --line-height-body: 1.5; --line-height-heading: 1.2;
+      --text-xs: 0.75rem; --text-sm: 0.875rem; --text-base: 1rem;
+      --text-lg: 1.125rem; --text-xl: 1.25rem; --text-2xl: 1.5rem;
+      --text-3xl: 1.875rem; --text-4xl: 2.25rem;
+      --color-brand-primary: #1A3C5E; --color-brand-accent: #C9972B;
+      --color-brand-accent-alt: #2E7D9A;
+      --color-bg: #F8F7F4; --color-surface: #FFFFFF;
+      --color-surface-raised: #F2F0EC; --color-surface-overlay: rgba(255,255,255,0.92);
+      --color-text-primary: #1C1C1E; --color-text-secondary: #4A4A52;
+      --color-text-muted: #8A8A96; --color-text-inverse: #FAFAFA;
+      --color-border: rgba(0,0,0,0.10); --color-border-strong: rgba(0,0,0,0.20);
+      --color-success: #2D7D3A; --color-warning: #C9972B;
+      --color-error: #B53B3B; --color-info: #2E7D9A;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+      --shadow-lg: 0 8px 28px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+      --transition-fast: 150ms ease; --transition-base: 250ms ease;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-bg: #0F1923; --color-surface: #1A2A3A;
+        --color-surface-raised: #1F3247; --color-surface-overlay: rgba(26,42,58,0.94);
+        --color-text-primary: #FAFAFA; --color-text-secondary: #C8CDD6;
+        --color-text-muted: #7B8693; --color-text-inverse: #1C1C1E;
+        --color-border: rgba(255,255,255,0.10); --color-border-strong: rgba(255,255,255,0.20);
+        --color-brand-accent: #D4A83A;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.30); --shadow-md: 0 4px 12px rgba(0,0,0,0.30);
+        --shadow-lg: 0 8px 28px rgba(0,0,0,0.40);
+      }
+    }
+
+    /* === Reset === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-family); font-size: var(--text-base);
+      color: var(--color-text-primary); background-color: var(--color-bg);
+      line-height: var(--line-height-body); min-height: 100dvh;
+    }
+    input, button, textarea, select { font: inherit; }
+
+    /* === Immersive Hero === */
+    .hero {
+      position: relative;
+      background: linear-gradient(135deg, #1A3C5E 0%, #2E7D9A 100%);
+      padding: var(--space-7) var(--space-4) var(--space-6);
+      text-align: center;
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+    .hero__tagline {
+      font-size: var(--text-4xl); font-weight: var(--font-weight-bold);
+      color: #FFFFFF; line-height: var(--line-height-heading);
+      position: relative; z-index: 1;
+      animation: heroFadeIn 0.8s ease both;
+    }
+    @media (min-width: 768px) { .hero__tagline { font-size: 2.75rem; } }
+    .hero__subtitle {
+      font-size: var(--text-lg); color: rgba(255,255,255,0.75);
+      margin-top: var(--space-2); position: relative; z-index: 1;
+      animation: heroFadeIn 0.8s ease 0.2s both;
+    }
+    @keyframes heroFadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* === Layout === */
+    .page-shell {
+      max-width: 800px; margin: 0 auto;
+      padding: var(--space-5) var(--space-3);
+    }
+    @media (min-width: 768px) { .page-shell { padding: var(--space-6) var(--space-5); } }
+
+    /* === Named Progress Stepper === */
+    .stepper {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: var(--space-5); padding: var(--space-4) 0 var(--space-2);
+      position: relative;
+    }
+    .stepper__line {
+      position: absolute;
+      top: calc(var(--space-4) + 14px);
+      left: 28px; right: 28px;
+      height: 2px;
+      background: var(--color-border-strong);
+      z-index: 0;
+    }
+    .stepper__line-fill {
+      height: 100%;
+      background: var(--color-brand-accent);
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+    .stepper__step {
+      display: flex; flex-direction: column; align-items: center;
+      position: relative; z-index: 1; cursor: default;
+      flex: 0 0 auto; width: 56px;
+    }
+    @media (min-width: 768px) { .stepper__step { width: 80px; } }
+    .stepper__circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; line-height: 1;
+      border: 2px solid var(--color-border-strong);
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      transition: all var(--transition-base);
+    }
+    .stepper__step.is-active .stepper__circle {
+      border-color: var(--color-brand-primary);
+      background: var(--color-brand-primary);
+      color: #fff;
+      box-shadow: 0 0 0 4px rgba(26,60,94,0.15);
+    }
+    .stepper__step.is-done .stepper__circle {
+      border-color: var(--color-brand-accent);
+      background: var(--color-brand-accent);
+      color: #fff;
+    }
+    .stepper__label {
+      font-size: 10px; font-weight: var(--font-weight-semibold);
+      color: var(--color-text-muted); margin-top: 6px;
+      text-align: center; white-space: nowrap;
+      display: none;
+    }
+    .stepper__step.is-active .stepper__label {
+      color: var(--color-brand-primary);
+      display: block;
+    }
+    @media (min-width: 768px) {
+      .stepper__label { display: block; }
+      .stepper__step.is-done .stepper__label { color: var(--color-brand-accent); }
+    }
+
+    /* === Step Panels with Slide Transitions === */
+    .step-container {
+      position: relative;
+      overflow: hidden;
+    }
+    .step { display: none; }
+    .step.is-visible {
+      display: block;
+      animation: slideInRight 0.35s ease both;
+    }
+    .step.is-visible.slide-left {
+      animation: slideInLeft 0.35s ease both;
+    }
+    .step.is-visible.slide-right {
+      animation: slideInRight 0.35s ease both;
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* === Section Headings with Gold Accent Bar === */
+    .step__title {
+      font-size: var(--text-2xl); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary); margin-bottom: var(--space-1);
+      padding-left: var(--space-3);
+      border-left: 4px solid var(--color-brand-accent);
+    }
+    .step__desc {
+      font-size: var(--text-sm); color: var(--color-text-muted);
+      margin-bottom: var(--space-4); padding-left: calc(var(--space-3) + 4px);
+    }
+
+    /* === Form Elements (taller touch targets) === */
+    .field { margin-bottom: var(--space-4); }
+    .field__label {
+      display: block; font-size: var(--text-sm);
+      font-weight: var(--font-weight-medium); color: var(--color-text-secondary);
+      margin-bottom: var(--space-1);
+    }
+    .field__hint {
+      font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-1);
+    }
+
+    .input, .select, .textarea {
+      width: 100%; padding: 11px var(--space-3);
+      min-height: 44px;
+      border: 1px solid var(--color-border-strong); border-radius: var(--radius-interactive);
+      background-color: var(--color-surface); color: var(--color-text-primary);
+      font-size: var(--text-base);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .input:focus, .select:focus, .textarea:focus {
+      outline: none; border-color: var(--color-brand-accent);
+      box-shadow: 0 0 0 3px rgba(201,151,43,0.15);
+    }
+    .textarea { resize: vertical; min-height: 80px; }
+    .select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' fill='none' stroke='%238A8A96' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+    }
+
+    .row { display: grid; gap: var(--space-3); }
+    .row--2 { grid-template-columns: 1fr 1fr; }
+    .row--3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 480px) { .row--2, .row--3 { grid-template-columns: 1fr; } }
+
+    /* === DOB Dropdown Group === */
+    .dob-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-2); }
+    .dob-row .select { padding: 8px var(--space-2); font-size: var(--text-sm); padding-right: 28px; background-position: right 8px center; min-height: 40px; }
+
+    /* === Autocomplete === */
+    .autocomplete-wrap { position: relative; }
+    .autocomplete-list {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+      background: var(--color-surface); border: 1px solid var(--color-border-strong);
+      border-top: none; border-radius: 0 0 var(--radius-interactive) var(--radius-interactive);
+      box-shadow: var(--shadow-md); max-height: 240px; overflow-y: auto; display: none;
+    }
+    .autocomplete-list.is-open { display: block; }
+    .autocomplete-item {
+      padding: 10px var(--space-3); cursor: pointer; font-size: var(--text-sm);
+      color: var(--color-text-secondary); border-bottom: 1px solid var(--color-border);
+      transition: background var(--transition-fast);
+    }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover, .autocomplete-item.is-highlighted {
+      background-color: var(--color-surface-raised); color: var(--color-text-primary);
+    }
+    .autocomplete-item__main { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+    .autocomplete-item__sub { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px; }
+
+    /* === Airbnb-style Guest Counter === */
+    .guest-section {
+      margin-bottom: var(--space-5);
+    }
+    .guest-counter {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-container);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-3);
+    }
+    .guest-counter__info {
+      display: flex; flex-direction: column;
+    }
+    .guest-counter__title {
+      font-size: var(--text-base); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+    .guest-counter__desc {
+      font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px;
+    }
+    .guest-counter__controls {
+      display: flex; align-items: center; gap: var(--space-3);
+    }
+    .guest-counter__btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--color-border-strong);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      font-size: var(--text-xl);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      line-height: 1;
+    }
+    .guest-counter__btn:hover:not(:disabled) {
+      border-color: var(--color-brand-primary);
+      color: var(--color-brand-primary);
+    }
+    .guest-counter__btn:disabled {
+      opacity: 0.3; cursor: not-allowed;
+    }
+    .guest-counter__count {
+      font-size: var(--text-lg); font-weight: var(--font-weight-semibold);
+      min-width: 24px; text-align: center; color: var(--color-text-primary);
+    }
+
+    /* === Visual Interest Cards === */
+    .interest-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3);
+    }
+    @media (min-width: 640px) {
+      .interest-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .interest-card {
+      position: relative;
+      padding: var(--space-4) var(--space-3);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-container);
+      cursor: pointer;
+      text-align: center;
+      transition: all var(--transition-fast);
+      background: var(--color-surface);
+      user-select: none;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .interest-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      opacity: 0.08;
+      border-radius: inherit;
+      transition: opacity var(--transition-fast);
+    }
+    .interest-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .interest-card:active {
+      transform: scale(0.97);
+    }
+    .interest-card.is-selected {
+      border-color: var(--color-brand-accent);
+      box-shadow: 0 0 0 2px var(--color-brand-accent), var(--shadow-md);
+    }
+    .interest-card__check {
+      position: absolute; top: 8px; right: 8px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--color-brand-accent);
+      color: #fff; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0.5);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .interest-card.is-selected .interest-card__check {
+      opacity: 1; transform: scale(1);
+    }
+    .interest-card__emoji {
+      font-size: 2rem;
+      margin-bottom: var(--space-2);
+      position: relative; z-index: 1;
+    }
+    .interest-card__name {
+      font-size: var(--text-sm); font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      position: relative; z-index: 1;
+      line-height: 1.3;
+    }
+
+    /* Gradient backgrounds for interest cards */
+    .interest-card[data-gradient="0"]::before { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .interest-card[data-gradient="1"]::before { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .interest-card[data-gradient="2"]::before { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .interest-card[data-gradient="3"]::before { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    .interest-card[data-gradient="4"]::before { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+    .interest-card[data-gradient="5"]::before { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+    .interest-card[data-gradient="6"]::before { background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); }
+    .interest-card[data-gradient="7"]::before { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
+    .interest-card.is-selected::before { opacity: 0.15; }
+
+    /* Interest section headers */
+    .chip-section { margin-bottom: var(--space-5); }
+    .chip-section__title {
+      font-size: var(--text-xs); font-weight: var(--font-weight-semibold);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--color-brand-accent-alt); margin-bottom: var(--space-3);
+      padding-left: var(--space-1);
+    }
+
+    /* Keep chip-group for avoid page & vibes */
+    .chip-group { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px var(--space-3); border-radius: 999px;
+      border: 1px solid var(--color-border-strong); background: transparent;
+      color: var(--color-text-secondary); font-size: var(--text-sm);
+      font-weight: var(--font-weight-medium); cursor: pointer;
+      transition: all var(--transition-fast); user-select: none;
+      min-height: 40px;
+    }
+    .chip:hover { background-color: var(--color-surface-raised); color: var(--color-text-primary); transform: translateY(-1px); }
+    .chip.is-selected {
+      background-color: var(--color-brand-primary); border-color: var(--color-brand-primary);
+      color: var(--color-text-inverse);
+    }
+    .chip.is-selected:hover { opacity: 0.9; }
+
+    /* === Traveler Cards === */
+    .traveler-card {
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--radius-container); padding: var(--space-4);
+      margin-bottom: var(--space-3); box-shadow: var(--shadow-sm); position: relative;
+    }
+    .traveler-card__header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--space-3); padding-bottom: var(--space-2);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .traveler-card__type {
+      font-size: var(--text-xs); font-weight: var(--font-weight-semibold);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--color-brand-accent-alt);
+    }
+    .btn-remove {
+      background: none; border: none; cursor: pointer;
+      color: var(--color-text-muted); font-size: var(--text-lg);
+      padding: 2px 6px; border-radius: var(--radius-interactive);
+      transition: color var(--transition-fast), background var(--transition-fast);
+    }
+    .btn-remove:hover { color: var(--color-error); background: rgba(181,59,59,0.08); }
+
+    /* === Buttons === */
+    .btn-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: var(--space-5); padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: 12px var(--space-4); border-radius: var(--radius-interactive);
+      font-size: var(--text-sm); font-weight: var(--font-weight-semibold);
+      cursor: pointer; border: 1px solid transparent;
+      transition: all var(--transition-fast); text-decoration: none;
+      min-height: 44px;
+    }
+    .btn:hover { transform: scale(1.02); }
+    .btn:active { transform: scale(0.98); }
+    .btn--primary { background-color: var(--color-brand-primary); color: var(--color-text-inverse); }
+    .btn--primary:hover { opacity: 0.9; }
+    .btn--secondary { background: transparent; border-color: var(--color-border-strong); color: var(--color-text-secondary); }
+    .btn--secondary:hover { background-color: var(--color-surface-raised); color: var(--color-text-primary); }
+    .btn--accent {
+      background: linear-gradient(135deg, var(--color-brand-accent) 0%, #D4A83A 100%);
+      color: #1C1C1E; font-size: var(--text-base);
+      padding: 14px var(--space-5);
+      box-shadow: 0 4px 14px rgba(201,151,43,0.3);
+    }
+    .btn--accent:hover { opacity: 0.9; box-shadow: 0 6px 20px rgba(201,151,43,0.4); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-add {
+      display: inline-flex; align-items: center; gap: var(--space-1);
+      padding: var(--space-2) var(--space-3); border-radius: var(--radius-interactive);
+      border: 1px dashed var(--color-border-strong); background: transparent;
+      color: var(--color-brand-accent-alt); font-size: var(--text-sm);
+      font-weight: var(--font-weight-medium); cursor: pointer;
+      transition: all var(--transition-fast); min-height: 44px;
+    }
+    .btn-add:hover { background-color: var(--color-surface-raised); border-style: solid; }
+
+    /* === Preview Box (Code Editor Style) === */
+    .preview-box {
+      border-radius: var(--radius-container); box-shadow: var(--shadow-lg); overflow: hidden;
+    }
+    .preview-box__header {
+      background: #252545;
+      color: rgba(255,255,255,0.6);
+      padding: 0;
+      display: flex; align-items: center;
+    }
+    .preview-box__tab {
+      padding: 10px var(--space-4);
+      background: #1a1a2e;
+      color: rgba(255,255,255,0.85);
+      font-size: var(--text-sm); font-weight: var(--font-weight-medium);
+      font-family: 'Courier New', monospace;
+      border-bottom: 2px solid var(--color-brand-accent);
+      position: relative;
+    }
+    .preview-box__actions {
+      margin-left: auto;
+      padding-right: var(--space-3);
+    }
+    .preview-box__copy-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+      border-radius: var(--radius-interactive);
+      padding: 4px 12px;
+      font-size: var(--text-xs);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-family: var(--font-family);
+    }
+    .preview-box__copy-btn:hover {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    .preview-box__copy-btn.is-copied {
+      background: rgba(45,125,58,0.3);
+      border-color: var(--color-success);
+      color: var(--color-success);
+    }
+    .preview-box__body {
+      padding: var(--space-4); font-family: 'Courier New', monospace;
+      font-size: var(--text-sm); white-space: pre-wrap; line-height: 1.6;
+      max-height: 500px; overflow-y: auto;
+      background: #1a1a2e;
+      color: #c8cdd6;
+    }
+    .preview-box__body .md-heading { color: #7ecbf5; font-weight: bold; }
+    .preview-box__body .md-bold { color: #d4a83a; }
+    .preview-box__body .md-bullet { color: #43e97b; }
+    .preview-box__body .md-table { color: #a18cd1; }
+
+    /* === Pace Selector (immersive cards) === */
+    .pace-options { display: grid; gap: var(--space-3); }
+    @media (min-width: 480px) { .pace-options { grid-template-columns: 1fr 1fr 1fr; } }
+    .pace-card {
+      position: relative; overflow: hidden;
+      padding: var(--space-5) var(--space-4); border: 2px solid transparent;
+      border-radius: var(--radius-container); cursor: pointer;
+      text-align: center; transition: all 0.25s ease;
+      color: #fff; box-shadow: var(--shadow-md); user-select: none;
+    }
+    .pace-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: inherit; filter: brightness(0.85);
+      transition: filter 0.25s ease; z-index: 0;
+    }
+    .pace-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+    .pace-card:hover::before { filter: brightness(1); }
+    .pace-card:active { transform: scale(0.97); }
+    .pace-card.is-selected {
+      border-color: var(--color-brand-accent);
+      box-shadow: 0 0 0 2px var(--color-brand-accent), var(--shadow-lg);
+    }
+    .pace-card--relaxed { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .pace-card--balanced { background: linear-gradient(135deg, #2E7D9A 0%, #1A3C5E 100%); }
+    .pace-card--packed { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .pace-card__check {
+      position: absolute; top: 10px; right: 10px;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--color-brand-accent); color: #1C1C1E;
+      font-size: 13px; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0.5);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 2;
+    }
+    .pace-card.is-selected .pace-card__check { opacity: 1; transform: scale(1); }
+    .pace-card__icon { font-size: 2.5rem; margin-bottom: var(--space-2); position: relative; z-index: 1; }
+    .pace-card__title {
+      font-size: var(--text-lg); font-weight: var(--font-weight-bold);
+      position: relative; z-index: 1;
+    }
+    .pace-card__desc {
+      font-size: var(--text-xs); opacity: 0.85;
+      margin-top: var(--space-1); position: relative; z-index: 1; line-height: 1.4;
+    }
+
+    /* === Avoid Cards (visual, not plain chips) === */
+    .avoid-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2);
+    }
+    @media (min-width: 640px) { .avoid-grid { grid-template-columns: repeat(3, 1fr); } }
+    .avoid-card {
+      position: relative;
+      display: flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-3); border: 2px solid var(--color-border);
+      border-radius: var(--radius-interactive); cursor: pointer;
+      background: var(--color-surface); box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast); user-select: none;
+    }
+    .avoid-card:hover {
+      border-color: var(--color-error);
+      transform: translateY(-1px); box-shadow: var(--shadow-md);
+    }
+    .avoid-card:active { transform: scale(0.97); }
+    .avoid-card.is-selected {
+      border-color: var(--color-error);
+      background: rgba(181,59,59,0.06);
+      box-shadow: 0 0 0 1px var(--color-error);
+    }
+    @media (prefers-color-scheme: dark) {
+      .avoid-card.is-selected { background: rgba(181,59,59,0.15); }
+    }
+    .avoid-card__icon {
+      font-size: 1.3rem; flex-shrink: 0;
+      width: 32px; height: 32px; display: flex;
+      align-items: center; justify-content: center;
+      border-radius: 8px; background: rgba(181,59,59,0.08);
+    }
+    .avoid-card.is-selected .avoid-card__icon { background: rgba(181,59,59,0.15); }
+    .avoid-card__name {
+      font-size: var(--text-xs); font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary); line-height: 1.3;
+    }
+    .avoid-card__x {
+      position: absolute; top: 6px; right: 6px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--color-error); color: #fff;
+      font-size: 10px; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0.5);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .avoid-card.is-selected .avoid-card__x { opacity: 1; transform: scale(1); }
+
+    /* === Section Divider === */
+    .step-divider {
+      border: none; border-top: 1px solid var(--color-border);
+      margin: var(--space-5) 0;
+    }
+
+    /* === Questionnaire (One Question Per View) === */
+    .questionnaire-viewport {
+      position: relative;
+      overflow: hidden;
+      min-height: 380px;
+    }
+    .question-slide {
+      display: none;
+      animation: slideInRight 0.35s ease both;
+    }
+    .question-slide.is-visible {
+      display: block;
+    }
+    .question-slide.slide-left { animation: slideInLeft 0.35s ease both; }
+    .question-slide.slide-right { animation: slideInRight 0.35s ease both; }
+
+    /* Sub-step dots */
+    .sub-dots {
+      display: flex; justify-content: center; gap: var(--space-2);
+      margin-bottom: var(--space-5);
+    }
+    .sub-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--color-border-strong);
+      transition: all var(--transition-base);
+    }
+    .sub-dot.is-active {
+      background: var(--color-brand-primary);
+      transform: scale(1.2);
+    }
+    .sub-dot.is-done {
+      background: var(--color-brand-accent);
+    }
+
+    .question-slide__label {
+      font-size: var(--text-xl); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary); margin-bottom: var(--space-4);
+      text-align: center;
+    }
+    .question-options {
+      display: grid; gap: var(--space-3);
+      grid-template-columns: repeat(3, 1fr);
+      max-width: 640px; margin: 0 auto;
+    }
+    @media (max-width: 600px) { .question-options { grid-template-columns: 1fr; } }
+
+    .q-card {
+      padding: var(--space-4) var(--space-3);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-container); cursor: pointer;
+      text-align: center; transition: all var(--transition-fast);
+      background: var(--color-surface); user-select: none;
+      box-shadow: var(--shadow-sm);
+      min-height: 200px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .q-card:hover {
+      border-color: var(--color-brand-accent-alt);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .q-card:active { transform: scale(0.97); }
+    .q-card.is-selected {
+      border-color: var(--color-brand-primary);
+      background: rgba(26,60,94,0.05);
+      box-shadow: 0 0 0 2px var(--color-brand-primary), var(--shadow-md);
+    }
+    @media (prefers-color-scheme: dark) {
+      .q-card.is-selected { background: rgba(26,60,94,0.3); }
+    }
+    .q-card__icon { font-size: 2.5rem; margin-bottom: var(--space-2); }
+    .q-card__title {
+      font-size: var(--text-base); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+    .q-card__desc {
+      font-size: var(--text-sm); color: var(--color-text-muted);
+      margin-top: var(--space-2); line-height: 1.4;
+    }
+
+    /* === Validation === */
+    .field--error .input, .field--error .select, .field--error .textarea, .field--error .step0-dest-input {
+      border-color: var(--color-error); box-shadow: 0 0 0 3px rgba(181,59,59,0.1);
+    }
+    .step0-dest-input.input-error {
+      border-color: var(--color-error); box-shadow: 0 0 0 3px rgba(181,59,59,0.1);
+    }
+    .step0-card__error {
+      font-size: var(--text-xs); color: var(--color-error);
+      margin-top: var(--space-2); display: none;
+    }
+    .step0-card__error.is-visible { display: block; }
+    .dob-year.select-error {
+      border-color: var(--color-error); box-shadow: 0 0 0 2px rgba(181,59,59,0.12);
+    }
+    .traveler-card.card-error {
+      border-color: var(--color-error);
+      box-shadow: 0 0 0 2px rgba(181,59,59,0.1);
+    }
+    .traveler-card__error {
+      font-size: var(--text-xs); color: var(--color-error);
+      margin-top: var(--space-2);
+    }
+    .field__error {
+      font-size: var(--text-xs); color: var(--color-error);
+      margin-top: var(--space-1); display: none;
+    }
+    .field--error .field__error { display: block; }
+
+    /* === Group composition summary badge === */
+    .group-summary {
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--radius-container); padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-4); font-size: var(--text-sm);
+      color: var(--color-text-secondary); display: none;
+      box-shadow: var(--shadow-sm);
+    }
+    .group-summary.is-visible { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+    .group-summary__tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px var(--space-2); border-radius: 999px;
+      font-size: var(--text-xs); font-weight: var(--font-weight-semibold);
+      background-color: rgba(46,125,154,0.12); color: var(--color-info);
+    }
+    /* === Step 0 Visual Cards === */
+    .step0-cards { display: flex; flex-direction: column; gap: var(--space-4); }
+    .step0-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-container);
+      padding: var(--space-4) var(--space-5);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition-base);
+    }
+    .step0-card:hover { box-shadow: var(--shadow-md); }
+    .step0-card__header {
+      display: flex; align-items: center; gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .step0-card__icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-container);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .step0-card__icon--dest { background: linear-gradient(135deg, rgba(46,125,154,0.15) 0%, rgba(26,60,94,0.15) 100%); }
+    .step0-card__icon--date { background: linear-gradient(135deg, rgba(201,151,43,0.15) 0%, rgba(212,168,58,0.15) 100%); }
+    .step0-card__icon--schedule { background: linear-gradient(135deg, rgba(45,125,58,0.12) 0%, rgba(46,125,154,0.12) 100%); }
+    .step0-card__label {
+      font-size: var(--text-lg); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+    .step0-card__sublabel {
+      font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px;
+    }
+    .step0-dest-input {
+      width: 100%; padding: 14px var(--space-4);
+      min-height: 52px;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-container);
+      background-color: var(--color-surface-raised);
+      color: var(--color-text-primary);
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .step0-dest-input:focus {
+      outline: none;
+      border-color: var(--color-brand-accent-alt);
+      box-shadow: 0 0 0 4px rgba(46,125,154,0.12);
+      background-color: var(--color-surface);
+    }
+    .step0-dest-input::placeholder {
+      color: var(--color-text-muted);
+      font-weight: var(--font-weight-regular);
+    }
+    .step0-schedule-toggle {
+      display: flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-3) 0;
+      cursor: pointer; user-select: none;
+      font-size: var(--text-sm); font-weight: var(--font-weight-medium);
+      color: var(--color-text-muted);
+      transition: color var(--transition-fast);
+      background: none; border: none; font-family: inherit;
+    }
+    .step0-schedule-toggle:hover { color: var(--color-text-secondary); }
+    .step0-schedule-toggle__arrow {
+      transition: transform var(--transition-base);
+      font-size: var(--text-xs);
+    }
+    .step0-schedule-toggle__arrow.is-open { transform: rotate(180deg); }
+    .step0-schedule-body {
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.25s ease;
+    }
+    .step0-schedule-body.is-open {
+      max-height: 200px; opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Immersive Hero -->
+  <header class="hero">
+    <h1 class="hero__tagline">Your perfect trip starts here</h1>
+    <p class="hero__subtitle">Answer a few questions and we'll design the perfect itinerary</p>
+  </header>
+
+  <div class="page-shell">
+    <!-- Named Progress Stepper -->
+    <nav class="stepper" id="stepper">
+      <div class="stepper__line"><div class="stepper__line-fill" id="stepperFill"></div></div>
+      <div class="stepper__step is-active" data-step="0">
+        <div class="stepper__circle"><span>&#9992;&#65039;</span></div>
+        <div class="stepper__label">Trip</div>
+      </div>
+      <div class="stepper__step" data-step="1">
+        <div class="stepper__circle"><span>&#128101;</span></div>
+        <div class="stepper__label">Travelers</div>
+      </div>
+      <div class="stepper__step" data-step="2">
+        <div class="stepper__circle"><span>&#127919;</span></div>
+        <div class="stepper__label">Style</div>
+      </div>
+      <div class="stepper__step" data-step="3">
+        <div class="stepper__circle"><span>&#10084;&#65039;</span></div>
+        <div class="stepper__label">Interests</div>
+      </div>
+      <div class="stepper__step" data-step="4">
+        <div class="stepper__circle"><span>&#128683;</span></div>
+        <div class="stepper__label">Avoid</div>
+      </div>
+      <div class="stepper__step" data-step="5">
+        <div class="stepper__circle"><span>&#127869;</span></div>
+        <div class="stepper__label">Food</div>
+      </div>
+      <div class="stepper__step" data-step="6">
+        <div class="stepper__circle"><span>&#127758;</span></div>
+        <div class="stepper__label">Details</div>
+      </div>
+      <div class="stepper__step" data-step="7">
+        <div class="stepper__circle"><span>&#9989;</span></div>
+        <div class="stepper__label">Review</div>
+      </div>
+    </nav>
+
+    <form id="tripForm" novalidate>
+      <!-- ============ STEP 0: Destination & Dates ============ -->
+      <section class="step is-visible" data-step="0">
+        <h2 class="step__title">Where & When</h2>
+        <p class="step__desc">Tell us about your destination and travel dates.</p>
+
+        <div class="step0-cards">
+          <!-- Destination Card -->
+          <div class="step0-card">
+            <div class="step0-card__header">
+              <div class="step0-card__icon step0-card__icon--dest">&#127758;</div>
+              <div>
+                <div class="step0-card__label">Destination</div>
+                <div class="step0-card__sublabel">Where are you heading?</div>
+              </div>
+            </div>
+            <div class="autocomplete-wrap">
+              <input class="step0-dest-input" type="text" id="destination" placeholder="Search for a city..." autocomplete="off" required>
+              <div class="autocomplete-list" id="destDropdown"></div>
+            </div>
+          </div>
+
+          <!-- Travel Dates Card -->
+          <div class="step0-card">
+            <div class="step0-card__header">
+              <div class="step0-card__icon step0-card__icon--date">&#128197;</div>
+              <div>
+                <div class="step0-card__label">Travel Dates</div>
+                <div class="step0-card__sublabel">When does your adventure begin?</div>
+              </div>
+            </div>
+            <div class="row row--2">
+              <div class="field">
+                <label class="field__label" for="arrival">Arrival</label>
+                <input class="input" type="datetime-local" id="arrival" required>
+              </div>
+              <div class="field">
+                <label class="field__label" for="departure">Departure</label>
+                <input class="input" type="datetime-local" id="departure" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Schedule Preferences (collapsible) -->
+          <div class="step0-card">
+            <div class="step0-card__header" style="margin-bottom:0;padding-bottom:0;border-bottom:none;">
+              <div class="step0-card__icon step0-card__icon--schedule">&#9200;</div>
+              <div style="flex:1;">
+                <button type="button" class="step0-schedule-toggle" id="scheduleToggle" onclick="document.getElementById('scheduleBody').classList.toggle('is-open');this.querySelector('.step0-schedule-toggle__arrow').classList.toggle('is-open');">
+                  Daily schedule preferences
+                  <span class="step0-schedule-toggle__arrow">&#9660;</span>
+                </button>
+              </div>
+            </div>
+            <div class="step0-schedule-body" id="scheduleBody">
+              <div style="padding-top:var(--space-3);border-top:1px solid var(--color-border);margin-top:var(--space-3);">
+                <div class="row row--3">
+                  <div class="field">
+                    <label class="field__label" for="startTime">Day starts at</label>
+                    <input class="input" type="time" id="startTime" value="10:00">
+                  </div>
+                  <div class="field">
+                    <label class="field__label" for="endTime">Day ends at</label>
+                    <input class="input" type="time" id="endTime" value="18:30">
+                  </div>
+                  <div class="field">
+                    <label class="field__label" for="bufferTime">Buffer (min)</label>
+                    <input class="input" type="number" id="bufferTime" value="20" min="0" max="60">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-bar">
+          <span></span>
+          <button type="button" class="btn btn--primary btn-next">Let's Go &rarr;</button>
+        </div>
+      </section>
+
+      <!-- ============ STEP 1: Travelers (Airbnb-style) ============ -->
+      <section class="step" data-step="1">
+        <h2 class="step__title">Who's Traveling?</h2>
+        <p class="step__desc">Add all travelers so we can tailor activities by age and interest.</p>
+
+        <!-- Adults Counter -->
+        <div class="guest-section">
+          <div class="guest-counter">
+            <div class="guest-counter__info">
+              <div class="guest-counter__title">Adults</div>
+              <div class="guest-counter__desc">Age 18+</div>
+            </div>
+            <div class="guest-counter__controls">
+              <button type="button" class="guest-counter__btn" id="adultMinus" disabled>&#8722;</button>
+              <span class="guest-counter__count" id="adultCount">1</span>
+              <button type="button" class="guest-counter__btn" id="adultPlus">&#43;</button>
+            </div>
+          </div>
+          <div id="parentsContainer">
+            <div class="traveler-card" data-traveler="parent">
+              <div class="traveler-card__header">
+                <span class="traveler-card__type">Adult 1</span>
+              </div>
+              <div class="row row--3">
+                <div class="field">
+                  <label class="field__label">Name / Role</label>
+                  <input class="input parent-name" type="text" placeholder="e.g. Robert" required>
+                </div>
+                <div class="field">
+                  <label class="field__label">Gender</label>
+                  <select class="select parent-gender">
+                    <option value="">Select...</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label class="field__label">Date of Birth</label>
+                  <div class="dob-row">
+                    <select class="select dob-year" data-placeholder="Year"></select>
+                    <select class="select dob-month" data-placeholder="Month"></select>
+                    <select class="select dob-day" data-placeholder="Day"></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Children Counter -->
+        <div class="guest-section">
+          <div class="guest-counter">
+            <div class="guest-counter__info">
+              <div class="guest-counter__title">Children</div>
+              <div class="guest-counter__desc">Age 0-17</div>
+            </div>
+            <div class="guest-counter__controls">
+              <button type="button" class="guest-counter__btn" id="childMinus" disabled>&#8722;</button>
+              <span class="guest-counter__count" id="childCount">0</span>
+              <button type="button" class="guest-counter__btn" id="childPlus">&#43;</button>
+            </div>
+          </div>
+          <div id="childrenContainer"></div>
+        </div>
+
+        <div class="btn-bar">
+          <button type="button" class="btn btn--secondary btn-prev">&larr; Back</button>
+          <button type="button" class="btn btn--primary btn-next">Choose Your Style &rarr;</button>
+        </div>
+      </section>
+
+      <!-- ============ STEP 2: Trip Style Questionnaire (One Per View) ============ -->
+      <section class="step" data-step="2">
+        <h2 class="step__title">What's Your Travel Style?</h2>
+        <p class="step__desc">5 quick questions to understand your perfect trip.</p>
+
+        <div class="sub-dots" id="styleSubDots">
+          <div class="sub-dot is-active" data-q="0"></div>
+          <div class="sub-dot" data-q="1"></div>
+          <div class="sub-dot" data-q="2"></div>
+          <div class="sub-dot" data-q="3"></div>
+          <div class="sub-dot" data-q="4"></div>
+        </div>
+
+        <div class="questionnaire-viewport" id="questionnaireViewport">
+          <!-- Q1: Energy -->
+          <div class="question-slide is-visible" data-question="energy" data-qindex="0">
+            <div class="question-slide__label">What's your ideal day on vacation?</div>
+            <div class="question-options">
+              <div class="q-card" data-value="chill">
+                <div class="q-card__icon">&#9749;</div>
+                <div class="q-card__title">Chill & Relax</div>
+                <div class="q-card__desc">Slow mornings, cafes, parks, no rush</div>
+              </div>
+              <div class="q-card is-selected" data-value="mixed">
+                <div class="q-card__icon">&#9878;&#65039;</div>
+                <div class="q-card__title">Mix of Both</div>
+                <div class="q-card__desc">Some action, some downtime</div>
+              </div>
+              <div class="q-card" data-value="active">
+                <div class="q-card__icon">&#9889;</div>
+                <div class="q-card__title">Active & Adventurous</div>
+                <div class="q-card__desc">Hiking, sports, non-stop exploring</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2: Setting -->
+          <div class="question-slide" data-question="setting" data-qindex="1">
+            <div class="question-slide__label">Where do you feel most alive?</div>
+            <div class="question-options">
+              <div class="q-card" data-value="city">
+                <div class="q-card__icon">&#127961;</div>
+                <div class="q-card__title">City Streets</div>
+                <div class="q-card__desc">Architecture, shopping, nightlife, food scene</div>
+              </div>
+              <div class="q-card is-selected" data-value="both">
+                <div class="q-card__icon">&#127758;</div>
+                <div class="q-card__title">A Bit of Both</div>
+                <div class="q-card__desc">City days and nature escapes</div>
+              </div>
+              <div class="q-card" data-value="nature">
+                <div class="q-card__icon">&#127795;</div>
+                <div class="q-card__title">Nature & Outdoors</div>
+                <div class="q-card__desc">Parks, trails, water, wildlife</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3: Culture -->
+          <div class="question-slide" data-question="culture" data-qindex="2">
+            <div class="question-slide__label">When you travel, what draws you in?</div>
+            <div class="question-options">
+              <div class="q-card" data-value="culture">
+                <div class="q-card__icon">&#127963;</div>
+                <div class="q-card__title">History & Culture</div>
+                <div class="q-card__desc">Museums, landmarks, local traditions</div>
+              </div>
+              <div class="q-card is-selected" data-value="both">
+                <div class="q-card__icon">&#10024;</div>
+                <div class="q-card__title">Both</div>
+                <div class="q-card__desc">Some culture, some pure fun</div>
+              </div>
+              <div class="q-card" data-value="fun">
+                <div class="q-card__icon">&#127914;</div>
+                <div class="q-card__title">Fun & Entertainment</div>
+                <div class="q-card__desc">Theme parks, shows, games, nightlife</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q4: Food -->
+          <div class="question-slide" data-question="food" data-qindex="3">
+            <div class="question-slide__label">How important is food on this trip?</div>
+            <div class="question-options">
+              <div class="q-card" data-value="highlight">
+                <div class="q-card__icon">&#127860;</div>
+                <div class="q-card__title">A Major Highlight</div>
+                <div class="q-card__desc">Local cuisine, food markets, cooking classes</div>
+              </div>
+              <div class="q-card is-selected" data-value="nice">
+                <div class="q-card__icon">&#128523;</div>
+                <div class="q-card__title">Enjoy but Not Priority</div>
+                <div class="q-card__desc">Good meals, nothing too planned</div>
+              </div>
+              <div class="q-card" data-value="fuel">
+                <div class="q-card__icon">&#9749;</div>
+                <div class="q-card__title">Just Fuel</div>
+                <div class="q-card__desc">Quick eats, more time for activities</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q5: Evening -->
+          <div class="question-slide" data-question="evening" data-qindex="4">
+            <div class="question-slide__label">Your ideal evening looks like...</div>
+            <div class="question-options">
+              <div class="q-card" data-value="early">
+                <div class="q-card__icon">&#127769;</div>
+                <div class="q-card__title">Cozy Early Night</div>
+                <div class="q-card__desc">Dinner, a walk, back to hotel by 9</div>
+              </div>
+              <div class="q-card is-selected" data-value="stroll">
+                <div class="q-card__icon">&#127751;</div>
+                <div class="q-card__title">Dinner & Stroll</div>
+                <div class="q-card__desc">Nice restaurant, evening exploring</div>
+              </div>
+              <div class="q-card" data-value="latenight">
+                <div class="q-card__icon">&#127878;</div>
+                <div class="q-card__title">Late Night Out</div>
+                <div class="q-card__desc">Bars, clubs, live music, midnight food</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-bar">
+          <button type="button" class="btn btn--secondary btn-prev" id="questBackBtn">&larr; Back</button>
+          <span></span>
+        </div>
+      </section>
+
+      <!-- ============ STEP 3: Interests (dynamic) ============ -->
+      <section class="step" data-step="3">
+        <h2 class="step__title">What Do You Love?</h2>
+        <p class="step__desc">Based on your answers, we've pre-selected some suggestions. Adjust as you like.</p>
+
+        <div class="group-summary" id="groupSummary"></div>
+
+        <div id="interestsSections">
+          <!-- Dynamically populated based on traveler composition + questionnaire -->
+        </div>
+
+        <div class="field" style="margin-top:var(--space-5);">
+          <label class="field__label" for="customInterests">Other interests not listed above</label>
+          <textarea class="textarea" id="customInterests" placeholder="e.g. Hot air balloon rides, Cooking classes..." rows="3"></textarea>
+        </div>
+
+        <div class="btn-bar">
+          <button type="button" class="btn btn--secondary btn-prev">&larr; Back</button>
+          <button type="button" class="btn btn--primary btn-next">Set Your Limits &rarr;</button>
+        </div>
+      </section>
+
+      <!-- ============ STEP 4: Avoid & Pace ============ -->
+      <section class="step" data-step="4">
+        <h2 class="step__title">Set Your Boundaries</h2>
+        <p class="step__desc">5 quick questions to find your comfort zone — then fine-tune below.</p>
+
+        <!-- Mini-questionnaire (3 questions, same visual style as Step 2) -->
+        <div class="avoid-quiz" id="avoidQuiz">
+          <div class="sub-dots" id="avoidSubDots">
+            <span class="sub-dot is-active"></span>
+            <span class="sub-dot"></span>
+            <span class="sub-dot"></span>
+            <span class="sub-dot"></span>
+            <span class="sub-dot"></span>
+          </div>
+
+          <!-- AQ1: Mobility -->
+          <div class="question-slide is-visible" data-aquestion="mobility" data-aqindex="0">
+            <div class="question-slide__label">How active can your group be?</div>
+            <div class="question-options">
+              <div class="q-card aq-card" data-value="limited">
+                <div class="q-card__icon">&#9855;</div>
+                <div class="q-card__title">Take It Easy</div>
+                <div class="q-card__desc">Short walks, accessible venues, minimal stairs</div>
+              </div>
+              <div class="q-card aq-card is-selected" data-value="moderate">
+                <div class="q-card__icon">&#128694;</div>
+                <div class="q-card__title">Moderate</div>
+                <div class="q-card__desc">Happy walking 2-3km, some stairs are fine</div>
+              </div>
+              <div class="q-card aq-card" data-value="high">
+                <div class="q-card__icon">&#127939;</div>
+                <div class="q-card__title">Very Active</div>
+                <div class="q-card__desc">Hiking, climbing, long days on feet — bring it on</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AQ2: Crowd/Noise Tolerance -->
+          <div class="question-slide" data-aquestion="noise" data-aqindex="1">
+            <div class="question-slide__label">What's your crowd & noise comfort?</div>
+            <div class="question-options">
+              <div class="q-card aq-card" data-value="quiet">
+                <div class="q-card__icon">&#128524;</div>
+                <div class="q-card__title">Quiet & Calm</div>
+                <div class="q-card__desc">Avoid crowds, loud venues, peak-hour rush</div>
+              </div>
+              <div class="q-card aq-card is-selected" data-value="flexible">
+                <div class="q-card__icon">&#128522;</div>
+                <div class="q-card__title">Flexible</div>
+                <div class="q-card__desc">Some bustle is fine, just not overwhelming</div>
+              </div>
+              <div class="q-card aq-card" data-value="lively">
+                <div class="q-card__icon">&#129321;</div>
+                <div class="q-card__title">Bring the Energy</div>
+                <div class="q-card__desc">Love the buzz — festivals, markets, nightlife</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AQ3: Food Adventure -->
+          <div class="question-slide" data-aquestion="foodadventure" data-aqindex="2">
+            <div class="question-slide__label">How adventurous with food?</div>
+            <div class="question-options">
+              <div class="q-card aq-card" data-value="safe">
+                <div class="q-card__icon">&#127838;</div>
+                <div class="q-card__title">Keep It Safe</div>
+                <div class="q-card__desc">Familiar flavors, nothing too exotic or spicy</div>
+              </div>
+              <div class="q-card aq-card is-selected" data-value="open">
+                <div class="q-card__icon">&#127836;</div>
+                <div class="q-card__title">Open to Try</div>
+                <div class="q-card__desc">Happy to taste local dishes, mild spice OK</div>
+              </div>
+              <div class="q-card aq-card" data-value="fearless">
+                <div class="q-card__icon">&#127798;</div>
+                <div class="q-card__title">Fearless Foodie</div>
+                <div class="q-card__desc">Street food, exotic meats, extreme spice — yes please</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AQ4: Budget Comfort -->
+          <div class="question-slide" data-aquestion="budget" data-aqindex="3">
+            <div class="question-slide__label">What's your spending comfort?</div>
+            <div class="question-options">
+              <div class="q-card aq-card" data-value="budget">
+                <div class="q-card__icon">&#128176;</div>
+                <div class="q-card__title">Budget-Friendly</div>
+                <div class="q-card__desc">Free attractions, affordable meals, smart savings</div>
+              </div>
+              <div class="q-card aq-card is-selected" data-value="balanced">
+                <div class="q-card__icon">&#9878;&#65039;</div>
+                <div class="q-card__title">Worth the Spend</div>
+                <div class="q-card__desc">Mix of free and paid, splurge on highlights</div>
+              </div>
+              <div class="q-card aq-card" data-value="premium">
+                <div class="q-card__icon">&#128142;</div>
+                <div class="q-card__title">Treat Ourselves</div>
+                <div class="q-card__desc">Premium experiences, skip-the-line, comfort first</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AQ5: Schedule Flexibility -->
+          <div class="question-slide" data-aquestion="flexibility" data-aqindex="4">
+            <div class="question-slide__label">How structured should the plan be?</div>
+            <div class="question-options">
+              <div class="q-card aq-card" data-value="strict">
+                <div class="q-card__icon">&#128203;</div>
+                <div class="q-card__title">Stick to the Plan</div>
+                <div class="q-card__desc">Timed schedule, pre-booked, no surprises</div>
+              </div>
+              <div class="q-card aq-card is-selected" data-value="loose">
+                <div class="q-card__icon">&#128260;</div>
+                <div class="q-card__title">Loose Framework</div>
+                <div class="q-card__desc">Key highlights planned, room to wander</div>
+              </div>
+              <div class="q-card aq-card" data-value="spontaneous">
+                <div class="q-card__icon">&#127752;</div>
+                <div class="q-card__title">Go with the Flow</div>
+                <div class="q-card__desc">Suggestions only, maximum spontaneity</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="step-divider">
+
+        <div class="chip-section">
+          <div class="chip-section__title">&#128683; We'd Suggest Avoiding</div>
+          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);">Based on your answers. Tap to adjust.</p>
+          <div id="avoidSections">
+            <!-- Dynamically populated with avoid-cards -->
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:var(--space-3);">
+          <label class="field__label" for="customAvoid">Anything else to avoid?</label>
+          <textarea class="textarea" id="customAvoid" placeholder="e.g. Bicycling activities, Heights, Water slides..." rows="2"></textarea>
+        </div>
+
+        <hr class="step-divider">
+
+        <div class="chip-section">
+          <div class="chip-section__title">&#9889; Your Daily Pace</div>
+          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);">How packed should each day be?</p>
+          <div class="pace-options" id="paceOptions">
+            <div class="pace-card pace-card--relaxed" data-pace="relaxed">
+              <div class="pace-card__check">&#10003;</div>
+              <div class="pace-card__icon">&#127796;</div>
+              <div class="pace-card__title">Relaxed</div>
+              <div class="pace-card__desc">2-3 activities, slow mornings, lots of downtime</div>
+            </div>
+            <div class="pace-card pace-card--balanced is-selected" data-pace="balanced">
+              <div class="pace-card__check">&#10003;</div>
+              <div class="pace-card__icon">&#9878;&#65039;</div>
+              <div class="pace-card__title">Balanced</div>
+              <div class="pace-card__desc">3-5 activities, quality over quantity</div>
+            </div>
+            <div class="pace-card pace-card--packed" data-pace="packed">
+              <div class="pace-card__check">&#10003;</div>
+              <div class="pace-card__icon">&#128640;</div>
+              <div class="pace-card__title">Action-Packed</div>
+              <div class="pace-card__desc">5+ activities, maximize every hour</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-bar">
+          <button type="button" class="btn btn--secondary btn-prev">&larr; Back</button>
+          <button type="button" class="btn btn--primary btn-next">Food & Dining &rarr;</button>
+        </div>
+      </section>
+
+      <!-- ============ STEP 5: Culinary ============ -->
+      <section class="step" data-step="5">
+        <h2 class="step__title">Food & Dining</h2>
+        <p class="step__desc">5 quick questions — then we'll suggest food experiences tailored to your group.</p>
+
+        <!-- Food mini-quiz (3 questions, auto-advance) -->
+        <div class="food-quiz" id="foodQuiz">
+          <div class="sub-dots" id="foodSubDots">
+            <span class="sub-dot is-active"></span>
+            <span class="sub-dot"></span>
+            <span class="sub-dot"></span>
+            <span class="sub-dot"></span>
+            <span class="sub-dot"></span>
+          </div>
+
+          <!-- FQ1: Diet Type -->
+          <div class="question-slide is-visible" data-fquestion="diet" data-fqindex="0">
+            <div class="question-slide__label">What does your group eat?</div>
+            <div class="question-options">
+              <div class="q-card fq-card" data-value="omnivore">
+                <div class="q-card__icon">&#127830;</div>
+                <div class="q-card__title">Everything</div>
+                <div class="q-card__desc">Meat, fish, veggies — no restrictions</div>
+              </div>
+              <div class="q-card fq-card" data-value="omnivore-meat">
+                <div class="q-card__icon">&#129385;</div>
+                <div class="q-card__title">Meat Lovers</div>
+                <div class="q-card__desc">Strong preference for quality meat & BBQ</div>
+              </div>
+              <div class="q-card fq-card" data-value="vegetarian">
+                <div class="q-card__icon">&#129388;</div>
+                <div class="q-card__title">Mostly Veggie</div>
+                <div class="q-card__desc">Vegetarian, pescatarian, or flexitarian</div>
+              </div>
+              <div class="q-card fq-card" data-value="vegan">
+                <div class="q-card__icon">&#127793;</div>
+                <div class="q-card__title">Plant-Based</div>
+                <div class="q-card__desc">Vegan or strict plant-based diet</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FQ2: Dining Style -->
+          <div class="question-slide" data-fquestion="diningstyle" data-fqindex="1">
+            <div class="question-slide__label">Where do you love eating?</div>
+            <div class="question-options">
+              <div class="q-card fq-card" data-value="street">
+                <div class="q-card__icon">&#127838;</div>
+                <div class="q-card__title">Street Food & Markets</div>
+                <div class="q-card__desc">Local stalls, food trucks, market halls</div>
+              </div>
+              <div class="q-card fq-card is-selected" data-value="casual">
+                <div class="q-card__icon">&#127869;</div>
+                <div class="q-card__title">Casual Restaurants</div>
+                <div class="q-card__desc">Relaxed sit-down, local favorites, family-friendly</div>
+              </div>
+              <div class="q-card fq-card" data-value="upscale">
+                <div class="q-card__icon">&#127864;</div>
+                <div class="q-card__title">Upscale Dining</div>
+                <div class="q-card__desc">Fine dining, tasting menus, wine pairings</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FQ3: Kids & Food (contextual) -->
+          <div class="question-slide" data-fquestion="kidsfood" data-fqindex="2">
+            <div class="question-slide__label" id="fq3Label">Any dietary restrictions or allergies?</div>
+            <div class="question-options" id="fq3Options">
+              <div class="q-card fq-card" data-value="picky">
+                <div class="q-card__icon">&#128556;</div>
+                <div class="q-card__title">Very Picky</div>
+                <div class="q-card__desc">Limited menu options, familiar food only</div>
+              </div>
+              <div class="q-card fq-card is-selected" data-value="some">
+                <div class="q-card__icon">&#128522;</div>
+                <div class="q-card__title">Some Flexibility</div>
+                <div class="q-card__desc">Will try a few things, no spice</div>
+              </div>
+              <div class="q-card fq-card" data-value="easy">
+                <div class="q-card__icon">&#129321;</div>
+                <div class="q-card__title">Eats Everything</div>
+                <div class="q-card__desc">No issues — happy to try local food</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FQ4: Meal Priority -->
+          <div class="question-slide" data-fquestion="mealpriority" data-fqindex="3">
+            <div class="question-slide__label">Which meal matters most to you?</div>
+            <div class="question-options">
+              <div class="q-card fq-card" data-value="breakfast">
+                <div class="q-card__icon">&#129370;</div>
+                <div class="q-card__title">Breakfast & Brunch</div>
+                <div class="q-card__desc">Start the day right — cafes, pastries, lazy mornings</div>
+              </div>
+              <div class="q-card fq-card" data-value="lunch">
+                <div class="q-card__icon">&#127828;</div>
+                <div class="q-card__title">Lunch is King</div>
+                <div class="q-card__desc">Midday feasts, long sit-downs, local specials</div>
+              </div>
+              <div class="q-card fq-card is-selected" data-value="dinner">
+                <div class="q-card__icon">&#127863;</div>
+                <div class="q-card__title">Dinner is the Event</div>
+                <div class="q-card__desc">Evening dining is the highlight of the day</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FQ5: Local vs Familiar -->
+          <div class="question-slide" data-fquestion="localfood" data-fqindex="4">
+            <div class="question-slide__label">How local should the food experience be?</div>
+            <div class="question-options">
+              <div class="q-card fq-card" data-value="familiar">
+                <div class="q-card__icon">&#127829;</div>
+                <div class="q-card__title">Keep It Familiar</div>
+                <div class="q-card__desc">International chains, comfort food, known flavors</div>
+              </div>
+              <div class="q-card fq-card is-selected" data-value="mix">
+                <div class="q-card__icon">&#127835;</div>
+                <div class="q-card__title">Mix of Both</div>
+                <div class="q-card__desc">Some local, some familiar — best of both worlds</div>
+              </div>
+              <div class="q-card fq-card" data-value="fulllocal">
+                <div class="q-card__icon">&#127758;</div>
+                <div class="q-card__title">Full Local Immersion</div>
+                <div class="q-card__desc">Only authentic local food, no tourist restaurants</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="step-divider">
+
+        <!-- Dynamic food experience cards -->
+        <div class="chip-section">
+          <div class="chip-section__title">&#127860; Food Experiences For You</div>
+          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);">Based on your answers. Tap to adjust.</p>
+          <div id="foodExperienceCards"></div>
+        </div>
+
+        <hr class="step-divider">
+
+        <!-- Dynamic dining vibe cards -->
+        <div class="chip-section">
+          <div class="chip-section__title">&#127879; Dining Vibe</div>
+          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);">What atmosphere are you looking for?</p>
+          <div id="vibeGroup"></div>
+        </div>
+
+        <div class="field" style="margin-top:var(--space-4);">
+          <label class="field__label" for="foodNotes">Anything else about food? (allergies, must-haves, dislikes)</label>
+          <textarea class="textarea" id="foodNotes" placeholder="e.g. Nut allergy, must try local pastries, no raw fish..." rows="2"></textarea>
+        </div>
+
+        <div class="btn-bar">
+          <button type="button" class="btn btn--secondary btn-prev">&larr; Back</button>
+          <button type="button" class="btn btn--primary btn-next">Almost Done &rarr;</button>
+        </div>
+      </section>
+
+      <!-- ============ STEP 6: Language & Extras ============ -->
+      <section class="step" data-step="6">
+        <h2 class="step__title">Language & Extras</h2>
+        <p class="step__desc">Final touches for your perfect trip plan.</p>
+
+        <div class="row row--2">
+          <div class="field">
+            <label class="field__label" for="reportLang">Report Language</label>
+            <select class="select" id="reportLang">
+              <option value="English">English</option>
+              <option value="Russian">Russian</option>
+              <option value="Hebrew">Hebrew</option>
+              <option value="Spanish">Spanish</option>
+              <option value="French">French</option>
+              <option value="German">German</option>
+              <option value="Italian">Italian</option>
+              <option value="Portuguese">Portuguese</option>
+              <option value="Chinese">Chinese</option>
+              <option value="Japanese">Japanese</option>
+              <option value="Korean">Korean</option>
+              <option value="Arabic">Arabic</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field__label" for="poiLangs">POI Languages</label>
+            <input class="input" type="text" id="poiLangs" placeholder="e.g. Hungarian, English">
+            <p class="field__hint">Comma-separated. Local language + your language recommended.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="extraNotes">Anything else we should know?</label>
+          <textarea class="textarea" id="extraNotes" placeholder="e.g. One child has a stroller, we want outlet shopping on one day, we need nearby supermarkets..." rows="4"></textarea>
+        </div>
+
+        <div class="btn-bar">
+          <button type="button" class="btn btn--secondary btn-prev">&larr; Back</button>
+          <button type="button" class="btn btn--primary btn-next">Review My Trip &rarr;</button>
+        </div>
+      </section>
+
+      <!-- ============ STEP 7: Review & Download ============ -->
+      <section class="step" data-step="7">
+        <h2 class="step__title">Review Your Trip Details</h2>
+        <p class="step__desc">Here's the generated file. Review and download when ready.</p>
+
+        <div class="preview-box">
+          <div class="preview-box__header">
+            <div class="preview-box__tab">llm_trip_details.md</div>
+            <div class="preview-box__actions">
+              <button type="button" class="preview-box__copy-btn" id="btnCopyInline">Copy</button>
+            </div>
+          </div>
+          <div class="preview-box__body" id="previewContent"></div>
+        </div>
+
+        <div class="btn-bar">
+          <button type="button" class="btn btn--secondary btn-prev">&larr; Edit</button>
+          <div style="display:flex;gap:var(--space-2);">
+            <button type="button" class="btn btn--secondary" id="btnCopy">Copy to Clipboard</button>
+            <button type="button" class="btn btn--accent" id="btnDownload">Build My Dream Trip &#10024;</button>
+          </div>
+        </div>
+      </section>
+    </form>
+  </div>
+
+  <script>
+    // ================================================================
+    //  DOM helpers
+    // ================================================================
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => document.querySelectorAll(s);
+
+    // ================================================================
+    //  1. DOB DROPDOWNS — Year / Month / Day
+    // ================================================================
+    const MONTHS = [
+      'January','February','March','April','May','June',
+      'July','August','September','October','November','December'
+    ];
+    const currentYear = new Date().getFullYear();
+
+    function initDobSelects(container, minYear = 1940, maxYear = currentYear) {
+      const yearSel = container.querySelector('.dob-year');
+      const monthSel = container.querySelector('.dob-month');
+      const daySel = container.querySelector('.dob-day');
+
+      // Year — most recent first
+      yearSel.innerHTML = '<option value="">Year</option>';
+      for (let y = maxYear; y >= minYear; y--) {
+        yearSel.innerHTML += `<option value="${y}">${y}</option>`;
+      }
+
+      // Month
+      monthSel.innerHTML = '<option value="">Month</option>';
+      MONTHS.forEach((m, i) => {
+        monthSel.innerHTML += `<option value="${String(i + 1).padStart(2, '0')}">${m}</option>`;
+      });
+
+      // Day — default 1-31, refine on year/month change
+      function fillDays() {
+        const prev = daySel.value;
+        const y = parseInt(yearSel.value) || currentYear;
+        const m = parseInt(monthSel.value) || 1;
+        const maxDay = new Date(y, m, 0).getDate();
+        daySel.innerHTML = '<option value="">Day</option>';
+        for (let d = 1; d <= maxDay; d++) {
+          daySel.innerHTML += `<option value="${String(d).padStart(2, '0')}">${d}</option>`;
+        }
+        if (parseInt(prev) <= maxDay) daySel.value = prev;
+      }
+      fillDays();
+      yearSel.addEventListener('change', fillDays);
+      monthSel.addEventListener('change', fillDays);
+    }
+
+    function getDobValue(container) {
+      const y = container.querySelector('.dob-year').value;
+      const m = container.querySelector('.dob-month').value;
+      const d = container.querySelector('.dob-day').value;
+      if (y && m && d) return `${y}-${m}-${d}`;
+      if (y && m) return `${y}-${m}`;
+      if (y) return `${y}`;
+      return '';
+    }
+
+    // Init DOB for the first pre-existing parent card
+    document.querySelectorAll('#parentsContainer .traveler-card').forEach(card => {
+      initDobSelects(card);
+    });
+
+    // ================================================================
+    //  2. DESTINATION AUTOCOMPLETE — OpenStreetMap Nominatim
+    // ================================================================
+    const destInput = $('#destination');
+    const destDropdown = $('#destDropdown');
+    let acTimer = null;
+    let acHighlight = -1;
+
+    destInput.addEventListener('input', () => {
+      clearTimeout(acTimer);
+      const q = destInput.value.trim();
+      if (q.length < 2) { destDropdown.classList.remove('is-open'); return; }
+      acTimer = setTimeout(() => fetchPlaces(q), 300);
+    });
+
+    async function fetchPlaces(query) {
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=6&accept-language=en&featuretype=city`;
+        const res = await fetch(url, { headers: { 'User-Agent': 'TripIntakeForm/1.0' } });
+        const data = await res.json();
+        renderSuggestions(data);
+      } catch { destDropdown.classList.remove('is-open'); }
+    }
+
+    function renderSuggestions(items) {
+      if (!items.length) { destDropdown.classList.remove('is-open'); return; }
+      acHighlight = -1;
+      // Deduplicate by display_name prefix (city, country)
+      const seen = new Set();
+      const unique = items.filter(it => {
+        const addr = it.address || {};
+        const key = `${addr.city || addr.town || addr.village || it.name}|${addr.country || ''}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      destDropdown.innerHTML = unique.map((it, i) => {
+        const addr = it.address || {};
+        const city = addr.city || addr.town || addr.village || it.name || '';
+        const region = addr.state || addr.county || '';
+        const country = addr.country || '';
+        const sub = [region, country].filter(Boolean).join(', ');
+        return `<div class="autocomplete-item" data-index="${i}" data-city="${city}" data-country="${country}">
+          <div class="autocomplete-item__main">${city}</div>
+          ${sub ? `<div class="autocomplete-item__sub">${sub}</div>` : ''}
+        </div>`;
+      }).join('');
+      destDropdown.classList.add('is-open');
+    }
+
+    destDropdown.addEventListener('click', (e) => {
+      const item = e.target.closest('.autocomplete-item');
+      if (!item) return;
+      destInput.value = `${item.dataset.city}, ${item.dataset.country}`;
+      destDropdown.classList.remove('is-open');
+    });
+
+    // Keyboard navigation
+    destInput.addEventListener('keydown', (e) => {
+      const items = destDropdown.querySelectorAll('.autocomplete-item');
+      if (!items.length || !destDropdown.classList.contains('is-open')) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); acHighlight = Math.min(acHighlight + 1, items.length - 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); acHighlight = Math.max(acHighlight - 1, 0); }
+      else if (e.key === 'Enter' && acHighlight >= 0) { e.preventDefault(); items[acHighlight].click(); return; }
+      else if (e.key === 'Escape') { destDropdown.classList.remove('is-open'); return; }
+      else return;
+      items.forEach(it => it.classList.remove('is-highlighted'));
+      if (acHighlight >= 0) items[acHighlight].classList.add('is-highlighted');
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.autocomplete-wrap')) destDropdown.classList.remove('is-open');
+    });
+
+    // ================================================================
+    //  3. TAG-BASED INTEREST ENGINE
+    // ================================================================
+    //
+    // Each item has tags for the 5 questionnaire dimensions + audience flags.
+    // Questionnaire answers FILTER and SCORE items — only relevant ones appear.
+    //
+    // Tag keys:
+    //   energy: chill | mixed | active       (from Q1)
+    //   setting: city | both | nature        (from Q2)
+    //   culture: culture | both | fun        (from Q3)
+    //   food: highlight | nice | fuel        (from Q4, null = not food-related)
+    //   evening: early | stroll | latenight  (from Q5, null = daytime only)
+    //   audience: array of audience flags the item is relevant to
+    //     core, adultsOnly, youngAdult, couple, maleAdult, femaleAdult,
+    //     withKids, toddler, preschool, schoolAge, teen, boyKid, girlKid, senior
+
+    const INTEREST_DB = [
+      // ---- FOOD & CULINARY ----
+      { name: 'Local Food Markets & Street Food',  energy: 'mixed',  setting: 'city',   culture: 'both',    food: 'highlight', evening: null,       audience: ['core'] },
+      { name: 'Local Cooking Classes',              energy: 'chill',  setting: 'city',   culture: 'culture', food: 'highlight', evening: null,       audience: ['core'] },
+      { name: 'Wine Tasting & Vineyard Tours',      energy: 'chill',  setting: 'nature', culture: 'culture', food: 'highlight', evening: null,       audience: ['adultsOnly', 'couple'] },
+      { name: 'Craft Beer & Brewery Visits',        energy: 'mixed',  setting: 'city',   culture: 'both',    food: 'highlight', evening: 'stroll',   audience: ['adultsOnly', 'maleAdult'] },
+      { name: 'Fine Dining & Tasting Menus',        energy: 'chill',  setting: 'city',   culture: 'culture', food: 'highlight', evening: 'stroll',   audience: ['adultsOnly', 'couple'] },
+      { name: 'Food Tours & Culinary Walks',        energy: 'mixed',  setting: 'city',   culture: 'culture', food: 'highlight', evening: null,       audience: ['adultsOnly'] },
+      { name: 'Farmers Markets & Gourmet Shops',    energy: 'chill',  setting: 'city',   culture: 'both',    food: 'highlight', evening: null,       audience: ['adultsOnly'] },
+      { name: 'Barbecue & Smokehouse Experiences',  energy: 'mixed',  setting: 'city',   culture: 'fun',     food: 'highlight', evening: 'stroll',   audience: ['maleAdult'] },
+      { name: 'Afternoon Tea & Patisseries',        energy: 'chill',  setting: 'city',   culture: 'culture', food: 'highlight', evening: null,       audience: ['femaleAdult', 'couple'] },
+      { name: 'Family Cooking Workshops',           energy: 'chill',  setting: 'city',   culture: 'both',    food: 'highlight', evening: null,       audience: ['withKids'] },
+
+      // ---- NATURE & OUTDOORS ----
+      { name: 'National Parks & Nature Reserves',   energy: 'active', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core'] },
+      { name: 'Waterfalls & Gorges',                energy: 'active', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core'] },
+      { name: 'Hiking & Nature Trails',             energy: 'active', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['adultsOnly'] },
+      { name: 'Lake & Beach Relaxation',            energy: 'chill',  setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core'] },
+      { name: 'Botanical Gardens & Arboretums',     energy: 'chill',  setting: 'nature', culture: 'culture', food: null,        evening: null,       audience: ['core', 'senior'] },
+      { name: 'Cave Explorations',                  energy: 'active', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core', 'schoolAge'] },
+      { name: 'Horseback Riding in Nature',         energy: 'active', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core', 'girlKid'] },
+      { name: 'River Rafting & Canoeing',           energy: 'active', setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['adultsOnly', 'teen'] },
+      { name: 'Camping & Glamping',                 energy: 'mixed',  setting: 'nature', culture: 'both',    food: null,        evening: 'early',    audience: ['core'] },
+      { name: 'Mountain Chairlifts & Cable Cars',   energy: 'mixed',  setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core', 'withKids'] },
+      { name: 'Forest Bathing & Meditation Walks',  energy: 'chill',  setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['adultsOnly', 'senior'] },
+      { name: 'Bird Watching & Wildlife Safari',    energy: 'chill',  setting: 'nature', culture: 'culture', food: null,        evening: null,       audience: ['core'] },
+      { name: 'Nature Walks & Easy Hikes',          energy: 'mixed',  setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['withKids', 'senior'] },
+
+      // ---- CITY & CULTURE ----
+      { name: 'Historical Landmarks & Architecture',energy: 'mixed',  setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['core'] },
+      { name: 'Art Galleries & Exhibitions',        energy: 'chill',  setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['adultsOnly', 'femaleAdult'] },
+      { name: 'Theater, Opera & Ballet',            energy: 'chill',  setting: 'city',   culture: 'culture', food: null,        evening: 'stroll',   audience: ['adultsOnly', 'couple', 'senior'] },
+      { name: 'Guided Walking & History Tours',     energy: 'mixed',  setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['adultsOnly'] },
+      { name: 'Classical Music & Opera',            energy: 'chill',  setting: 'city',   culture: 'culture', food: null,        evening: 'stroll',   audience: ['senior'] },
+      { name: 'Cultural Festivals & Local Events',  energy: 'mixed',  setting: 'both',   culture: 'culture', food: null,        evening: 'stroll',   audience: ['core'] },
+      { name: 'Bookshop Cafes & Literary Tours',    energy: 'chill',  setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['femaleAdult'] },
+      { name: 'Antique & Flea Markets',             energy: 'chill',  setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['adultsOnly'] },
+      { name: 'Tactical / Military History Sites',  energy: 'mixed',  setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['maleAdult'] },
+      { name: 'Kid-Friendly Historical Sites',      energy: 'mixed',  setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['withKids'] },
+
+      // ---- ACTIVE & ADVENTURE ----
+      { name: 'Cycling & E-bike Tours',             energy: 'active', setting: 'both',   culture: 'both',    food: null,        evening: null,       audience: ['adultsOnly'] },
+      { name: 'Kayaking & Paddleboarding',          energy: 'active', setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['adultsOnly', 'youngAdult'] },
+      { name: 'Paragliding & Skydiving',            energy: 'active', setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['adultsOnly', 'youngAdult'] },
+      { name: 'Diving & Snorkeling',                energy: 'active', setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['adultsOnly', 'youngAdult'] },
+      { name: 'Bungee Jumping & Extreme Sports',    energy: 'active', setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['youngAdult'] },
+      { name: 'Hot Air Balloon Rides',              energy: 'mixed',  setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['adultsOnly', 'couple'] },
+      { name: 'Off-Road & ATV Adventures',          energy: 'active', setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['maleAdult'] },
+      { name: 'Rope Parks & Adventure Courses',     energy: 'active', setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['schoolAge', 'teen'] },
+      { name: 'Surfing & Wakeboarding',             energy: 'active', setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['youngAdult', 'teen'] },
+
+      // ---- FUN & ENTERTAINMENT ----
+      { name: 'Escape Rooms & Puzzle Experiences',  energy: 'mixed',  setting: 'city',   culture: 'fun',     food: null,        evening: 'stroll',   audience: ['adultsOnly', 'youngAdult'] },
+      { name: 'Amusement & Theme Parks',            energy: 'active', setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['youngAdult', 'teen', 'schoolAge'] },
+      { name: 'Arcade Games & Entertainment Centers',energy: 'mixed', setting: 'city',   culture: 'fun',     food: null,        evening: 'stroll',   audience: ['schoolAge', 'teen'] },
+      { name: 'Gaming Cafes & VR Arcades',          energy: 'mixed',  setting: 'city',   culture: 'fun',     food: null,        evening: 'stroll',   audience: ['youngAdult', 'teen'] },
+      { name: 'Bowling & Laser Tag',                energy: 'mixed',  setting: 'city',   culture: 'fun',     food: null,        evening: 'stroll',   audience: ['schoolAge', 'teen', 'withKids'] },
+      { name: 'Mini Golf',                          energy: 'mixed',  setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['withKids', 'schoolAge'] },
+      { name: 'Trampoline Parks',                   energy: 'active', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['schoolAge', 'teen'] },
+      { name: 'Go-Karts & Racing Simulators',       energy: 'active', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['schoolAge', 'teen', 'maleAdult'] },
+      { name: 'Stand-up Comedy Shows',              energy: 'chill',  setting: 'city',   culture: 'fun',     food: null,        evening: 'latenight',audience: ['youngAdult', 'adultsOnly'] },
+      { name: 'Karaoke Bars',                       energy: 'mixed',  setting: 'city',   culture: 'fun',     food: null,        evening: 'latenight',audience: ['youngAdult'] },
+
+      // ---- RELAXATION & WELLNESS ----
+      { name: 'Spa & Thermal Baths',                energy: 'chill',  setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['adultsOnly', 'couple', 'senior'] },
+      { name: 'Thermal Baths & Wellness Spas',      energy: 'chill',  setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['senior'] },
+      { name: 'Wellness Retreats & Yoga',           energy: 'chill',  setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['adultsOnly', 'femaleAdult'] },
+      { name: 'Yoga & Pilates Studios',             energy: 'chill',  setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['femaleAdult'] },
+      { name: 'Couples Spa & Massage',              energy: 'chill',  setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['couple'] },
+
+      // ---- NIGHTLIFE & EVENING ----
+      { name: 'Rooftop Bars & Cocktail Lounges',    energy: 'chill',  setting: 'city',   culture: 'fun',     food: null,        evening: 'latenight',audience: ['adultsOnly', 'youngAdult', 'couple'] },
+      { name: 'Live Music & Jazz Clubs',            energy: 'mixed',  setting: 'city',   culture: 'fun',     food: null,        evening: 'latenight',audience: ['adultsOnly', 'youngAdult'] },
+      { name: 'Nightclubs & Dance Venues',          energy: 'active', setting: 'city',   culture: 'fun',     food: null,        evening: 'latenight',audience: ['youngAdult'] },
+      { name: 'Pub Crawls & Bar Hopping',           energy: 'active', setting: 'city',   culture: 'fun',     food: null,        evening: 'latenight',audience: ['youngAdult'] },
+      { name: 'Beach Clubs & Pool Parties',         energy: 'active', setting: 'nature', culture: 'fun',     food: null,        evening: 'latenight',audience: ['youngAdult'] },
+      { name: 'Music Festivals & Open-Air Concerts',energy: 'active', setting: 'both',   culture: 'fun',     food: null,        evening: 'latenight',audience: ['youngAdult'] },
+
+      // ---- SHOPPING ----
+      { name: 'Shopping (Outlet / Local Brands)',    energy: 'mixed',  setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['core'] },
+      { name: 'Outdoor Markets & Craft Stalls',     energy: 'mixed',  setting: 'both',   culture: 'culture', food: null,        evening: null,       audience: ['core'] },
+      { name: 'Boutique & Designer Shopping',        energy: 'chill',  setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['femaleAdult'] },
+      { name: 'Fashion District & Concept Stores',   energy: 'mixed',  setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['femaleAdult', 'youngAdult'] },
+      { name: 'Vintage & Thrift Shopping',           energy: 'mixed',  setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['femaleAdult', 'youngAdult'] },
+      { name: 'Shopping Districts & Malls',          energy: 'mixed',  setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['teen'] },
+
+      // ---- SCENIC & SIGHTSEEING ----
+      { name: 'Scenic Walking & Viewpoints',        energy: 'mixed',  setting: 'both',   culture: 'both',    food: null,        evening: 'stroll',   audience: ['core'] },
+      { name: 'Boat or River Cruises',              energy: 'chill',  setting: 'both',   culture: 'both',    food: null,        evening: 'stroll',   audience: ['core'] },
+      { name: 'Photography Spots & Scenic Lookouts',energy: 'mixed',  setting: 'both',   culture: 'both',    food: null,        evening: 'stroll',   audience: ['core'] },
+      { name: 'Parks & Gardens',                     energy: 'chill',  setting: 'both',   culture: 'both',    food: null,        evening: null,       audience: ['core'] },
+      { name: 'Romantic Sunset Cruises',             energy: 'chill',  setting: 'nature', culture: 'both',    food: null,        evening: 'stroll',   audience: ['couple'] },
+      { name: 'Stargazing Experiences',              energy: 'chill',  setting: 'nature', culture: 'both',    food: null,        evening: 'early',    audience: ['couple'] },
+      { name: 'Scenic Train & Tram Rides',           energy: 'chill',  setting: 'both',   culture: 'both',    food: null,        evening: null,       audience: ['senior', 'withKids'] },
+
+      // ---- ROMANTIC / COUPLE ----
+      { name: 'Candlelit Dinner Experiences',        energy: 'chill',  setting: 'city',   culture: 'both',    food: 'highlight', evening: 'stroll',   audience: ['couple'] },
+      { name: 'Wine & Cheese Pairings',              energy: 'chill',  setting: 'city',   culture: 'culture', food: 'highlight', evening: 'stroll',   audience: ['couple'] },
+      { name: 'Scenic Picnic Spots',                 energy: 'chill',  setting: 'nature', culture: 'both',    food: 'nice',      evening: null,       audience: ['couple', 'withKids'] },
+      { name: 'Romantic Horse-Drawn Carriage',       energy: 'chill',  setting: 'city',   culture: 'both',    food: null,        evening: 'stroll',   audience: ['couple'] },
+
+      // ---- MALE-LEANING ----
+      { name: 'Sports Bars & Live Game Viewing',     energy: 'chill',  setting: 'city',   culture: 'fun',     food: null,        evening: 'latenight',audience: ['maleAdult'] },
+      { name: 'Craft Distilleries & Whiskey Tours',  energy: 'chill',  setting: 'city',   culture: 'culture', food: 'highlight', evening: null,       audience: ['maleAdult'] },
+      { name: 'Motorsport & Race Tracks',            energy: 'active', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['maleAdult'] },
+      { name: 'Fishing & Angling Trips',             energy: 'chill',  setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['maleAdult'] },
+      { name: 'Sports Events (Football, Basketball)',energy: 'mixed',  setting: 'city',   culture: 'fun',     food: null,        evening: 'stroll',   audience: ['maleAdult'] },
+
+      // ---- FEMALE-LEANING ----
+      { name: 'Flower Markets & Garden Tours',       energy: 'chill',  setting: 'both',   culture: 'culture', food: null,        evening: null,       audience: ['femaleAdult'] },
+      { name: 'Pottery & Ceramic Workshops',         energy: 'chill',  setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['femaleAdult'] },
+      { name: 'Perfume Making Workshops',            energy: 'chill',  setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['femaleAdult'] },
+      { name: 'Jewelry Making Classes',              energy: 'chill',  setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['femaleAdult'] },
+
+      // ---- KIDS (generic) ----
+      { name: 'Playgrounds & Parks with Splash Areas',energy: 'active',setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['withKids'] },
+      { name: 'Family-Friendly Museums',              energy: 'mixed', setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['withKids'] },
+      { name: 'Aquariums & Touch Tanks',              energy: 'mixed', setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['withKids'] },
+      { name: 'Interactive Science Centers',          energy: 'mixed', setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['withKids', 'schoolAge'] },
+      { name: 'Zoo & Wildlife Parks',                 energy: 'mixed', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['withKids'] },
+      { name: 'Family Restaurants with Play Areas',   energy: 'chill', setting: 'city',   culture: 'fun',     food: 'nice',      evening: null,       audience: ['withKids', 'toddler'] },
+      { name: 'Family Bike Rides & Rentals',          energy: 'active',setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['withKids'] },
+      { name: 'Picnic in the Park',                   energy: 'chill', setting: 'nature', culture: 'both',    food: 'nice',      evening: null,       audience: ['withKids'] },
+
+      // ---- TODDLER (0-3) ----
+      { name: 'Soft Play Areas & Indoor Playgrounds', energy: 'mixed', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['toddler'] },
+      { name: 'Petting Zoos & Small Animal Farms',    energy: 'chill', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['toddler', 'preschool'] },
+      { name: 'Splash Pads & Shallow Pools',          energy: 'active',setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['toddler'] },
+      { name: 'Stroller-Friendly Walks & Paths',      energy: 'chill', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['toddler'] },
+      { name: 'Sandbox Parks & Toddler Rides',        energy: 'mixed', setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['toddler'] },
+
+      // ---- PRESCHOOL (4-7) ----
+      { name: 'Circus & Magic Shows',                 energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool'] },
+      { name: 'Train & Vehicle Rides',                energy: 'mixed', setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'boyKid'] },
+      { name: 'Interactive Water Parks',              energy: 'active',setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'schoolAge'] },
+      { name: 'Plushie & Toy Shops',                  energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'girlKid'] },
+      { name: 'Carousel & Gentle Amusement Rides',    energy: 'chill', setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'toddler'] },
+      { name: 'Face Painting & Craft Workshops',      energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool'] },
+      { name: 'Treasure Hunts & Scavenger Hunts',     energy: 'active',setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'schoolAge'] },
+
+      // ---- SCHOOL-AGE (8-12) ----
+      { name: 'Escape Rooms (Family-Friendly)',       energy: 'mixed', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['schoolAge'] },
+      { name: 'Bike Rentals & Easy Trails',           energy: 'active',setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['schoolAge'] },
+      { name: 'Castles & History (Kid-Friendly)',     energy: 'mixed', setting: 'both',   culture: 'culture', food: null,        evening: null,       audience: ['schoolAge'] },
+      { name: 'Claw Machines & Prize Redemption',     energy: 'mixed', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['schoolAge', 'preschool'] },
+      { name: 'Outdoor Obstacle Courses',             energy: 'active',setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['schoolAge'] },
+      { name: 'Drone & Robot Workshops',              energy: 'mixed', setting: 'city',   culture: 'both',    food: null,        evening: null,       audience: ['schoolAge', 'boyKid'] },
+
+      // ---- TEEN (13-17) ----
+      { name: 'Escape Rooms',                         energy: 'mixed', setting: 'city',   culture: 'fun',     food: null,        evening: 'stroll',   audience: ['teen'] },
+      { name: 'Laser Tag & VR Experiences',           energy: 'active',setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['teen'] },
+      { name: 'Street Art & Graffiti Tours',          energy: 'mixed', setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['teen', 'youngAdult'] },
+      { name: 'Extreme Sports (Zipline, Climbing)',   energy: 'active',setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['teen'] },
+      { name: 'Skateparks & BMX',                     energy: 'active',setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['teen'] },
+      { name: 'Water Sports (Jet Ski, Kayak)',        energy: 'active',setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['teen'] },
+
+      // ---- BOY-KID ----
+      { name: 'Construction Vehicle & Heavy Machinery Exhibits', energy: 'mixed', setting: 'city', culture: 'both', food: null, evening: null, audience: ['boyKid'] },
+      { name: 'Train Museums & Railway Rides',        energy: 'mixed', setting: 'both',   culture: 'culture', food: null,        evening: null,       audience: ['boyKid'] },
+      { name: 'Dinosaur Parks & Fossil Exhibits',     energy: 'mixed', setting: 'both',   culture: 'culture', food: null,        evening: null,       audience: ['boyKid'] },
+      { name: 'LEGO & Building Workshops',            energy: 'mixed', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['boyKid'] },
+      { name: 'Space & Rocket Exhibitions',           energy: 'mixed', setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['boyKid'] },
+      { name: 'Pirate-Themed Attractions',            energy: 'active',setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['boyKid'] },
+
+      // ---- GIRL-KID ----
+      { name: 'Art & Painting Studios',               energy: 'chill', setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['girlKid'] },
+      { name: 'Horse Riding & Pony Farms',            energy: 'active',setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['girlKid'] },
+      { name: 'Bead & Bracelet Making Workshops',     energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['girlKid'] },
+      { name: 'Ice Cream & Dessert Workshops',        energy: 'chill', setting: 'city',   culture: 'fun',     food: 'nice',      evening: null,       audience: ['girlKid', 'preschool'] },
+      { name: 'Dance & Ballet Studios',               energy: 'active',setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['girlKid'] },
+
+      // ---- SENIOR ----
+      { name: 'Gentle River Cruises',                 energy: 'chill', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['senior'] },
+      { name: 'Tea Houses & Traditional Cafes',       energy: 'chill', setting: 'city',   culture: 'culture', food: 'nice',      evening: null,       audience: ['senior'] },
+      { name: 'Easy-Access Historical Tours',         energy: 'chill', setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['senior'] },
+      { name: 'Gentle Countryside Drives',            energy: 'chill', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['senior'] },
+
+      // ---- ALWAYS AVAILABLE ----
+      { name: 'Grocery Stores & Supermarkets',        energy: 'mixed', setting: 'city',   culture: 'both',    food: 'fuel',      evening: null,       audience: ['core'] },
+      { name: 'City Walking Tours (Self-Guided)',     energy: 'mixed', setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['core'] },
+    ];
+
+    // Avoid items — same tag structure
+    // Tags: mobility (limited|moderate|high), noise (quiet|flexible|lively), foodadventure (safe|open|fearless)
+    // null = not relevant to that dimension (always passes filter)
+    const AVOID_DB = [
+      { name: 'Tourist-trap chains',                            audience: ['core'],                    mobility: null,      noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Overly crowded attractions during peak hours',   audience: ['core'],                    mobility: null,      noise: 'quiet',    foodadventure: null, budget: null, flexibility: null },
+      { name: 'Scam-prone areas',                               audience: ['core'],                    mobility: null,      noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Kid-oriented attractions & play areas',          audience: ['adultsOnly'],              mobility: null,      noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Noisy family restaurants',                       audience: ['adultsOnly', 'couple'],    mobility: null,      noise: 'quiet',    foodadventure: null, budget: null, flexibility: null },
+      { name: 'Long guided tours',                              audience: ['withKids'],                mobility: 'limited', noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Traditional museums without interactive elements',audience: ['withKids'],               mobility: null,      noise: 'quiet',    foodadventure: null, budget: null, flexibility: null },
+      { name: 'Long periods of sitting still',                  audience: ['withKids'],                mobility: null,      noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Churches & religious sites (not engaging for kids)',audience: ['withKids'],              mobility: null,      noise: 'quiet',    foodadventure: null, budget: null, flexibility: null },
+      { name: 'Spicy food for kids',                            audience: ['withKids'],                mobility: null,      noise: null,       foodadventure: 'safe', budget: null, flexibility: null },
+      { name: 'Venues without bathrooms / changing areas',      audience: ['withKids', 'toddler'],     mobility: 'limited', noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Activities requiring walking over 1km',          audience: ['toddler'],                 mobility: 'limited', noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Loud fireworks or explosive shows',              audience: ['toddler'],                 mobility: null,      noise: 'quiet',    foodadventure: null, budget: null, flexibility: null },
+      { name: 'Venues with no high chairs or stroller access',  audience: ['toddler'],                 mobility: 'limited', noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Attractions designed for small children',        audience: ['teen'],                     mobility: null,      noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Activities requiring heavy physical effort',     audience: ['senior'],                   mobility: 'limited', noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Steep stairs without elevator access',           audience: ['senior'],                   mobility: 'limited', noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Very loud clubs or concerts',                    audience: ['senior'],                   mobility: null,      noise: 'quiet',    foodadventure: null, budget: null, flexibility: null },
+      { name: 'Slow-paced guided tours',                        audience: ['youngAdult'],               mobility: null,      noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Crowded family attractions',                     audience: ['couple'],                   mobility: null,      noise: 'quiet',    foodadventure: null, budget: null, flexibility: null },
+      { name: 'Group tour buses',                               audience: ['couple'],                   mobility: null,      noise: null,       foodadventure: null, budget: null, flexibility: null },
+      // Additional items unlocked by quiz answers
+      { name: 'Extremely spicy cuisine',                        audience: ['core'],                     mobility: null,      noise: null,       foodadventure: 'safe', budget: null, flexibility: null },
+      { name: 'Exotic or unfamiliar foods',                     audience: ['core'],                     mobility: null,      noise: null,       foodadventure: 'safe', budget: null, flexibility: null },
+      { name: 'Street food with questionable hygiene',          audience: ['core'],                     mobility: null,      noise: null,       foodadventure: 'safe', budget: null, flexibility: null },
+      { name: 'Overly formal fine dining',                      audience: ['core'],                     mobility: null,      noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Hilly terrain & steep inclines',                 audience: ['core'],                     mobility: 'limited', noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Activities without rest areas nearby',           audience: ['core'],                     mobility: 'limited', noise: null,       foodadventure: null, budget: null, flexibility: null },
+      { name: 'Nightlife areas after 10pm',                     audience: ['core'],                     mobility: null,      noise: 'quiet',    foodadventure: null, budget: null, flexibility: null },
+      { name: 'Large open-air concerts & festivals',            audience: ['core'],                     mobility: null,      noise: 'quiet',    foodadventure: null, budget: null, flexibility: null },
+      { name: 'Expensive skip-the-line tickets',              audience: ['core'],                     mobility: null,      noise: null,       foodadventure: null, budget: 'budget',    flexibility: null },
+      { name: 'Overpriced tourist restaurants',                audience: ['core'],                     mobility: null,      noise: null,       foodadventure: null, budget: 'budget',    flexibility: null },
+      { name: 'Premium-only experiences',                      audience: ['core'],                     mobility: null,      noise: null,       foodadventure: null, budget: 'budget',    flexibility: null },
+      { name: 'Unstructured free time blocks',                 audience: ['core'],                     mobility: null,      noise: null,       foodadventure: null, budget: null,         flexibility: 'strict' },
+      { name: 'Last-minute itinerary changes',                 audience: ['core'],                     mobility: null,      noise: null,       foodadventure: null, budget: null,         flexibility: 'strict' },
+    ];
+
+    // ================================================================
+    //  FOOD EXPERIENCE DATABASE (tagged like INTEREST_DB)
+    // ================================================================
+    // Tags: diet (omnivore|omnivore-meat|vegetarian|vegan), diningstyle (street|casual|upscale),
+    //        adventure (safe|open|fearless from avoid-quiz), audience (same flags)
+    const FOOD_DB = [
+      { name: 'Local Food Markets & Street Food',     emoji: '&#127836;', diet: 'any',            style: 'street',  adventure: 'open',     audience: ['core'], localness: 'local' },
+      { name: 'Traditional Local Cuisine',             emoji: '&#127858;', diet: 'any',            style: 'casual',  adventure: 'open',     audience: ['core'], localness: 'local' },
+      { name: 'Food Tours & Culinary Walks',           emoji: '&#128694;', diet: 'any',            style: 'casual',  adventure: 'open',     audience: ['adultsOnly'] },
+      { name: 'Cooking Classes (Local Dishes)',        emoji: '&#128104;&#8205;&#127859;', diet: 'any', style: 'casual', adventure: 'open', audience: ['core'], localness: 'local' },
+      { name: 'Farmers Markets & Gourmet Shops',       emoji: '&#129472;', diet: 'any',            style: 'street',  adventure: 'open',     audience: ['adultsOnly'], localness: 'local' },
+      { name: 'Wine Tasting & Vineyard Tours',         emoji: '&#127863;', diet: 'any',            style: 'upscale', adventure: 'open',     audience: ['adultsOnly', 'couple'] },
+      { name: 'Craft Beer & Brewery Visits',           emoji: '&#127866;', diet: 'any',            style: 'casual',  adventure: 'open',     audience: ['adultsOnly', 'maleAdult'] },
+      { name: 'Fine Dining & Tasting Menus',           emoji: '&#127869;', diet: 'any',            style: 'upscale', adventure: 'open',     audience: ['adultsOnly', 'couple'] },
+      { name: 'BBQ & Smokehouse Experiences',          emoji: '&#129385;', diet: 'omnivore-meat',  style: 'casual',  adventure: 'open',     audience: ['maleAdult'] },
+      { name: 'Steakhouse & Grill Restaurants',        emoji: '&#129385;', diet: 'omnivore-meat',  style: 'casual',  adventure: 'safe',     audience: ['core'], localness: 'international' },
+      { name: 'Afternoon Tea & Patisseries',           emoji: '&#127856;', diet: 'any',            style: 'upscale', adventure: 'safe',     audience: ['femaleAdult', 'couple'] },
+      { name: 'Local Bakeries & Pastry Shops',         emoji: '&#129366;', diet: 'any',            style: 'street',  adventure: 'safe',     audience: ['core', 'withKids'] },
+      { name: 'Ice Cream & Dessert Spots',             emoji: '&#127846;', diet: 'any',            style: 'street',  adventure: 'safe',     audience: ['withKids', 'core'] },
+      { name: 'Kid-Friendly Restaurants with Play Areas',emoji: '&#127880;', diet: 'any',          style: 'casual',  adventure: 'safe',     audience: ['withKids', 'toddler'] },
+      { name: 'Street Food Stalls & Hawker Markets',   emoji: '&#129367;', diet: 'any',            style: 'street',  adventure: 'fearless', audience: ['youngAdult'] },
+      { name: 'Exotic & Unusual Local Delicacies',     emoji: '&#129424;', diet: 'omnivore',       style: 'street',  adventure: 'fearless', audience: ['youngAdult', 'adultsOnly'] },
+      { name: 'Spicy Food Challenges',                 emoji: '&#127798;', diet: 'any',            style: 'casual',  adventure: 'fearless', audience: ['youngAdult'] },
+      { name: 'Vegan & Plant-Based Restaurants',       emoji: '&#127793;', diet: 'vegan',          style: 'casual',  adventure: 'open',     audience: ['core'] },
+      { name: 'Vegetarian & Health-Conscious Cafes',   emoji: '&#129388;', diet: 'vegetarian',     style: 'casual',  adventure: 'open',     audience: ['core'] },
+      { name: 'Fresh Juice & Smoothie Bars',           emoji: '&#129380;', diet: 'any',            style: 'street',  adventure: 'safe',     audience: ['core'] },
+      { name: 'Seafood & Fish Restaurants',            emoji: '&#127843;', diet: 'omnivore',       style: 'casual',  adventure: 'open',     audience: ['core'] },
+      { name: 'Rooftop Dining with a View',            emoji: '&#127747;', diet: 'any',            style: 'upscale', adventure: 'open',     audience: ['adultsOnly', 'couple'] },
+      { name: 'Brunch & Breakfast Spots',              emoji: '&#129370;', diet: 'any',            style: 'casual',  adventure: 'safe',     audience: ['core', 'youngAdult'] },
+      { name: 'Whiskey & Spirits Tasting',             emoji: '&#129347;', diet: 'any',            style: 'upscale', adventure: 'open',     audience: ['maleAdult'] },
+      { name: 'Chocolate & Confectionery Tours',       emoji: '&#127851;', diet: 'any',            style: 'casual',  adventure: 'safe',     audience: ['withKids', 'femaleAdult'] },
+      { name: 'Coffee Culture & Specialty Cafes',      emoji: '&#9749;',   diet: 'any',            style: 'casual',  adventure: 'safe',     audience: ['core'] },
+      { name: 'Candlelit Dinner Experiences',          emoji: '&#128367;', diet: 'any',            style: 'upscale', adventure: 'open',     audience: ['couple'] },
+      { name: 'Pizza & Casual Family Dining',          emoji: '&#127829;', diet: 'any',            style: 'casual',  adventure: 'safe',     audience: ['withKids'], localness: 'international' },
+    ];
+
+    // Dining vibe cards database
+    const VIBE_DB = [
+      { name: 'Casual & authentic',            emoji: '&#127961;', audience: ['core'] },
+      { name: 'Outdoor seating preferred',     emoji: '&#9728;',   audience: ['core'] },
+      { name: 'Local hidden gems',             emoji: '&#128142;', audience: ['core'] },
+      { name: 'Waterfront / scenic views',     emoji: '&#127754;', audience: ['core'] },
+      { name: 'Budget-friendly',               emoji: '&#128176;', audience: ['core'] },
+      { name: 'Loud/forgiving environments',   emoji: '&#128266;', audience: ['withKids'] },
+      { name: 'Playgrounds for kids',          emoji: '&#127904;', audience: ['withKids'] },
+      { name: 'Quick service / street food',   emoji: '&#127838;', audience: ['withKids'] },
+      { name: 'Romantic & intimate',           emoji: '&#128149;', audience: ['adultsOnly', 'couple'] },
+      { name: 'Trendy & Instagram-worthy',     emoji: '&#128248;', audience: ['adultsOnly', 'youngAdult'] },
+      { name: 'Fine dining experience',        emoji: '&#127864;', audience: ['adultsOnly', 'couple'] },
+      { name: 'Lively bar atmosphere',         emoji: '&#127867;', audience: ['adultsOnly', 'youngAdult'] },
+      { name: 'Live music venues',             emoji: '&#127908;', audience: ['adultsOnly', 'youngAdult'] },
+      { name: 'Farm-to-table concept',         emoji: '&#127806;', audience: ['adultsOnly'] },
+      { name: 'Late-night eats & diners',      emoji: '&#127769;', audience: ['youngAdult'] },
+      { name: 'Brunch spots',                  emoji: '&#127859;', audience: ['youngAdult'] },
+      { name: 'Candlelit & cozy',              emoji: '&#128367;', audience: ['couple'] },
+      { name: 'Quiet & comfortable',           emoji: '&#128524;', audience: ['senior'] },
+      { name: 'Traditional / heritage venues', emoji: '&#127963;', audience: ['senior'] },
+      { name: 'Accessible seating',            emoji: '&#9855;',   audience: ['senior'] },
+    ];
+
+    // Analyze travelers and return profile flags + gender info
+    function analyzeGroup() {
+      const arrivalDate = $('#arrival').value ? new Date($('#arrival').value) : new Date();
+      const flags = {
+        adultsOnly: true, withKids: false,
+        toddler: false, preschool: false, schoolAge: false, teen: false,
+        senior: false, youngAdult: false, couple: false,
+        maleAdult: false, femaleAdult: false,
+        boyKid: false, girlKid: false,
+        nature: true, // always show nature section
+      };
+      const ageTags = [];
+      let adultCount = 0;
+
+      const parentCards = $$('#parentsContainer .traveler-card');
+      parentCards.forEach(card => {
+        adultCount++;
+        const dob = getDobValue(card);
+        const gender = card.querySelector('.parent-gender')?.value || '';
+        const name = card.querySelector('.parent-name')?.value || 'Adult';
+        const gLabel = gender === 'Male' ? 'M' : gender === 'Female' ? 'F' : '';
+
+        if (gender === 'Male') flags.maleAdult = true;
+        if (gender === 'Female') flags.femaleAdult = true;
+
+        if (dob) {
+          const age = ageAt(dob, arrivalDate);
+          if (age >= 65) flags.senior = true;
+          if (age >= 18 && age <= 30) flags.youngAdult = true;
+          ageTags.push(`${name} ${age}y${gLabel ? ' ' + gLabel : ''}`);
+        } else {
+          ageTags.push(`${name}${gLabel ? ' ' + gLabel : ''}`);
+        }
+      });
+
+      const childCards = $$('#childrenContainer .traveler-card');
+      childCards.forEach(card => {
+        const dob = getDobValue(card);
+        const name = card.querySelector('.child-name')?.value || 'Child';
+        const gender = card.querySelector('.child-gender')?.value || '';
+        const gLabel = gender === 'Male' ? 'B' : gender === 'Female' ? 'G' : '';
+
+        flags.withKids = true; flags.adultsOnly = false;
+
+        if (dob) {
+          const age = ageAt(dob, arrivalDate);
+          if (age <= 3) flags.toddler = true;
+          else if (age <= 7) flags.preschool = true;
+          else if (age <= 12) flags.schoolAge = true;
+          else if (age <= 17) flags.teen = true;
+
+          // Gender-specific kid flags
+          if (gender === 'Male' && age >= 3 && age <= 12) flags.boyKid = true;
+          if (gender === 'Female' && age >= 3 && age <= 12) flags.girlKid = true;
+
+          ageTags.push(`${name} ${age}y${gLabel ? ' ' + gLabel : ''}`);
+        } else {
+          ageTags.push(`${name}${gLabel ? ' ' + gLabel : ''}`);
+        }
+      });
+
+      // Couple detection: exactly 2 adults, no kids
+      if (adultCount === 2 && !flags.withKids) flags.couple = true;
+
+      return { flags, ageTags };
+    }
+
+    function ageAt(dob, refDate) {
+      const d = new Date(dob);
+      let age = refDate.getFullYear() - d.getFullYear();
+      const m = refDate.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && refDate.getDate() < d.getDate())) age--;
+      return Math.max(0, age);
+    }
+
+    // ================================================================
+    //  3b. QUESTIONNAIRE LOGIC (One Question Per View)
+    // ================================================================
+    let currentSubQuestion = 0;
+    const totalSubQuestions = 5;
+    let questionAutoAdvanceTimer = null;
+
+    // Question card click — radio behavior per question block + auto-advance
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.q-card');
+      if (!card) return;
+      const slide = card.closest('.question-slide');
+      if (!slide) return;
+      slide.querySelectorAll('.q-card').forEach(c => c.classList.remove('is-selected'));
+      card.classList.add('is-selected');
+
+      // Auto-advance after 400ms
+      if (currentStep === 2) {
+        clearTimeout(questionAutoAdvanceTimer);
+        questionAutoAdvanceTimer = setTimeout(() => {
+          if (currentSubQuestion < totalSubQuestions - 1) {
+            goToSubQuestion(currentSubQuestion + 1);
+          } else {
+            // Last question — advance to step 3
+            goToStep(3);
+          }
+        }, 400);
+      }
+    });
+
+    function goToSubQuestion(index) {
+      if (index < 0 || index >= totalSubQuestions) return;
+      // Only operate on Step 2's slides (data-question, not data-aquestion)
+      const slides = document.querySelectorAll('[data-question]');
+      const direction = index > currentSubQuestion ? 'slide-left' : 'slide-right';
+
+      slides.forEach(s => {
+        s.classList.remove('is-visible', 'slide-left', 'slide-right');
+      });
+
+      const target = slides[index];
+      target.classList.add('is-visible', direction);
+
+      // Update Step 2's sub-dots only
+      document.querySelectorAll('#styleSubDots .sub-dot').forEach((dot, i) => {
+        dot.classList.remove('is-active', 'is-done');
+        if (i < index) dot.classList.add('is-done');
+        if (i === index) dot.classList.add('is-active');
+      });
+
+      currentSubQuestion = index;
+    }
+
+    // ================================================================
+    //  3c. AVOID-QUIZ SUB-STEP LOGIC (Step 4, 3 questions)
+    // ================================================================
+    let currentAvoidSubQ = 0;
+    const totalAvoidSubQs = 5;
+    let avoidAutoAdvanceTimer = null;
+
+    // Avoid-quiz card click — radio + auto-advance within Step 4
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.aq-card');
+      if (!card) return;
+      const slide = card.closest('[data-aquestion]');
+      if (!slide) return;
+      slide.querySelectorAll('.aq-card').forEach(c => c.classList.remove('is-selected'));
+      card.classList.add('is-selected');
+
+      // Auto-advance after 400ms
+      if (currentStep === 4) {
+        clearTimeout(avoidAutoAdvanceTimer);
+        avoidAutoAdvanceTimer = setTimeout(() => {
+          if (currentAvoidSubQ < totalAvoidSubQs - 1) {
+            goToAvoidSubQ(currentAvoidSubQ + 1);
+          } else {
+            // Last question — scroll down to the avoid results
+            hideAvoidQuiz();
+            // Rebuild avoid cards based on new answers
+            prevAvoidSel = new Set();
+            buildAvoidPage(prevAvoidSel);
+          }
+        }, 400);
+      }
+    });
+
+    function goToAvoidSubQ(index) {
+      if (index < 0 || index >= totalAvoidSubQs) return;
+      const slides = document.querySelectorAll('[data-aquestion]');
+      const direction = index > currentAvoidSubQ ? 'slide-left' : 'slide-right';
+
+      slides.forEach(s => s.classList.remove('is-visible', 'slide-left', 'slide-right'));
+      slides[index].classList.add('is-visible', direction);
+
+      // Update avoid sub-dots
+      document.querySelectorAll('#avoidSubDots .sub-dot').forEach((dot, i) => {
+        dot.classList.remove('is-active', 'is-done');
+        if (i < index) dot.classList.add('is-done');
+        if (i === index) dot.classList.add('is-active');
+      });
+
+      currentAvoidSubQ = index;
+    }
+
+    function hideAvoidQuiz() {
+      const quiz = document.getElementById('avoidQuiz');
+      quiz.style.maxHeight = quiz.scrollHeight + 'px';
+      quiz.style.transition = 'max-height 0.4s ease, opacity 0.3s ease';
+      requestAnimationFrame(() => {
+        quiz.style.maxHeight = '0';
+        quiz.style.opacity = '0';
+        quiz.style.overflow = 'hidden';
+      });
+    }
+
+    function showAvoidQuiz() {
+      const quiz = document.getElementById('avoidQuiz');
+      quiz.style.maxHeight = '';
+      quiz.style.opacity = '';
+      quiz.style.overflow = '';
+    }
+
+    // ================================================================
+    //  3d. FOOD-QUIZ SUB-STEP LOGIC (Step 5, 3 questions)
+    // ================================================================
+    let currentFoodSubQ = 0;
+    const totalFoodSubQs = 5;
+    let foodAutoAdvanceTimer = null;
+
+    // Food-quiz card click — radio + auto-advance within Step 5
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.fq-card');
+      if (!card) return;
+      const slide = card.closest('[data-fquestion]');
+      if (!slide) return;
+      slide.querySelectorAll('.fq-card').forEach(c => c.classList.remove('is-selected'));
+      card.classList.add('is-selected');
+
+      if (currentStep === 5) {
+        clearTimeout(foodAutoAdvanceTimer);
+        foodAutoAdvanceTimer = setTimeout(() => {
+          if (currentFoodSubQ < totalFoodSubQs - 1) {
+            goToFoodSubQ(currentFoodSubQ + 1);
+          } else {
+            hideFoodQuiz();
+            buildFoodPage();
+            buildVibePage();
+          }
+        }, 400);
+      }
+    });
+
+    function goToFoodSubQ(index) {
+      if (index < 0 || index >= totalFoodSubQs) return;
+      const slides = document.querySelectorAll('[data-fquestion]');
+      const direction = index > currentFoodSubQ ? 'slide-left' : 'slide-right';
+      slides.forEach(s => s.classList.remove('is-visible', 'slide-left', 'slide-right'));
+      slides[index].classList.add('is-visible', direction);
+
+      document.querySelectorAll('#foodSubDots .sub-dot').forEach((dot, i) => {
+        dot.classList.remove('is-active', 'is-done');
+        if (i < index) dot.classList.add('is-done');
+        if (i === index) dot.classList.add('is-active');
+      });
+      currentFoodSubQ = index;
+    }
+
+    function hideFoodQuiz() {
+      const quiz = document.getElementById('foodQuiz');
+      quiz.style.maxHeight = quiz.scrollHeight + 'px';
+      quiz.style.transition = 'max-height 0.4s ease, opacity 0.3s ease';
+      requestAnimationFrame(() => {
+        quiz.style.maxHeight = '0';
+        quiz.style.opacity = '0';
+        quiz.style.overflow = 'hidden';
+      });
+    }
+
+    function showFoodQuiz() {
+      const quiz = document.getElementById('foodQuiz');
+      quiz.style.maxHeight = '';
+      quiz.style.opacity = '';
+      quiz.style.overflow = '';
+    }
+
+    // Read food-quiz answers
+    function getFoodQuizAnswers() {
+      const answers = {};
+      document.querySelectorAll('[data-fquestion]').forEach(slide => {
+        const q = slide.dataset.fquestion;
+        const sel = slide.querySelector('.fq-card.is-selected');
+        answers[q] = sel ? sel.dataset.value : null;
+      });
+      return answers; // { diet, diningstyle, kidsfood, mealpriority, localfood }
+    }
+
+    // Score food items against quiz answers
+    function scoreFoodItem(item, fq, aq) {
+      let s = 0;
+      const diet = fq.diet || 'omnivore';
+      const style = fq.diningstyle || 'casual';
+      const adventure = aq.foodadventure || 'open';
+      const mealpriority = fq.mealpriority || 'dinner';
+      const localness = fq.localfood || 'mix';
+
+      // Diet match
+      if (item.diet === 'any') s += 2;
+      else if (item.diet === diet) s += 3;
+      else if (diet === 'omnivore' && (item.diet === 'omnivore-meat')) s += 2;
+      else if (diet === 'omnivore-meat' && item.diet === 'omnivore') s += 1;
+      // Vegan can eat vegetarian
+      else if (diet === 'vegan' && item.diet === 'vegetarian') s += 1;
+      else s -= 5; // Wrong diet = exclude
+
+      // Dining style match
+      if (item.style === style) s += 3;
+      else s += 1; // partial match
+
+      // Adventure match
+      if (item.adventure === adventure) s += 2;
+      else if (adventure === 'open') s += 1; // open matches everything
+      else if (item.adventure === 'safe' && adventure !== 'fearless') s += 1;
+
+      // Local food preference
+      if (item.localness === 'local' && localness === 'fulllocal') s += 2;
+      else if (item.localness === 'local' && localness === 'mix') s += 1;
+      else if (item.localness === 'international' && localness === 'familiar') s += 2;
+      else if (item.localness === 'international' && localness === 'mix') s += 1;
+
+      return s;
+    }
+
+    function buildFoodPage() {
+      const container = document.getElementById('foodExperienceCards');
+      container.innerHTML = '';
+      const { flags } = analyzeGroup();
+      const fq = getFoodQuizAnswers();
+      const aq = getAvoidQuizAnswers();
+
+      // Filter by audience
+      const filtered = FOOD_DB.filter(item =>
+        item.audience.some(f => f === 'core' || flags[f])
+      );
+
+      // Score
+      const scored = filtered.map(item => ({ ...item, score: scoreFoodItem(item, fq, aq) }));
+      scored.sort((a, b) => b.score - a.score);
+
+      // Show items with positive score
+      const relevant = scored.filter(it => it.score > 0);
+      const topPicks = relevant.filter(it => it.score >= 5).slice(0, 10);
+      const more = relevant.filter(it => it.score >= 2 && it.score < 5).slice(0, 8);
+
+      const renderSection = (title, items, preSelect) => {
+        if (!items.length) return;
+        const section = document.createElement('div');
+        section.className = 'chip-section';
+        if (title) section.innerHTML = `<div class="chip-section__title" style="margin-top:var(--space-3);">${title}</div>`;
+        const grid = document.createElement('div');
+        grid.className = 'interest-grid';
+        items.forEach((item, i) => {
+          const card = document.createElement('div');
+          card.className = 'interest-card food-exp-card';
+          card.dataset.gradient = String(i % 8);
+          if (preSelect) card.classList.add('is-selected');
+          card.innerHTML = `
+            <div class="interest-card__check">&#10003;</div>
+            <div class="interest-card__emoji">${item.emoji}</div>
+            <div class="interest-card__name">${item.name}</div>`;
+          card.addEventListener('click', () => card.classList.toggle('is-selected'));
+          grid.appendChild(card);
+        });
+        section.appendChild(grid);
+        container.appendChild(section);
+      };
+
+      renderSection('Perfect For You', topPicks, true);
+      renderSection('You Might Also Enjoy', more, false);
+    }
+
+    // Build vibe cards (visual, not plain chips)
+    function buildVibePage() {
+      const container = document.getElementById('vibeGroup');
+      container.innerHTML = '';
+      const { flags } = analyzeGroup();
+
+      const relevant = VIBE_DB.filter(item =>
+        item.audience.some(f => f === 'core' || flags[f])
+      );
+
+      const grid = document.createElement('div');
+      grid.className = 'avoid-grid'; // reuse the 2-3 col grid
+      relevant.forEach(item => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'avoid-card'; // reuse avoid-card style (same visual pattern)
+        card.style.borderColor = 'var(--color-border)';
+        card.innerHTML = `
+          <div class="avoid-card__x" style="background:var(--color-brand-accent);">&#10003;</div>
+          <div class="avoid-card__icon" style="background:rgba(201,151,43,0.08);">${item.emoji}</div>
+          <div class="avoid-card__name">${item.name}</div>`;
+        card.addEventListener('click', () => {
+          card.classList.toggle('is-selected');
+          if (card.classList.contains('is-selected')) {
+            card.style.borderColor = 'var(--color-brand-accent)';
+            card.style.background = 'rgba(201,151,43,0.04)';
+          } else {
+            card.style.borderColor = 'var(--color-border)';
+            card.style.background = '';
+          }
+        });
+        grid.appendChild(card);
+      });
+      container.appendChild(grid);
+    }
+
+    // Read all 5 style answers (from Step 2 only, not avoid-quiz)
+    function getStyleAnswers() {
+      const answers = {};
+      document.querySelectorAll('[data-question]').forEach(slide => {
+        const q = slide.dataset.question;
+        const sel = slide.querySelector('.q-card.is-selected');
+        answers[q] = sel ? sel.dataset.value : 'mixed';
+      });
+      return answers; // { energy, setting, culture, food, evening }
+    }
+
+    // Emoji map for interest categories
+    const INTEREST_EMOJI_MAP = {
+      'Local Food Markets': '🍜', 'Cooking': '👨‍🍳', 'Wine': '🍷', 'Beer': '🍺', 'Brewery': '🍺',
+      'Fine Dining': '🍽️', 'Food Tour': '🥘', 'Farmers': '🧺', 'Barbecue': '🥩',
+      'Tea': '☕', 'Patisserie': '🧁',
+      'National Park': '🏞️', 'Waterfall': '💧', 'Hiking': '🥾', 'Lake': '🏖️', 'Beach': '🏖️',
+      'Botanical': '🌺', 'Cave': '🕳️', 'Horseback': '🐴', 'Horse': '🐴', 'Rafting': '🚣',
+      'Camping': '⛺', 'Chairlift': '🚡', 'Cable Car': '🚡', 'Forest': '🌲',
+      'Bird': '🦅', 'Wildlife': '🦁', 'Nature Walk': '🌿',
+      'Historical': '🏛️', 'Architecture': '🏛️', 'Art Galler': '🎨', 'Theater': '🎭',
+      'Opera': '🎵', 'Walking Tour': '🚶', 'Festival': '🎉', 'Bookshop': '📚',
+      'Antique': '🪑', 'Military': '⚔️', 'Kid-Friendly Historical': '🏰',
+      'Cycling': '🚲', 'Kayak': '🛶', 'Paraglid': '🪂', 'Diving': '🤿',
+      'Bungee': '🎢', 'Balloon': '🎈', 'ATV': '🏍️', 'Rope Park': '🧗',
+      'Surfing': '🏄',
+      'Escape Room': '🔐', 'Amusement': '🎡', 'Theme Park': '🎡',
+      'Arcade': '🕹️', 'Gaming': '🎮', 'VR': '🥽', 'Bowling': '🎳', 'Laser': '🔫',
+      'Mini Golf': '⛳', 'Trampoline': '🤸', 'Go-Kart': '🏎️', 'Comedy': '😂',
+      'Karaoke': '🎤',
+      'Spa': '♨️', 'Thermal': '♨️', 'Wellness': '🧘', 'Yoga': '🧘', 'Massage': '💆',
+      'Rooftop': '🍸', 'Jazz': '🎷', 'Nightclub': '💃', 'Pub Crawl': '🍻',
+      'Beach Club': '🏝️', 'Music Festival': '🎶',
+      'Shopping': '🛍️', 'Market': '🛒', 'Boutique': '👗', 'Fashion': '👠',
+      'Vintage': '🧥', 'Mall': '🏬',
+      'Scenic': '👀', 'Viewpoint': '🔭', 'Boat': '🚢', 'River Cruise': '🚢',
+      'Photography': '📸', 'Park': '🌳', 'Garden': '🌳', 'Sunset': '🌅',
+      'Stargazing': '⭐', 'Train': '🚂', 'Tram': '🚋',
+      'Candlelit': '🕯️', 'Cheese': '🧀', 'Picnic': '🧺', 'Carriage': '🐎',
+      'Sports Bar': '📺', 'Distiller': '🥃', 'Whiskey': '🥃', 'Motorsport': '🏁',
+      'Fishing': '🎣', 'Sports Event': '⚽', 'Football': '⚽',
+      'Flower': '💐', 'Pottery': '🏺', 'Perfume': '🌸', 'Jewelry': '💍',
+      'Playground': '🛝', 'Museum': '🏛️', 'Aquarium': '🐠', 'Science': '🔬',
+      'Zoo': '🦒', 'Family Restaurant': '🍕', 'Bike': '🚲',
+      'Soft Play': '🧸', 'Petting Zoo': '🐑', 'Splash': '💦', 'Stroller': '👶',
+      'Sandbox': '🏖️',
+      'Circus': '🎪', 'Magic': '🎪', 'Vehicle': '🚗', 'Water Park': '🌊',
+      'Plushie': '🧸', 'Toy': '🧸', 'Carousel': '🎠', 'Face Painting': '🎨',
+      'Treasure': '🗺️', 'Scavenger': '🗺️',
+      'Castle': '🏰', 'Claw Machine': '🎰', 'Obstacle': '🏅', 'Drone': '🤖', 'Robot': '🤖',
+      'Street Art': '🎨', 'Graffiti': '🎨', 'Zipline': '🧗', 'Climbing': '🧗',
+      'Skatepark': '🛹', 'BMX': '🛹', 'Jet Ski': '🚤',
+      'Construction': '🏗️', 'Dinosaur': '🦕', 'Fossil': '🦕', 'LEGO': '🧱',
+      'Space': '🚀', 'Rocket': '🚀', 'Pirate': '🏴‍☠️',
+      'Painting': '🎨', 'Pony': '🐴', 'Bead': '📿', 'Bracelet': '📿',
+      'Ice Cream': '🍦', 'Dessert': '🍦', 'Dance': '💃', 'Ballet': '🩰',
+      'Gentle River': '🛶', 'Tea House': '🍵', 'Easy-Access': '♿', 'Countryside': '🌾',
+      'Grocery': '🏪', 'Supermarket': '🏪', 'City Walking': '🚶',
+    };
+
+    function getEmojiForInterest(name) {
+      for (const [key, emoji] of Object.entries(INTEREST_EMOJI_MAP)) {
+        if (name.includes(key)) return emoji;
+      }
+      return '✨';
+    }
+
+    // Score each INTEREST_DB item against questionnaire + audience flags.
+    // Returns { topPicks: [...], moreSuggestions: [...] }
+    function scoreAndFilterInterests() {
+      const a = getStyleAnswers();
+      const { flags, ageTags } = analyzeGroup();
+
+      // Filter by audience first — item must match at least one active flag
+      const audienceMatch = (item) => {
+        return item.audience.some(f => f === 'core' || flags[f]);
+      };
+
+      // Score 0-5 based on how many questionnaire dimensions match
+      const scoreItem = (item) => {
+        let s = 0;
+        if (item.energy === a.energy || item.energy === 'mixed' || a.energy === 'mixed') s++;
+        if (item.energy === a.energy) s++; // bonus for exact match
+        if (item.setting === a.setting || item.setting === 'both' || a.setting === 'both') s++;
+        if (item.setting === a.setting) s++;
+        if (item.culture === a.culture || item.culture === 'both' || a.culture === 'both') s++;
+        if (item.culture === a.culture) s++;
+        // Food: only score if item is food-related
+        if (item.food) {
+          if (a.food === 'highlight') s += 2;
+          else if (a.food === 'nice') s += 1;
+          // fuel → no bonus for food items
+        }
+        // Evening: only score if item has evening tag
+        if (item.evening) {
+          if (item.evening === a.evening) s += 2;
+          else if (a.evening === 'stroll' && item.evening !== 'latenight') s += 1;
+        }
+        return s;
+      };
+
+      const filtered = INTEREST_DB.filter(audienceMatch);
+      const scored = filtered.map(item => ({ ...item, score: scoreItem(item) }));
+      scored.sort((a, b) => b.score - a.score);
+
+      // Top picks: score >= 5 (strong multi-dimension match), max 15
+      const topPicks = scored.filter(it => it.score >= 5).slice(0, 15);
+      // More suggestions: score 3-4, not already in top, max 20
+      const topNames = new Set(topPicks.map(it => it.name));
+      const more = scored.filter(it => it.score >= 3 && !topNames.has(it.name)).slice(0, 20);
+
+      return { topPicks, more, ageTags };
+    }
+
+    // Build the interest page from scored results — now with visual cards
+    function buildInterestPage(previousSelections) {
+      const container = $('#interestsSections');
+      container.innerHTML = '';
+      const { topPicks, more, ageTags } = scoreAndFilterInterests();
+
+      // Group summary
+      const summaryEl = $('#groupSummary');
+      if (ageTags.length > 0) {
+        summaryEl.innerHTML = '<strong style="margin-right:8px;">Your group:</strong>' +
+          ageTags.map(t => `<span class="group-summary__tag">${t}</span>`).join('');
+        summaryEl.classList.add('is-visible');
+      }
+
+      let gradientCounter = 0;
+
+      const renderSection = (title, items) => {
+        if (!items.length) return;
+        const section = document.createElement('div');
+        section.className = 'chip-section';
+        section.innerHTML = `<div class="chip-section__title">${title}</div>`;
+        const grid = document.createElement('div');
+        grid.className = 'interest-grid';
+        items.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'interest-card';
+          card.dataset.gradient = String(gradientCounter % 8);
+          gradientCounter++;
+          const emoji = getEmojiForInterest(item.name);
+
+          // Pre-select top picks on first visit, restore manual on revisit
+          if (previousSelections.size > 0) {
+            if (previousSelections.has(item.name)) card.classList.add('is-selected');
+          } else if (title.includes('Top')) {
+            card.classList.add('is-selected');
+          }
+
+          card.innerHTML = `
+            <div class="interest-card__check">&#10003;</div>
+            <div class="interest-card__emoji">${emoji}</div>
+            <div class="interest-card__name">${item.name}</div>
+          `;
+          card.addEventListener('click', () => card.classList.toggle('is-selected'));
+          grid.appendChild(card);
+        });
+        section.appendChild(grid);
+        container.appendChild(section);
+      };
+
+      renderSection('Top Picks For You', topPicks);
+      renderSection('You Might Also Like', more);
+    }
+
+    // Build avoid page — audience-filtered, no scoring needed
+    // Read the 3 avoid-quiz answers
+    function getAvoidQuizAnswers() {
+      const answers = {};
+      document.querySelectorAll('[data-aquestion]').forEach(slide => {
+        const q = slide.dataset.aquestion;
+        const sel = slide.querySelector('.aq-card.is-selected');
+        answers[q] = sel ? sel.dataset.value : null;
+      });
+      return answers; // { mobility, noise, foodadventure, budget, flexibility }
+    }
+
+    // Emoji map for avoid items
+    const AVOID_EMOJI = {
+      'Tourist-trap chains': '&#128181;',
+      'Overly crowded attractions during peak hours': '&#128101;',
+      'Scam-prone areas': '&#9888;&#65039;',
+      'Kid-oriented attractions & play areas': '&#128183;',
+      'Noisy family restaurants': '&#128266;',
+      'Long guided tours': '&#128556;',
+      'Traditional museums without interactive elements': '&#127963;',
+      'Long periods of sitting still': '&#129488;',
+      'Churches & religious sites (not engaging for kids)': '&#9962;',
+      'Spicy food for kids': '&#127798;',
+      'Venues without bathrooms / changing areas': '&#128700;',
+      'Activities requiring walking over 1km': '&#128694;',
+      'Loud fireworks or explosive shows': '&#127878;',
+      'Venues with no high chairs or stroller access': '&#128188;',
+      'Attractions designed for small children': '&#127880;',
+      'Activities requiring heavy physical effort': '&#127947;',
+      'Steep stairs without elevator access': '&#129534;',
+      'Very loud clubs or concerts': '&#128264;',
+      'Slow-paced guided tours': '&#128034;',
+      'Crowded family attractions': '&#128102;',
+      'Group tour buses': '&#128652;',
+      'Extremely spicy cuisine': '&#127798;',
+      'Exotic or unfamiliar foods': '&#129424;',
+      'Street food with questionable hygiene': '&#129367;',
+      'Overly formal fine dining': '&#127860;',
+      'Hilly terrain & steep inclines': '&#9968;',
+      'Activities without rest areas nearby': '&#128524;',
+      'Nightlife areas after 10pm': '&#127769;',
+      'Large open-air concerts & festivals': '&#127908;',
+      'Expensive skip-the-line tickets': '&#128176;',
+      'Overpriced tourist restaurants': '&#128181;',
+      'Premium-only experiences': '&#128142;',
+      'Unstructured free time blocks': '&#128203;',
+      'Last-minute itinerary changes': '&#128260;',
+    };
+
+    // Score avoid items: higher = more relevant to user's quiz answers
+    function scoreAvoidItem(item, aq) {
+      let score = 0;
+      // Audience match is already filtered before scoring
+
+      // Mobility: "limited" means user wants easy → pre-select mobility:limited items
+      if (item.mobility === 'limited' && aq.mobility === 'limited') score += 3;
+      if (item.mobility === 'limited' && aq.mobility === 'moderate') score += 1;
+      // "high" mobility = nothing to avoid
+
+      // Noise: "quiet" means user wants calm → pre-select noise:quiet items
+      if (item.noise === 'quiet' && aq.noise === 'quiet') score += 3;
+      if (item.noise === 'quiet' && aq.noise === 'flexible') score += 1;
+      // "lively" = nothing to avoid
+
+      // Food: "safe" means user wants safe food → pre-select foodadventure:safe items
+      if (item.foodadventure === 'safe' && aq.foodadventure === 'safe') score += 3;
+      if (item.foodadventure === 'safe' && aq.foodadventure === 'open') score += 1;
+      // "fearless" = nothing to avoid
+
+      // Budget: "budget" = avoid expensive stuff
+      if (item.budget === 'budget' && aq.budget === 'budget') score += 3;
+      if (item.budget === 'budget' && aq.budget === 'balanced') score += 1;
+
+      // Flexibility: "strict" users want to avoid unstructured things
+      if (item.flexibility === 'strict' && aq.flexibility === 'strict') score += 2;
+
+      // Items with no tags (null) get a baseline so they still appear
+      if (item.mobility === null && item.noise === null && item.foodadventure === null && item.budget === null && item.flexibility === null) score += 1;
+
+      return score;
+    }
+
+    function buildAvoidPage(previousSelections) {
+      const container = $('#avoidSections');
+      container.innerHTML = '';
+      const { flags } = analyzeGroup();
+      const aq = getAvoidQuizAnswers();
+
+      // Filter by audience
+      const filtered = AVOID_DB.filter(item =>
+        item.audience.some(f => f === 'core' || flags[f])
+      );
+
+      // Score each item
+      const scored = filtered.map(item => ({ ...item, score: scoreAvoidItem(item, aq) }));
+      scored.sort((a, b) => b.score - a.score);
+
+      // Items with score > 0 are relevant; score >= 3 = pre-select
+      const relevant = scored.filter(it => it.score > 0);
+
+      const grid = document.createElement('div');
+      grid.className = 'avoid-grid';
+      relevant.forEach(item => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'avoid-card';
+        // Pre-select on first visit if score >= 3, restore manual on revisit
+        if (previousSelections.size > 0) {
+          if (previousSelections.has(item.name)) card.classList.add('is-selected');
+        } else if (item.score >= 3) {
+          card.classList.add('is-selected');
+        }
+        const emoji = AVOID_EMOJI[item.name] || '&#128683;';
+        card.innerHTML = `
+          <div class="avoid-card__x">&#10005;</div>
+          <div class="avoid-card__icon">${emoji}</div>
+          <div class="avoid-card__name">${item.name}</div>`;
+        card.addEventListener('click', () => card.classList.toggle('is-selected'));
+        grid.appendChild(card);
+      });
+      container.appendChild(grid);
+    }
+
+    // Collect all selected items inside a container (works for cards, avoid-cards, and chips)
+    function getSelectedDynamic(containerId) {
+      const container = document.getElementById(containerId);
+      // Interest cards
+      const selectedCards = container.querySelectorAll('.interest-card.is-selected');
+      if (selectedCards.length > 0) {
+        return Array.from(selectedCards).map(c => c.querySelector('.interest-card__name').textContent);
+      }
+      // Avoid cards
+      const selectedAvoid = container.querySelectorAll('.avoid-card.is-selected');
+      if (selectedAvoid.length > 0) {
+        return Array.from(selectedAvoid).map(c => c.querySelector('.avoid-card__name').textContent);
+      }
+      // Fallback: chips
+      return Array.from(container.querySelectorAll('.chip.is-selected'))
+        .map(c => c.textContent);
+    }
+
+    // Remember selections when navigating back and forth
+    let prevInterestSel = new Set();
+    let prevAvoidSel = new Set();
+
+    // ================================================================
+    //  4. VIBE CHIPS (context-aware)
+    // ================================================================
+    // ================================================================
+    //  5. ADD PARENT / CHILD (Airbnb-style +/- steppers)
+    // ================================================================
+
+    // Sync adult count display and minus button state
+    function syncAdultCounter() {
+      const count = $$('#parentsContainer .traveler-card').length;
+      $('#adultCount').textContent = count;
+      $('#adultMinus').disabled = count <= 1;
+    }
+
+    function syncChildCounter() {
+      const count = $$('#childrenContainer .traveler-card').length;
+      $('#childCount').textContent = count;
+      $('#childMinus').disabled = count <= 0;
+    }
+
+    // Adult plus
+    $('#adultPlus').addEventListener('click', () => {
+      const container = $('#parentsContainer');
+      const count = $$('#parentsContainer .traveler-card').length + 1;
+      const card = document.createElement('div');
+      card.className = 'traveler-card';
+      card.dataset.traveler = 'parent';
+      card.innerHTML = `
+        <div class="traveler-card__header">
+          <span class="traveler-card__type">Adult ${count}</span>
+          <button type="button" class="btn-remove" title="Remove">&times;</button>
+        </div>
+        <div class="row row--3">
+          <div class="field">
+            <label class="field__label">Name / Role</label>
+            <input class="input parent-name" type="text" placeholder="e.g. Anna">
+          </div>
+          <div class="field">
+            <label class="field__label">Gender</label>
+            <select class="select parent-gender">
+              <option value="">Select...</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field__label">Date of Birth</label>
+            <div class="dob-row">
+              <select class="select dob-year"></select>
+              <select class="select dob-month"></select>
+              <select class="select dob-day"></select>
+            </div>
+          </div>
+        </div>`;
+      container.appendChild(card);
+      initDobSelects(card);
+      card.querySelector('.btn-remove').addEventListener('click', () => { card.remove(); syncAdultCounter(); });
+      syncAdultCounter();
+    });
+
+    // Adult minus
+    $('#adultMinus').addEventListener('click', () => {
+      const cards = $$('#parentsContainer .traveler-card');
+      if (cards.length > 1) {
+        cards[cards.length - 1].remove();
+        syncAdultCounter();
+      }
+    });
+
+    // Keep legacy addParent for backward compat (hidden)
+    document.getElementById('addParent')?.addEventListener('click', () => {
+      $('#adultPlus').click();
+    });
+
+    let childCount = 0;
+
+    // Child plus
+    $('#childPlus').addEventListener('click', () => {
+      addChildCard();
+    });
+
+    // Child minus
+    $('#childMinus').addEventListener('click', () => {
+      const cards = $$('#childrenContainer .traveler-card');
+      if (cards.length > 0) {
+        cards[cards.length - 1].remove();
+        syncChildCounter();
+      }
+    });
+
+    function addChildCard() {
+      childCount++;
+      const container = $('#childrenContainer');
+      const card = document.createElement('div');
+      card.className = 'traveler-card';
+      card.dataset.traveler = 'child';
+      card.innerHTML = `
+        <div class="traveler-card__header">
+          <span class="traveler-card__type">Child #${childCount}</span>
+          <button type="button" class="btn-remove" title="Remove">&times;</button>
+        </div>
+        <div class="row row--2">
+          <div class="field">
+            <label class="field__label">Name</label>
+            <input class="input child-name" type="text" placeholder="e.g. Tamir">
+          </div>
+          <div class="field">
+            <label class="field__label">Gender</label>
+            <select class="select child-gender">
+              <option value="">Select...</option>
+              <option value="Male">Boy</option>
+              <option value="Female">Girl</option>
+            </select>
+          </div>
+        </div>
+        <div class="row row--2" style="margin-top:var(--space-2);">
+          <div class="field">
+            <label class="field__label">Date of Birth</label>
+            <div class="dob-row">
+              <select class="select dob-year"></select>
+              <select class="select dob-month"></select>
+              <select class="select dob-day"></select>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label">Notes</label>
+            <input class="input child-notes" type="text" placeholder="e.g. No stroller">
+          </div>
+        </div>`;
+      container.appendChild(card);
+      initDobSelects(card, currentYear - 18, currentYear);
+      card.querySelector('.btn-remove').addEventListener('click', () => { card.remove(); syncChildCounter(); });
+      syncChildCounter();
+    }
+
+    // ================================================================
+    //  6. PACE SELECTION
+    // ================================================================
+    $('#paceOptions').addEventListener('click', (e) => {
+      const card = e.target.closest('.pace-card');
+      if (!card) return;
+      $$('.pace-card').forEach(c => c.classList.remove('is-selected'));
+      card.classList.add('is-selected');
+    });
+
+    // ================================================================
+    //  7. NAVIGATION (with slide transitions + questionnaire sub-steps)
+    // ================================================================
+    let currentStep = 0;
+    const totalSteps = 8;
+    let navDirection = 'forward'; // track for slide animation
+
+    function goToStep(step) {
+      if (step < 0 || step >= totalSteps) return;
+
+      navDirection = step > currentStep ? 'forward' : 'backward';
+
+      // When leaving questionnaire step, reset saved selections
+      // so fresh answers generate fresh pre-selections
+      if (currentStep === 2) {
+        prevInterestSel = new Set();
+        prevAvoidSel = new Set();
+      }
+      // Save current selections before leaving interest/avoid steps
+      if (currentStep === 3) {
+        prevInterestSel = new Set(getSelectedDynamic('interestsSections'));
+      }
+      if (currentStep === 4) {
+        prevAvoidSel = new Set(getSelectedDynamic('avoidSections'));
+      }
+
+      // Rebuild interest page when entering step 3
+      if (step === 3) {
+        buildInterestPage(prevInterestSel);
+      }
+      // Reset and rebuild avoid page when entering step 4
+      if (step === 4) {
+        currentAvoidSubQ = 0;
+        goToAvoidSubQ(0);
+        showAvoidQuiz();
+        buildAvoidPage(prevAvoidSel);
+      }
+      // Init food step when entering step 5
+      if (step === 5) {
+        currentFoodSubQ = 0;
+        goToFoodSubQ(0);
+        showFoodQuiz();
+        // Adapt Q3 label based on whether group has kids
+        const { flags: f5 } = analyzeGroup();
+        if (f5.withKids) {
+          $('#fq3Label').textContent = 'How are the kids with food?';
+        } else {
+          $('#fq3Label').textContent = 'Any dietary sensitivities in the group?';
+        }
+        buildFoodPage();
+        buildVibePage();
+      }
+
+      // Reset questionnaire to first question when entering step 2
+      if (step === 2 && currentStep !== 2) {
+        currentSubQuestion = 0;
+        goToSubQuestion(0);
+      }
+
+      // Generate preview on last step
+      if (step === totalSteps - 1) {
+        $('#previewContent').textContent = generateMarkdown();
+      }
+
+      $$('.step').forEach(s => {
+        s.classList.remove('is-visible', 'slide-left', 'slide-right');
+      });
+      const targetStep = document.querySelector(`.step[data-step="${step}"]`);
+      const slideClass = navDirection === 'forward' ? 'slide-left' : 'slide-right';
+      targetStep.classList.add('is-visible', slideClass);
+
+      // Update stepper
+      $$('.stepper__step').forEach(s => {
+        const i = parseInt(s.dataset.step);
+        s.classList.remove('is-active', 'is-done');
+        if (i < step) s.classList.add('is-done');
+        if (i === step) s.classList.add('is-active');
+      });
+
+      // Update stepper line fill
+      const fillPercent = step === 0 ? 0 : (step / (totalSteps - 1)) * 100;
+      $('#stepperFill').style.width = `${fillPercent}%`;
+
+      // Update done step circles with checkmarks
+      $$('.stepper__step.is-done .stepper__circle').forEach(circle => {
+        circle.innerHTML = '<span style="font-size:14px;">&#10003;</span>';
+      });
+      // Restore emoji for non-done steps
+      const stepEmojis = ['&#9992;&#65039;', '&#128101;', '&#127919;', '&#10084;&#65039;', '&#128683;', '&#127869;', '&#127758;', '&#9989;'];
+      $$('.stepper__step:not(.is-done)').forEach(s => {
+        const i = parseInt(s.dataset.step);
+        s.querySelector('.stepper__circle').innerHTML = `<span>${stepEmojis[i]}</span>`;
+      });
+
+      currentStep = step;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Step 0 validation — destination + dates required
+    function validateStep0() {
+      let valid = true;
+      const dest = $('#destination');
+      const arrival = $('#arrival');
+      const departure = $('#departure');
+
+      // Clear previous errors
+      dest.classList.remove('input-error');
+      arrival.closest('.field')?.classList.remove('field--error');
+      departure.closest('.field')?.classList.remove('field--error');
+      document.querySelectorAll('.step0-card__error').forEach(e => e.classList.remove('is-visible'));
+
+      if (!dest.value.trim()) {
+        dest.classList.add('input-error');
+        let err = dest.parentElement.querySelector('.step0-card__error');
+        if (!err) {
+          err = document.createElement('div');
+          err.className = 'step0-card__error';
+          err.textContent = 'Please enter a destination';
+          dest.parentElement.appendChild(err);
+        }
+        err.classList.add('is-visible');
+        dest.focus();
+        valid = false;
+      }
+
+      if (!arrival.value) {
+        arrival.closest('.field').classList.add('field--error');
+        let err = arrival.closest('.field').querySelector('.field__error');
+        if (!err) {
+          err = document.createElement('div');
+          err.className = 'field__error';
+          err.textContent = 'Please select an arrival date';
+          err.style.display = 'block';
+          arrival.closest('.field').appendChild(err);
+        } else {
+          err.style.display = 'block';
+        }
+        if (valid) arrival.focus();
+        valid = false;
+      }
+
+      if (!departure.value) {
+        departure.closest('.field').classList.add('field--error');
+        let err = departure.closest('.field').querySelector('.field__error');
+        if (!err) {
+          err = document.createElement('div');
+          err.className = 'field__error';
+          err.textContent = 'Please select a departure date';
+          err.style.display = 'block';
+          departure.closest('.field').appendChild(err);
+        } else {
+          err.style.display = 'block';
+        }
+        if (valid) departure.focus();
+        valid = false;
+      }
+
+      // Check departure is after arrival
+      if (arrival.value && departure.value && new Date(departure.value) <= new Date(arrival.value)) {
+        departure.closest('.field').classList.add('field--error');
+        let err = departure.closest('.field').querySelector('.field__error');
+        if (!err) {
+          err = document.createElement('div');
+          err.className = 'field__error';
+          departure.closest('.field').appendChild(err);
+        }
+        err.textContent = 'Departure must be after arrival';
+        err.style.display = 'block';
+        if (valid) departure.focus();
+        valid = false;
+      }
+
+      return valid;
+    }
+
+    // Clear errors on input
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'destination') {
+        e.target.classList.remove('input-error');
+        const err = e.target.parentElement.querySelector('.step0-card__error');
+        if (err) err.classList.remove('is-visible');
+      }
+      if (e.target.id === 'arrival' || e.target.id === 'departure') {
+        const field = e.target.closest('.field');
+        if (field) {
+          field.classList.remove('field--error');
+          const err = field.querySelector('.field__error');
+          if (err) err.style.display = 'none';
+        }
+      }
+    });
+
+    // Step 1 validation — name + birth year required for every traveler
+    function validateStep1() {
+      let valid = true;
+      let firstBad = null;
+
+      // Clear previous errors
+      document.querySelectorAll('.traveler-card.card-error').forEach(c => c.classList.remove('card-error'));
+      document.querySelectorAll('.traveler-card .field--error').forEach(f => f.classList.remove('field--error'));
+      document.querySelectorAll('.traveler-card .select-error').forEach(s => s.classList.remove('select-error'));
+      document.querySelectorAll('.traveler-card .traveler-card__error').forEach(e => e.remove());
+
+      // Validate parent cards
+      document.querySelectorAll('#parentsContainer .traveler-card').forEach(card => {
+        const nameInput = card.querySelector('.parent-name');
+        const yearSel = card.querySelector('.dob-year');
+        let cardValid = true;
+
+        if (!nameInput.value.trim()) {
+          nameInput.closest('.field').classList.add('field--error');
+          cardValid = false;
+          if (!firstBad) firstBad = nameInput;
+        }
+
+        if (!yearSel.value) {
+          yearSel.classList.add('select-error');
+          cardValid = false;
+          if (!firstBad) firstBad = yearSel;
+        }
+
+        if (!cardValid) {
+          card.classList.add('card-error');
+          valid = false;
+        }
+      });
+
+      // Validate child cards
+      document.querySelectorAll('#childrenContainer .traveler-card').forEach(card => {
+        const nameInput = card.querySelector('.child-name');
+        const yearSel = card.querySelector('.dob-year');
+        let cardValid = true;
+
+        if (!nameInput.value.trim()) {
+          nameInput.closest('.field').classList.add('field--error');
+          cardValid = false;
+          if (!firstBad) firstBad = nameInput;
+        }
+
+        if (!yearSel.value) {
+          yearSel.classList.add('select-error');
+          cardValid = false;
+          if (!firstBad) firstBad = yearSel;
+        }
+
+        if (!cardValid) {
+          card.classList.add('card-error');
+          valid = false;
+        }
+      });
+
+      if (!valid) {
+        // Add summary error message at top of step
+        const step = document.querySelector('[data-step="1"]');
+        let msg = step.querySelector('.traveler-card__error');
+        if (!msg) {
+          msg = document.createElement('div');
+          msg.className = 'traveler-card__error';
+          msg.textContent = 'Please fill in name and birth year for all travelers';
+          step.querySelector('.step__desc').insertAdjacentElement('afterend', msg);
+        }
+        if (firstBad) firstBad.focus();
+      }
+
+      return valid;
+    }
+
+    // Clear traveler errors on input
+    document.addEventListener('input', (e) => {
+      const card = e.target.closest('.traveler-card');
+      if (!card) return;
+      if (e.target.classList.contains('parent-name') || e.target.classList.contains('child-name')) {
+        e.target.closest('.field')?.classList.remove('field--error');
+      }
+      card.classList.remove('card-error');
+      // Remove summary error
+      const stepMsg = document.querySelector('[data-step="1"] > .traveler-card__error');
+      if (stepMsg) stepMsg.remove();
+    });
+    document.addEventListener('change', (e) => {
+      if (e.target.classList.contains('dob-year')) {
+        e.target.classList.remove('select-error');
+        const card = e.target.closest('.traveler-card');
+        if (card) card.classList.remove('card-error');
+        const stepMsg = document.querySelector('[data-step="1"] > .traveler-card__error');
+        if (stepMsg) stepMsg.remove();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.btn-next')) {
+        // Validate Step 0 before proceeding
+        if (currentStep === 0 && !validateStep0()) return;
+        // Validate Step 1 before proceeding
+        if (currentStep === 1 && !validateStep1()) return;
+        goToStep(currentStep + 1);
+      }
+      if (e.target.closest('.btn-prev')) {
+        // Special handling for questionnaire back (Step 2)
+        if (currentStep === 2) {
+          if (currentSubQuestion > 0) {
+            goToSubQuestion(currentSubQuestion - 1);
+            return;
+          }
+        }
+        // Special handling for avoid-quiz back (Step 4)
+        if (currentStep === 4) {
+          const quiz = document.getElementById('avoidQuiz');
+          const quizVisible = quiz.style.opacity !== '0';
+          if (quizVisible && currentAvoidSubQ > 0) {
+            goToAvoidSubQ(currentAvoidSubQ - 1);
+            return;
+          }
+        }
+        // Special handling for food-quiz back (Step 5)
+        if (currentStep === 5) {
+          const quiz = document.getElementById('foodQuiz');
+          const quizVisible = quiz.style.opacity !== '0';
+          if (quizVisible && currentFoodSubQ > 0) {
+            goToFoodSubQ(currentFoodSubQ - 1);
+            return;
+          }
+        }
+        goToStep(currentStep - 1);
+      }
+    });
+
+    // ================================================================
+    //  8. GENERATE MARKDOWN
+    // ================================================================
+    function generateMarkdown() {
+      const dest = $('#destination').value || 'TBD';
+      const arrival = $('#arrival').value ? new Date($('#arrival').value).toISOString().replace('.000Z', '') : 'TBD';
+      const departure = $('#departure').value ? new Date($('#departure').value).toISOString().replace('.000Z', '') : 'TBD';
+      const startTime = $('#startTime').value || '10:00';
+      const endTime = $('#endTime').value || '18:30';
+      const buffer = $('#bufferTime').value || '20';
+
+      // Parents
+      const parents = Array.from($$('#parentsContainer .traveler-card')).map(card => ({
+        name: card.querySelector('.parent-name').value || 'Parent',
+        gender: card.querySelector('.parent-gender')?.value || '',
+        dob: getDobValue(card) || 'TBD'
+      }));
+
+      // Children
+      const children = Array.from($$('#childrenContainer .traveler-card')).map(card => ({
+        name: card.querySelector('.child-name').value || 'Child',
+        gender: card.querySelector('.child-gender')?.value || '',
+        dob: getDobValue(card) || 'TBD',
+        notes: card.querySelector('.child-notes')?.value || '',
+      }));
+
+      // Interests
+      const universalInterests = getSelectedDynamic('interestsSections');
+      const customInterests = $('#customInterests').value.trim();
+      if (customInterests) {
+        customInterests.split(/[,\n]/).map(s => s.trim()).filter(Boolean).forEach(i => universalInterests.push(i));
+      }
+
+      // Avoid
+      const avoids = getSelectedDynamic('avoidSections');
+      const customAvoid = $('#customAvoid').value.trim();
+      if (customAvoid) {
+        customAvoid.split(/[,\n]/).map(s => s.trim()).filter(Boolean).forEach(a => avoids.push(a));
+      }
+
+      // Pace
+      const paceCard = document.querySelector('.pace-card.is-selected');
+      const paceMap = {
+        'relaxed': 'Relaxed \u2014 2-3 activities per day, lots of downtime',
+        'balanced': 'Quality over quantity, 10:00\u201318:00',
+        'packed': 'Action-packed \u2014 maximize every hour'
+      };
+      const pace = paceCard ? paceMap[paceCard.dataset.pace] || 'Balanced' : 'Quality over quantity';
+
+      // Culinary — read from food-quiz + visual cards
+      const fq = getFoodQuizAnswers();
+      const dietMap = { 'omnivore': 'Omnivore', 'omnivore-meat': 'Omnivore, strong preference for high-quality meat', 'vegetarian': 'Vegetarian', 'vegan': 'Vegan' };
+      const dietStyle = dietMap[fq.diet] || 'Omnivore';
+      const foodExperiences = Array.from(document.querySelectorAll('#foodExperienceCards .interest-card.is-selected'))
+        .map(c => c.querySelector('.interest-card__name').textContent);
+      const foodNotes = ($('#foodNotes')?.value || '').trim();
+      const vibes = Array.from(document.querySelectorAll('#vibeGroup .avoid-card.is-selected'))
+        .map(c => c.querySelector('.avoid-card__name').textContent);
+
+      // Language
+      const reportLang = $('#reportLang').value;
+      const poiLangs = $('#poiLangs').value.trim();
+
+      // Extra notes
+      const extraNotes = $('#extraNotes').value.trim();
+
+      // === Build markdown ===
+      let md = `# Trip Details\n\n## Trip Context\n\n`;
+      md += `- **Destination:** ${dest}\n`;
+      md += `- **Arrival:** ${arrival}\n`;
+      md += `- **Departure:** ${departure}\n`;
+      md += `\n### Daily Schedule\n\n`;
+      md += `- **Preferred start:** ${startTime}\n`;
+      md += `- **Preferred finish:** ${endTime}\n`;
+      md += `- **Buffer time (minutes):** ${buffer}\n`;
+
+      if (universalInterests.length > 0) {
+        md += `\n### Universal Interests\n\n`;
+        universalInterests.forEach(i => md += `- ${i}\n`);
+      }
+
+      if (avoids.length > 0) {
+        md += `\n### Places to Avoid\n\n`;
+        avoids.forEach(a => md += `- ${a}\n`);
+      }
+
+      md += `\n### Pace Preference\n\n${pace}\n`;
+
+      md += `\n### Culinary Profile\n\n`;
+      md += `- **Dietary style:** ${dietStyle}\n`;
+      const aqFood = getAvoidQuizAnswers().foodadventure || 'open';
+      const aqFoodLabel = { safe: 'Conservative — familiar flavors only', open: 'Moderate — happy to try local dishes', fearless: 'Adventurous — street food, exotic, spicy' };
+      md += `- **Food adventure level:** ${aqFoodLabel[aqFood] || 'Moderate'}\n`;
+      const aqBudget = getAvoidQuizAnswers().budget || 'balanced';
+      const aqBudgetLabel = { budget: 'Budget-conscious — prefer free/affordable options', balanced: 'Balanced — mix of free and paid experiences', premium: 'Premium — willing to pay for quality and comfort' };
+      md += `- **Budget style:** ${aqBudgetLabel[aqBudget] || 'Balanced'}\n`;
+      const aqFlex = getAvoidQuizAnswers().flexibility || 'loose';
+      const aqFlexLabel = { strict: 'Structured — prefer a firm schedule', loose: 'Flexible — key highlights planned, room to wander', spontaneous: 'Spontaneous — minimal planning, go with the flow' };
+      md += `- **Schedule style:** ${aqFlexLabel[aqFlex] || 'Flexible'}\n`;
+      const diningStyleLabels = { street: 'Street food & markets', casual: 'Casual restaurants', upscale: 'Upscale dining' };
+      md += `- **Dining style:** ${diningStyleLabels[fq.diningstyle] || 'Casual restaurants'}\n`;
+      const mealPriority = getFoodQuizAnswers().mealpriority || 'dinner';
+      const mealLabels = { breakfast: 'Breakfast & brunch focused', lunch: 'Lunch as the main meal', dinner: 'Dinner is the highlight' };
+      md += `- **Meal priority:** ${mealLabels[mealPriority] || 'Dinner'}\n`;
+      const localFood = getFoodQuizAnswers().localfood || 'mix';
+      const localLabels = { familiar: 'Prefer familiar/international food', mix: 'Mix of local and familiar', fulllocal: 'Full local food immersion' };
+      md += `- **Local food preference:** ${localLabels[localFood] || 'Mix'}\n`;
+      if (foodExperiences.length > 0) {
+        md += `- **Must-haves:** ${foodExperiences.join(', ')}\n`;
+      }
+      if (foodNotes) {
+        md += `- **Notes:** ${foodNotes}\n`;
+      }
+      if (vibes.length > 0) {
+        md += `- **Vibe preference:** ${vibes.join(', ')}\n`;
+      }
+
+      md += `\n## Travelers\n`;
+
+      if (parents.length > 0) {
+        md += `\n### Parents\n\n`;
+        md += `| Role   | Gender | Date of Birth |\n`;
+        md += `|--------|--------|---------------|\n`;
+        parents.forEach(p => md += `| ${p.name} | ${p.gender || '-'} | ${p.dob} |\n`);
+      }
+
+      if (children.length > 0) {
+        md += `\n### Children\n\n`;
+        md += `| Name  | Gender | Date of Birth | Notes |\n`;
+        md += `|-------|--------|---------------|-------|\n`;
+        children.forEach(c => {
+          md += `| ${c.name} | ${c.gender || '-'} | ${c.dob} | ${c.notes} |\n`;
+        });
+      }
+
+      md += `\n## Language Preference\n\n`;
+      md += `- **Reporting language:** ${reportLang}\n`;
+      if (poiLangs) {
+        md += `- **POI languages:** ${poiLangs}\n`;
+      }
+
+      if (extraNotes) {
+        md += `\n## Additional Notes\n\n${extraNotes}\n`;
+      }
+
+      return md;
+    }
+
+    // ================================================================
+    //  9. COPY & DOWNLOAD
+    // ================================================================
+    function handleCopy(btn) {
+      const text = $('#previewContent').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('is-copied');
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.classList.remove('is-copied');
+        }, 2000);
+      });
+    }
+
+    $('#btnCopy').addEventListener('click', () => handleCopy($('#btnCopy')));
+    $('#btnCopyInline').addEventListener('click', () => handleCopy($('#btnCopyInline')));
+
+    $('#btnDownload').addEventListener('click', () => {
+      const text = $('#previewContent').textContent;
+      const blob = new Blob([text], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'llm_trip_details.md'; a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>

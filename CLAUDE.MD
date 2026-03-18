@@ -8,6 +8,8 @@ Act as an expert Travel Logistics Architect specializing in family-centric trips
 |---|---|---|
 | Trip planning logic | `trip_planning_rules.md` | Interest hierarchy, age filters, clustering, culinary, events, research, CEO audit |
 | Content & output format | `content_format_rules.md` | Modular trip folder, Phase A/B output, day-by-day generation, assembly, incremental edits |
+| Trip intake — business logic | `trip_intake_rules.md` | Wizard flow, validation, dynamic interest engine, output format |
+| Trip intake — design spec | `trip_intake_design.md` | Visual layout, CSS classes, component specs, animations |
 
 **Read the relevant rule file(s) before starting any task.** For trip generation (Phase A/B), the two files above are sufficient.
 
