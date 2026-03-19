@@ -91,6 +91,137 @@
       to { opacity: 1; transform: none; }
     }
 
+    /* === Booking.com Search Bar === */
+    .search-bar-wrap {
+      position: relative; z-index: 10;
+      max-width: 960px; margin: -28px auto 0;
+      padding: 0 var(--space-3);
+    }
+    .search-bar {
+      display: flex; align-items: stretch;
+      background: var(--color-surface);
+      border: 3px solid var(--color-brand-accent);
+      border-radius: var(--radius-container);
+      box-shadow: var(--shadow-lg);
+      overflow: visible; position: relative;
+      flex-wrap: wrap;
+    }
+    .search-bar__seg {
+      flex: 1; display: flex; align-items: center; gap: var(--space-2);
+      padding: 12px var(--space-3);
+      border-right: 1px solid var(--color-border);
+      cursor: pointer; position: relative;
+      transition: background var(--transition-fast);
+    }
+    .search-bar__seg:hover { background: var(--color-surface-raised); }
+    .search-bar__seg--travelers { border-right: none; }
+    .search-bar__seg--dest { flex: 1.3; cursor: default; }
+    .search-bar__seg--dest:hover { background: transparent; }
+    .search-bar__icon {
+      font-size: 1.25rem; flex-shrink: 0; opacity: 0.6;
+    }
+    .search-bar__content { flex: 1; min-width: 0; }
+    .search-bar__label {
+      font-size: var(--text-xs); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .search-bar__value {
+      font-size: var(--text-sm); font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary); white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .search-bar__value--placeholder { color: var(--color-text-muted); }
+    .search-bar__input {
+      width: 100%; border: none; outline: none; background: transparent;
+      font-size: var(--text-sm); font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary); font-family: inherit;
+      padding: 0;
+    }
+    .search-bar__input::placeholder { color: var(--color-text-muted); }
+    .search-bar__btn {
+      flex-shrink: 0; padding: 12px var(--space-4);
+      background: var(--color-brand-primary); color: #fff;
+      border: none; font-size: var(--text-base); font-weight: var(--font-weight-semibold);
+      cursor: pointer; font-family: inherit;
+      border-radius: 0 calc(var(--radius-container) - 3px) calc(var(--radius-container) - 3px) 0;
+      transition: background var(--transition-fast);
+      white-space: nowrap;
+    }
+    .search-bar__btn:hover { background: #15324E; }
+    .search-bar__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Dropdowns (calendar & travelers) */
+    .search-bar__dropdown {
+      position: absolute; top: calc(100% + 8px); left: 0;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-container);
+      box-shadow: var(--shadow-lg);
+      z-index: 200; display: none;
+      animation: sbDropIn 0.2s ease;
+    }
+    .search-bar__dropdown.is-open { display: block; }
+    .search-bar__dropdown--dates { left: -1px; min-width: 580px; padding: var(--space-4); }
+    .search-bar__dropdown--travelers { right: 0; left: auto; min-width: 320px; padding: var(--space-3); }
+    @keyframes sbDropIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* Traveler counter inside dropdown */
+    .sb-counter { display: flex; align-items: center; justify-content: space-between; padding: var(--space-2) 0; }
+    .sb-counter + .sb-counter { border-top: 1px solid var(--color-border); }
+    .sb-counter__label { font-size: var(--text-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+    .sb-counter__sub { font-size: var(--text-xs); color: var(--color-text-muted); }
+    .sb-counter__controls { display: flex; align-items: center; gap: var(--space-2); }
+    .sb-counter__btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid var(--color-border-strong); background: var(--color-surface);
+      color: var(--color-text-secondary); font-size: var(--text-lg);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all var(--transition-fast); line-height: 1;
+    }
+    .sb-counter__btn:hover:not(:disabled) { border-color: var(--color-brand-primary); color: var(--color-brand-primary); }
+    .sb-counter__btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .sb-counter__num {
+      font-size: var(--text-base); font-weight: var(--font-weight-semibold);
+      min-width: 20px; text-align: center;
+    }
+    .sb-counter__done {
+      width: 100%; margin-top: var(--space-3); padding: 10px;
+      background: var(--color-brand-primary); color: #fff;
+      border: none; border-radius: var(--radius-interactive);
+      font-size: var(--text-sm); font-weight: var(--font-weight-semibold);
+      cursor: pointer; font-family: inherit;
+      transition: background var(--transition-fast);
+    }
+    .sb-counter__done:hover { background: #15324E; }
+
+    /* Search bar error */
+    .search-bar__error {
+      position: absolute; bottom: -24px; left: 0; right: 0;
+      text-align: center; font-size: var(--text-xs); color: var(--color-error);
+      font-weight: var(--font-weight-medium);
+    }
+
+    /* Responsive: stack on mobile */
+    @media (max-width: 640px) {
+      .search-bar {
+        flex-direction: column; border-radius: var(--radius-container);
+      }
+      .search-bar__seg {
+        border-right: none; border-bottom: 1px solid var(--color-border);
+        padding: 14px var(--space-3);
+      }
+      .search-bar__seg--travelers { border-bottom: none; }
+      .search-bar__btn {
+        border-radius: 0 0 calc(var(--radius-container) - 3px) calc(var(--radius-container) - 3px);
+        padding: 14px;
+      }
+      .search-bar__dropdown--dates { min-width: auto; left: -3px; right: -3px; }
+      .search-bar__dropdown--travelers { left: -3px; right: -3px; min-width: auto; }
+    }
+
     /* === Layout === */
     .page-shell {
       max-width: 800px; margin: 0 auto;
@@ -238,7 +369,7 @@
     /* === Autocomplete === */
     .autocomplete-wrap { position: relative; }
     .autocomplete-list {
-      position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 300;
       background: var(--color-surface); border: 1px solid var(--color-border-strong);
       border-top: none; border-radius: 0 0 var(--radius-interactive) var(--radius-interactive);
       box-shadow: var(--shadow-md); max-height: 240px; overflow-y: auto; display: none;
@@ -823,6 +954,121 @@
     .step0-schedule-body.is-open {
       max-height: 200px; opacity: 1;
     }
+
+    /* === Date Range Picker (Booking.com Style) === */
+    .date-picker { user-select: none; }
+    .date-picker__months {
+      display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);
+    }
+    @media (max-width: 480px) {
+      .date-picker__months { grid-template-columns: 1fr; }
+    }
+    .date-picker__month-header {
+      display: flex; align-items: center; justify-content: center;
+      position: relative; margin-bottom: var(--space-3);
+    }
+    .date-picker__month-label {
+      font-size: var(--text-base); font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+    }
+    .date-picker__nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid var(--color-border-strong); background: var(--color-surface);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: var(--text-sm); color: var(--color-text-secondary);
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+    .date-picker__nav:hover {
+      background: var(--color-brand-primary); color: #fff;
+    }
+    .date-picker__nav--prev { left: 0; }
+    .date-picker__nav--next { right: 0; }
+    .date-picker__grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+      text-align: center;
+    }
+    .date-picker__dow {
+      font-size: var(--text-xs); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-muted); text-transform: uppercase;
+      padding: var(--space-1) 0;
+    }
+    .date-picker__day {
+      width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      font-size: var(--text-sm); font-weight: var(--font-weight-medium);
+      cursor: pointer; border: none; background: transparent;
+      color: var(--color-text-primary); border-radius: 0;
+      transition: background 0.15s ease, color 0.15s ease;
+      position: relative;
+    }
+    .date-picker__day:hover:not(.is-disabled):not(.is-empty):not(.is-start):not(.is-end):not(.is-in-range) {
+      background: var(--color-surface-raised); border-radius: 50%;
+    }
+    .date-picker__day.is-empty { cursor: default; }
+    .date-picker__day.is-disabled {
+      opacity: 0.3; pointer-events: none;
+    }
+    .date-picker__day.is-today {
+      color: var(--color-brand-accent-alt); font-weight: var(--font-weight-bold);
+      box-shadow: inset 0 0 0 1.5px var(--color-brand-accent-alt);
+      border-radius: 50%;
+    }
+    .date-picker__day.is-today.is-start,
+    .date-picker__day.is-today.is-end {
+      color: #fff; box-shadow: none;
+    }
+    .date-picker__day.is-start {
+      background: var(--color-brand-primary); color: #fff;
+      border-radius: 50% 0 0 50%;
+    }
+    .date-picker__day.is-start:hover { background: #15324E; }
+    .date-picker__day.is-end {
+      background: var(--color-brand-primary); color: #fff;
+      border-radius: 0 50% 50% 0;
+    }
+    .date-picker__day.is-end:hover { background: #15324E; }
+    .date-picker__day.is-start.is-end {
+      border-radius: 50%;
+    }
+    .date-picker__day.is-in-range {
+      background: rgba(26,60,94,0.1); border-radius: 0;
+    }
+    .date-picker__day.is-in-range:hover {
+      background: rgba(26,60,94,0.18);
+    }
+    .date-picker__day.is-range-hover {
+      background: rgba(26,60,94,0.06);
+    }
+    .date-picker__summary {
+      margin-top: var(--space-3); text-align: center;
+      font-size: var(--text-sm); font-weight: var(--font-weight-medium);
+      color: var(--color-text-muted);
+    }
+    .date-picker__summary span { color: var(--color-text-primary); font-weight: var(--font-weight-semibold); }
+    .date-picker__flex {
+      display: flex; justify-content: center; gap: var(--space-2);
+      margin-top: var(--space-3); flex-wrap: wrap;
+    }
+    .date-picker__flex-btn {
+      border-radius: 999px; padding: 6px 16px;
+      font-size: var(--text-xs); font-weight: var(--font-weight-semibold);
+      border: 1px solid var(--color-border-strong); background: var(--color-surface);
+      color: var(--color-text-secondary); cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+      font-family: inherit;
+    }
+    .date-picker__flex-btn:hover {
+      background: var(--color-surface-raised);
+    }
+    .date-picker__flex-btn.is-active {
+      background: var(--color-brand-primary); color: #fff;
+      border-color: var(--color-brand-primary);
+    }
+    .date-picker__error {
+      text-align: center; font-size: var(--text-xs); color: var(--color-error);
+      margin-top: var(--space-2); display: none;
+    }
+    .date-picker__error.is-visible { display: block; }
   </style>
 </head>
 <body>
@@ -831,6 +1077,88 @@
     <h1 class="hero__tagline">Your perfect trip starts here</h1>
     <p class="hero__subtitle">Answer a few questions and we'll design the perfect itinerary</p>
   </header>
+
+  <!-- Booking.com-style Search Bar -->
+  <div class="search-bar-wrap" id="searchBarWrap">
+    <div class="search-bar" id="searchBar">
+      <!-- Destination Segment -->
+      <div class="search-bar__seg search-bar__seg--dest">
+        <span class="search-bar__icon">&#128205;</span>
+        <div class="search-bar__content autocomplete-wrap">
+          <div class="search-bar__label">Destination</div>
+          <input class="search-bar__input" type="text" id="destination" placeholder="Where are you going?" autocomplete="off" required>
+          <div class="autocomplete-list" id="destDropdown"></div>
+        </div>
+      </div>
+
+      <!-- Dates Segment (toggle only — dropdown is outside) -->
+      <div class="search-bar__seg search-bar__seg--dates" id="sbDatesToggle">
+        <span class="search-bar__icon">&#128197;</span>
+        <div class="search-bar__content">
+          <div class="search-bar__label">Dates</div>
+          <div class="search-bar__value search-bar__value--placeholder" id="sbDatesValue">Check-in &mdash; Check-out</div>
+        </div>
+      </div>
+
+      <!-- Travelers Segment (toggle only — dropdown is outside) -->
+      <div class="search-bar__seg search-bar__seg--travelers" id="sbTravelersToggle">
+        <span class="search-bar__icon">&#128101;</span>
+        <div class="search-bar__content">
+          <div class="search-bar__label">Travelers</div>
+          <div class="search-bar__value" id="sbTravelersValue">1 adult &middot; 0 children</div>
+        </div>
+      </div>
+
+      <!-- Search / Next Button -->
+      <button type="button" class="search-bar__btn" id="sbNext">Let's Go &rarr;</button>
+
+      <!-- Calendar Dropdown (sibling of segments — no event bubbling conflict) -->
+      <div class="search-bar__dropdown search-bar__dropdown--dates" id="sbDatesDropdown">
+        <input type="hidden" id="arrival">
+        <input type="hidden" id="departure">
+        <div class="date-picker" id="datePicker">
+          <div class="date-picker__months" id="dpMonths"></div>
+          <div class="date-picker__summary" id="dpSummary"></div>
+          <div class="date-picker__flex" id="dpFlex">
+            <button type="button" class="date-picker__flex-btn is-active" data-flex="0">Exact dates</button>
+            <button type="button" class="date-picker__flex-btn" data-flex="1">&plusmn; 1 day</button>
+            <button type="button" class="date-picker__flex-btn" data-flex="2">&plusmn; 2 days</button>
+            <button type="button" class="date-picker__flex-btn" data-flex="3">&plusmn; 3 days</button>
+            <button type="button" class="date-picker__flex-btn" data-flex="7">&plusmn; 7 days</button>
+          </div>
+          <div class="date-picker__error" id="dpError"></div>
+        </div>
+      </div>
+
+      <!-- Travelers Dropdown (sibling of segments — no event bubbling conflict) -->
+      <div class="search-bar__dropdown search-bar__dropdown--travelers" id="sbTravelersDropdown">
+        <div class="sb-counter">
+          <div>
+            <div class="sb-counter__label">Adults</div>
+            <div class="sb-counter__sub">Age 18+</div>
+          </div>
+          <div class="sb-counter__controls">
+            <button type="button" class="sb-counter__btn" id="sbAdultMinus" disabled>&#8722;</button>
+            <span class="sb-counter__num" id="sbAdultNum">1</span>
+            <button type="button" class="sb-counter__btn" id="sbAdultPlus">&#43;</button>
+          </div>
+        </div>
+        <div class="sb-counter">
+          <div>
+            <div class="sb-counter__label">Children</div>
+            <div class="sb-counter__sub">Age 0&ndash;17</div>
+          </div>
+          <div class="sb-counter__controls">
+            <button type="button" class="sb-counter__btn" id="sbChildMinus" disabled>&#8722;</button>
+            <span class="sb-counter__num" id="sbChildNum">0</span>
+            <button type="button" class="sb-counter__btn" id="sbChildPlus">&#43;</button>
+          </div>
+        </div>
+        <button type="button" class="sb-counter__done" id="sbTravelersDone">Done</button>
+      </div>
+    </div>
+    <div class="search-bar__error" id="sbError"></div>
+  </div>
 
   <div class="page-shell">
     <!-- Named Progress Stepper -->
@@ -871,75 +1199,32 @@
     </nav>
 
     <form id="tripForm" novalidate>
-      <!-- ============ STEP 0: Destination & Dates ============ -->
+      <!-- ============ STEP 0: Schedule Preferences (shown after search bar) ============ -->
       <section class="step is-visible" data-step="0">
-        <h2 class="step__title">Where & When</h2>
-        <p class="step__desc">Tell us about your destination and travel dates.</p>
+        <h2 class="step__title">Schedule Preferences</h2>
+        <p class="step__desc">Fine-tune your daily schedule (optional).</p>
 
         <div class="step0-cards">
-          <!-- Destination Card -->
           <div class="step0-card">
             <div class="step0-card__header">
-              <div class="step0-card__icon step0-card__icon--dest">&#127758;</div>
-              <div>
-                <div class="step0-card__label">Destination</div>
-                <div class="step0-card__sublabel">Where are you heading?</div>
-              </div>
-            </div>
-            <div class="autocomplete-wrap">
-              <input class="step0-dest-input" type="text" id="destination" placeholder="Search for a city..." autocomplete="off" required>
-              <div class="autocomplete-list" id="destDropdown"></div>
-            </div>
-          </div>
-
-          <!-- Travel Dates Card -->
-          <div class="step0-card">
-            <div class="step0-card__header">
-              <div class="step0-card__icon step0-card__icon--date">&#128197;</div>
-              <div>
-                <div class="step0-card__label">Travel Dates</div>
-                <div class="step0-card__sublabel">When does your adventure begin?</div>
-              </div>
-            </div>
-            <div class="row row--2">
-              <div class="field">
-                <label class="field__label" for="arrival">Arrival</label>
-                <input class="input" type="datetime-local" id="arrival" required>
-              </div>
-              <div class="field">
-                <label class="field__label" for="departure">Departure</label>
-                <input class="input" type="datetime-local" id="departure" required>
-              </div>
-            </div>
-          </div>
-
-          <!-- Schedule Preferences (collapsible) -->
-          <div class="step0-card">
-            <div class="step0-card__header" style="margin-bottom:0;padding-bottom:0;border-bottom:none;">
               <div class="step0-card__icon step0-card__icon--schedule">&#9200;</div>
-              <div style="flex:1;">
-                <button type="button" class="step0-schedule-toggle" id="scheduleToggle" onclick="document.getElementById('scheduleBody').classList.toggle('is-open');this.querySelector('.step0-schedule-toggle__arrow').classList.toggle('is-open');">
-                  Daily schedule preferences
-                  <span class="step0-schedule-toggle__arrow">&#9660;</span>
-                </button>
+              <div>
+                <div class="step0-card__label">Daily Schedule</div>
+                <div class="step0-card__sublabel">When do you want to start and end each day?</div>
               </div>
             </div>
-            <div class="step0-schedule-body" id="scheduleBody">
-              <div style="padding-top:var(--space-3);border-top:1px solid var(--color-border);margin-top:var(--space-3);">
-                <div class="row row--3">
-                  <div class="field">
-                    <label class="field__label" for="startTime">Day starts at</label>
-                    <input class="input" type="time" id="startTime" value="10:00">
-                  </div>
-                  <div class="field">
-                    <label class="field__label" for="endTime">Day ends at</label>
-                    <input class="input" type="time" id="endTime" value="18:30">
-                  </div>
-                  <div class="field">
-                    <label class="field__label" for="bufferTime">Buffer (min)</label>
-                    <input class="input" type="number" id="bufferTime" value="20" min="0" max="60">
-                  </div>
-                </div>
+            <div class="row row--3">
+              <div class="field">
+                <label class="field__label" for="startTime">Day starts at</label>
+                <input class="input" type="time" id="startTime" value="10:00">
+              </div>
+              <div class="field">
+                <label class="field__label" for="endTime">Day ends at</label>
+                <input class="input" type="time" id="endTime" value="18:30">
+              </div>
+              <div class="field">
+                <label class="field__label" for="bufferTime">Buffer (min)</label>
+                <input class="input" type="number" id="bufferTime" value="20" min="0" max="60">
               </div>
             </div>
           </div>
@@ -947,7 +1232,7 @@
 
         <div class="btn-bar">
           <span></span>
-          <button type="button" class="btn btn--primary btn-next">Let's Go &rarr;</button>
+          <button type="button" class="btn btn--primary btn-next">Continue &rarr;</button>
         </div>
       </section>
 
@@ -1582,6 +1867,373 @@
     // ================================================================
     const $ = (s) => document.querySelector(s);
     const $$ = (s) => document.querySelectorAll(s);
+
+    // ================================================================
+    //  DATE RANGE PICKER (Booking.com-style)
+    // ================================================================
+    (function initDatePicker() {
+      const DAYS_SHORT = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+      const MONTH_NAMES = [
+        'January','February','March','April','May','June',
+        'July','August','September','October','November','December'
+      ];
+      const container = $('#dpMonths');
+      const summaryEl = $('#dpSummary');
+      const errorEl = $('#dpError');
+      const arrivalInput = $('#arrival');
+      const departureInput = $('#departure');
+
+      let baseMonth = new Date().getMonth();
+      let baseYear = new Date().getFullYear();
+      let startDate = null;
+      let endDate = null;
+      let hoverDate = null;
+      let flexibility = 0;
+
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      function sameDay(a, b) {
+        return a && b && a.getFullYear() === b.getFullYear() &&
+          a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+      }
+
+      function inRange(d) {
+        if (!startDate || !endDate) return false;
+        return d > startDate && d < endDate;
+      }
+
+      function inHoverRange(d) {
+        if (!startDate || endDate || !hoverDate) return false;
+        const lo = startDate < hoverDate ? startDate : hoverDate;
+        const hi = startDate < hoverDate ? hoverDate : startDate;
+        return d > lo && d < hi;
+      }
+
+      function syncHidden() {
+        if (startDate) {
+          const s = new Date(startDate);
+          s.setHours(10, 0, 0, 0);
+          arrivalInput.value = s.toISOString().slice(0, 16);
+        } else {
+          arrivalInput.value = '';
+        }
+        if (endDate) {
+          const e = new Date(endDate);
+          e.setHours(10, 0, 0, 0);
+          departureInput.value = e.toISOString().slice(0, 16);
+        } else {
+          departureInput.value = '';
+        }
+      }
+
+      function updateSummary() {
+        const sbVal = document.getElementById('sbDatesValue');
+        if (startDate && endDate) {
+          const opts = { day: 'numeric', month: 'short' };
+          const nights = Math.round((endDate - startDate) / 86400000);
+          const flexNote = flexibility > 0 ? ` <span>(&plusmn; ${flexibility} day${flexibility > 1 ? 's' : ''})</span>` : '';
+          summaryEl.innerHTML =
+            `Check-in: <span>${startDate.toLocaleDateString('en-US', opts)}</span> &rarr; ` +
+            `Check-out: <span>${endDate.toLocaleDateString('en-US', opts)}</span> ` +
+            `(<span>${nights} night${nights !== 1 ? 's' : ''}</span>)${flexNote}`;
+          // Update search bar display
+          if (sbVal) {
+            sbVal.textContent = `${startDate.toLocaleDateString('en-US', opts)} \u2014 ${endDate.toLocaleDateString('en-US', opts)} (${nights}n)`;
+            sbVal.classList.remove('search-bar__value--placeholder');
+          }
+        } else if (startDate) {
+          const opts = { day: 'numeric', month: 'short' };
+          summaryEl.innerHTML = `Check-in: <span>${startDate.toLocaleDateString('en-US', opts)}</span> &rarr; Select check-out`;
+          if (sbVal) {
+            sbVal.textContent = `${startDate.toLocaleDateString('en-US', opts)} \u2014 ...`;
+            sbVal.classList.remove('search-bar__value--placeholder');
+          }
+        } else {
+          summaryEl.innerHTML = '';
+          if (sbVal) {
+            sbVal.innerHTML = 'Check-in &mdash; Check-out';
+            sbVal.classList.add('search-bar__value--placeholder');
+          }
+        }
+      }
+
+      function renderMonth(year, month, showPrev, showNext) {
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let html = `<div class="date-picker__month">`;
+        html += `<div class="date-picker__month-header">`;
+        if (showPrev) html += `<button type="button" class="date-picker__nav date-picker__nav--prev" data-dir="-1">&#8249;</button>`;
+        html += `<span class="date-picker__month-label">${MONTH_NAMES[month]} ${year}</span>`;
+        if (showNext) html += `<button type="button" class="date-picker__nav date-picker__nav--next" data-dir="1">&#8250;</button>`;
+        html += `</div>`;
+        html += `<div class="date-picker__grid">`;
+
+        DAYS_SHORT.forEach(d => { html += `<div class="date-picker__dow">${d}</div>`; });
+
+        for (let i = 0; i < firstDay; i++) {
+          html += `<div class="date-picker__day is-empty"></div>`;
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const date = new Date(year, month, d);
+          const classes = ['date-picker__day'];
+          const isPast = date < today;
+          if (isPast) classes.push('is-disabled');
+          if (sameDay(date, today)) classes.push('is-today');
+          if (sameDay(date, startDate)) classes.push('is-start');
+          if (sameDay(date, endDate)) classes.push('is-end');
+          if (inRange(date)) classes.push('is-in-range');
+          if (inHoverRange(date)) classes.push('is-range-hover');
+          html += `<button type="button" class="${classes.join(' ')}" data-date="${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}">${d}</button>`;
+        }
+
+        html += `</div></div>`;
+        return html;
+      }
+
+      function render() {
+        const m1 = baseMonth;
+        const y1 = baseYear;
+        const m2 = m1 === 11 ? 0 : m1 + 1;
+        const y2 = m1 === 11 ? y1 + 1 : y1;
+
+        container.innerHTML = renderMonth(y1, m1, true, false) + renderMonth(y2, m2, false, true);
+        updateSummary();
+      }
+
+      container.addEventListener('click', (e) => {
+        const nav = e.target.closest('.date-picker__nav');
+        if (nav) {
+          const dir = parseInt(nav.dataset.dir);
+          baseMonth += dir;
+          if (baseMonth > 11) { baseMonth = 0; baseYear++; }
+          if (baseMonth < 0) { baseMonth = 11; baseYear--; }
+          render();
+          return;
+        }
+
+        const dayBtn = e.target.closest('.date-picker__day');
+        if (!dayBtn || dayBtn.classList.contains('is-empty') || dayBtn.classList.contains('is-disabled')) return;
+
+        const parts = dayBtn.dataset.date.split('-');
+        const clicked = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+
+        if (!startDate || (startDate && endDate)) {
+          startDate = clicked;
+          endDate = null;
+        } else {
+          if (clicked < startDate) {
+            endDate = startDate;
+            startDate = clicked;
+          } else if (sameDay(clicked, startDate)) {
+            return;
+          } else {
+            endDate = clicked;
+          }
+        }
+
+        // Clear any validation error
+        if (errorEl) errorEl.classList.remove('is-visible');
+
+        syncHidden();
+        render();
+      });
+
+      // Hover preview — toggle CSS classes instead of re-rendering (avoids destroying DOM mid-click)
+      container.addEventListener('mouseover', (e) => {
+        const dayBtn = e.target.closest('.date-picker__day');
+        if (!dayBtn || dayBtn.classList.contains('is-empty') || dayBtn.classList.contains('is-disabled')) return;
+        if (startDate && !endDate) {
+          const parts = dayBtn.dataset.date.split('-');
+          const hover = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+          // Only update if hoverDate actually changed
+          if (hoverDate && hover.getTime() === hoverDate.getTime()) return;
+          hoverDate = hover;
+          // Toggle classes on existing elements instead of re-rendering
+          container.querySelectorAll('.date-picker__day[data-date]').forEach(el => {
+            const p = el.dataset.date.split('-');
+            const d = new Date(+p[0], +p[1] - 1, +p[2]);
+            const lo = startDate < hoverDate ? startDate : hoverDate;
+            const hi = startDate < hoverDate ? hoverDate : startDate;
+            el.classList.toggle('is-range-hover', d > lo && d < hi);
+          });
+        }
+      });
+
+      container.addEventListener('mouseleave', () => {
+        if (hoverDate) {
+          hoverDate = null;
+          container.querySelectorAll('.is-range-hover').forEach(el => el.classList.remove('is-range-hover'));
+        }
+      });
+
+      // Flexible dates bar
+      $('#dpFlex').addEventListener('click', (e) => {
+        const btn = e.target.closest('.date-picker__flex-btn');
+        if (!btn) return;
+        $$('.date-picker__flex-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        flexibility = parseInt(btn.dataset.flex);
+        updateSummary();
+      });
+
+      render();
+    })();
+
+    // ================================================================
+    //  SEARCH BAR — Dropdown toggles & traveler counter
+    // ================================================================
+    (function initSearchBar() {
+      const datesToggle = $('#sbDatesToggle');
+      const datesDrop = $('#sbDatesDropdown');
+      const travelersToggle = $('#sbTravelersToggle');
+      const travelersDrop = $('#sbTravelersDropdown');
+      const travelersValue = $('#sbTravelersValue');
+
+      let sbAdults = 1;
+      let sbChildren = 0;
+
+      function closeAllDropdowns() {
+        datesDrop.classList.remove('is-open');
+        travelersDrop.classList.remove('is-open');
+      }
+
+      function updateTravelersDisplay() {
+        const parts = [];
+        parts.push(`${sbAdults} adult${sbAdults !== 1 ? 's' : ''}`);
+        parts.push(`${sbChildren} child${sbChildren !== 1 ? 'ren' : ''}`);
+        travelersValue.textContent = parts.join(' \u00B7 ');
+      }
+
+      // Toggle dates dropdown (dropdown is a sibling, not a child — no bubbling issues)
+      datesToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasOpen = datesDrop.classList.contains('is-open');
+        closeAllDropdowns();
+        if (!wasOpen) datesDrop.classList.add('is-open');
+      });
+
+      // Toggle travelers dropdown
+      travelersToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasOpen = travelersDrop.classList.contains('is-open');
+        closeAllDropdowns();
+        if (!wasOpen) travelersDrop.classList.add('is-open');
+      });
+
+      // Stop clicks inside dropdowns from reaching document (which closes them)
+      datesDrop.addEventListener('click', (e) => e.stopPropagation());
+      travelersDrop.addEventListener('click', (e) => e.stopPropagation());
+
+      // Close dropdowns on outside click
+      document.addEventListener('click', () => closeAllDropdowns());
+
+      // Adult counter
+      $('#sbAdultPlus').addEventListener('click', (e) => {
+        e.stopPropagation();
+        sbAdults++;
+        $('#sbAdultNum').textContent = sbAdults;
+        $('#sbAdultMinus').disabled = sbAdults <= 1;
+        updateTravelersDisplay();
+        // Sync Step 1 counter
+        syncStep1Adults(sbAdults);
+      });
+      $('#sbAdultMinus').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (sbAdults <= 1) return;
+        sbAdults--;
+        $('#sbAdultNum').textContent = sbAdults;
+        $('#sbAdultMinus').disabled = sbAdults <= 1;
+        updateTravelersDisplay();
+        syncStep1Adults(sbAdults);
+      });
+
+      // Child counter
+      $('#sbChildPlus').addEventListener('click', (e) => {
+        e.stopPropagation();
+        sbChildren++;
+        $('#sbChildNum').textContent = sbChildren;
+        $('#sbChildMinus').disabled = sbChildren <= 0;
+        updateTravelersDisplay();
+        syncStep1Children(sbChildren);
+      });
+      $('#sbChildMinus').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (sbChildren <= 0) return;
+        sbChildren--;
+        $('#sbChildNum').textContent = sbChildren;
+        $('#sbChildMinus').disabled = sbChildren <= 0;
+        updateTravelersDisplay();
+        syncStep1Children(sbChildren);
+      });
+
+      // Done button closes travelers dropdown
+      $('#sbTravelersDone').addEventListener('click', (e) => {
+        e.stopPropagation();
+        travelersDrop.classList.remove('is-open');
+      });
+
+      // Sync search bar adults → Step 1 adult cards
+      function syncStep1Adults(target) {
+        const cards = $$('#parentsContainer .traveler-card');
+        const current = cards.length;
+        if (target > current) {
+          for (let i = 0; i < target - current; i++) {
+            const adultPlus = $('#adultPlus');
+            if (adultPlus) adultPlus.click();
+          }
+        } else if (target < current) {
+          for (let i = 0; i < current - target; i++) {
+            const adultMinus = $('#adultMinus');
+            if (adultMinus) adultMinus.click();
+          }
+        }
+      }
+
+      // Sync search bar children → Step 1 child cards
+      function syncStep1Children(target) {
+        const cards = $$('#childrenContainer .traveler-card');
+        const current = cards.length;
+        if (target > current) {
+          for (let i = 0; i < target - current; i++) {
+            const childPlus = $('#childPlus');
+            if (childPlus) childPlus.click();
+          }
+        } else if (target < current) {
+          for (let i = 0; i < current - target; i++) {
+            const childMinus = $('#childMinus');
+            if (childMinus) childMinus.click();
+          }
+        }
+      }
+
+      // "Let's Go" button — validate & go to step 0 (schedule)
+      $('#sbNext').addEventListener('click', (e) => {
+        e.stopPropagation(); // prevent document click from closing dropdown we may open
+        let valid = true;
+        const errorEl = $('#sbError');
+        errorEl.textContent = '';
+
+        if (!$('#destination').value.trim()) {
+          errorEl.textContent = 'Please enter a destination';
+          $('#destination').focus();
+          valid = false;
+        } else if (!$('#arrival').value || !$('#departure').value) {
+          errorEl.textContent = 'Please select your travel dates';
+          datesDrop.classList.add('is-open');
+          valid = false;
+        }
+
+        if (valid) {
+          // Search bar is done — proceed to step 0 (schedule preferences)
+          goToStep(0);
+          // Scroll to the page content
+          document.querySelector('.page-shell').scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    })();
 
     // ================================================================
     //  1. DOB DROPDOWNS — Year / Month / Day
@@ -2732,12 +3384,27 @@
       const count = $$('#parentsContainer .traveler-card').length;
       $('#adultCount').textContent = count;
       $('#adultMinus').disabled = count <= 1;
+      // Sync back to search bar
+      const sbNum = $('#sbAdultNum');
+      if (sbNum) { sbNum.textContent = count; $('#sbAdultMinus').disabled = count <= 1; }
+      updateSearchBarTravelers();
     }
 
     function syncChildCounter() {
       const count = $$('#childrenContainer .traveler-card').length;
       $('#childCount').textContent = count;
       $('#childMinus').disabled = count <= 0;
+      // Sync back to search bar
+      const sbNum = $('#sbChildNum');
+      if (sbNum) { sbNum.textContent = count; $('#sbChildMinus').disabled = count <= 0; }
+      updateSearchBarTravelers();
+    }
+
+    function updateSearchBarTravelers() {
+      const a = $$('#parentsContainer .traveler-card').length;
+      const c = $$('#childrenContainer .traveler-card').length;
+      const el = $('#sbTravelersValue');
+      if (el) el.textContent = `${a} adult${a !== 1 ? 's' : ''} \u00B7 ${c} child${c !== 1 ? 'ren' : ''}`;
     }
 
     // Adult plus
@@ -2963,99 +3630,10 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Step 0 validation — destination + dates required
+    // Step 0 validation — schedule preferences (always valid, has defaults)
     function validateStep0() {
-      let valid = true;
-      const dest = $('#destination');
-      const arrival = $('#arrival');
-      const departure = $('#departure');
-
-      // Clear previous errors
-      dest.classList.remove('input-error');
-      arrival.closest('.field')?.classList.remove('field--error');
-      departure.closest('.field')?.classList.remove('field--error');
-      document.querySelectorAll('.step0-card__error').forEach(e => e.classList.remove('is-visible'));
-
-      if (!dest.value.trim()) {
-        dest.classList.add('input-error');
-        let err = dest.parentElement.querySelector('.step0-card__error');
-        if (!err) {
-          err = document.createElement('div');
-          err.className = 'step0-card__error';
-          err.textContent = 'Please enter a destination';
-          dest.parentElement.appendChild(err);
-        }
-        err.classList.add('is-visible');
-        dest.focus();
-        valid = false;
-      }
-
-      if (!arrival.value) {
-        arrival.closest('.field').classList.add('field--error');
-        let err = arrival.closest('.field').querySelector('.field__error');
-        if (!err) {
-          err = document.createElement('div');
-          err.className = 'field__error';
-          err.textContent = 'Please select an arrival date';
-          err.style.display = 'block';
-          arrival.closest('.field').appendChild(err);
-        } else {
-          err.style.display = 'block';
-        }
-        if (valid) arrival.focus();
-        valid = false;
-      }
-
-      if (!departure.value) {
-        departure.closest('.field').classList.add('field--error');
-        let err = departure.closest('.field').querySelector('.field__error');
-        if (!err) {
-          err = document.createElement('div');
-          err.className = 'field__error';
-          err.textContent = 'Please select a departure date';
-          err.style.display = 'block';
-          departure.closest('.field').appendChild(err);
-        } else {
-          err.style.display = 'block';
-        }
-        if (valid) departure.focus();
-        valid = false;
-      }
-
-      // Check departure is after arrival
-      if (arrival.value && departure.value && new Date(departure.value) <= new Date(arrival.value)) {
-        departure.closest('.field').classList.add('field--error');
-        let err = departure.closest('.field').querySelector('.field__error');
-        if (!err) {
-          err = document.createElement('div');
-          err.className = 'field__error';
-          departure.closest('.field').appendChild(err);
-        }
-        err.textContent = 'Departure must be after arrival';
-        err.style.display = 'block';
-        if (valid) departure.focus();
-        valid = false;
-      }
-
-      return valid;
+      return true;
     }
-
-    // Clear errors on input
-    document.addEventListener('input', (e) => {
-      if (e.target.id === 'destination') {
-        e.target.classList.remove('input-error');
-        const err = e.target.parentElement.querySelector('.step0-card__error');
-        if (err) err.classList.remove('is-visible');
-      }
-      if (e.target.id === 'arrival' || e.target.id === 'departure') {
-        const field = e.target.closest('.field');
-        if (field) {
-          field.classList.remove('field--error');
-          const err = field.querySelector('.field__error');
-          if (err) err.style.display = 'none';
-        }
-      }
-    });
 
     // Step 1 validation — name + birth year required for every traveler
     function validateStep1() {
