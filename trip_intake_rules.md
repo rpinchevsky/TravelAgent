@@ -9,9 +9,22 @@
 **Dependencies:** None (standalone HTML — no build step, no external JS frameworks)
 **Design spec:** `trip_intake_design.md` (visual layout, CSS classes, component specs, animations)
 
+### Internationalization (i18n)
+
+The page supports 12 languages: English, Russian, Hebrew, Spanish, French, German, Italian, Portuguese, Chinese, Japanese, Korean, Arabic. A language selector in the hero section lets the user switch the entire UI language instantly.
+
+**Rules:**
+- All static UI text uses `data-i18n="key"` attributes. Placeholders use `data-i18n-placeholder="key"`.
+- The `setLanguage(code)` function translates all marked elements, sets `dir="rtl"` for Hebrew/Arabic, and persists the choice in `localStorage('tripIntakeLang')`.
+- Default language: detected from `navigator.language` (browser locale), falling back to English.
+- **Interest/avoid card names remain in English** — they are data keys used in the output markdown, not UI chrome.
+- The generated markdown output (Step 7 preview) always uses the **Report Language** selected in Step 6, not the UI language.
+- When adding new UI text, always include a `data-i18n` attribute and add the key to the `TRANSLATIONS` object for all 12 languages.
+- RTL languages (Hebrew, Arabic) flip layout direction: borders, paddings, text alignment, button arrows, and stepper direction all reverse.
+
 ## Wizard Flow (8 Steps)
 
-The form is a linear multi-step wizard with a progress bar. Steps are numbered 0-7. Each step with a questionnaire follows a standardized pattern: **5 questions per quiz**, auto-advancing, with sub-step dot indicators.
+The form is a linear multi-step wizard with a progress bar. Steps are numbered 0-7. Each step with a questionnaire follows a standardized pattern: **3-5 questions per quiz**, auto-advancing, with sub-step dot indicators. Redundant questions were removed — `energy` and `food` (Step 2) and `mobility` (Step 4) are now derived from the pace selector and food adventure answer respectively.
 
 ### Step 0 — Where & When
 
@@ -63,34 +76,30 @@ Two sections: **Parents/Adults** and **Children**. Both are dynamic lists with a
 
 ### Step 2 — Travel Style Questionnaire
 
-5 quick visual questions that profile the traveler's preferences. Answers drive **pre-selection** of interest/avoid chips on the next steps. Each question has 3 options (radio behavior — one selected per question). Default is the middle option.
+3 quick visual questions that profile the traveler's preferences. Answers drive **pre-selection** of interest/avoid chips on the next steps. Each question has 3 options (radio behavior — one selected per question). Default is the middle option.
 
 | # | Question Key | Question | Option A | Option B (default) | Option C |
 |---|---|---|---|---|---|
-| 1 | `energy` | What's your ideal day? | Chill & Relax | Mix of Both | Active & Adventurous |
-| 2 | `setting` | Where do you feel most alive? | City Streets | A Bit of Both | Nature & Outdoors |
-| 3 | `culture` | What draws you in? | History & Culture | Both | Fun & Entertainment |
-| 4 | `food` | How important is food? | A Major Highlight | Enjoy but Not Priority | Just Fuel |
-| 5 | `evening` | Your ideal evening? | Cozy Early Night | Dinner & Stroll | Late Night Out |
+| 1 | `setting` | Where do you feel most alive? | City Streets | A Bit of Both | Nature & Outdoors |
+| 2 | `culture` | What draws you in? | History & Culture | Both | Fun & Entertainment |
+| 3 | `evening` | Your ideal evening? | Cozy Early Night | Dinner & Stroll | Late Night Out |
+
+**Removed questions (redundant):**
+- `energy` ("What's your ideal day?") — redundant with Step 4 pace selector. Now **derived** from pace: relaxed→chill, balanced→mixed, packed→active.
+- `food` ("How important is food?") — redundant with Step 4 `foodadventure` + Step 5 `mealpriority`. Now **derived** from foodadventure: fearless→highlight, open→nice, safe→fuel.
 
 #### Answer → Pre-selection Mapping
 
-The `getPreSelectionsFromStyle(poolMap)` function scans all items in the active pools and pre-selects those matching keywords associated with each answer:
+The scoring function uses `energy` and `food` as derived values (see above). Pre-selection is driven by multi-dimensional scoring against INTEREST_DB item tags.
 
 | Answer | Exact items pre-selected |
 |---|---|
-| energy=chill | Spa & Thermal Baths, Thermal Baths & Wellness Spas, Botanical Gardens & Arboretums, Gentle River Cruises |
-| energy=mixed | Scenic Walking & Viewpoints, Boat or River Cruises |
-| energy=active | Hiking & Nature Trails, Cycling & E-bike Tours, Kayaking & Paddleboarding, Rope Parks & Adventure Courses |
 | setting=city | Historical Landmarks & Architecture, Shopping (Outlet / Local Brands), Art Galleries & Exhibitions |
 | setting=both | Parks & Gardens, Outdoor Markets & Craft Stalls |
 | setting=nature | National Parks & Nature Reserves, Waterfalls & Gorges, Lake & Beach Relaxation |
 | culture=culture | Historical Landmarks & Architecture, Guided Walking & History Tours, Theater Opera & Ballet |
 | culture=both | Cultural Festivals & Local Events, Family-Friendly Museums |
 | culture=fun | Arcade Games & Entertainment Centers, Escape Rooms & Puzzle Experiences, Amusement & Theme Parks |
-| food=highlight | Local Food Markets & Street Food, Local Cooking Classes, Wine Tasting & Vineyard Tours |
-| food=nice | Local Food Markets & Street Food |
-| food=fuel | _(none)_ |
 | evening=latenight | Rooftop Bars & Cocktail Lounges, Live Music & Jazz Clubs, Nightclubs & Dance Venues |
 | evening=stroll | Photography Spots & Scenic Lookouts |
 | evening=early | Scenic Walking & Viewpoints |
@@ -104,25 +113,28 @@ Interest chip suggestions are **dynamically generated** based on traveler compos
 
 Chips are organized into labeled sections. Only sections matching active profile flags are shown. Chips matching questionnaire answers are **pre-selected**.
 
+**Local Highlights Rule:** The interest suggestions must always include a "Local Tourist Highlights" section advising the user to visit the destination's most popular and iconic tourist attractions. This section appears for every group composition (it is not gated by any profile flag). It contains a prompt reminding users to consider the destination's top-rated landmarks, viewpoints, and must-see spots. The section header is "🏛️ Local Tourist Highlights" and includes a helper text: "Don't miss the most popular attractions at your destination — the iconic spots every visitor should see."
+
 Free-text textarea at the bottom for custom interests not in the predefined list.
 
 See §Dynamic Interest Engine below for the full pool definitions and flag logic.
 
 ### Step 4 — Avoid & Pace
 Three parts:
-1. **Avoid Mini-Quiz** — 5 visual card questions (auto-advance):
+1. **Avoid Mini-Quiz** — 4 visual card questions (auto-advance):
 
 | # | Question Key | Question | Option A | Option B (default) | Option C |
 |---|---|---|---|---|---|
-| 1 | `mobility` | How active can your group be? | Take It Easy | Moderate | Very Active |
-| 2 | `noise` | What's your crowd & noise comfort? | Quiet & Calm | Flexible | Bring the Energy |
-| 3 | `foodadventure` | How adventurous with food? | Keep It Safe | Open to Try | Fearless Foodie |
-| 4 | `budget` | What's your spending comfort? | Budget-Friendly | Worth the Spend | Treat Ourselves |
-| 5 | `flexibility` | How structured should the plan be? | Stick to the Plan | Loose Framework | Go with the Flow |
+| 1 | `noise` | What's your crowd & noise comfort? | Quiet & Calm | Flexible | Bring the Energy |
+| 2 | `foodadventure` | How adventurous with food? | Keep It Safe | Open to Try | Fearless Foodie |
+| 3 | `budget` | What's your spending comfort? | Budget-Friendly | Worth the Spend | Treat Ourselves |
+| 4 | `flexibility` | How structured should the plan be? | Stick to the Plan | Loose Framework | Go with the Flow |
+
+**Removed question:** `mobility` ("How active can your group be?") — redundant with the pace selector below. Now **derived** from pace: relaxed→limited, balanced→moderate, packed→high.
 
 After quiz completes, quiz collapses and avoid cards + pace selector appear below.
 
-2. **Things to Avoid** — Dynamic cards scored by quiz answers (mobility, noise, foodadventure, budget, flexibility dimensions) + free-text textarea
+2. **Things to Avoid** — Dynamic cards scored by quiz answers (noise, foodadventure, budget, flexibility + mobility derived from pace) + free-text textarea
 3. **Trip Pace** — 3 options:
    - Relaxed (2-3 activities/day)
    - Balanced (3-5, quality over quantity) — **default selected**
@@ -212,6 +224,7 @@ Three pool maps exist: `INTEREST_POOLS`, `AVOID_POOLS`, `VIBE_POOLS`. Each is a 
 ### Section Display Logic
 For each key in a pool map:
 - If key is `core` → always render
+- If key is `localHighlights` → always render (not gated by any flag)
 - If `flags[key]` is `true` → render
 - Otherwise → skip
 
@@ -224,6 +237,7 @@ When navigating between steps, selected chip states are saved to `Set` objects (
 
 | Pool Key | Section Label | Count | Examples |
 |---|---|---|---|
+| `localHighlights` | 🏛️ Local Tourist Highlights | 8 | Top-rated landmarks, iconic viewpoints, must-see museums, famous squares, signature bridges, historic districts, renowned monuments, popular observation decks |
 | `core` | Popular for Everyone | 12 | Food markets, parks, boat cruises, photography spots |
 | `adultsOnly` | Great for Adults | 20 | Wine tasting, fine dining, rooftop bars, spa, hiking, paragliding |
 | `youngAdult` | Young & Energetic (18-30) | 15 | Nightclubs, pub crawls, music festivals, bungee jumping |
