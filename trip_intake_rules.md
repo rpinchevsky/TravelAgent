@@ -5,7 +5,8 @@
 `trip_intake.html` is a standalone, self-contained wizard page that collects traveler information and outputs a trip details file — the input file the trip generation pipeline reads from. It replaces manual authoring of `trip_details.md` with a guided, user-friendly form.
 
 **File:** `trip_intake.html` (project root)
-**Output:** `llm_trip_details.md` by default (downloaded by user or copied to clipboard). The user may rename the downloaded file (e.g., `Maryan.md`). Any file following the trip details markdown structure is a valid input to the Trip Generation Pipeline.
+**Output:** Downloaded with a dynamic filename `{name}_trip_details_{date}.md` (see Output Format for construction rules). The user may rename the downloaded file. Any file following the trip details markdown structure is a valid input to the Trip Generation Pipeline.
+**Bridge server:** `trip_bridge.js` — optional Node.js server (`node trip_bridge.js`) that enables one-click trip generation. When running, the "Build My Dream Trip" button saves the file directly to the project directory and launches `claude` in a new terminal to generate the trip. When not running, the page falls back to browser download + copy command. Endpoints: `POST /generate` (save + start), `GET /progress/:id` (SSE stream), `POST /cancel/:id` (stop generation), `GET /latest-trip` (find generated HTML), `GET /file/*` (serve from generated_trips/).
 **Dependencies:** None (standalone HTML — no build step, no external JS frameworks)
 **Design spec:** `trip_intake_design.md` (visual layout, CSS classes, component specs, animations)
 
@@ -17,16 +18,23 @@ The page supports 12 languages: English, Russian, Hebrew, Spanish, French, Germa
 - All static UI text uses `data-i18n="key"` attributes. Placeholders use `data-i18n-placeholder="key"`.
 - The `setLanguage(code)` function translates all marked elements, sets `dir="rtl"` for Hebrew/Arabic, and persists the choice in `localStorage('tripIntakeLang')`.
 - Default language: detected from `navigator.language` (browser locale), falling back to English.
-- **Interest/avoid card names remain in English** — they are data keys used in the output markdown, not UI chrome.
-- The generated markdown output (Step 7 preview) always uses the **Report Language** selected in Step 6, not the UI language.
+- **All UI text — including dynamically generated card names — must display in the selected UI language.** The `ITEM_I18N` map provides RU/HE translations for all INTEREST_DB, AVOID_DB, FOOD_DB, and VIBE_DB items. The `tItem(name)` helper returns the translated display name. Each card stores its English name in `data-en-name` for markdown output.
+- **The generated markdown output always uses English names** regardless of UI language. `getSelectedDynamic()` reads `data-en-name` attributes to ensure the trip planning pipeline receives consistent English identifiers.
+- The generated markdown output (Step 7 preview) always uses the **Report Language** selected in Step 6, not the UI language. The report language defaults to match the UI language.
 - When adding new UI text, always include a `data-i18n` attribute and add the key to the `TRANSLATIONS` object for all 12 languages.
+- When adding new items to INTEREST_DB, AVOID_DB, FOOD_DB, or VIBE_DB, also add RU and HE translations to the `ITEM_I18N` map.
 - RTL languages (Hebrew, Arabic) flip layout direction: borders, paddings, text alignment, button arrows, and stepper direction all reverse.
+- **Language consistency rule:** Every screen the user sees during trip customization must display entirely in the selected UI language. Mixed-language screens (e.g., Hebrew labels with English card names) are a bug.
 
 ## Wizard Flow (8 Steps)
 
-The form is a linear multi-step wizard with a progress bar. Steps are numbered 0-7. Each step with a questionnaire follows a standardized pattern: **3-5 questions per quiz**, auto-advancing, with sub-step dot indicators. Redundant questions were removed — `energy` and `food` (Step 2) and `mobility` (Step 4) are now derived from the pace selector and food adventure answer respectively.
+The form is a linear multi-step wizard with a progress bar. Steps are numbered 0-7. Step 2 uses a questionnaire pattern (visual card questions, auto-advancing, with sub-step dot indicators). Steps 3-5 use a **consistent card-selection pattern**: title, short description, and a grid of selectable cards — no inline quizzes. Redundant questions were removed — `energy` and `food` (Step 2) and `mobility` (Step 4) are now derived from the pace selector and food adventure answer respectively.
 
-**Question Depth Selector:** After completing Step 1 (Who's Traveling), an overlay presents 5 depth options: 10 (Quick), 15 (Light), 20 (Standard — default), 25 (Detailed), 30 (Deep Dive). The selected depth determines which questions are shown via a tier system. Steps 0, 1, and 7 are always fully present. The selector can be reopened from the context bar depth pill at any point before Step 7. See "Question Inventory & Depth Tiers" section for the full tier table.
+**Design consistency rule:** Steps 3 (Interests), 4 (Avoid), and 5 (Food & Dining) must follow the same visual pattern: a step title, a one-line description, and a grid of selectable cards. No quiz questions, sub-step dots, or multi-phase UI should appear on these steps. This ensures users experience a uniform, predictable interaction across all selection screens.
+
+**Search bar & hero visibility:** The search bar (destination, dates, travelers) and value-prop badges are only visible on Step 0. Once the user proceeds to Step 1+, these elements are hidden to keep the focus on the current step content. Going back to Step 0 restores them.
+
+**Question Depth Selector:** After completing Step 1 (Who's Traveling), an overlay presents 5 depth options: 10 (Quick), 15 (Light), 20 (Standard — default), 25 (Detailed), 30 (Deep Dive). The selected depth determines which questions are shown in Step 2 via a tier system. Steps 0, 1, 3-7 are always fully present regardless of depth. The selector can be reopened at any point before Step 7. See "Question Inventory & Depth Tiers" section for the full tier table.
 
 ### Step 0 — Where & When
 
@@ -47,7 +55,7 @@ Two sections: **Parents/Adults** and **Children**. Both are dynamic lists with a
 #### Parent Card Fields
 | Field | Type | Required | Notes |
 |---|---|---|---|
-| Name / Role | text | Yes | e.g., "Robert", "Anna" |
+| Name | text | Yes | e.g., "Robert", "Anna" |
 | Gender | select | No | Options: Male, Female |
 | Date of Birth — Year | dropdown | Yes | Year range: 1940–current year, most recent first |
 | Date of Birth — Month | dropdown | No | January–December, zero-padded values (01–12) |
@@ -123,92 +131,71 @@ Free-text textarea at the bottom for custom interests not in the predefined list
 See §Dynamic Interest Engine below for the full pool definitions and flag logic.
 
 ### Step 4 — Avoid & Pace
-Three parts:
-1. **Avoid Mini-Quiz** — up to 16 visual card questions (auto-advance, count varies by depth):
+Two parts (consistent card-selection design, no inline quiz):
 
-| # | Question Key | Tier | Question | Option A | Option B (default) | Option C |
-|---|---|---|---|---|---|---|
-| 1 | `noise` | T1 | What's your crowd & noise comfort? | Quiet & Calm | Flexible | Bring the Energy |
-| 2 | `foodadventure` | T1 | How adventurous with food? | Keep It Safe | Open to Try | Fearless Foodie |
-| 3 | `budget` | T1 | What's your spending comfort? | Budget-Friendly | Worth the Spend | Treat Ourselves |
-| 4 | `flexibility` | T1 | How structured should the plan be? | Stick to the Plan | Loose Framework | Go with the Flow |
-| 5 | `transport` | T3 | Preferred getting around? | Walking | Public Transit | Taxi & Rideshare |
-| 6 | `morningPreference` | T3 | Morning or afternoon person? | Morning Person | No Preference | Afternoon Starter |
-| 7 | `visitDuration` | T5 | Attraction visit style? | Quick Highlights | Moderate Exploration | Deep Immersion |
-| 8 | `shopping` | T5 | How important is shopping? | Skip It | Browse if Convenient | Dedicated Shopping Time |
-| 9 | `walkingTolerance` | T2 | How much walking can your group handle? | Light Walks (~2km) | Moderate (~5km) | Marathon Mode (~10km+) |
-| 10 | `weatherSensitivity` | T2 | How does weather affect your plans? | Indoor Backup Please | Flexible | Rain or Shine |
-| 11 | `crowdTolerance` | T3 | How do you feel about popular tourist spots? | Prefer Off-Peak | Some Crowds OK | Don't Mind Queuing |
-| 12 | `groupSplitting` | T4 | Open to the group splitting up? | Stay Together | Maybe for 1-2 Activities | Totally Fine |
-| 13 | `souvenirShopping` | T4 | What kind of souvenirs interest you? | Skip Souvenirs | Local Crafts & Food | Everything |
-| 14 | `relaxationTime` | T4 | How much downtime do you need? | Keep Going | Short Breaks | Long Leisurely Breaks |
-| 15 | `socialInteraction` | T5 | How social do you want the trip to be? | Private & Intimate | Small Group OK | Love Meeting People |
-| 16 | `surpriseOpenness` | T5 | How open are you to spontaneous changes? | Prefer the Plan | Small Detours OK | Surprise Me! |
-
-**Removed question:** `mobility` ("How active can your group be?") — redundant with the pace selector below. Now **derived** from pace: relaxed→limited, balanced→moderate, packed→high.
-
-After quiz completes, quiz collapses and avoid cards + pace selector appear below.
-
-2. **Things to Avoid** — Dynamic cards scored by quiz answers (noise, foodadventure, budget, flexibility + mobility derived from pace) + free-text textarea
-3. **Trip Pace** — 3 options:
+1. **Things to Avoid** — Dynamic cards filtered by audience flags and scored using default preference values (noise=flexible, foodadventure=open, budget=balanced, flexibility=loose, mobility derived from pace). Cards with score ≥ 3 are pre-selected. The user can select/deselect freely. Free-text textarea for custom avoids.
+2. **Trip Pace** — 3 options:
    - Relaxed (2-3 activities/day)
    - Balanced (3-5, quality over quantity) — **default selected**
    - Action-Packed (5+ activities)
 
+**Note:** The avoid-quiz questions (noise, foodadventure, budget, flexibility, transport, etc.) exist in the DOM with default values but are hidden (`display: none`). Their default `is-selected` values feed into `getAvoidQuizAnswers()` for scoring. The quiz UI was removed for design consistency with Steps 3 and 5.
+
 ### Step 5 — Food & Dining
-**Food Mini-Quiz** — up to 6 visual card questions (auto-advance, count varies by depth):
+Consistent card-selection design (no inline quiz). Three parts:
 
-| # | Question Key | Tier | Question | Options |
-|---|---|---|---|---|
-| 1 | `diet` | T1 | What does your group eat? | Everything / Meat Lovers / Mostly Veggie / Plant-Based |
-| 2 | `diningstyle` | T1 | Where do you love eating? | Street Food & Markets / Casual Restaurants (default) / Upscale Dining |
-| 3 | `kidsfood` | T2 | Any dietary restrictions or allergies? | Very Picky / Some Flexibility (default) / Eats Everything |
-| 4 | `mealpriority` | T2 | Which meal matters most? | Breakfast & Brunch / Lunch is King / Dinner is the Event (default) |
-| 5 | `localfood` | T2 | How local should the food be? | Keep It Familiar / Mix of Both (default) / Full Local Immersion |
-| 6 | `snacking` | T4 | How important is snacking? | Skip Snacks / Occasional Nibbles (default) / Serious Snacker |
+1. **Food Experience Cards** — Dynamic cards filtered by audience flags and scored using default food preferences (diet=omnivore, diningstyle=casual, adventure=open). Top-scored items are pre-selected. The user can select/deselect freely.
+2. **Dining Vibe Cards** — Selectable vibe cards filtered by audience flags (e.g., "Romantic & intimate" for couples, "Playgrounds for kids" for families).
+3. **Food Notes** — Free-text textarea for allergies, must-haves, dislikes.
 
-After quiz completes, quiz collapses and food experience cards + dining vibe cards appear below.
-
-| Field | Type | Notes |
-|---|---|---|
-| Food experience cards | dynamic cards (supplementary) | Scored by diet, dining style, adventure, localness |
-| Dining Vibe | chip group (supplementary) | Built from vibe pools matching traveler flags |
-| Food notes textarea | textarea (supplementary) | Allergies, must-haves, dislikes |
+**Note:** The food-quiz questions (diet, diningstyle, kidsfood, mealpriority, localfood, snacking) exist in the DOM with default values but are hidden (`display: none`). Their default values feed into `getFoodQuizAnswers()` for scoring. The quiz UI was removed for design consistency with Steps 3 and 4.
 
 ### Step 6 — Language & Extras
 | Field | Tier | Type | Notes |
 |---|---|---|---|
-| Report Language | — | select (supplementary) | Options: English, Russian, Hebrew, Spanish, French, German, Italian, Portuguese, Chinese, Japanese, Korean, Arabic |
-| POI Languages | — | text (supplementary) | Comma-separated, e.g., "Hungarian, English" |
+| Report Language | — | select (supplementary) | Options: English, Russian, Hebrew, Spanish, French, German, Italian, Portuguese, Chinese, Japanese, Korean, Arabic. Defaults to match UI language. |
+| POI Languages | — | auto-hint (read-only) | Automatically set to "Local destination language, {report language}". No user input needed. |
 | Additional Notes | — | textarea (supplementary) | Free-form |
 | Photography | T4 | 3-option card | Not a Priority / Nice Bonus (default) / Major Activity |
 | Accessibility | T5 | 3-option card | No Special Needs (default) / Prefer Flat Routes / Wheelchair Accessible |
 
 ### Step 7 — Review & Download
-- **Preview:** Rendered markdown in preview box
+- **Preview:** Rendered markdown in preview box. The preview tab label shows the dynamic filename (`{name}_trip_details_{date}.md`) and refreshes each time Step 7 is entered.
 - **Actions:**
   - "Copy to Clipboard" — copies raw markdown text
-  - "Download llm_trip_details.md" — triggers browser download as `.md` file
+  - "Download" — triggers browser download with the dynamic filename `{name}_trip_details_{date}.md` (see Output Format below for filename construction rules)
+- **Post-Download:** After download, a "Next Step" section appears with:
+  - Success message confirming the profile was saved
+  - Pre-filled command: `generate trip from {filename}` (using the exact downloaded filename)
+  - "Copy Command" button (copies to clipboard, shows toast)
+  - Instructional text directing the user to paste into Claude Code
+  - The section updates if the user downloads again after making edits
+  - The section resets (hides) when navigating away from Step 7 and back
+  - **Pipeline Roadmap:** A visual timeline showing the 6 generation pipeline steps (Overview, Day Generation, Budget, Assembly, HTML Render, Quality Testing) with proportional duration bars and estimated times (~28 min total). Steps 2 and 5 are visually emphasized as the two longest phases.
+- **Bridge Integration:** The download button first attempts to connect to the bridge server (`localhost:3456`). If available, it saves the file directly and starts trip generation in a new terminal — no copy-paste needed. If the bridge is not running, it falls back to browser download + copy command.
+- **Generating mode:** During trip generation, the hero, search bar, preview, and wizard steps are hidden (`body.is-generating` CSS class). Only the pipeline roadmap and log are visible.
+- **Stop button:** A "Stop Generation" button allows cancelling the running generation via `POST /cancel/:id`. Clicking it kills the claude process, resets the pipeline UI, and restores the wizard for editing.
+- **Open Trip button:** After successful generation, an "Open Trip" button appears. It fetches the latest generated trip folder via `GET /latest-trip` and opens the HTML file via `GET /file/*`.
 - **Edit:** "Back" button returns to Step 6
 
 ## Destination Autocomplete
 
-Uses **OpenStreetMap Nominatim API** (free, no API key).
+Uses a **hybrid approach**: local country list for instant multilingual matching + OpenStreetMap Nominatim API for city results.
 
 ### Behavior
-- Triggers after 2+ characters typed
-- 300ms debounce to avoid excessive API calls
-- Max 6 results, deduplicated by city+country
-- Each suggestion shows city name (bold) + region/country (muted)
+- **Local countries** (50 entries with en/ru/he names): matched instantly as the user types, shown with 🌍 icon. Matching works across all 3 languages (e.g., typing "ישראל" matches Israel).
+- **Nominatim API cities**: fetched after 2+ characters with 300ms debounce, shown with 🏙️ icon. Max 6 results, deduplicated by city+country.
+- Countries appear first in the dropdown, then cities. Duplicate entries are removed.
 - Keyboard navigation: Arrow Up/Down to highlight, Enter to select, Escape to close
 - Click outside closes dropdown
-- On selection, input is set to `"City, Country"` format
+- On country selection, input is set to the country name only (not "Country, Country") and a **city hint** appears below the search bar: "Tip: specify a city for a more detailed itinerary" (red text).
+- On city selection, input is set to `"City, Country"` format and the city hint is hidden.
 
 ### API Call
 ```
 GET https://nominatim.openstreetmap.org/search
   ?q={query}&format=json&addressdetails=1&limit=6
-  &accept-language=en&featuretype=city
+  &accept-language={currentLang}&featuretype=city
 Headers: User-Agent: TripIntakeForm/1.0
 ```
 
@@ -218,7 +205,7 @@ The wizard supports 5 depth levels: 10 (Quick), 15 (Light), 20 (Standard), 25 (D
 
 ### Tier Table (Quiz Questions Only)
 
-All 30 tiered questions are real visual quiz-card questions with 3 selectable options each.
+All 30 tiered questions are real visual quiz-card questions with 3 selectable options each. **Note:** Questions assigned to Steps 4 and 5 are present in the DOM with default values but their quiz UI is hidden. Only Step 2 questions are visually interactive. Steps 4-5 quiz defaults are used for scoring card relevance.
 
 | Tier | Questions | Count | Cumulative | Depth Levels |
 |------|-----------|-------|------------|-------------|
@@ -247,15 +234,15 @@ These fields are always visible within their step and do not count toward the qu
 
 ### Depth Defaults
 
-When a question is hidden due to depth selection, its default value is used in the generated markdown. Defaults are always the "middle" or "balanced" option. See the `QUESTION_DEFAULTS` constant in `trip_intake.html` for the complete default values table.
+When a question is hidden due to depth selection, its default value is used in the generated markdown. Defaults are always the "middle" or "balanced" option. For Steps 4-5 quiz questions (which are always hidden from the UI), the DOM `is-selected` defaults are used: noise=flexible, foodadventure=open, budget=balanced, flexibility=loose, diet=omnivore, diningstyle=casual. See the `QUESTION_DEFAULTS` constant in `trip_intake.html` for the complete default values table.
 
 ### Step Visibility Rules
 
-- If ALL questions in a step are hidden -> step is auto-skipped (stepper hides it)
-- If SOME questions in a step are hidden -> step is shown with reduced content
-- Minimum 2 visible questions per shown step; if only 1, merge with adjacent step
-- Quiz sub-step dots reflect only visible questions
-- At depth 10/15: Step 5 (Food) has only `diet` (1 question) -> merged into Step 4
+- Steps 0, 1, 3, 4, 5, 6, 7 are **always visible** in the stepper regardless of depth level.
+- Step 2 (Travel Style) visibility depends on depth: if ALL style questions are hidden, step is auto-skipped.
+- Steps 3-5 always show their card-selection grids (supplementary content, not gated by depth).
+- Step merging is disabled — Step 5 is never merged into Step 4.
+- Quiz sub-step dots in Step 2 reflect only visible questions at the selected depth.
 
 ## Dynamic Interest Engine
 
@@ -343,7 +330,13 @@ Items are stored in `AVOID_DB` with scoring dimensions: `mobility`, `noise`, `fo
 | `couple` | 4 | Candlelit, wine bar, chef's table, private dining |
 | `senior` | 4 | Quiet, heritage venues, accessible, early dining |
 
-## Output Format (llm_trip_details.md)
+## Output Format
+
+The generated markdown is downloaded with a dynamic filename following the pattern `{name}_trip_details_{date}.md`:
+
+- **`{name}`**: First parent's name from Step 1, lowercased, spaces replaced with underscores, non-`[a-z0-9_]` characters stripped. Falls back to `traveler` if empty after sanitization.
+- **`{date}`**: Arrival date from Step 0 in `YYYY-MM-DD` format. Falls back to `undated` if not set.
+- **Examples:** `robert_trip_details_2026-07-15.md`, `anna_maria_trip_details_2026-08-01.md`, `traveler_trip_details_undated.md`
 
 The generated markdown must match the structure of `trip_details.md` so it can be consumed by the trip generation pipeline. The exact structure:
 

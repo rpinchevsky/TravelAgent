@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>תל אביב-יפו 2026 — מסלול טיול</title>
+  <style>
+/* ==========================================================================
+   Enterprise Travel UI System v3.0
+   rendering_style_config.css
+   Source of Truth: rendering-config.md
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* --- Spacing Scale (8px base) --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+
+  /* --- Border Radius --- */
+  --radius-container: 12px;
+  --radius-interactive: 6px;
+
+  /* --- Typography --- */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-body: 1.5;
+  --line-height-heading: 1.2;
+
+  /* --- Type Scale (fluid, mobile-first) --- */
+  --text-xs:   0.75rem;   /* 12px */
+  --text-sm:   0.875rem;  /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.125rem;  /* 18px */
+  --text-xl:   1.25rem;   /* 20px */
+  --text-2xl:  1.5rem;    /* 24px */
+  --text-3xl:  1.875rem;  /* 30px */
+  --text-4xl:  2.25rem;   /* 36px */
+
+  /* --- Light Theme Color Palette --- */
+  /* Brand */
+  --color-brand-primary:    #1A3C5E;   /* Deep navy — trust & authority */
+  --color-brand-accent:     #C9972B;   /* Warm gold — premium feel */
+  --color-brand-accent-alt: #2E7D9A;   /* Teal — destinations & maps */
+
+  /* Surface */
+  --color-bg:               #F8F7F4;   /* Warm off-white parchment */
+  --color-surface:          #FFFFFF;
+  --color-surface-raised:   #F2F0EC;
+  --color-surface-overlay:  rgba(255, 255, 255, 0.92);
+
+  /* Typography */
+  --color-text-primary:     #1C1C1E;
+  --color-text-secondary:   #4A4A52;
+  --color-text-muted:       #8A8A96;
+  --color-text-inverse:     #FAFAFA;
+
+  /* Borders */
+  --color-border:           rgba(0, 0, 0, 0.10);
+  --color-border-strong:    rgba(0, 0, 0, 0.20);
+
+  /* Semantic */
+  --color-success:          #2D7D3A;
+  --color-warning:          #C9972B;
+  --color-error:            #B53B3B;
+  --color-info:             #2E7D9A;
+
+  /* Focus ring */
+  --focus-ring: 2px solid var(--color-brand-accent);
+  --focus-ring-offset: 2px;
+
+  /* --- Sidebar --- */
+  --sidebar-width: 260px;
+  --sidebar-bg: var(--color-brand-primary);
+  --sidebar-text: var(--color-text-inverse);
+
+  /* --- Z-Index Scale --- */
+  --z-below:   -1;
+  --z-base:     0;
+  --z-raised:   10;
+  --z-nav:      1000;
+  --z-modal:    2000;
+  --z-tooltip:  3000;
+
+  /* --- Transitions --- */
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+
+  /* --- Shadows --- */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+  --shadow-lg:  0 8px 28px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-xl:  0 20px 60px rgba(0,0,0,0.12);
+}
+
+/* --- Dark Theme Override via media query --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:              #0F1923;
+    --color-surface:         #1A2A3A;
+    --color-surface-raised:  #1F3247;
+    --color-surface-overlay: rgba(26, 42, 58, 0.94);
+
+    --color-text-primary:    #FAFAFA;
+    --color-text-secondary:  #C8CDD6;
+    --color-text-muted:      #7B8693;
+    --color-text-inverse:    #1C1C1E;
+
+    --color-border:          rgba(255, 255, 255, 0.10);
+    --color-border-strong:   rgba(255, 255, 255, 0.20);
+
+    --color-brand-accent:    #D4A83A;   /* slightly brighter gold on dark */
+
+    --sidebar-bg:            #0D1F2D;
+
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.30);
+    --shadow-md:  0 4px 12px rgba(0,0,0,0.30);
+    --shadow-lg:  0 8px 28px rgba(0,0,0,0.40);
+    --shadow-xl:  0 20px 60px rgba(0,0,0,0.50);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   2. MODERN CSS RESET
+   -------------------------------------------------------------------------- */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent font-size inflation on mobile */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* Safe area for notched devices */
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  /* CRITICAL: Do NOT add overflow hidden/auto/scroll here — breaks sticky nav */
+}
+
+img, video, picture, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  /* Performance: all images lazy by default */
+  loading: lazy;
+  height: auto;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: var(--line-height-heading);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+ul[role='list'], ol[role='list'] {
+  list-style: none;
+}
+
+a {
+  color: var(--color-brand-accent-alt);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--transition-fast), opacity var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-brand-primary);
+  opacity: 0.85;
+}
+
+/* Universal focus ring — WCAG 2.1 keyboard navigation */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-interactive);
+}
+
+/* Remove focus ring for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   3. PAGE LAYOUT — Mobile-first, CSS Grid
+   -------------------------------------------------------------------------- */
+
+/*
+  Mobile: single-column stacked layout
+  Desktop (≥1024px): sidebar + main content
+  CRITICAL: No overflow on .page-wrapper — stickiness depends on root scroll
+*/
+
+.page-wrapper {
+  display: block;            /* Mobile: block layout — grid breaks sticky on iOS Safari */
+  min-height: 100dvh;
+}
+
+@media (min-width: 1024px) {
+  .page-wrapper {
+    display: grid;           /* Desktop: switch to grid for sidebar layout */
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: 1fr;
+  }
+}
+
+.main-content {
+  padding: var(--space-4) var(--space-3);
+  max-width: 960px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding: var(--space-5) var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: var(--space-6) var(--space-6);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   4. SIDEBAR NAVIGATION — Desktop Fixed, Auto-Dark
+   -------------------------------------------------------------------------- */
+
+.sidebar {
+  display: none; /* hidden on mobile — pill nav takes over */
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  width: var(--sidebar-width);
+  padding: var(--space-5) var(--space-3);
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    position: sticky;       /* sticks within viewport as user scrolls */
+    top: 0;
+    height: 100dvh;
+    overflow-y: auto;
+  }
+}
+
+.sidebar__logo {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-accent);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: var(--space-3);
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-interactive);
+  color: rgba(250, 250, 250, 0.75);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar__link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-inverse);
+  opacity: 1;
+}
+
+.sidebar__link.is-active,
+.sidebar__link[aria-current="page"] {
+  background-color: var(--color-brand-accent);
+  color: #1C1C1E;
+  font-weight: var(--font-weight-semibold);
+}
+
+.sidebar__link svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   5. MOBILE NAV — Horizontal Scrollable Pill Row
+   -------------------------------------------------------------------------- */
+
+.mobile-nav {
+  /* Sticky wrapper — MUST NOT have overflow to work on iOS Safari */
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  top: env(safe-area-inset-top, 0);
+  z-index: var(--z-nav);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.mobile-nav__scroll {
+  /* Inner scroll container — handles horizontal overflow */
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  overflow-x: auto;
+  scrollbar-width: none;         /* Firefox */
+  -ms-overflow-style: none;      /* IE/Edge */
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+.mobile-nav__scroll::-webkit-scrollbar {
+  display: none;                 /* Chrome/Safari */
+}
+
+@media (min-width: 1024px) {
+  .mobile-nav {
+    display: none;               /* hidden on desktop — sidebar takes over */
+  }
+}
+
+.mobile-nav__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), color var(--transition-fast),
+              border-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.mobile-nav__pill:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  opacity: 1;
+}
+
+.mobile-nav__pill.is-active {
+  background-color: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+
+/* --------------------------------------------------------------------------
+   6. CARDS — Elegant Container System
+   -------------------------------------------------------------------------- */
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.card--flat {
+  box-shadow: none;
+  background-color: var(--color-surface-raised);
+}
+
+.card--featured {
+  border-left: 4px solid var(--color-brand-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.card__title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.card__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.card__body {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+}
+
+.card__footer {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* Day Card — wraps a full itinerary day */
+.day-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin-bottom: var(--space-5);
+}
+
+.day-card__banner {
+  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-accent-alt) 100%);
+  color: var(--color-text-inverse);
+  padding: var(--space-4) var(--space-5);
+}
+
+.day-card__banner-date {
+  font-size: var(--text-sm);
+  opacity: 0.8;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.day-card__banner-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--space-1);
+}
+
+.day-card__content {
+  padding: var(--space-4) var(--space-5);
+}
+
+
+/* --------------------------------------------------------------------------
+   7. ITINERARY TABLE — Comfortable (desktop) / Compact (mobile)
+   -------------------------------------------------------------------------- */
+
+.itinerary-table-wrapper {
+  width: 100%;
+  border-radius: var(--radius-container);
+  border: 1px solid var(--color-border);
+  overflow-x: auto;       /* horizontal scroll on small screens */
+  box-shadow: var(--shadow-sm);
+  /* Note: overflow-x only on this wrapper, never on body/page-wrapper */
+}
+
+.itinerary-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--text-sm);       /* Compact on mobile */
+}
+
+/* Sticky column headers */
+.itinerary-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--space-2) var(--space-3);   /* Compact padding */
+  text-align: left;
+  z-index: var(--z-raised);
+  border-bottom: 2px solid var(--color-brand-accent);
+  white-space: nowrap;
+}
+
+.itinerary-table thead th:first-child {
+  border-top-left-radius: var(--radius-container);
+}
+
+.itinerary-table thead th:last-child {
+  border-top-right-radius: var(--radius-container);
+}
+
+.itinerary-table tbody td {
+  padding: var(--space-2) var(--space-3);   /* Compact */
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+}
+
+.itinerary-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.itinerary-table tbody tr:nth-child(even) {
+  background-color: var(--color-surface-raised);
+}
+
+.itinerary-table tbody tr:hover {
+  background-color: rgba(201, 151, 43, 0.06);   /* warm gold tint */
+}
+
+/* Comfortable density on desktop */
+@media (min-width: 768px) {
+  .itinerary-table {
+    font-size: var(--text-base);
+  }
+
+  .itinerary-table thead th {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .itinerary-table tbody td {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* Time cell */
+.itinerary-table .col-time {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-accent);
+  white-space: nowrap;
+  width: 80px;
+}
+
+@media (min-width: 768px) {
+  .itinerary-table .col-time {
+    width: 100px;
+  }
+}
+
+/* Activity type cell with SVG icon */
+.activity-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* Clickable activity labels that link to POI cards */
+a.activity-label {
+  text-decoration: none;
+  color: var(--color-text-primary);
+  border-bottom: 1px dashed var(--color-brand-accent-alt);
+  transition: color var(--transition-base), border-color var(--transition-base);
+  cursor: pointer;
+}
+
+a.activity-label:hover {
+  color: var(--color-brand-accent);
+  border-bottom-style: solid;
+}
+
+a.activity-label:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-interactive);
+}
+
+/* POI card highlight when navigated to via anchor */
+.poi-card:target {
+  box-shadow: var(--shadow-md);
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+  animation: poi-highlight 1.5s ease-out;
+}
+
+@keyframes poi-highlight {
+  0% { outline-color: var(--color-brand-accent); }
+  100% { outline-color: transparent; }
+}
+
+.activity-label svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-brand-accent-alt);
+}
+
+
+/* --------------------------------------------------------------------------
+   8. ACTIVITY / POI SECTION
+   -------------------------------------------------------------------------- */
+
+.itinerary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .itinerary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .itinerary-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.poi-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.poi-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.poi-card__image-wrapper {
+  border-radius: var(--radius-container) var(--radius-container) 0 0;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background-color: var(--color-surface-raised);
+}
+
+.poi-card__image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.poi-card:hover .poi-card__image-wrapper img {
+  transform: scale(1.03);
+}
+
+.poi-card__body {
+  padding: var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.poi-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-brand-accent-alt);
+}
+
+.poi-card__tag svg {
+  width: 13px;
+  height: 13px;
+}
+
+.poi-card__name {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.poi-card__description {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+  flex: 1;
+}
+
+.poi-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.poi-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-accent-alt);
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-interactive);
+  padding: 3px var(--space-2);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.poi-card__link:hover {
+  background-color: var(--color-surface-raised);
+  border-color: var(--color-brand-accent-alt);
+  opacity: 1;
+}
+
+.poi-card__link svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Pro-tip callout */
+.pro-tip {
+  display: flex;
+  gap: var(--space-2);
+  background-color: rgba(46, 125, 154, 0.08);
+  border-left: 3px solid var(--color-brand-accent-alt);
+  border-radius: 0 var(--radius-interactive) var(--radius-interactive) 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+}
+
+.pro-tip svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-brand-accent-alt);
+}
+
+
+/* --------------------------------------------------------------------------
+   9. TYPOGRAPHY — Semantic Hierarchy
+   -------------------------------------------------------------------------- */
+
+.page-title {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-primary);
+  line-height: var(--line-height-heading);
+  margin-bottom: var(--space-2);
+}
+
+.page-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.section-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--color-brand-accent);
+  display: inline-block;
+  margin-bottom: var(--space-4);
+}
+
+.section-label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+
+@media (min-width: 768px) {
+  .page-title  { font-size: var(--text-4xl); }
+  .section-title { font-size: var(--text-3xl); }
+}
+
+
+/* --------------------------------------------------------------------------
+   10. BADGES & TAGS
+   -------------------------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.badge--primary {
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+.badge--accent {
+  background-color: var(--color-brand-accent);
+  color: #1C1C1E;
+}
+
+.badge--success {
+  background-color: rgba(45, 125, 58, 0.12);
+  color: var(--color-success);
+}
+
+.badge--info {
+  background-color: rgba(46, 125, 154, 0.12);
+  color: var(--color-info);
+}
+
+.badge--warning {
+  background-color: rgba(201, 151, 43, 0.14);
+  color: var(--color-warning);
+}
+
+
+/* --------------------------------------------------------------------------
+   11. HOLIDAY / ADVISORY ALERT
+   -------------------------------------------------------------------------- */
+
+.advisory {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-container);
+  border: 1px solid;
+  margin-bottom: var(--space-5);
+}
+
+.advisory--warning {
+  background-color: rgba(201, 151, 43, 0.08);
+  border-color: rgba(201, 151, 43, 0.30);
+  color: var(--color-text-primary);
+}
+
+.advisory--info {
+  background-color: rgba(46, 125, 154, 0.08);
+  border-color: rgba(46, 125, 154, 0.30);
+  color: var(--color-text-primary);
+}
+
+.advisory__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.advisory--warning .advisory__icon { color: var(--color-warning); }
+.advisory--info    .advisory__icon { color: var(--color-info); }
+
+.advisory__title {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.advisory__body {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+}
+
+
+/* --------------------------------------------------------------------------
+   12. PRICING TABLE
+   -------------------------------------------------------------------------- */
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.pricing-cell {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-interactive);
+  padding: var(--space-3);
+  text-align: center;
+}
+
+.pricing-cell__label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pricing-cell__amount {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-primary);
+  margin-top: var(--space-1);
+}
+
+.pricing-cell__currency {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+
+/* --------------------------------------------------------------------------
+   13. UTILITY CLASSES
+   -------------------------------------------------------------------------- */
+
+/* Whitespace */
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.mt-6 { margin-top: var(--space-6); }
+
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-5); }
+
+.pt-4 { padding-top: var(--space-4); }
+.pb-4 { padding-bottom: var(--space-4); }
+.p-4  { padding: var(--space-4); }
+
+/* Text */
+.text-muted     { color: var(--color-text-muted); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-accent    { color: var(--color-brand-accent); }
+.text-sm        { font-size: var(--text-sm); }
+.text-xs        { font-size: var(--text-xs); }
+.font-medium    { font-weight: var(--font-weight-medium); }
+.font-semibold  { font-weight: var(--font-weight-semibold); }
+
+/* Layout helpers */
+.flex          { display: flex; }
+.flex-col      { flex-direction: column; }
+.items-center  { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2         { gap: var(--space-2); }
+.gap-3         { gap: var(--space-3); }
+.gap-4         { gap: var(--space-4); }
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-4) 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   14. RTL OVERRIDES
+   -------------------------------------------------------------------------- */
+
+[dir="rtl"] .pro-tip {
+  border-left: none;
+  border-right: 3px solid var(--color-brand-accent-alt);
+  border-radius: var(--radius-interactive) 0 0 var(--radius-interactive);
+}
+
+[dir="rtl"] .itinerary-table thead th {
+  text-align: right;
+}
+
+
+/* --------------------------------------------------------------------------
+   15. PRINT STYLES
+   -------------------------------------------------------------------------- */
+
+@media print {
+  .sidebar,
+  .mobile-nav {
+    display: none !important;
+  }
+
+  .page-wrapper {
+    display: block;
+  }
+
+  .card,
+  .poi-card,
+  .day-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: #fff;
+  }
+
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #555;
+  }
+}
+
+</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="page-wrapper">
+
+<aside class="sidebar" aria-label="Desktop Navigation">
+    <div class="sidebar__logo"><span>🌐 TravelUI</span></div>
+    <nav class="sidebar__nav">
+        <a class="sidebar__link is-active" aria-current="page" href="#overview"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> סקירה</a>
+        <a class="sidebar__link" href="#day-0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> יום 0 — יפו</a>
+        <a class="sidebar__link" href="#day-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> יום 1 — שווקים</a>
+        <a class="sidebar__link" href="#day-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> יום 2 — יציאה</a>
+        <a class="sidebar__link" href="#budget"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> תקציב</a></nav>
+</aside>
+
+<nav class="mobile-nav" aria-label="Mobile Navigation">
+  <div class="mobile-nav__scroll">
+    <a class="mobile-nav__pill is-active" href="#overview">סקירה</a>
+    <a class="mobile-nav__pill" href="#day-0">יום 0</a>
+    <a class="mobile-nav__pill" href="#day-1">יום 1</a>
+    <a class="mobile-nav__pill" href="#day-2">יום 2</a>
+    <a class="mobile-nav__pill" href="#budget">תקציב</a></div>
+</nav>
+
+<main id="main-content" class="main-content">
+    <section id="overview">
+  <h1 class="page-title">
+    <svg width="28" height="20" viewBox="0 0 28 20" role="img" aria-label="Israel flag" style="vertical-align:middle;display:inline-block;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.1)">
+      <rect width="28" height="20" fill="#fff"/>
+      <rect width="28" height="3.5" fill="#0038b8"/>
+      <rect y="16.5" width="28" height="3.5" fill="#0038b8"/>
+      <polygon points="14,5.5 18,11.5 10,11.5" fill="none" stroke="#0038b8" stroke-width="0.8"/>
+      <polygon points="14,14.5 10,8.5 18,8.5" fill="none" stroke="#0038b8" stroke-width="0.8"/>
+    </svg>
+    תל אביב-יפו 2026 — מסלול טיול
+  </h1>
+  <p class="page-subtitle">19–21 באפריל 2026 · RRR (35)</p>
+
+  <div class="advisory advisory--warning">
+    <svg class="advisory__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <div>
+      <div class="advisory__title">⚠️ התראת חגים — יום הזיכרון</div>
+      <div class="advisory__body">
+        <p><strong>יום הזיכרון לחללי מערכות ישראל ונפגעי פעולות האיבה</strong> מתחיל בשקיעה ביום שני, 20 באפריל 2026.</p>
+        <ul>
+          <li><strong>סגירות:</strong> מקומות בילוי, ברים ורוב המסעדות סוגרים מהשקיעה. מסעדות במלונות נשארות פתוחות.</li>
+          <li><strong>צפירות:</strong> צפירה בשעה 20:00 (ערב יום הזיכרון) וב-11:00 למחרת — יש לעמוד דום.</li>
+          <li><strong>אווירה:</strong> אווירה של אבל לאומי. טלוויזיה ורדיו משדרים תוכן הנצחה.</li>
+          <li><strong>המלצה:</strong> יש לסיים ארוחת ערב ביום שני לפני השקיעה (~19:15).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">סקירה כללית</h2>
+  <div class="itinerary-table-wrapper">
+    <table class="itinerary-table">
+      <thead>
+        <tr>
+          <th>תאריך</th><th>יום</th><th>אזור</th><th>בוקר</th><th>צהריים</th><th>אחה״צ / ערב</th><th>סטטוס</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>19.04</td>
+          <td>א׳</td>
+          <td>יפו / נווה צדק</td>
+          <td>יפו העתיקה — מגדל השעון, גן הפסגה, גשר המשאלות</td>
+          <td>שוק הפשפשים, ארוחת צהריים — ד״ר שקשוקה</td>
+          <td>נווה צדק, טיילת ת״א, בירה מלאכתית + ארוחת ערב</td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td>20.04</td>
+          <td>ב׳</td>
+          <td>שוק הכרמל / שרונה / רוטשילד</td>
+          <td>שוק הכרמל — טעימות אוכל רחוב</td>
+          <td>שוק לוינסקי, שרונה מרקט — ארוחת צהריים</td>
+          <td>חדר בריחה, שדרות רוטשילד, ארוחת ערב מוקדמת ⚠️</td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td>21.04</td>
+          <td>ג׳</td>
+          <td>נתב״ג</td>
+          <td>יציאה — טיסה ב-04:00</td>
+          <td>—</td>
+          <td>—</td>
+          <td>✅</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<div class="day-card" id="day-0">
+  <div class="day-card__banner">
+    <div class="day-card__banner-date">יום ראשון, 19 באפריל 2026</div>
+    <h2 class="day-card__banner-title">🏛️ יפו העתיקה ונווה צדק</h2>
+  </div>
+  <div class="day-card__content">
+    <!-- Map link -->
+    <a class="map-link" href="https://www.google.com/maps/dir/Old+Jaffa+Tel+Aviv/Jaffa+Flea+Market+Tel+Aviv/Dr+Shakshuka+Jaffa/Neve+Tzedek+Tel+Aviv/Tel+Aviv+Promenade/Beer+Bazaar+Tel+Aviv/" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(46,125,154,0.08);border-radius:6px;text-decoration:none;color:#2E7D9A;font-weight:500;margin-bottom:16px;">🗺️ פתח מסלול יומי בגוגל מפות</a>
+
+    <!-- Itinerary table -->
+    <div class="itinerary-table-wrapper">
+      <table class="itinerary-table">
+        <thead><tr><th>שעה</th><th>פעילות</th><th>פרטים</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="col-time">04:00</td>
+            <td><span class="activity-label">✈️ נחיתה בנתב״ג</span></td>
+            <td>טרמינל 3, בקרת גבולות ואיסוף מזוודות</td>
+          </tr>
+          <tr>
+            <td class="col-time">~05:30</td>
+            <td><span class="activity-label">🚆 רכבת לתל אביב</span></td>
+            <td>רכבת ישראל מנתב״ג לתחנת ההגנה — ~25 דקות, 13.50 ₪</td>
+          </tr>
+          <tr>
+            <td class="col-time">~06:00</td>
+            <td><span class="activity-label">🏨 צ׳ק-אין / הפקדת מזוודות</span></td>
+            <td>מנוחה, מקלחת, התארגנות</td>
+          </tr>
+          <tr>
+            <td class="col-time">10:00–12:00</td>
+            <td><a class="activity-label" href="#poi-day-0-1">🏛️ יפו העתיקה</a></td>
+            <td>מגדל השעון, סמטאות האמנים, גן הפסגה, גשר המשאלות</td>
+          </tr>
+          <tr>
+            <td class="col-time">12:00–13:00</td>
+            <td><a class="activity-label" href="#poi-day-0-2">🛍️ שוק הפשפשים</a></td>
+            <td>עתיקות, וינטג׳, מלאכת יד, דוכני אוכל</td>
+          </tr>
+          <tr>
+            <td class="col-time">13:00–14:30</td>
+            <td><a class="activity-label" href="#poi-day-0-3">🍳 ארוחת צהריים — ד״ר שקשוקה</a></td>
+            <td>שקשוקה מסורתית בכלי ברזל יצוק, מטבח לובי-תוניסאי</td>
+          </tr>
+          <tr>
+            <td class="col-time">15:00–16:30</td>
+            <td><a class="activity-label" href="#poi-day-0-4">🏘️ נווה צדק</a></td>
+            <td>השכונה היהודית הראשונה מחוץ ליפו, גלריות, בוטיקים</td>
+          </tr>
+          <tr>
+            <td class="col-time">17:00–18:00</td>
+            <td><span class="activity-label">🚶 טיילת תל אביב</span></td>
+            <td>הליכה לאורך חוף הים, שקיעה, צילומים</td>
+          </tr>
+          <tr>
+            <td class="col-time">19:00–20:30</td>
+            <td><a class="activity-label" href="#poi-day-0-5">🍺 ארוחת ערב + בירה מלאכתית — ביר בזאר</a></td>
+            <td>100+ בירות מלאכתיות ישראליות, תפריט אוכל</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- POI cards -->
+    <div class="itinerary-grid">
+      <!-- POI 1: יפו העתיקה -->
+      <div class="poi-card" id="poi-day-0-1">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🏛️ אטרקציה</span>
+          <h3 class="poi-card__name">יפו העתיקה</h3>
+          <p class="poi-card__description">עיר נמל בת 4,000 שנה שמשלבת היסטוריה עתיקה עם אמנות עכשווית. הסמטאות המפותלות מלאות בגלריות, סטודיואים ונקודות תצפית מרהיבות על קו הרקיע של תל אביב. <strong>מגדל השעון</strong> — מבנה אות׳מני מ-1900, ציון דרך מרכזי בכניסה ליפו. <strong>גן הפסגה</strong> — פארק קטן בראש הגבעה עם תצפית פנורמית על תל אביב והים. <strong>גשר המשאלות</strong> — גשר עם סמלי גלגל המזלות, לפי האגדה מי שנוגע במזל שלו ומסתכל על הים — משאלתו מתגשמת. המקום מושלם לצלם, לספוג אווירה ולהתחיל את הטיול עם פרספקטיבה היסטורית על תל אביב. מקום ייחודי — "רק כאן": עיר נמל בת אלפי שנים שמועמדת לאתר מורשת עולמית של אונסק״ו.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 יפו העתיקה, תל אביב-יפו</span>
+            <span>🕐 24/7 — אזור פתוח (גלריות פתוחות בד״כ 10:00–18:00 בימי ראשון)</span>
+            <span>💰 כניסה חופשית</span>
+            <span>🚌 רכבת קלה (קו אדום) לתחנת "ירקון-יפו" + 10 דקות הליכה, או אוטובוס 10 מהמרכז</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/Old+Jaffa/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://www.jaffaclocktower.com/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Attraction_Review-g293984-d318903-Reviews-Old_Jaffa-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>להתחיל מגן הפסגה בשעות הבוקר כשהאור מושלם לצילומים — הסמטאות שקטות יותר ואפשר לשמוע את ההיסטוריה בשלווה.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 2: שוק הפשפשים -->
+      <div class="poi-card" id="poi-day-0-2">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🛍️ שוק</span>
+          <h3 class="poi-card__name">שוק הפשפשים</h3>
+          <p class="poi-card__description">אחד השווקים האותנטיים ביותר בתל אביב, שמשלב דוכני עתיקות, רהיטי וינטג׳, מלאכת יד מקומית ואוכל רחוב. האווירה שוקקת וססגונית — מנגינות מזרחיות ברקע, מוכרים צבעוניים ותגליות בכל פינה. מקום מצוין לחפש מזכרות מקוריות — כלי נחושת ישנים, תכשיטים בעבודת יד, ותקליטי ויניל. עבור מטייל שאוהב שווקים מקומיים ואוכל רחוב, זו חוויה שלא כדאי לפספס.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 רחובות יהודה מרגוזה, עמיעד ובית אשל, יפו</span>
+            <span>🕐 ימי ראשון–חמישי 09:00–17:00, שישי 09:00–14:00, שבת סגור</span>
+            <span>💰 כניסה חופשית (קניות לפי תקציב אישי)</span>
+            <span>🚌 3 דקות הליכה ממגדל השעון ביפו, בהמשך רחוב יפת</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/Jaffa+Flea+Market/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://en.shuktlv.co.il/category/jaffa-flea-market" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Attraction_Review-g293984-d325444-Reviews-Jaffa_Flea_Market-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>המחירים בשוק ניתנים למיקוח — אל תקבלו את המחיר הראשון שאומרים לכם. לשאול "מה המחיר הטוב ביותר?" זה לגיטימי ואפילו צפוי.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 3: ד״ר שקשוקה -->
+      <div class="poi-card" id="poi-day-0-3">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🍳 מסעדה</span>
+          <h3 class="poi-card__name">ד״ר שקשוקה</h3>
+          <p class="poi-card__description">מסעדה אגדית ביפו שהפכה למוסד קולינרי. בינו גבסו, המכונה "ד״ר שקשוקה", מגיש מטבח לובי-תוניסאי אותנטי מזה עשרות שנים. ההמתנה לכניסה — חלק מהחוויה, וכשנכנסים פנימה מגלים תקרה מכוסה בסירים ומחבתות תלויים, שולחנות צפופים ואווירה אינטימית ורועשת. השקשוקה מוגשת רותחת בכלי ברזל יצוק, עם לחם טרי לניגוב — זהו מנה שאי אפשר לשכוח. מקום ייחודי — "רק כאן": עריסת תרבות השקשוקה הישראלית.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 בית אשל 3, יפו, תל אביב-יפו</span>
+            <span>🕐 ימי ראשון–חמישי 09:00–23:00, שישי 09:00–15:00, שבת 10:00–23:00</span>
+            <span>💰 שקשוקה 72–95 ₪ (18–24 €), ארוחה מלאה ~100–120 ₪ (25–30 €) לאדם</span>
+            <span>🚌 דקה הליכה משוק הפשפשים, ברחוב בית אשל</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/Dr.+Shakshuka/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://www.facebook.com/shakshuka.rest.co.il/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Restaurant_Review-g293984-d2453575-Reviews-Dr_Shakshuka-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>להגיע רעבים ולהזמין את הארוחה המלאה ("שולחן ד״ר שקשוקה") — מגיעות מנות קטנות רבות לפני השקשוקה עצמה. אל תמלאו את הבטן מהסלטים בלבד.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 4: נווה צדק -->
+      <div class="poi-card" id="poi-day-0-4">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🏘️ שכונה</span>
+          <h3 class="poi-card__name">נווה צדק</h3>
+          <p class="poi-card__description">השכונה היהודית הראשונה שנבנתה מחוץ לחומות יפו בשנת 1887, והיום היא אחת הפינות הקסומות ביותר בתל אביב. רחובות צרים עם בתים משופצים בסגנון אקלקטי, גלריות אמנות, בוטיקים של מעצבים ובתי קפה שקטים. <strong>מרכז סוזן דלל</strong> — מרכז המחול הישראלי, כיכר יפהפייה עם ארכיטקטורה עות׳מנית משוחזרת. השכונה מושלמת להליכה איטית עם מצלמה — כל פינה מציעה קומפוזיציה צילומית אחרת. אידיאלי למטייל בקצב רגוע שאוהב אווירה בוהמיינית וצילום.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 שכונת נווה צדק, תל אביב-יפו (רחובות שבזי, פינס ולילינבלום)</span>
+            <span>🕐 שכונה פתוחה 24/7 (חנויות וגלריות: בד״כ 10:00–19:00)</span>
+            <span>💰 כניסה חופשית (גלריות — חלקן חינם, חלקן בתשלום)</span>
+            <span>🚌 15 דקות הליכה מיפו העתיקה צפונה, לאורך רחוב יפת ופנייה ימינה לרחוב שבזי</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/Neve+Tzedek,+Tel+Aviv-Yafo/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://suzannedellal.org.il/en/homepage/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Attraction_Review-g293984-d2357944-Reviews-Neve_Tzedek-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>רחוב שבזי הוא הציר המרכזי של השכונה — ממנו מסתעפים סמטאות שקטות עם אמנות רחוב ופינות נסתרות. לשים לב לציורי הקיר.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 5: ביר בזאר -->
+      <div class="poi-card" id="poi-day-0-5">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🍺 בר</span>
+          <h3 class="poi-card__name">ביר בזאר</h3>
+          <p class="poi-card__description">רשת בירה מלאכתית ישראלית שהפכה למעין שגרירות של עולם הבירה המקומי. הסניף ליד שוק הכרמל מציע למעלה מ-100 סוגי בירה מלאכתית ישראלית מהברז — מלאגר קלילות ועד סטאוטים כהים ו-IPA מהפכניים. תפריט האוכל מבוסס על חומרי גלם טריים משוק הכרמל הסמוך. האווירה רגועה ונינוחה — שולחנות עץ, מוזיקה נעימה, ושיחות עם הברמן שמכיר כל בירה בשם. מקום אידיאלי לסיום יום ראשון של טיול — לשבת, לנשום ולטעום את מיטב הבירה הישראלית.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 רחוב רמב״ם 1 (פינת שוק הכרמל), תל אביב</span>
+            <span>🕐 ימי ראשון–חמישי 10:00–00:00, שישי 10:00–16:00, שבת — שעה אחרי שבת עד 00:00</span>
+            <span>💰 בירה 29–39 ₪ (7–10 €), מבצע 3 כוסות ב-39 ₪ עד 20:00. ארוחת ערב + בירות ~120–150 ₪ (30–38 €)</span>
+            <span>🚌 אוטובוס 18 או 61 לתחנת "אלנבי/שוק הכרמל", דקה הליכה</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/BeerBazaar/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://www.beerbazaar.co.il/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Restaurant_Review-g293984-d4427872-Reviews-BeerBazaar-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>לבקש מהברמן "טיסת טעימות" (Flight) — 5 כוסות קטנות של בירות שונות ב-49 ₪. זו הדרך הטובה ביותר לגלות את הבירה הישראלית במכה אחת.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 6: סופרמרקט -->
+      <div class="poi-card" id="poi-day-0-6">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🛒 סופרמרקט</span>
+          <h3 class="poi-card__name">סופרמרקט (AM:PM + Tiv Ta'am)</h3>
+          <p class="poi-card__description"><strong>AM:PM</strong> — רשת נוחות פתוחה 24/7 עם מבחר בסיסי של חטיפים, משקאות ומוצרי מכולת. סניף ברחוב יפת 39, יפו — 5 דקות הליכה משוק הפשפשים.<br><strong>טיב טעם</strong> — סופרמרקט גדול עם מבחר רחב (כולל מוצרים לא-כשרים, יין ובירה). סניף ברחוב דרך יפו 72 — 10 דקות הליכה מנווה צדק.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 AM:PM — יפת 39, יפו | טיב טעם — דרך יפו 72</span>
+            <span>🕐 AM:PM — 24/7 | טיב טעם — ימי ראשון–שבת</span>
+            <span>💰 מחירי סופרמרקט רגילים</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/search/AM+PM+Yefet+Street+Jaffa/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות AM:PM
+            </a>
+            <a class="poi-card__link" href="https://www.google.com/maps/search/Tiv+Taam+Derech+Yafo+Tel+Aviv/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות טיב טעם
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing grid -->
+    <div class="pricing-grid" style="margin-top:24px;">
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">רכבת נתב״ג</div>
+        <div class="pricing-cell__amount">14</div>
+        <div class="pricing-cell__currency">₪ · 4 €</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">שוק הפשפשים (מזכרות)</div>
+        <div class="pricing-cell__amount">50</div>
+        <div class="pricing-cell__currency">₪ · 13 €</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">ארוחת צהריים — ד״ר שקשוקה</div>
+        <div class="pricing-cell__amount">110</div>
+        <div class="pricing-cell__currency">₪ · 28 €</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">ארוחת ערב + בירה — ביר בזאר</div>
+        <div class="pricing-cell__amount">140</div>
+        <div class="pricing-cell__currency">₪ · 35 €</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">תחבורה ציבורית (יומי)</div>
+        <div class="pricing-cell__amount">18</div>
+        <div class="pricing-cell__currency">₪ · 5 €</div>
+      </div>
+      <div class="pricing-cell" style="background:var(--color-brand-primary);color:#fff;">
+        <div class="pricing-cell__label" style="color:rgba(255,255,255,0.8);">סה״כ יום 0</div>
+        <div class="pricing-cell__amount" style="color:#fff;">332</div>
+        <div class="pricing-cell__currency" style="color:rgba(255,255,255,0.8);">₪ · 85 €</div>
+      </div>
+    </div>
+
+    <!-- Plan B -->
+    <div class="advisory advisory--info" data-section-type="plan-b" style="margin-top:24px;">
+      <svg class="advisory__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        <div class="advisory__title">🅱️ תוכנית חלופית — מוזיאון אילנה גור</div>
+        <div class="advisory__body">
+          <p>אם מזג האוויר גשום או שרוצים אלטרנטיבה לסיור ברחובות — <strong>מוזיאון אילנה גור</strong> ביפו העתיקה הוא אופציה מצוינת. המוזיאון שוכן בבניין מהמאה ה-18 בסמטאות יפו ומציג למעלה מ-500 יצירות אמנות — פסלים, ציורים, אמנות אתנית מאפריקה ודרום אמריקה ופריטי עיצוב. הבניין עצמו הוא חלק מהחוויה — תקרות מקומרות, חצר פנימית ונוף לים מהגג. המוזיאון קטן ואינטימי — ביקור לוקח כשעה-שעה וחצי.</p>
+          <p>📍 מזל דגים 4, יפו העתיקה · 🕐 ימי ראשון–שבת 10:00–16:00 · 💰 מבוגר 45 ₪ (11 €), סטודנט/חייל/אזרח ותיק 25 ₪ (6 €)</p>
+          <p>
+            <a href="https://www.ilanagoormuseum.org/en/" target="_blank">🌐 אתר</a> ·
+            <a href="https://www.google.com/maps/place/Ilana+Goor+Museum/" target="_blank">📍 מפות</a> ·
+            <a href="https://www.tripadvisor.com/Attraction_Review-g297749-d325259-Reviews-Ilana_Goor_Museum-Jaffa_Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">📸 תמונות</a>
+          </p>
+          <p>💡 <strong>טיפ:</strong> לעלות לגג המוזיאון — יש תצפית נהדרת על הנמל ועל קו החוף של תל אביב, וזה כלול בכרטיס הכניסה.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="day-card" id="day-1">
+  <div class="day-card__banner">
+    <div class="day-card__banner-date">יום שני, 20 באפריל 2026</div>
+    <h2 class="day-card__banner-title">🏪 שווקים, חדר בריחה ורוטשילד</h2>
+  </div>
+  <div class="day-card__content">
+    <!-- Map link -->
+    <a class="map-link" href="https://www.google.com/maps/dir/Carmel+Market+Tel+Aviv/Levinsky+Market+Tel+Aviv/Sarona+Market+Tel+Aviv/Escape+Room+Israel+Tel+Aviv/Rothschild+Boulevard+Tel+Aviv/HaBasta+Tel+Aviv/" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(46,125,154,0.08);border-radius:6px;text-decoration:none;color:#2E7D9A;font-weight:500;margin-bottom:16px;">🗺️ פתח מסלול יומי בגוגל מפות</a>
+
+    <!-- Day-level advisory: Yom Hazikaron -->
+    <div class="advisory advisory--info" style="margin-bottom:16px;">
+      <svg class="advisory__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        <div class="advisory__title">⚠️ התראה — יום הזיכרון</div>
+        <div class="advisory__body">
+          <p><strong>יום הזיכרון לחללי מערכות ישראל ונפגעי פעולות האיבה</strong> מתחיל בשקיעה (~19:15). מקומות בילוי, ברים ורוב המסעדות <strong>סוגרים מהשקיעה</strong>. צפירה בשעה 20:00 — יש לעמוד דום. <strong>ארוחת הערב חייבת להסתיים לפני 19:00.</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Itinerary table -->
+    <div class="itinerary-table-wrapper">
+      <table class="itinerary-table">
+        <thead><tr><th>שעה</th><th>פעילות</th><th>פרטים</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="col-time">10:00–11:30</td>
+            <td><a class="activity-label" href="#poi-day-1-1">🏪 שוק הכרמל</a></td>
+            <td>טעימות אוכל רחוב: מיץ טרי, חלבה, בורקס, פירות יבשים</td>
+          </tr>
+          <tr>
+            <td class="col-time">11:30–12:30</td>
+            <td><a class="activity-label" href="#poi-day-1-2">🌶️ שוק לוינסקי</a></td>
+            <td>שוק תבלינים, אוכל אתני — תימני, טורקי, עיראקי</td>
+          </tr>
+          <tr>
+            <td class="col-time">13:00–14:30</td>
+            <td><a class="activity-label" href="#poi-day-1-3">🍽️ ארוחת צהריים — שרונה מרקט</a></td>
+            <td>שוק מקורה גורמה, 40+ דוכני שפים, ממוזג</td>
+          </tr>
+          <tr>
+            <td class="col-time">15:00–16:30</td>
+            <td><a class="activity-label" href="#poi-day-1-4">🔐 חדר בריחה</a></td>
+            <td>חדר בריחה — Escape Room Israel, 60 דקות, 20+ חדרים</td>
+          </tr>
+          <tr>
+            <td class="col-time">17:00–17:30</td>
+            <td><a class="activity-label" href="#poi-day-1-5">🏛️ שדרות רוטשילד</a></td>
+            <td>ארכיטקטורת באוהאוס, העיר הלבנה (אונסק״ו), בית העצמאות</td>
+          </tr>
+          <tr>
+            <td class="col-time">17:30–18:45</td>
+            <td><a class="activity-label" href="#poi-day-1-6">🥩 ארוחת ערב מוקדמת — הבסטה</a></td>
+            <td>מטבח ישראלי עונתי ליד שוק הכרמל ⚠️ חובה לסיים לפני 19:00</td>
+          </tr>
+          <tr>
+            <td class="col-time">19:15</td>
+            <td><span class="activity-label">🕯️ שקיעה — תחילת יום הזיכרון</span></td>
+            <td>חזרה למלון. אווירת אבל לאומי</td>
+          </tr>
+          <tr>
+            <td class="col-time">20:00</td>
+            <td><span class="activity-label">📢 צפירה</span></td>
+            <td>דקה אחת — יש לעמוד דום בכל מקום שנמצאים</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- POI cards -->
+    <div class="itinerary-grid">
+      <!-- POI 1: שוק הכרמל -->
+      <div class="poi-card" id="poi-day-1-1">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🏪 שוק</span>
+          <h3 class="poi-card__name">שוק הכרמל</h3>
+          <p class="poi-card__description">השוק הפתוח הגדול ביותר בתל אביב — חגיגה חושית של צבעים, ריחות, טעמים וצעקות מוכרים. שורות אינסופיות של דוכני ירקות, פירות, תבלינים, גבינות, דגים ובשר. מעבר לקניות — זה מקום לאכול: בורקסים חמים, מיץ רימונים סחוט במקום, חלבה טרייה, ממתקים טורקיים ופלאפל מהטובים בעיר. בימי ראשון-חמישי השוק שוקק חיים מהבוקר ועד הערב. עבור חובב אוכל רחוב ושווקים מקומיים — זהו גן עדן קולינרי ישראלי.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 רחוב הכרמל, תל אביב (בין רחוב אלנבי לרחוב מגן דוד)</span>
+            <span>🕐 ימי ראשון–חמישי 08:00–19:00, שישי 08:00–14:00, שבת סגור</span>
+            <span>💰 כניסה חופשית. טעימות: מיץ טרי 15 ₪ (4 €), בורקס 12–18 ₪ (3–5 €), חלבה 20–40 ₪ (5–10 €)</span>
+            <span>🚌 אוטובוס 18 או 61 לתחנת "אלנבי/שוק הכרמל", או רכבת קלה (קו אדום) לתחנת "אלנבי" + 5 דקות הליכה</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/Carmel+Market/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://en.shuktlv.co.il/category/carmel-market" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Attraction_Review-g293984-d325446-Reviews-Carmel_Market-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>לא לפספס את דוכני המיצים הטריים ברחוב הכרמל — מיץ רימונים/תפוזים סחוט לנגד עיניכם ב-15 ₪. להתחיל בקצה של רחוב אלנבי ולרדת דרומה.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 2: שוק לוינסקי -->
+      <div class="poi-card" id="poi-day-1-2">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🌶️ שוק</span>
+          <h3 class="poi-card__name">שוק לוינסקי</h3>
+          <p class="poi-card__description">שוק התבלינים של תל אביב — רחוב צר שמלא בחנויות תבלינים, ממתקים מזרחיים ואוכל אתני. הקהילות שעיצבו את המקום — יוצאי יוון, טורקיה, תימן, עיראק ואיראן — הביאו איתן טעמים ומתכונים מהעולם הישן. כאן תמצאו את הבורקס הכי טוב בעיר, חומוס מסורתי, תבלינים בתפזורת במחירי מפעל, וחטיפים שלא ידעתם שקיימים. הריחות לבד שווים את הביקור. שוק לוינסקי הוא "הגרסה האותנטית" לשווקי התבלינים הגדולים — קטן, אישי ובלי שום פילטר תיירותי.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 רחוב לוינסקי, בין רחוב העלייה לרחוב הרצל, שכונת פלורנטין, תל אביב</span>
+            <span>🕐 ימי ראשון–חמישי 08:00–18:00, שישי 08:00–14:00, שבת סגור</span>
+            <span>💰 כניסה חופשית. תבלינים 10–30 ₪ (3–8 €), בורקס 12–20 ₪ (3–5 €)</span>
+            <span>🚌 10 דקות הליכה דרומה משוק הכרמל, דרך רחוב מגן דוד ורחוב העלייה</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/Levinsky+Market/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://en.shuktlv.co.il/category/levinsky-market-useful-information" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Attraction_Review-g293984-d325445-Reviews-Levinsky_Market-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>לקנות תבלינים בתפזורת — זעתר ישראלי, סומק, שיבי פלפל — מזכרת קלילה ומקורית שאפשר להכניס למזוודה. החנויות ברחוב לוינסקי מוכרות במחירי סיטונאי.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 3: שרונה מרקט -->
+      <div class="poi-card" id="poi-day-1-3">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🍽️ שוק גורמה</span>
+          <h3 class="poi-card__name">שרונה מרקט</h3>
+          <p class="poi-card__description">שוק מקורה גורמה שהוא אחד ממקומות האוכל המובילים בתל אביב. מעל 90 דוכנים וחנויות — שפים מהטובים בישראל פותחים כאן דוכני טעימות, יש בר יין, דוכני סושי, פיצה נאפוליטנית, בשרים, גבינות ועוד. המתחם ממוזג ומעוצב יפה — נבנה בתוך משבצת הטמפלרים הגרמנים ההיסטורית של שרונה. מושלם לארוחת צהריים בקצב רגוע — לשבת, לטעום מכמה דוכנים, ולגלות טעמים חדשים. מקום אידיאלי לחובב אוכל שרוצה לדגום את המטבח הישראלי העכשווי תחת קורת גג אחת.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 רחוב אלוף קלמן מגן 3, תל אביב</span>
+            <span>🕐 ימי ראשון–רביעי 08:00–22:00, חמישי 08:00–00:00, שישי 08:00–17:00, שבת 10:00–22:00</span>
+            <span>💰 כניסה חופשית. ארוחת צהריים ~80–120 ₪ (20–30 €) לאדם</span>
+            <span>🚌 אוטובוס 25 או 125 לתחנת "קפלן/שרונה", או 20 דקות הליכה צפונה מרחוב אלנבי</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/Sarona+Market/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://www.saronamarket.co.il/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Attraction_Review-g293984-d8528007-Reviews-Sarona_Market-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>לא לבוא עם בטן מלאה — הרעיון הוא לדגום ממספר דוכנים. להתחיל ממנה קטנה (סביצ׳ה, דימסאם או פיצה) ולהשאיר מקום לקינוח.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 4: חדר בריחה -->
+      <div class="poi-card" id="poi-day-1-4">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🔐 אטרקציה</span>
+          <h3 class="poi-card__name">חדר בריחה — Escape Room Israel</h3>
+          <p class="poi-card__description">הרשת הגדולה ביותר בישראל של חדרי בריחה, עם למעלה מ-20 חדרים שונים בתל אביב. החדרים מעוצבים ברמה גבוהה — מסיפורי פשע ועד מסעות בזמן — וכל משחק נמשך 60 דקות. יש חדרים ליחידים (Solo) ולזוגות, כך שאפשר להצטרף גם כמטייל יחיד. מנהלי המשחק דוברי עברית ואנגלית. חוויה אינטראקטיבית מצוינת שמשלבת חשיבה לוגית, ריגוש ואדרנלין — שונה לגמרי מכל שאר הפעילויות ביום ומוסיפה גיוון לטיול.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 רחוב הברזל 30, רמת החייל, תל אביב (גם סניפים במרכז העיר)</span>
+            <span>🕐 ימי ראשון–חמישי 09:30–22:00, שישי 09:30–15:00, שבת 20:00–00:00</span>
+            <span>💰 שחקן יחיד / 2-3 שחקנים — 120 ₪ (30 €) לאדם, 4+ שחקנים — 100 ₪ (25 €) לאדם</span>
+            <span>🚌 אוטובוס 25 מהמרכז, או מונית/Gett — ~15 דקות מאזור שרונה</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/Escape+Room+Israel+Tel+Aviv/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://www.escaperoom.co.il/en/tel-aviv" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Attraction_Review-g293984-d7351270-Reviews-Escape_Room-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>להזמין מראש דרך האתר — החדרים הפופולריים מתמלאים מהר, במיוחד בסוף שבוע. לבחור חדר עם דירוג 4.5+ ורמת קושי בינונית ליהנות בלי תסכול.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 5: שדרות רוטשילד -->
+      <div class="poi-card" id="poi-day-1-5">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🏛️ אטרקציה</span>
+          <h3 class="poi-card__name">שדרות רוטשילד</h3>
+          <p class="poi-card__description">השדרה האייקונית ביותר של תל אביב — 1.5 ק״מ של עצי פיקוס עתיקים, ספסלים, בתי קפה ומבנים היסטוריים. כאן נמצא הריכוז הגדול ביותר בעולם של מבני <strong>באוהאוס</strong> (הסגנון הבינלאומי), שהפך את תל אביב ל"עיר הלבנה" ולאתר מורשת עולמית של אונסק״ו. <strong>בית העצמאות</strong> (רוטשילד 16) — המקום שבו הכריז דוד בן-גוריון על הקמת מדינת ישראל ב-14 במאי 1948. הליכה קצרה של 20-30 דקות לאורך השדרה מספיקה כדי לספוג את האווירה, לראות את המבנים המרשימים ביותר ולצלם. מקום ייחודי — "רק כאן": אחד מאוספי הבאוהאוס הגדולים בעולם.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 שדרות רוטשילד, תל אביב (מנווה צדק ועד רחוב הבימה)</span>
+            <span>🕐 שדרה פתוחה 24/7. בית העצמאות — בתהליך שיפוץ (צפוי להיפתח מחדש ב-2025/2026)</span>
+            <span>💰 הליכה חופשית. בית העצמאות (כשפתוח): מבוגר ~24 ₪ (6 €)</span>
+            <span>🚌 10 דקות הליכה ממתחם שרונה מערבה, או אוטובוס 5 לתחנת "רוטשילד/הרצל"</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/Rothschild+Boulevard/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://www.visit-tel-aviv.com/en/the-white-city/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Attraction_Review-g293984-d2357937-Reviews-Rothschild_Boulevard-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>מספרי הבתים 71, 82, 84, 91 ו-140 הם מהדוגמאות היפות ביותר לבאוהאוס בשדרה — לשים לב למרפסות המעוגלות, לגגות השטוחים ולחלונות הסרט.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 6: הבסטה -->
+      <div class="poi-card" id="poi-day-1-6">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🥩 מסעדה</span>
+          <h3 class="poi-card__name">הבסטה</h3>
+          <p class="poi-card__description">מסעדה ישראלית עונתית שנחשבת לאחת הטובות בתל אביב, ממוקמת ברחוב צדדי ליד שוק הכרמל. השף אילון אמיר מכין תפריט שמשתנה כל יום — כתוב בכתב יד על נייר שנתלה על הקיר. המנות מבוססות על חומרי הגלם הטריים ביותר מהשוק הסמוך: קרפצ׳ו דג ים, שוורמה על פיתה, מנות ירק צלויות ודגים שלמים על הגריל. רשימת היינות מהנרחבות בישראל — מעל 30 יינות בכוס. המקום קטן ואינטימי, האוכל פשוט אבל מרשים, והאווירה של "שוק אוכל מתוחכם" — מושלם לארוחת ערב אחרונה לפני יום הזיכרון.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 רחוב השומר 4, תל אביב (ליד שוק הכרמל)</span>
+            <span>🕐 ימי ראשון–חמישי 12:30–23:00, שישי — ברנץ׳ 09:00–16:00. ⚠️ ביום שני 20.04 — לסיים לפני 19:00</span>
+            <span>💰 מנה עיקרית 80–130 ₪ (20–33 €), ארוחה מלאה + יין ~180–220 ₪ (45–55 €) לאדם</span>
+            <span>🚌 5 דקות הליכה מקצה שוק הכרמל, דרך רחוב השומר</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/HaBasta/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://www.facebook.com/HaBasta/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+            <a class="poi-card__link" href="https://www.tripadvisor.com/Restaurant_Review-g293984-d1019438-Reviews-HaBasta-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              📸 תמונות
+            </a>
+          </div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>להגיע ב-17:30 בדיוק כדי להספיק ארוחה שלמה לפני 19:00. <strong>חובה להזמין מקום מראש</strong> — המסעדה קטנה ומלאה תמיד. לבקש לשבת בחוץ אם מזג האוויר נעים.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 7: שופרסל (grocery) -->
+      <div class="poi-card" id="poi-day-1-7">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🛒 סופרמרקט</span>
+          <h3 class="poi-card__name">שופרסל אקספרס</h3>
+          <p class="poi-card__description"><strong>שופרסל אקספרס</strong> — סניף קטן ונוח ליד שדרות רוטשילד. רחוב דרויאנוב 5, תל אביב — 5 דקות הליכה משדרות רוטשילד.<br>⚠️ <strong>חשוב:</strong> לקנות חטיפים, מים ואוכל לנסיעה למחרת <strong>לפני השקיעה (~19:15)</strong> — רוב החנויות סוגרות עם תחילת יום הזיכרון.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 רחוב דרויאנוב 5, תל אביב</span>
+            <span>🕐 ימי ראשון–חמישי, עד השקיעה ביום הזיכרון</span>
+            <span>💰 מחירי סופרמרקט רגילים</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/search/Shufersal+Express+Druyanov+Tel+Aviv/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 8: הגמל הרוקד (along-the-way) -->
+      <div class="poi-card" id="poi-day-1-8">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🎯 בדרך</span>
+          <h3 class="poi-card__name">הגמל הרוקד (The Dancing Camel)</h3>
+          <p class="poi-card__description">מבשלת הבירה הראשונה בישראל, שהוקמה ב-2005 במחסן גרעינים משנות ה-30 בדרום תל אביב. המקום מייצר בירות ייחודיות עם אופי ישראלי מובהק, ומציע טעימות מהברז במחירים נוחים. אווירה אמריקאית עם אוכל בסגנון דלי ניו-יורקי. מתאים במיוחד לחובב בירה מלאכתית שרוצה לראות מבשלת בוטיק מבפנים. <strong>שימו לב:</strong> פתוח רק מ-18:00 בימי ראשון-חמישי — ניתן לשלב רק אם יש זמן לפני ארוחת הערב.</p>
+          <div class="text-sm text-secondary mt-2" style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 דרך התעשייה 12, תל אביב</span>
+            <span>🕐 ימי ראשון–חמישי 18:00–00:00, שישי 12:00–17:00, שבת סגור</span>
+            <span>💰 בירה מהברז 30–42 ₪ (8–11 €)</span>
+          </div>
+          <div class="poi-card__links">
+            <a class="poi-card__link" href="https://www.google.com/maps/place/The+Dancing+Camel/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              📍 מפות
+            </a>
+            <a class="poi-card__link" href="https://www.dancingcamel.com/" target="_blank">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              🌐 אתר
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing grid -->
+    <div class="pricing-grid" style="margin-top:24px;">
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">שוק הכרמל — טעימות</div>
+        <div class="pricing-cell__amount">50</div>
+        <div class="pricing-cell__currency">₪ · 13 €</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">שוק לוינסקי — תבלינים</div>
+        <div class="pricing-cell__amount">40</div>
+        <div class="pricing-cell__currency">₪ · 10 €</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">ארוחת צהריים — שרונה מרקט</div>
+        <div class="pricing-cell__amount">100</div>
+        <div class="pricing-cell__currency">₪ · 25 €</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">חדר בריחה</div>
+        <div class="pricing-cell__amount">120</div>
+        <div class="pricing-cell__currency">₪ · 30 €</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">ארוחת ערב — הבסטה</div>
+        <div class="pricing-cell__amount">200</div>
+        <div class="pricing-cell__currency">₪ · 50 €</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">תחבורה ציבורית (יומי)</div>
+        <div class="pricing-cell__amount">18</div>
+        <div class="pricing-cell__currency">₪ · 5 €</div>
+      </div>
+      <div class="pricing-cell" style="background:var(--color-brand-primary);color:#fff;">
+        <div class="pricing-cell__label" style="color:rgba(255,255,255,0.8);">סה״כ יום 1</div>
+        <div class="pricing-cell__amount" style="color:#fff;">528</div>
+        <div class="pricing-cell__currency" style="color:rgba(255,255,255,0.8);">₪ · 133 €</div>
+      </div>
+    </div>
+
+    <!-- Plan B -->
+    <div class="advisory advisory--info" data-section-type="plan-b" style="margin-top:24px;">
+      <svg class="advisory__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        <div class="advisory__title">🅱️ תוכנית חלופית — מוזיאון תל אביב לאמנות</div>
+        <div class="advisory__body">
+          <p>אם חדר הבריחה לא זמין או שמעדיפים פעילות תרבותית — <strong>מוזיאון תל אביב לאמנות</strong> הוא חלופה מצוינת. אחד המוזיאונים החשובים בישראל, עם אוסף מרשים של אמנות מודרנית ועכשווית — כולל עבודות של פיקאסו, מונה, רנואר ואמנים ישראלים. אגף <strong>הרטה ופאול אמיר</strong> (2011) הוא מבנה ארכיטקטוני מרשים בפני עצמו. ביקור לוקח כ-1.5–2 שעות.</p>
+          <p>📍 שדרות שאול המלך 27, תל אביב · 💰 מבוגר 50 ₪ (13 €), סטודנט 40 ₪ (10 €), ילדים עד 18 — חינם</p>
+          <p>⚠️ <strong>סגור בימי ראשון ושני</strong> — לכן חלופה זו <strong>אינה זמינה ביום שני 20.04</strong>. חלופה ריאלית יותר ליום זה: <strong>מוזיאון נחום גוטמן</strong> בנווה צדק (אמנות ישראלית, פתוח בימי שני 10:00–16:00, 30 ₪) או טיול ארוך יותר בשדרות רוטשילד עם קפה ועוגה.</p>
+          <p>
+            <a href="https://www.tamuseum.org.il/en/" target="_blank">🌐 אתר</a> ·
+            <a href="https://www.google.com/maps/place/Tel+Aviv+Museum+of+Art/" target="_blank">📍 מפות</a> ·
+            <a href="https://www.tripadvisor.com/Attraction_Review-g293984-d318904-Reviews-Tel_Aviv_Museum_of_Art-Tel_Aviv_Tel_Aviv_District.html#photos" target="_blank">📸 תמונות</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="day-card" id="day-2">
+  <div class="day-card__banner">
+    <div class="day-card__banner-date">יום שלישי, 21 באפריל 2026</div>
+    <h2 class="day-card__banner-title">יום 2 — יציאה ✈️</h2>
+  </div>
+  <div class="day-card__content">
+    <a class="map-link" href="https://www.google.com/maps/dir/Ben+Gurion+Airport+Tel+Aviv/" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(46,125,154,0.08);border-radius:6px;text-decoration:none;color:#2E7D9A;font-weight:500;margin-bottom:16px;">🗺️ פתח מסלול יומי בגוגל מפות</a>
+
+    <div class="advisory advisory--info" data-section-type="logistics" style="margin-bottom:16px;">
+      <svg class="advisory__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        <div class="advisory__title">⚠️ יום הזיכרון</div>
+        <div class="advisory__body">היום הוא <strong>יום הזיכרון לחללי מערכות ישראל ונפגעי פעולות האיבה</strong>. הכבישים שקטים מאוד בשעות הלילה — הנסיעה לנתב״ג תהיה מהירה ונוחה. רוב החנויות והמסעדות סגורות.</div>
+      </div>
+    </div>
+
+    <div class="itinerary-table-wrapper">
+      <table class="itinerary-table">
+        <thead><tr><th>שעה</th><th>פעילות</th><th>פרטים</th></tr></thead>
+        <tbody>
+          <tr><td class="col-time">01:30</td><td><span class="activity-label">⏰ השכמה</span></td><td>צ׳ק-אאוט מהמלון, לארוז את הדברים האחרונים</td></tr>
+          <tr><td class="col-time">02:00</td><td><span class="activity-label">🚕 מונית לנתב״ג</span></td><td>~20-30 דקות נסיעה, ~150-200 ₪. כבישים ריקים בשעה זו, במיוחד ביום הזיכרון</td></tr>
+          <tr><td class="col-time">02:30</td><td><span class="activity-label">🛂 הגעה לנתב״ג — טרמינל 3</span></td><td>צ׳ק-אין, בידוק ביטחוני ובקרת גבולות</td></tr>
+          <tr><td class="col-time">04:00</td><td><span class="activity-label">✈️ טיסה</span></td><td>יציאה מישראל</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="advisory advisory--info" data-section-type="logistics" style="margin-top:16px;">
+      <svg class="advisory__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        <div class="advisory__title">💡 טיפים לנתב״ג</div>
+        <div class="advisory__body">
+          <ul>
+            <li><strong>להגיע 3 שעות לפני הטיסה</strong> — הבידוק הביטחוני בנתב״ג ידוע כיסודי ומקיף. יישאלו שאלות על מטרת הביקור, מקומות שביקרת, ומי ארז את המזוודות.</li>
+            <li><strong>בידוק ביטחוני:</strong> מתנהל בשלבים — ריאיון ביטחוני → סריקת מזוודות → בקרת דרכונים → סריקה אישית. לענות בביטחון ובקצרה.</li>
+            <li><strong>נוזלים:</strong> חל איסור על נוזלים מעל 100 מ״ל בתיק היד. בקבוק מים ריק מותר — ניתן למלא אחרי הביטחון.</li>
+            <li><strong>חנות דיוטי-פרי:</strong> פתוחה 24/7, ניתן לרכוש חטיפים, משקאות ומזכרות של הרגע האחרון.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="pricing-grid" style="margin-top:24px;">
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">מונית לנתב״ג</div>
+        <div class="pricing-cell__amount">180</div>
+        <div class="pricing-cell__currency">₪ · 45 €</div>
+      </div>
+      <div class="pricing-cell" style="background:var(--color-brand-primary);color:#fff;">
+        <div class="pricing-cell__label" style="color:rgba(255,255,255,0.8);">סה״כ יום 2</div>
+        <div class="pricing-cell__amount" style="color:#fff;">180</div>
+        <div class="pricing-cell__currency" style="color:rgba(255,255,255,0.8);">₪ · 45 €</div>
+      </div>
+    </div>
+
+    <div class="itinerary-grid" style="margin-top:24px;">
+      <div class="poi-card" id="poi-day-2-1">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🛒 סופרמרקט</span>
+          <h3 class="poi-card__name">סופרמרקט — יום הזיכרון</h3>
+          <p class="poi-card__description">⚠️ <strong>יום הזיכרון — רוב הסופרמרקטים והמכולות סגורים.</strong> מומלץ לקנות חטיפים, מים ואוכל לדרך <strong>בערב הקודם (יום 1)</strong> לפני השקיעה (~19:15), כל עוד החנויות עדיין פתוחות.</p>
+          <p class="poi-card__description"><strong>חלופות זמינות:</strong></p>
+          <ul class="poi-card__description">
+            <li>🛒 חנויות הדיוטי-פרי בנתב״ג — פתוחות 24/7</li>
+            <li>☕ בתי קפה ומסעדות בטרמינל 3 — פתוחים מסביב לשעון</li>
+            <li>🏪 מכונות אוטומטיות בטרמינל</li>
+          </ul>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>מומלץ לקנות חטיפים בערב הקודם לפני השקיעה</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="advisory advisory--info" data-section-type="plan-b" style="margin-top:24px;">
+      <svg class="advisory__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        <div class="advisory__title">🅱️ תוכנית חלופית — הזמנת מונית בשעה 02:00</div>
+        <div class="advisory__body">
+          <p>בשעת לילה מאוחרת ייתכן שקשה למצוא מונית ברחוב. מומלץ להיערך מראש:</p>
+          <ol>
+            <li><strong>להזמין מונית מהמלון</strong> — לבקש מקבלת המלון בערב הקודם להזמין מונית ל-02:00. זו הדרך הבטוחה ביותר.</li>
+            <li><strong>אפליקציית Gett</strong> — האפליקציה הישראלית המובילה להזמנת מוניות (המקבילה של Uber). להוריד ולהגדיר מראש.</li>
+            <li><strong>רכבת ישראל</strong> — תחנת הרכבת בנתב״ג <strong>לא פעילה בשעות אלו</strong> (הרכבות חוזרות לפעול רק בסביבות 05:00). אין להסתמך על רכבת.</li>
+          </ol>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>מחיר מונית מתל אביב לנתב״ג מוסדר — בין 150-200 ₪ בהתאם לנקודת האיסוף המדויקת ותוספת לילה. לוודא שהמונה דולק.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<section id="budget">
+  <h2 class="section-title">תקציב טיול</h2>
+
+  <!-- Summary by days -->
+  <h3 class="font-semibold mt-4 mb-3">סיכום לפי ימים</h3>
+  <div class="itinerary-table-wrapper">
+    <table class="itinerary-table">
+      <thead>
+        <tr>
+          <th>יום</th>
+          <th>כותרת</th>
+          <th>₪</th>
+          <th>€</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>יום 0 (19.04)</td>
+          <td>יפו העתיקה ונווה צדק</td>
+          <td>332</td>
+          <td>85</td>
+        </tr>
+        <tr>
+          <td>יום 1 (20.04)</td>
+          <td>שווקים, חדר בריחה ורוטשילד</td>
+          <td>528</td>
+          <td>133</td>
+        </tr>
+        <tr>
+          <td>יום 2 (21.04)</td>
+          <td>יציאה</td>
+          <td>180</td>
+          <td>45</td>
+        </tr>
+        <tr style="font-weight:700;background-color:var(--color-surface-raised)">
+          <td><strong>סה״כ טיול</strong></td>
+          <td></td>
+          <td><strong>1,040</strong></td>
+          <td><strong>263</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Category breakdown -->
+  <h3 class="font-semibold mt-4 mb-3">פירוט לפי קטגוריה</h3>
+  <div class="pricing-grid">
+    <div class="pricing-cell">
+      <div class="pricing-cell__label">🍽️ אוכל ומשקאות</div>
+      <div class="pricing-cell__amount">640</div>
+      <div class="pricing-cell__currency">₪ · 161 € · 62%</div>
+    </div>
+    <div class="pricing-cell">
+      <div class="pricing-cell__label">🚌 תחבורה</div>
+      <div class="pricing-cell__amount">230</div>
+      <div class="pricing-cell__currency">₪ · 59 € · 22%</div>
+    </div>
+    <div class="pricing-cell">
+      <div class="pricing-cell__label">🎯 אטרקציות ופעילויות</div>
+      <div class="pricing-cell__amount">120</div>
+      <div class="pricing-cell__currency">₪ · 30 € · 12%</div>
+    </div>
+    <div class="pricing-cell">
+      <div class="pricing-cell__label">🛍️ קניות ומזכרות</div>
+      <div class="pricing-cell__amount">50</div>
+      <div class="pricing-cell__currency">₪ · 13 € · 4%</div>
+    </div>
+    <div class="pricing-cell">
+      <div class="pricing-cell__label">סה״כ</div>
+      <div class="pricing-cell__amount">1,040</div>
+      <div class="pricing-cell__currency">₪ · 263 €</div>
+    </div>
+  </div>
+
+  <!-- Detailed day-by-day breakdown -->
+  <h3 class="font-semibold mt-4 mb-3">פירוט מלא לפי ימים</h3>
+
+  <!-- Day 0 -->
+  <h4 class="font-semibold mt-3 mb-3" style="font-size:var(--text-base)">יום 0 — יפו העתיקה ונווה צדק (19.04)</h4>
+  <div class="itinerary-table-wrapper">
+    <table class="itinerary-table">
+      <thead>
+        <tr>
+          <th>פריט</th>
+          <th>₪</th>
+          <th>€</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>רכבת נתב״ג → תל אביב</td>
+          <td>14</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td>יפו העתיקה (כניסה חופשית)</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>שוק הפשפשים (מזכרות, אומדן)</td>
+          <td>50</td>
+          <td>13</td>
+        </tr>
+        <tr>
+          <td>ארוחת צהריים — ד״ר שקשוקה</td>
+          <td>110</td>
+          <td>28</td>
+        </tr>
+        <tr>
+          <td>נווה צדק (כניסה חופשית)</td>
+          <td>0</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>ארוחת ערב + בירה — ביר בזאר</td>
+          <td>140</td>
+          <td>35</td>
+        </tr>
+        <tr>
+          <td>תחבורה ציבורית (אוטובוסים, יומי)</td>
+          <td>18</td>
+          <td>5</td>
+        </tr>
+        <tr style="font-weight:700;background-color:var(--color-surface-raised)">
+          <td><strong>סה״כ יום 0</strong></td>
+          <td><strong>332</strong></td>
+          <td><strong>85</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Day 1 -->
+  <h4 class="font-semibold mt-3 mb-3" style="font-size:var(--text-base)">יום 1 — שווקים, חדר בריחה ורוטשילד (20.04)</h4>
+  <div class="itinerary-table-wrapper">
+    <table class="itinerary-table">
+      <thead>
+        <tr>
+          <th>פריט</th>
+          <th>₪</th>
+          <th>€</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>שוק הכרמל — טעימות אוכל רחוב</td>
+          <td>50</td>
+          <td>13</td>
+        </tr>
+        <tr>
+          <td>שוק לוינסקי — תבלינים ומזכרות</td>
+          <td>40</td>
+          <td>10</td>
+        </tr>
+        <tr>
+          <td>ארוחת צהריים — שרונה מרקט</td>
+          <td>100</td>
+          <td>25</td>
+        </tr>
+        <tr>
+          <td>חדר בריחה — Escape Room Israel</td>
+          <td>120</td>
+          <td>30</td>
+        </tr>
+        <tr>
+          <td>ארוחת ערב — הבסטה</td>
+          <td>200</td>
+          <td>50</td>
+        </tr>
+        <tr>
+          <td>תחבורה ציבורית (אוטובוסים, יומי)</td>
+          <td>18</td>
+          <td>5</td>
+        </tr>
+        <tr style="font-weight:700;background-color:var(--color-surface-raised)">
+          <td><strong>סה״כ יום 1</strong></td>
+          <td><strong>528</strong></td>
+          <td><strong>133</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Day 2 -->
+  <h4 class="font-semibold mt-3 mb-3" style="font-size:var(--text-base)">יום 2 — יציאה (21.04)</h4>
+  <div class="itinerary-table-wrapper">
+    <table class="itinerary-table">
+      <thead>
+        <tr>
+          <th>פריט</th>
+          <th>₪</th>
+          <th>€</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>מונית לנתב״ג</td>
+          <td>180</td>
+          <td>45</td>
+        </tr>
+        <tr style="font-weight:700;background-color:var(--color-surface-raised)">
+          <td><strong>סה״כ יום 2</strong></td>
+          <td><strong>180</strong></td>
+          <td><strong>45</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Notes -->
+  <div class="text-sm text-secondary mt-4">
+    <p>המחירים הם <strong>אומדנים</strong> המבוססים על מחירי שוק נכון למרץ 2026.</p>
+    <p>שער המרה: 1 € ≈ 4.0 ₪ (משוער).</p>
+    <p>התקציב אינו כולל: לינה, טיסות, ביטוח נסיעות.</p>
+    <p>רוב האטרקציות ביפו ובנווה צדק הן <strong>בכניסה חופשית</strong> — מה שמאפשר להשקיע יותר באוכל ובחוויות קולינריות.</p>
+  </div>
+</section>
+</main>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var sections=document.querySelectorAll('[id^="day-"],#overview,#budget');
+  var sidebarLinks=document.querySelectorAll('.sidebar__link');
+  var mobilePills=document.querySelectorAll('.mobile-nav__pill');
+  if(!sections.length)return;
+  var observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        var id=entry.target.id;
+        sidebarLinks.forEach(function(l){
+          if(l.getAttribute('href')==='#'+id){
+            l.classList.add('is-active');
+            l.setAttribute('aria-current','page');
+          }else{
+            l.classList.remove('is-active');
+            l.removeAttribute('aria-current');
+          }
+        });
+        mobilePills.forEach(function(p){
+          if(p.getAttribute('href')==='#'+id){
+            p.classList.add('is-active');
+          }else{
+            p.classList.remove('is-active');
+          }
+        });
+      }
+    });
+  },{rootMargin:'-10% 0px -85% 0px',threshold:0});
+  sections.forEach(function(s){observer.observe(s);});
+});
+</script>
+</body>
+</html>

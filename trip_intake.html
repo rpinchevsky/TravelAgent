@@ -222,49 +222,33 @@
       .search-bar__dropdown--travelers { left: -3px; right: -3px; min-width: auto; }
     }
 
-    /* === Value Propositions === */
+    /* === Value Propositions (inline trust badges in hero) === */
     .value-props {
-      max-width: 960px; margin: var(--space-5) auto var(--space-2);
+      display: flex; justify-content: center; flex-wrap: wrap;
+      gap: 0; margin-top: var(--space-3);
+      position: relative; z-index: 1;
+      animation: heroFadeIn 0.8s ease 0.4s both;
+    }
+    .value-props.is-hidden { display: none; }
+    .value-props__badge {
+      display: flex; align-items: center; gap: 6px;
       padding: 0 var(--space-3);
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3);
+      font-size: var(--text-xs); color: rgba(255,255,255,0.7);
+      white-space: nowrap;
     }
-    .value-props__card {
-      background: var(--color-surface);
-      border-radius: var(--radius-container);
-      padding: var(--space-4) var(--space-3);
-      text-align: center;
-      border: 1px solid var(--color-border);
-      transition: box-shadow var(--transition-base), transform var(--transition-base);
+    .value-props__badge + .value-props__badge {
+      border-left: 1px solid rgba(255,255,255,0.2);
     }
-    .value-props__card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
+    html[dir="rtl"] .value-props__badge + .value-props__badge {
+      border-left: none;
+      border-right: 1px solid rgba(255,255,255,0.2);
     }
-    .value-props.is-hidden {
-      opacity: 0; max-height: 0; margin: 0; padding: 0; overflow: hidden;
-      pointer-events: none;
-      transition: opacity 0.3s ease, max-height 0.4s ease, margin 0.4s ease;
-    }
-    .value-props__icon {
-      font-size: 2rem; margin-bottom: var(--space-2);
-      display: block;
-    }
-    .value-props__title {
-      font-size: var(--text-sm); font-weight: var(--font-weight-semibold);
-      color: var(--color-text-primary); margin-bottom: var(--space-1);
-      line-height: var(--line-height-heading);
-    }
-    .value-props__desc {
-      font-size: var(--text-xs); color: var(--color-text-muted);
-      line-height: var(--line-height-body);
-    }
-    @media (max-width: 768px) {
-      .value-props { grid-template-columns: repeat(2, 1fr); gap: var(--space-2); }
-    }
-    @media (max-width: 480px) {
-      .value-props { grid-template-columns: 1fr 1fr; gap: var(--space-2); }
-      .value-props__card { padding: var(--space-3) var(--space-2); }
-      .value-props__icon { font-size: 1.5rem; }
+    .value-props__badge-icon { font-size: 1rem; }
+    @media (max-width: 640px) {
+      .value-props { gap: var(--space-1); }
+      .value-props__badge { padding: 4px var(--space-2); font-size: 0.7rem; }
+      .value-props__badge + .value-props__badge { border-left: none; }
+      html[dir="rtl"] .value-props__badge + .value-props__badge { border-right: none; }
     }
 
     /* === Layout === */
@@ -408,8 +392,10 @@
     @media (max-width: 480px) { .row--2, .row--3 { grid-template-columns: 1fr; } }
 
     /* === DOB Dropdown Group === */
-    .dob-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-2); }
+    .dob-row { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: var(--space-2); }
     .dob-row .select { padding: 8px var(--space-2); font-size: var(--text-sm); padding-right: 28px; background-position: right 8px center; min-height: 40px; }
+    .dob-cell__label { font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: 2px; }
+    html[dir="rtl"] .dob-row .select { background-position: left 8px center; padding-right: var(--space-2); padding-left: 28px; }
 
     /* === Autocomplete === */
     .autocomplete-wrap { position: relative; }
@@ -431,6 +417,13 @@
     }
     .autocomplete-item__main { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
     .autocomplete-item__sub { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px; }
+    .dest-city-hint {
+      font-size: var(--text-sm); color: var(--color-error);
+      font-weight: var(--font-weight-medium);
+      padding: 8px var(--space-3) 0;
+    }
+    html[dir="rtl"] .dest-city-hint { text-align: right; }
+    html[dir="ltr"] .dest-city-hint { text-align: left; }
 
     /* === Airbnb-style Guest Counter === */
     .guest-section {
@@ -700,6 +693,331 @@
     .preview-box__body .md-bold { color: #d4a83a; }
     .preview-box__body .md-bullet { color: #43e97b; }
     .preview-box__body .md-table { color: #a18cd1; }
+
+    /* === Post-Download Section === */
+    .post-download {
+      margin-top: var(--space-4);
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-left: 4px solid var(--color-brand-primary);
+      border-radius: var(--radius-container);
+      box-shadow: var(--shadow-sm);
+    }
+    .post-download__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+    }
+    .post-download__icon { font-size: 1.25rem; }
+    .post-download__title {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text);
+    }
+    .post-download__instruction {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-3);
+    }
+    .post-download__cmd-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    .post-download__cmd {
+      flex: 1;
+      padding: 10px var(--space-3);
+      background: #1a1a2e;
+      color: #c8cdd6;
+      font-family: 'Courier New', monospace;
+      font-size: var(--text-sm);
+      border-radius: var(--radius-interactive);
+      border: 1px solid rgba(255,255,255,0.1);
+      white-space: nowrap;
+      overflow-x: auto;
+    }
+    .post-download__copy-btn { white-space: nowrap; flex-shrink: 0; }
+    .post-download__hint {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+    @media (prefers-color-scheme: dark) {
+      .post-download { border-color: var(--color-border); }
+      .post-download__cmd { background: #0d0d1a; }
+    }
+    html[dir="rtl"] .post-download {
+      border-left: 1px solid var(--color-border);
+      border-right: 4px solid var(--color-brand-primary);
+    }
+    @media (max-width: 480px) {
+      .post-download__cmd-row { flex-direction: column; align-items: stretch; }
+      .post-download__copy-btn { align-self: flex-end; }
+    }
+
+    /* === Open Trip Button === */
+    .open-trip-bar {
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .open-trip-bar__btn {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: 12px var(--space-4);
+      background: var(--color-success); color: #fff;
+      border: none; border-radius: var(--radius-interactive);
+      font-size: var(--text-base); font-weight: var(--font-weight-semibold);
+      cursor: pointer; font-family: inherit;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+      text-decoration: none;
+    }
+    .open-trip-bar__btn:hover { background: #236b2e; transform: translateY(-1px); }
+
+    /* === Pipeline Roadmap === */
+    .pipeline-roadmap {
+      margin-top: var(--space-4);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+    }
+    .pipeline-roadmap__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: var(--space-3);
+    }
+    .pipeline-roadmap__title {
+      font-size: var(--text-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+    .pipeline-roadmap__total {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-weight: var(--font-weight-medium);
+    }
+    .pipeline-roadmap__steps {
+      display: flex;
+      gap: 2px;
+      margin-bottom: var(--space-2);
+    }
+    .pipeline-roadmap__step {
+      min-width: 60px;
+      text-align: center;
+      padding: var(--space-2) var(--space-1);
+    }
+    .pipeline-roadmap__num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--color-surface-raised);
+      color: var(--color-text-secondary);
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      margin-bottom: 4px;
+    }
+    .pipeline-roadmap__step--major .pipeline-roadmap__num {
+      background: var(--color-brand-primary);
+      color: var(--color-text-inverse);
+    }
+    .pipeline-roadmap__label {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.3;
+      margin-bottom: 2px;
+    }
+    .pipeline-roadmap__time {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-weight: var(--font-weight-medium);
+    }
+    .pipeline-roadmap__bar-track {
+      display: flex;
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      background: var(--color-surface-raised);
+      gap: 1px;
+    }
+    .pipeline-roadmap__bar-segment {
+      background: var(--color-brand-accent-alt);
+      border-radius: 1px;
+      min-width: 4px;
+      opacity: 0.5;
+      transition: opacity var(--transition-fast);
+    }
+    .pipeline-roadmap__bar-segment--major {
+      background: var(--color-brand-primary);
+      opacity: 0.8;
+    }
+    .pipeline-roadmap__bar-track:hover .pipeline-roadmap__bar-segment { opacity: 1; }
+    @media (prefers-color-scheme: dark) {
+      .pipeline-roadmap { border-top-color: var(--color-border); }
+      .pipeline-roadmap__bar-segment { opacity: 0.6; }
+      .pipeline-roadmap__bar-segment--major { opacity: 0.9; }
+    }
+    html[dir="rtl"] .pipeline-roadmap__steps,
+    html[dir="rtl"] .pipeline-roadmap__bar-track,
+    html[dir="rtl"] .pipeline-roadmap__header { flex-direction: row-reverse; }
+    @media (max-width: 480px) {
+      .pipeline-roadmap__steps { flex-direction: column; gap: 0; }
+      .pipeline-roadmap__step {
+        display: flex; align-items: center; gap: var(--space-2);
+        text-align: start; min-width: unset;
+        padding: var(--space-1) 0; flex-basis: unset !important;
+        border-bottom: 1px solid var(--color-border);
+      }
+      .pipeline-roadmap__step:last-child { border-bottom: none; }
+      .pipeline-roadmap__num { flex-shrink: 0; margin-bottom: 0; }
+      .pipeline-roadmap__label { flex: 1; font-size: var(--text-xs); margin-bottom: 0; }
+      .pipeline-roadmap__time { flex-shrink: 0; }
+      .pipeline-roadmap__bar-track { margin-top: var(--space-2); }
+      html[dir="rtl"] .pipeline-roadmap__steps { flex-direction: column; }
+      html[dir="rtl"] .pipeline-roadmap__step { flex-direction: row-reverse; text-align: end; }
+    }
+    /* --- Live progress states (only when .is-live is set on roadmap) --- */
+    /* Not started: red/coral badge and bar */
+    .pipeline-roadmap.is-live .pipeline-roadmap__num {
+      background: #e8a0a0;
+      color: #fff;
+    }
+    .pipeline-roadmap.is-live .pipeline-roadmap__step--major .pipeline-roadmap__num {
+      background: #d07070;
+      color: #fff;
+    }
+    .pipeline-roadmap.is-live .pipeline-roadmap__bar-segment { background: #e8a0a0 !important; opacity: 0.6 !important; }
+    .pipeline-roadmap.is-live .pipeline-roadmap__bar-segment--major { background: #d07070 !important; opacity: 0.7 !important; }
+    /* Active: dark brand primary badge, blue bar */
+    .pipeline-roadmap__step--active .pipeline-roadmap__num {
+      background: var(--color-brand-primary) !important;
+      color: #fff;
+      animation: stepPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes stepPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(26,60,94,0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(26,60,94,0); }
+    }
+    .pipeline-roadmap__bar-segment--active {
+      background: var(--color-brand-accent-alt) !important;
+      opacity: 1 !important;
+      animation: barPulse 1s ease-in-out infinite alternate;
+    }
+    @keyframes barPulse {
+      from { opacity: 0.7; }
+      to { opacity: 1; }
+    }
+    /* Done: green badge and bar */
+    .pipeline-roadmap__step--done .pipeline-roadmap__num {
+      background: var(--color-success) !important;
+      color: #fff;
+      animation: none;
+    }
+    .pipeline-roadmap__bar-segment--done { background: var(--color-success) !important; opacity: 1 !important; animation: none; }
+    .pipeline-roadmap__log {
+      margin-top: var(--space-3);
+      max-height: 120px;
+      overflow-y: auto;
+      background: #1a1a2e;
+      color: #c8cdd6;
+      font-family: 'Courier New', monospace;
+      font-size: var(--text-xs);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-interactive);
+      border: 1px solid rgba(255,255,255,0.1);
+      line-height: 1.5;
+    }
+    .pipeline-roadmap__log-line {
+      white-space: pre-wrap;
+      word-break: break-word;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 2px 0;
+    }
+    .pipeline-progress {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-top: var(--space-3);
+    }
+    .pipeline-progress__bar {
+      flex: 1;
+      height: 12px;
+      background: var(--color-surface-raised);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .pipeline-progress__fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-brand-accent-alt), var(--color-brand-primary));
+      border-radius: 6px;
+      transition: width 1s ease;
+    }
+    .pipeline-progress__text {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-brand-primary);
+      min-width: 48px;
+      text-align: right;
+    }
+    .pipeline-roadmap__status {
+      text-align: center;
+      font-size: var(--text-sm);
+      font-weight: var(--font-weight-semibold);
+      margin-top: var(--space-3);
+      padding: var(--space-2);
+      border-radius: var(--radius-interactive);
+    }
+    .pipeline-roadmap__status--running {
+      color: var(--color-brand-primary);
+      background: rgba(26,60,94,0.08);
+    }
+    .pipeline-roadmap__status--done {
+      color: var(--color-success);
+      background: rgba(45,125,58,0.08);
+    }
+    .pipeline-roadmap__status--error {
+      color: var(--color-error);
+      background: rgba(181,59,59,0.08);
+    }
+
+    /* === Stop Generation Button === */
+    .btn--stop {
+      background: transparent; color: var(--color-error);
+      border: 2px solid var(--color-error);
+      border-radius: var(--radius-interactive);
+      padding: 10px var(--space-5);
+      font-size: var(--text-sm); font-weight: var(--font-weight-semibold);
+      cursor: pointer; font-family: inherit;
+      transition: all var(--transition-fast);
+    }
+    .btn--stop:hover {
+      background: var(--color-error); color: #fff;
+    }
+
+    /* === Generating Mode — hide irrelevant sections === */
+    body.is-generating .hero,
+    body.is-generating .search-bar-wrap,
+    body.is-generating .value-props,
+    body.is-generating .stepper,
+    body.is-generating .context-bar,
+    body.is-generating .preview-box,
+    body.is-generating .btn-bar,
+    body.is-generating .step__title,
+    body.is-generating .step__desc {
+      display: none !important;
+    }
+    body.is-generating .page-shell {
+      padding-top: var(--space-4);
+    }
+    body.is-generating .post-download {
+      border-left-color: var(--color-brand-accent);
+      box-shadow: var(--shadow-md);
+    }
 
     /* === Pace Selector (immersive cards) === */
     .pace-options { display: grid; gap: var(--space-3); }
@@ -1599,6 +1917,12 @@
     </div>
     <h1 class="hero__tagline" data-i18n="hero_title">Your perfect trip starts here</h1>
     <p class="hero__subtitle" data-i18n="hero_subtitle">Answer a few questions and we'll design the perfect itinerary</p>
+    <div class="value-props" id="valueProps" aria-label="Why choose us">
+      <span class="value-props__badge"><span class="value-props__badge-icon">&#9992;&#65039;</span> <span data-i18n="vp_custom_title">Custom-Made Itinerary</span></span>
+      <span class="value-props__badge"><span class="value-props__badge-icon">&#127919;</span> <span data-i18n="vp_prefs_title">Tailored to Your Interests</span></span>
+      <span class="value-props__badge"><span class="value-props__badge-icon">&#128142;</span> <span data-i18n="vp_local_title">Hidden Gems, Not Tourist Traps</span></span>
+      <span class="value-props__badge"><span class="value-props__badge-icon">&#128106;</span> <span data-i18n="vp_family_title">Built for Every Age</span></span>
+    </div>
   </header>
 
   <!-- Booking.com-style Search Bar -->
@@ -1678,31 +2002,9 @@
       </div>
     </div>
     <div class="search-bar__error" id="sbError"></div>
+    <div class="dest-city-hint" id="destCityHint" style="display:none;" data-i18n="sb_city_hint">Tip: specify a city for a more detailed itinerary</div>
   </div>
 
-  <!-- Value Propositions -->
-  <section class="value-props" id="valueProps" aria-label="Why choose us">
-    <div class="value-props__card">
-      <span class="value-props__icon">&#9992;&#65039;</span>
-      <div class="value-props__title" data-i18n="vp_custom_title">Custom-Made Itinerary</div>
-      <div class="value-props__desc" data-i18n="vp_custom_desc">Every trip is built from scratch for your group — no cookie-cutter templates</div>
-    </div>
-    <div class="value-props__card">
-      <span class="value-props__icon">&#127919;</span>
-      <div class="value-props__title" data-i18n="vp_prefs_title">Tailored to Your Interests</div>
-      <div class="value-props__desc" data-i18n="vp_prefs_desc">We learn what each traveler loves and match every stop to their passions</div>
-    </div>
-    <div class="value-props__card">
-      <span class="value-props__icon">&#128142;</span>
-      <div class="value-props__title" data-i18n="vp_local_title">Hidden Gems, Not Tourist Traps</div>
-      <div class="value-props__desc" data-i18n="vp_local_desc">Authentic local experiences and secret spots the guidebooks miss</div>
-    </div>
-    <div class="value-props__card">
-      <span class="value-props__icon">&#128106;</span>
-      <div class="value-props__title" data-i18n="vp_family_title">Built for Every Age</div>
-      <div class="value-props__desc" data-i18n="vp_family_desc">Age-appropriate activities for everyone, from toddlers to grandparents</div>
-    </div>
-  </section>
 
   <!-- Booking.com: Selection Summary Context Bar -->
   <div class="context-bar" id="contextBar">
@@ -1903,7 +2205,7 @@
               </div>
               <div class="row row--3">
                 <div class="field">
-                  <label class="field__label" data-i18n="s1_name">Name / Role</label>
+                  <label class="field__label" data-i18n="s1_name">Name</label>
                   <input class="input parent-name" type="text" data-i18n-placeholder="s1_name_placeholder" placeholder="e.g. Robert" required>
                 </div>
                 <div class="field">
@@ -1917,9 +2219,9 @@
                 <div class="field">
                   <label class="field__label" data-i18n="s1_dob">Date of Birth</label>
                   <div class="dob-row">
-                    <select class="select dob-year" data-placeholder="Year"></select>
-                    <select class="select dob-month" data-placeholder="Month"></select>
-                    <select class="select dob-day" data-placeholder="Day"></select>
+                    <div><div class="dob-cell__label" data-i18n="s1_dob_year">Year</div><select class="select dob-year" data-placeholder="Year"></select></div>
+                    <div><div class="dob-cell__label" data-i18n="s1_dob_month">Month</div><select class="select dob-month" data-placeholder="Month"></select></div>
+                    <div><div class="dob-cell__label" data-i18n="s1_dob_day">Day</div><select class="select dob-day" data-placeholder="Day"></select></div>
                   </div>
                 </div>
               </div>
@@ -2083,10 +2385,10 @@
       <!-- ============ STEP 4: Avoid & Pace ============ -->
       <section class="step" data-step="4">
         <h2 class="step__title" data-i18n="s4_title">Set Your Boundaries</h2>
-        <p class="step__desc" data-i18n="s4_desc">Quick questions to find your comfort zone — then fine-tune below.</p>
+        <p class="step__desc" data-i18n="s4_desc">Deselect anything you'd prefer to skip on this trip.</p>
 
-        <!-- Mini-questionnaire (4 questions, same visual style as Step 2) -->
-        <div class="avoid-quiz" id="avoidQuiz">
+        <!-- Mini-questionnaire (hidden — defaults used for scoring; cards only for clean UX) -->
+        <div class="avoid-quiz" id="avoidQuiz" style="display:none;"
           <div class="sub-dots" id="avoidSubDots">
             <span class="sub-dot is-active"></span>
             <span class="sub-dot"></span>
@@ -2498,10 +2800,10 @@
       <!-- ============ STEP 5: Culinary ============ -->
       <section class="step" data-step="5">
         <h2 class="step__title" data-i18n="s5_title">Food & Dining</h2>
-        <p class="step__desc" data-i18n="s5_desc">Quick questions about your food preferences — then we'll suggest experiences tailored to your group.</p>
+        <p class="step__desc" data-i18n="s5_desc">Select food experiences and dining vibes that match your group.</p>
 
-        <!-- Food mini-quiz (3 questions, auto-advance) -->
-        <div class="food-quiz" id="foodQuiz">
+        <!-- Food mini-quiz (hidden — defaults used for scoring; cards only for clean UX) -->
+        <div class="food-quiz" id="foodQuiz" style="display:none;"
           <div class="sub-dots" id="foodSubDots">
             <span class="sub-dot is-active"></span>
             <span class="sub-dot"></span>
@@ -2701,13 +3003,7 @@
             </select>
           </div>
           <div class="field">
-            <label class="field__label" for="poiLangs" data-i18n="s6_poi_langs">POI Languages
-              <button type="button" class="tooltip-trigger" aria-label="Info">i
-                <span class="tooltip-bubble">Languages for point-of-interest info cards. Include local language for authentic experience.</span>
-              </button>
-            </label>
-            <input class="input" type="text" id="poiLangs" placeholder="e.g. Hungarian, English" data-i18n-placeholder="s6_poi_placeholder" data-question-key="poiLangs">
-            <p class="field__hint" data-i18n="s6_poi_hint">Comma-separated. Local language + your language recommended.</p>
+            <p class="field__hint" data-i18n="s6_poi_auto_hint">POI info cards will automatically use the local destination language and your report language.</p>
           </div>
         </div>
 
@@ -2788,6 +3084,33 @@
             <button type="button" class="btn btn--accent" id="btnDownload" data-i18n="s7_download">Build My Dream Trip &#10024;</button>
           </div>
         </div>
+
+        <div class="post-download" id="postDownload" style="display:none;">
+          <div class="post-download__header">
+            <span class="post-download__icon">&#9989;</span>
+            <span class="post-download__title" id="postDownloadTitle" data-i18n="s7_post_title">Profile saved! Ready to generate your trip.</span>
+          </div>
+          <p class="post-download__instruction" id="postDownloadInstruction" data-i18n="s7_post_instruction">Paste this command into Claude Code to start generating your personalized trip:</p>
+          <div class="post-download__cmd-row" id="postDownloadCmdRow">
+            <code class="post-download__cmd" id="postDownloadCmd"></code>
+            <button type="button" class="btn btn--secondary post-download__copy-btn" id="btnCopyCmd" data-i18n="s7_post_copy">Copy Command</button>
+          </div>
+          <p class="post-download__hint" id="postDownloadHint" data-i18n="s7_post_hint">Make sure the downloaded file is in your project directory and Claude Code is open.</p>
+
+          <div class="open-trip-bar" id="openTripBar" style="display:none;"></div>
+          <div id="pipelineRoadmap"></div>
+          <div class="pipeline-progress" id="pipelineProgress" style="display:none;">
+            <div class="pipeline-progress__bar">
+              <div class="pipeline-progress__fill" id="pipelineProgressFill" style="width:0%;"></div>
+            </div>
+            <div class="pipeline-progress__text" id="pipelineProgressText">0%</div>
+          </div>
+          <div class="pipeline-roadmap__status pipeline-roadmap__status--running" id="pipelineStatus" style="display:none;" data-i18n="s7_bridge_running">Generating your trip...</div>
+          <div style="text-align:center;margin-top:var(--space-3);">
+            <button type="button" class="btn btn--stop" id="btnStopGeneration" style="display:none;" data-i18n="s7_stop_generation">Stop & Edit Details</button>
+          </div>
+          <div class="pipeline-roadmap__log" id="pipelineLog" style="display:none;"></div>
+        </div>
       </section>
     </form>
   </div>
@@ -2837,6 +3160,7 @@
         sb_travelers: "Travelers",
         sb_letsgo: "Let's Go →",
         sb_error_dest: "Please enter a destination",
+        sb_city_hint: "Tip: specify a city for a more detailed itinerary",
         sb_error_dates: "Please select your travel dates",
         sb_adults: "Adults",
         sb_adults_age: "Age 18+",
@@ -2882,13 +3206,16 @@
         s1_children_age: "Age 0-17",
         s1_adult_n: "Adult",
         s1_child_n: "Child",
-        s1_name: "Name / Role",
+        s1_name: "Name",
         s1_name_placeholder: "e.g. Robert",
         s1_gender: "Gender",
         s1_gender_select: "Select...",
         s1_gender_male: "Male",
         s1_gender_female: "Female",
         s1_dob: "Date of Birth",
+        s1_dob_year: "Year",
+        s1_dob_month: "Month",
+        s1_dob_day: "Day",
         s1_year: "Year",
         s1_month: "Month",
         s1_day: "Day",
@@ -2926,7 +3253,7 @@
         s3_custom_placeholder: "e.g. Hot air balloon rides, Cooking classes...",
         s3_next: "Set Your Limits →",
         s4_title: "Set Your Boundaries",
-        s4_desc: "Quick questions to find your comfort zone — then fine-tune below.",
+        s4_desc: "Deselect anything you'd prefer to skip on this trip.",
         q_noise: "What's your crowd & noise comfort?",
         q_noise_quiet: "Quiet & Calm",
         q_noise_quiet_desc: "Avoid crowds, loud venues, peak-hour rush",
@@ -2969,7 +3296,7 @@
         s4_pace_packed_desc: "5+ activities, maximize every hour",
         s4_next: "Food & Dining →",
         s5_title: "Food & Dining",
-        s5_desc: "Quick questions about your food preferences — then we'll suggest experiences tailored to your group.",
+        s5_desc: "Select food experiences and dining vibes that match your group.",
         q_diet: "What does your group eat?",
         q_diet_omni: "Everything",
         q_diet_omni_desc: "Meat, fish, veggies — no restrictions",
@@ -3018,10 +3345,7 @@
         s6_title: "Language & Extras",
         s6_desc: "Final touches for your perfect trip plan.",
         s6_report_lang: "Report Language",
-        s6_poi_langs: "POI Languages",
-        s6_poi_placeholder: "e.g. Hungarian, English",
-        s6_poi_hint: "Comma-separated. Local language + your language recommended.",
-        s6_poi_tip: "Languages for point-of-interest info cards. Include local language for authentic experience.",
+        s6_poi_auto_hint: "POI info cards will automatically use the local destination language and your report language.",
         s6_extra: "Anything else we should know?",
         s6_extra_placeholder: "e.g. One child has a stroller, we want outlet shopping on one day, we need nearby supermarkets...",
         s6_next: "Review My Trip →",
@@ -3032,6 +3356,27 @@
         s7_edit: "← Edit",
         s7_copy_clip: "Copy to Clipboard",
         s7_download: "Build My Dream Trip ✨",
+        s7_post_title: "Profile saved! Ready to generate your trip.",
+        s7_post_instruction: "Paste this command into Claude Code to start generating your personalized trip:",
+        s7_post_copy: "Copy Command",
+        s7_post_hint: "Make sure the downloaded file is in your project directory and Claude Code is open.",
+        s7_pipeline_title: "What happens next",
+        s7_pipeline_total: "~28 min total",
+        s7_pipeline_step1: "Overview & Manifest",
+        s7_pipeline_step2: "Day Generation",
+        s7_pipeline_step3: "Budget",
+        s7_pipeline_step4: "Assembly",
+        s7_pipeline_step5: "HTML Rendering",
+        s7_pipeline_step6: "Quality Testing",
+        s7_bridge_title: "Trip generation started!",
+        s7_bridge_desc: "Your trip is being generated in a new terminal window. This takes ~28 minutes.",
+        s7_bridge_hint: "Check the terminal window for progress. You can close this page.",
+        s7_bridge_toast: "File saved & generation started",
+        s7_bridge_running: "Generating your trip...",
+        s7_bridge_complete: "Trip generation complete!",
+        s7_bridge_error: "Generation encountered an error",
+        s7_open_trip: "Open Trip",
+        s7_stop_generation: "Stop & Edit Details",
         bs_dates: "Select Dates",
         bs_travelers: "Travelers",
         bs_apply: "Apply Dates",
@@ -3220,6 +3565,7 @@
         sb_travelers: "Путешественники",
         sb_letsgo: "Поехали →",
         sb_error_dest: "Укажите направление",
+        sb_city_hint: "Совет: укажите город для более детального маршрута",
         sb_error_dates: "Выберите даты поездки",
         sb_adults: "Взрослые",
         sb_adults_age: "От 18 лет",
@@ -3265,13 +3611,16 @@
         s1_children_age: "0-17 лет",
         s1_adult_n: "Взрослый",
         s1_child_n: "Ребёнок",
-        s1_name: "Имя / Роль",
+        s1_name: "Имя",
         s1_name_placeholder: "напр. Роберт",
         s1_gender: "Пол",
         s1_gender_select: "Выберите...",
         s1_gender_male: "Мужской",
         s1_gender_female: "Женский",
         s1_dob: "Дата рождения",
+        s1_dob_year: "Год",
+        s1_dob_month: "Месяц",
+        s1_dob_day: "День",
         s1_year: "Год",
         s1_month: "Месяц",
         s1_day: "День",
@@ -3309,7 +3658,7 @@
         s3_custom_placeholder: "напр. Полёт на воздушном шаре, Кулинарные мастер-классы...",
         s3_next: "Установить ограничения →",
         s4_title: "Установите границы",
-        s4_desc: "Вопросы для определения вашей зоны комфорта — затем уточните ниже.",
+        s4_desc: "Снимите выделение с того, что хотите пропустить в этом путешествии.",
         q_noise: "Как вы относитесь к толпе и шуму?",
         q_noise_quiet: "Тишина и спокойствие",
         q_noise_quiet_desc: "Избегать толп, громких мест, часов пик",
@@ -3352,7 +3701,7 @@
         s4_pace_packed_desc: "5+ активностей, использовать каждый час",
         s4_next: "Еда и рестораны →",
         s5_title: "Еда и рестораны",
-        s5_desc: "Вопросы о ваших предпочтениях в еде — и мы подберём гастрономические впечатления для вашей группы.",
+        s5_desc: "Выберите гастрономические впечатления и атмосферу, подходящие вашей группе.",
         q_diet: "Что ест ваша группа?",
         q_diet_omni: "Всё",
         q_diet_omni_desc: "Мясо, рыба, овощи — без ограничений",
@@ -3401,10 +3750,7 @@
         s6_title: "Язык и дополнительно",
         s6_desc: "Последние штрихи для вашего идеального плана путешествия.",
         s6_report_lang: "Язык отчёта",
-        s6_poi_langs: "Языки POI",
-        s6_poi_placeholder: "напр. Венгерский, Русский",
-        s6_poi_hint: "Через запятую. Рекомендуется местный язык + ваш язык.",
-        s6_poi_tip: "Языки для карточек достопримечательностей. Включите местный язык для аутентичного опыта.",
+        s6_poi_auto_hint: "Карточки достопримечательностей будут автоматически на местном языке и языке отчёта.",
         s6_extra: "Что-нибудь ещё, что нам стоит знать?",
         s6_extra_placeholder: "напр. У одного ребёнка коляска, хотим аутлет-шопинг в один из дней, нужны ближайшие супермаркеты...",
         s6_next: "Обзор моей поездки →",
@@ -3415,6 +3761,27 @@
         s7_edit: "← Редактировать",
         s7_copy_clip: "Копировать в буфер",
         s7_download: "Создать моё путешествие ✨",
+        s7_post_title: "Профиль сохранён! Готовы сгенерировать путешествие.",
+        s7_post_instruction: "Вставьте эту команду в Claude Code, чтобы начать генерацию вашего путешествия:",
+        s7_post_copy: "Копировать команду",
+        s7_post_hint: "Убедитесь, что скачанный файл находится в папке проекта и Claude Code открыт.",
+        s7_pipeline_title: "Что будет дальше",
+        s7_pipeline_total: "~28 мин всего",
+        s7_pipeline_step1: "Обзор и манифест",
+        s7_pipeline_step2: "Генерация дней",
+        s7_pipeline_step3: "Бюджет",
+        s7_pipeline_step4: "Сборка",
+        s7_pipeline_step5: "HTML рендеринг",
+        s7_pipeline_step6: "Тестирование качества",
+        s7_bridge_title: "Генерация путешествия запущена!",
+        s7_bridge_desc: "Ваше путешествие генерируется в новом окне терминала. Это займёт ~28 минут.",
+        s7_bridge_hint: "Следите за прогрессом в окне терминала. Эту страницу можно закрыть.",
+        s7_bridge_toast: "Файл сохранён, генерация запущена",
+        s7_bridge_running: "Генерируем ваше путешествие...",
+        s7_bridge_complete: "Генерация путешествия завершена!",
+        s7_bridge_error: "Ошибка при генерации",
+        s7_open_trip: "Открыть маршрут",
+        s7_stop_generation: "Остановить и изменить данные",
         bs_dates: "Выберите даты",
         bs_travelers: "Путешественники",
         bs_apply: "Применить даты",
@@ -3601,6 +3968,7 @@
         sb_travelers: "מטיילים",
         sb_letsgo: "יאללה →",
         sb_error_dest: "אנא הזינו יעד",
+        sb_city_hint: "טיפ: ציינו עיר לקבלת מסלול מפורט יותר",
         sb_error_dates: "אנא בחרו תאריכי טיול",
         sb_adults: "מבוגרים",
         sb_adults_age: "גיל 18+",
@@ -3646,13 +4014,16 @@
         s1_children_age: "גיל 0-17",
         s1_adult_n: "מבוגר",
         s1_child_n: "ילד",
-        s1_name: "שם / תפקיד",
+        s1_name: "שם",
         s1_name_placeholder: "למשל רוברט",
         s1_gender: "מגדר",
         s1_gender_select: "בחרו...",
         s1_gender_male: "זכר",
         s1_gender_female: "נקבה",
         s1_dob: "תאריך לידה",
+        s1_dob_year: "שנה",
+        s1_dob_month: "חודש",
+        s1_dob_day: "יום",
         s1_year: "שנה",
         s1_month: "חודש",
         s1_day: "יום",
@@ -3690,7 +4061,7 @@
         s3_custom_placeholder: "למשל טיסה בכדור פורח, סדנאות בישול...",
         s3_next: "הגדירו גבולות →",
         s4_title: "הגדירו את הגבולות שלכם",
-        s4_desc: "שאלות כדי למצוא את אזור הנוחות שלכם — ואז כוונו למטה.",
+        s4_desc: "בטלו סימון מכל מה שתעדיפו לדלג עליו בטיול הזה.",
         q_noise: "מה רמת הנוחות שלכם עם המון ורעש?",
         q_noise_quiet: "שקט ורגוע",
         q_noise_quiet_desc: "להימנע מהמונים, מקומות רועשים, שעות עומס",
@@ -3733,7 +4104,7 @@
         s4_pace_packed_desc: "5+ פעילויות, למקסם כל שעה",
         s4_next: "אוכל ומסעדות →",
         s5_title: "אוכל ומסעדות",
-        s5_desc: "שאלות על העדפות האוכל שלכם — ונציע חוויות מותאמות לקבוצה שלכם.",
+        s5_desc: "בחרו חוויות אוכל ואווירת מסעדות שמתאימות לקבוצה שלכם.",
         q_diet: "מה הקבוצה שלכם אוכלת?",
         q_diet_omni: "הכל",
         q_diet_omni_desc: "בשר, דגים, ירקות — ללא הגבלות",
@@ -3782,10 +4153,7 @@
         s6_title: "שפה ותוספות",
         s6_desc: "נגיעות אחרונות לתוכנית הטיול המושלמת שלכם.",
         s6_report_lang: "שפת הדו״ח",
-        s6_poi_langs: "שפות נקודות עניין",
-        s6_poi_placeholder: "למשל הונגרית, עברית",
-        s6_poi_hint: "מופרדות בפסיק. מומלץ שפה מקומית + השפה שלכם.",
-        s6_poi_tip: "שפות לכרטיסי נקודות עניין. כללו שפה מקומית לחוויה אותנטית.",
+        s6_poi_auto_hint: "כרטיסי נקודות עניין ישתמשו אוטומטית בשפה המקומית ובשפת הדוח שלכם.",
         s6_extra: "משהו נוסף שכדאי לנו לדעת?",
         s6_extra_placeholder: "למשל לילד אחד יש עגלה, רוצים אאוטלט קניות ביום אחד, צריכים סופרמרקטים קרובים...",
         s6_next: "סקירת הטיול שלי →",
@@ -3796,6 +4164,27 @@
         s7_edit: "← עריכה",
         s7_copy_clip: "העתק ללוח",
         s7_download: "בנו לי את טיול החלומות ✨",
+        s7_post_title: "הפרופיל נשמר! מוכנים ליצור את הטיול.",
+        s7_post_instruction: "הדביקו את הפקודה הזו ב-Claude Code כדי להתחיל ליצור את הטיול שלכם:",
+        s7_post_copy: "העתק פקודה",
+        s7_post_hint: "ודאו שהקובץ שהורדתם נמצא בתיקיית הפרויקט ושClaude Code פתוח.",
+        s7_pipeline_title: "מה קורה הלאה",
+        s7_pipeline_total: "~28 דקות סה\"כ",
+        s7_pipeline_step1: "סקירה ומניפסט",
+        s7_pipeline_step2: "יצירת ימים",
+        s7_pipeline_step3: "תקציב",
+        s7_pipeline_step4: "הרכבה",
+        s7_pipeline_step5: "עיבוד HTML",
+        s7_pipeline_step6: "בדיקות איכות",
+        s7_bridge_title: "יצירת הטיול החלה!",
+        s7_bridge_desc: "הטיול שלכם נוצר בחלון טרמינל חדש. זה ייקח כ-28 דקות.",
+        s7_bridge_hint: "עקבו אחרי ההתקדמות בחלון הטרמינל. ניתן לסגור דף זה.",
+        s7_bridge_toast: "הקובץ נשמר והיצירה החלה",
+        s7_bridge_running: "יוצרים את הטיול שלכם...",
+        s7_bridge_complete: "יצירת הטיול הושלמה!",
+        s7_bridge_error: "שגיאה ביצירת הטיול",
+        s7_open_trip: "פתח מסלול",
+        s7_stop_generation: "עצור וערוך פרטים",
         bs_dates: "בחרו תאריכים",
         bs_travelers: "מטיילים",
         bs_apply: "החל תאריכים",
@@ -3966,6 +4355,257 @@
     };
 
     // ================================================================
+    //  i18n — ITEM TRANSLATIONS (Interest, Avoid, Food, Vibe cards)
+    // ================================================================
+    // Keyed by English name → { ru, he }. Used for UI display only;
+    // markdown output always uses English names via data-en-name attribute.
+    const ITEM_I18N = {
+      // ---- INTEREST: FOOD & CULINARY ----
+      'Local Food Markets & Street Food':  { ru: 'Местные рынки и стрит-фуд', he: 'שווקי אוכל מקומיים ואוכל רחוב' },
+      'Local Cooking Classes':             { ru: 'Местные кулинарные мастер-классы', he: 'שיעורי בישול מקומיים' },
+      'Wine Tasting & Vineyard Tours':     { ru: 'Дегустация вин и виноградники', he: 'טעימות יין וסיורי כרמים' },
+      'Craft Beer & Brewery Visits':       { ru: 'Крафтовое пиво и пивоварни', he: 'בירה בוטיק וסיורי מבשלות' },
+      'Fine Dining & Tasting Menus':       { ru: 'Высокая кухня и дегустации', he: 'מסעדות שף ותפריטי טעימות' },
+      'Food Tours & Culinary Walks':       { ru: 'Гастрономические туры', he: 'סיורי אוכל וטעימות' },
+      'Farmers Markets & Gourmet Shops':   { ru: 'Фермерские рынки и деликатесы', he: 'שווקי חקלאים וחנויות גורמה' },
+      'Barbecue & Smokehouse Experiences': { ru: 'Барбекю и коптильни', he: 'ברביקיו וחוויות מעשנה' },
+      'Afternoon Tea & Patisseries':       { ru: 'Чаепитие и кондитерские', he: 'תה אחר הצהריים ומאפיות' },
+      'Family Cooking Workshops':          { ru: 'Семейные кулинарные мастер-классы', he: 'סדנאות בישול משפחתיות' },
+      // ---- INTEREST: NATURE & OUTDOORS ----
+      'National Parks & Nature Reserves':  { ru: 'Национальные парки и заповедники', he: 'פארקים לאומיים ושמורות טבע' },
+      'Waterfalls & Gorges':               { ru: 'Водопады и ущелья', he: 'מפלים וקניונים' },
+      'Hiking & Nature Trails':            { ru: 'Пешие маршруты и тропы', he: 'טיולי הליכה ושבילי טבע' },
+      'Lake & Beach Relaxation':           { ru: 'Отдых на озере или пляже', he: 'נופש באגם או בחוף' },
+      'Botanical Gardens & Arboretums':    { ru: 'Ботанические сады', he: 'גנים בוטניים' },
+      'Cave Explorations':                 { ru: 'Исследование пещер', he: 'סיורי מערות' },
+      'Horseback Riding in Nature':        { ru: 'Верховая езда на природе', he: 'רכיבה על סוסים בטבע' },
+      'River Rafting & Canoeing':          { ru: 'Рафтинг и каноэ', he: 'רפטינג וקיאקים' },
+      'Camping & Glamping':                { ru: 'Кемпинг и глэмпинг', he: 'קמפינג וגלמפינג' },
+      'Mountain Chairlifts & Cable Cars':  { ru: 'Канатные дороги и подъёмники', he: 'רכבלים ומעליות הרים' },
+      'Forest Bathing & Meditation Walks': { ru: 'Лесные прогулки и медитация', he: 'טבילת יער והליכות מדיטציה' },
+      'Bird Watching & Wildlife Safari':   { ru: 'Наблюдение за птицами и сафари', he: 'צפרות וספארי חיות בר' },
+      'Nature Walks & Easy Hikes':         { ru: 'Прогулки и лёгкие походы', he: 'הליכות בטבע וטיולים קלים' },
+      // ---- INTEREST: CITY & CULTURE ----
+      'Historical Landmarks & Architecture':{ ru: 'Исторические достопримечательности', he: 'אתרים היסטוריים וארכיטקטורה' },
+      'Art Galleries & Exhibitions':       { ru: 'Галереи и выставки', he: 'גלריות אמנות ותערוכות' },
+      'Theater, Opera & Ballet':           { ru: 'Театр, опера и балет', he: 'תיאטרון, אופרה ובלט' },
+      'Guided Walking & History Tours':    { ru: 'Экскурсии с гидом', he: 'סיורים מודרכים והיסטוריים' },
+      'Classical Music & Opera':           { ru: 'Классическая музыка и опера', he: 'מוזיקה קלאסית ואופרה' },
+      'Cultural Festivals & Local Events': { ru: 'Культурные фестивали и события', he: 'פסטיבלים תרבותיים ואירועים מקומיים' },
+      'Bookshop Cafes & Literary Tours':   { ru: 'Книжные кафе и литературные туры', he: 'בתי קפה ספרותיים וסיורי ספרות' },
+      'Antique & Flea Markets':            { ru: 'Антикварные и блошиные рынки', he: 'שווקי עתיקות ופשפשים' },
+      'Tactical / Military History Sites': { ru: 'Военно-исторические объекты', he: 'אתרי היסטוריה צבאית' },
+      'Kid-Friendly Historical Sites':     { ru: 'Исторические места для детей', he: 'אתרים היסטוריים לילדים' },
+      // ---- INTEREST: ACTIVE & ADVENTURE ----
+      'Cycling & E-bike Tours':            { ru: 'Велосипедные туры', he: 'סיורי אופניים ואופניים חשמליים' },
+      'Kayaking & Paddleboarding':         { ru: 'Каякинг и сап-серфинг', he: 'קיאקים ופאדלבורד' },
+      'Paragliding & Skydiving':           { ru: 'Парапланеризм и скайдайвинг', he: 'מצנחי רחיפה וצניחה חופשית' },
+      'Diving & Snorkeling':               { ru: 'Дайвинг и снорклинг', he: 'צלילה ושנורקלינג' },
+      'Bungee Jumping & Extreme Sports':   { ru: 'Банджи-джампинг и экстрим', he: 'בנג׳י ג׳אמפינג וספורט אתגרי' },
+      'Hot Air Balloon Rides':             { ru: 'Полёт на воздушном шаре', he: 'טיסות בכדור פורח' },
+      'Off-Road & ATV Adventures':         { ru: 'Внедорожные приключения', he: 'טיולי שטח וטרקטורונים' },
+      'Rope Parks & Adventure Courses':    { ru: 'Верёвочные парки', he: 'פארקי חבלים ומסלולי הרפתקאות' },
+      'Surfing & Wakeboarding':            { ru: 'Сёрфинг и вейкборд', he: 'גלישה ווייקבורד' },
+      // ---- INTEREST: FUN & ENTERTAINMENT ----
+      'Escape Rooms & Puzzle Experiences': { ru: 'Квесты и головоломки', he: 'חדרי בריחה וחידות' },
+      'Amusement & Theme Parks':           { ru: 'Парки развлечений', he: 'לונה פארק ופארקי שעשועים' },
+      'Arcade Games & Entertainment Centers':{ ru: 'Аркады и развлекательные центры', he: 'משחקי ארקייד ומרכזי בידור' },
+      'Gaming Cafes & VR Arcades':         { ru: 'Гейминг-кафе и VR-аркады', he: 'קפה גיימינג ומשחקי VR' },
+      'Bowling & Laser Tag':               { ru: 'Боулинг и лазертаг', he: 'באולינג ולייזר טאג' },
+      'Mini Golf':                         { ru: 'Мини-гольф', he: 'מיני גולף' },
+      'Trampoline Parks':                  { ru: 'Батутные парки', he: 'פארקי טרמפולינות' },
+      'Go-Karts & Racing Simulators':      { ru: 'Картинг и гоночные симуляторы', he: 'קארטינג וסימולטורי מירוצים' },
+      'Stand-up Comedy Shows':             { ru: 'Стендап-шоу', he: 'מופעי סטנדאפ' },
+      'Karaoke Bars':                      { ru: 'Караоке-бары', he: 'בארי קריוקי' },
+      // ---- INTEREST: RELAXATION & WELLNESS ----
+      'Spa & Thermal Baths':               { ru: 'Спа и термальные купальни', he: 'ספא ומרחצאות תרמיות' },
+      'Thermal Baths & Wellness Spas':     { ru: 'Термальные бани и велнес-спа', he: 'מרחצאות תרמיות וספא בריאות' },
+      'Wellness Retreats & Yoga':          { ru: 'Велнес-ретриты и йога', he: 'ריטריטים ויוגה' },
+      'Yoga & Pilates Studios':            { ru: 'Студии йоги и пилатеса', he: 'סטודיו יוגה ופילאטיס' },
+      'Couples Spa & Massage':             { ru: 'Спа и массаж для пар', he: 'ספא ועיסוי לזוגות' },
+      // ---- INTEREST: NIGHTLIFE & EVENING ----
+      'Rooftop Bars & Cocktail Lounges':   { ru: 'Руфтоп-бары и коктейли', he: 'בארים על גגות וטרקליני קוקטיילים' },
+      'Live Music & Jazz Clubs':           { ru: 'Живая музыка и джаз-клубы', he: 'מוזיקה חיה ומועדוני ג׳אז' },
+      'Nightclubs & Dance Venues':         { ru: 'Ночные клубы и танцпол', he: 'מועדוני לילה וריקודים' },
+      'Pub Crawls & Bar Hopping':          { ru: 'Пабы и бар-хоппинг', he: 'סיבוב פאבים ובארים' },
+      'Beach Clubs & Pool Parties':        { ru: 'Пляжные клубы и бассейны', he: 'מועדוני חוף ומסיבות בריכה' },
+      'Music Festivals & Open-Air Concerts':{ ru: 'Музыкальные фестивали', he: 'פסטיבלי מוזיקה והופעות' },
+      // ---- INTEREST: SHOPPING ----
+      'Shopping (Outlet / Local Brands)':  { ru: 'Шопинг (аутлеты / местные бренды)', he: 'קניות (אאוטלטים / מותגים מקומיים)' },
+      'Outdoor Markets & Craft Stalls':    { ru: 'Уличные рынки и ярмарки', he: 'שווקים פתוחים ודוכני מלאכת יד' },
+      'Boutique & Designer Shopping':      { ru: 'Бутики и дизайнерские магазины', he: 'בוטיקים וקניות מעצבים' },
+      'Fashion District & Concept Stores': { ru: 'Модные кварталы и концепт-сторы', he: 'רובעי אופנה וחנויות קונספט' },
+      'Vintage & Thrift Shopping':         { ru: 'Винтаж и секонд-хенд', he: 'קניות וינטג׳ ויד שנייה' },
+      'Shopping Districts & Malls':        { ru: 'Торговые центры и моллы', he: 'מרכזי קניות וקניונים' },
+      // ---- INTEREST: SCENIC & SIGHTSEEING ----
+      'Scenic Walking & Viewpoints':       { ru: 'Живописные прогулки и смотровые', he: 'הליכות נופיות ותצפיות' },
+      'Boat or River Cruises':             { ru: 'Круизы по реке', he: 'שייט בנהר או בסירה' },
+      'Photography Spots & Scenic Lookouts':{ ru: 'Фотогеничные места и обзорные', he: 'נקודות צילום ותצפיות' },
+      'Parks & Gardens':                   { ru: 'Парки и сады', he: 'פארקים וגנים' },
+      'Romantic Sunset Cruises':           { ru: 'Романтический круиз на закате', he: 'שייט רומנטי בשקיעה' },
+      'Stargazing Experiences':            { ru: 'Наблюдение за звёздами', he: 'צפייה בכוכבים' },
+      'Scenic Train & Tram Rides':         { ru: 'Живописные поездки на поезде', he: 'נסיעות נוף ברכבת ובחשמלית' },
+      // ---- INTEREST: ROMANTIC / COUPLE ----
+      'Candlelit Dinner Experiences':      { ru: 'Ужин при свечах', he: 'ארוחת ערב לאור נרות' },
+      'Wine & Cheese Pairings':            { ru: 'Дегустация вин и сыров', he: 'טעימות יין וגבינות' },
+      'Scenic Picnic Spots':               { ru: 'Живописные пикники', he: 'פיקניק בנקודות נוף' },
+      'Romantic Horse-Drawn Carriage':     { ru: 'Романтическая прогулка в карете', he: 'נסיעה רומנטית בכרכרה' },
+      // ---- INTEREST: MALE-LEANING ----
+      'Sports Bars & Live Game Viewing':   { ru: 'Спорт-бары и трансляции', he: 'בארי ספורט וצפייה במשחקים' },
+      'Craft Distilleries & Whiskey Tours':{ ru: 'Дистиллерии и виски-туры', he: 'מזקקות ויסקי וסיורים' },
+      'Motorsport & Race Tracks':          { ru: 'Автоспорт и гоночные трассы', he: 'מוטורספורט ומסלולי מירוצים' },
+      'Fishing & Angling Trips':           { ru: 'Рыбалка', he: 'דיג וטיולי דייג' },
+      'Sports Events (Football, Basketball)':{ ru: 'Спортивные события (футбол, баскетбол)', he: 'אירועי ספורט (כדורגל, כדורסל)' },
+      // ---- INTEREST: FEMALE-LEANING ----
+      'Flower Markets & Garden Tours':     { ru: 'Цветочные рынки и сады', he: 'שווקי פרחים וסיורי גנים' },
+      'Pottery & Ceramic Workshops':       { ru: 'Гончарные мастер-классы', he: 'סדנאות קרמיקה' },
+      'Perfume Making Workshops':          { ru: 'Мастер-классы по парфюмерии', he: 'סדנאות יצירת בשמים' },
+      'Jewelry Making Classes':            { ru: 'Мастер-классы по ювелирному делу', he: 'סדנאות יצירת תכשיטים' },
+      // ---- INTEREST: KIDS (generic) ----
+      'Playgrounds & Parks with Splash Areas':{ ru: 'Площадки с водными зонами', he: 'מגרשי משחקים עם מתקני מים' },
+      'Family-Friendly Museums':           { ru: 'Музеи для всей семьи', he: 'מוזיאונים למשפחות' },
+      'Aquariums & Touch Tanks':           { ru: 'Аквариумы и контактные бассейны', he: 'אקווריומים ובריכות מגע' },
+      'Interactive Science Centers':       { ru: 'Интерактивные научные центры', he: 'מרכזי מדע אינטראקטיביים' },
+      'Zoo & Wildlife Parks':              { ru: 'Зоопарки и парки дикой природы', he: 'גני חיות ופארקי חיות בר' },
+      'Family Restaurants with Play Areas':{ ru: 'Рестораны с детскими зонами', he: 'מסעדות עם פינות משחק' },
+      'Family Bike Rides & Rentals':       { ru: 'Семейные велопрогулки', he: 'טיולי אופניים משפחתיים' },
+      'Picnic in the Park':                { ru: 'Пикник в парке', he: 'פיקניק בפארק' },
+      // ---- INTEREST: TODDLER ----
+      'Soft Play Areas & Indoor Playgrounds':{ ru: 'Мягкие игровые зоны', he: 'מתחמי משחק רכים ומקורים' },
+      'Petting Zoos & Small Animal Farms': { ru: 'Контактные зоопарки и фермы', he: 'גני חיות מלטפים וחוות חיות' },
+      'Splash Pads & Shallow Pools':       { ru: 'Водные площадки и мелкие бассейны', he: 'מתקני מים רדודים ובריכות פעוטות' },
+      'Stroller-Friendly Walks & Paths':   { ru: 'Дорожки для колясок', he: 'שבילים נוחים לעגלות' },
+      'Sandbox Parks & Toddler Rides':     { ru: 'Песочницы и аттракционы для малышей', he: 'ארגזי חול ומתקנים לפעוטות' },
+      // ---- INTEREST: PRESCHOOL ----
+      'Circus & Magic Shows':              { ru: 'Цирк и шоу фокусов', he: 'קרקס ומופעי קסמים' },
+      'Train & Vehicle Rides':             { ru: 'Поездки на паровозиках', he: 'נסיעות ברכבות ורכבים' },
+      'Interactive Water Parks':           { ru: 'Интерактивные аквапарки', he: 'פארקי מים אינטראקטיביים' },
+      'Plushie & Toy Shops':               { ru: 'Магазины игрушек', he: 'חנויות בובות וצעצועים' },
+      'Carousel & Gentle Amusement Rides': { ru: 'Карусели и детские аттракционы', he: 'קרוסלות ומתקני שעשועים עדינים' },
+      'Face Painting & Craft Workshops':   { ru: 'Аквагрим и творческие мастер-классы', he: 'ציורי פנים וסדנאות יצירה' },
+      'Treasure Hunts & Scavenger Hunts':  { ru: 'Поиск сокровищ', he: 'ציד אוצרות ומשחקי חיפוש' },
+      // ---- INTEREST: SCHOOL-AGE ----
+      'Escape Rooms (Family-Friendly)':    { ru: 'Квесты для всей семьи', he: 'חדרי בריחה למשפחות' },
+      'Bike Rentals & Easy Trails':        { ru: 'Прокат велосипедов и лёгкие маршруты', he: 'השכרת אופניים ושבילים קלים' },
+      'Castles & History (Kid-Friendly)':  { ru: 'Замки и история для детей', he: 'טירות והיסטוריה לילדים' },
+      'Claw Machines & Prize Redemption':  { ru: 'Автоматы с призами', he: 'מכונות פרסים ומתקני שליפה' },
+      'Outdoor Obstacle Courses':          { ru: 'Полосы препятствий', he: 'מסלולי מכשולים בחוץ' },
+      'Drone & Robot Workshops':           { ru: 'Мастер-классы: дроны и роботы', he: 'סדנאות רחפנים ורובוטים' },
+      // ---- INTEREST: TEEN ----
+      'Escape Rooms':                      { ru: 'Квесты', he: 'חדרי בריחה' },
+      'Laser Tag & VR Experiences':        { ru: 'Лазертаг и VR', he: 'לייזר טאג וחוויות VR' },
+      'Street Art & Graffiti Tours':       { ru: 'Стрит-арт и граффити-туры', he: 'אמנות רחוב וסיורי גרפיטי' },
+      'Extreme Sports (Zipline, Climbing)':{ ru: 'Экстрим (зиплайн, скалолазание)', he: 'ספורט אתגרי (זיפליין, טיפוס)' },
+      'Skateparks & BMX':                  { ru: 'Скейтпарки и BMX', he: 'סקייטפארקים ו-BMX' },
+      'Water Sports (Jet Ski, Kayak)':     { ru: 'Водный спорт (гидроцикл, каяк)', he: 'ספורט ימי (אופנוע ים, קיאק)' },
+      // ---- INTEREST: BOY-KID ----
+      'Construction Vehicle & Heavy Machinery Exhibits':{ ru: 'Выставки строительной техники', he: 'תערוכות כלי בנייה ומכונות כבדות' },
+      'Train Museums & Railway Rides':     { ru: 'Музеи поездов и железные дороги', he: 'מוזיאוני רכבות ונסיעות' },
+      'Dinosaur Parks & Fossil Exhibits':  { ru: 'Парки динозавров и палеонтология', he: 'פארקי דינוזאורים ומאובנים' },
+      'LEGO & Building Workshops':         { ru: 'LEGO и конструирование', he: 'סדנאות לגו ובנייה' },
+      'Space & Rocket Exhibitions':        { ru: 'Космические выставки', he: 'תערוכות חלל וטילים' },
+      'Pirate-Themed Attractions':         { ru: 'Пиратские аттракционы', he: 'אטרקציות בנושא פיראטים' },
+      // ---- INTEREST: GIRL-KID ----
+      'Art & Painting Studios':            { ru: 'Студии рисования', he: 'סטודיו לאמנות וציור' },
+      'Horse Riding & Pony Farms':         { ru: 'Верховая езда и пони-ферма', he: 'רכיבה על סוסים וחוות פוני' },
+      'Bead & Bracelet Making Workshops':  { ru: 'Мастер-классы: бисер и браслеты', he: 'סדנאות חרוזים וצמידים' },
+      'Ice Cream & Dessert Workshops':     { ru: 'Мастер-классы: мороженое и десерты', he: 'סדנאות גלידה וקינוחים' },
+      'Dance & Ballet Studios':            { ru: 'Студии танцев и балета', he: 'סטודיו לריקוד ובלט' },
+      // ---- INTEREST: SENIOR ----
+      'Gentle River Cruises':              { ru: 'Спокойные речные круизы', he: 'שייט נהרות רגוע' },
+      'Tea Houses & Traditional Cafes':    { ru: 'Чайные дома и кафе', he: 'בתי תה ובתי קפה מסורתיים' },
+      'Easy-Access Historical Tours':      { ru: 'Доступные исторические экскурсии', he: 'סיורים היסטוריים נגישים' },
+      'Gentle Countryside Drives':         { ru: 'Поездки по сельской местности', he: 'נסיעות נוף בכפר' },
+      // ---- INTEREST: ALWAYS AVAILABLE ----
+      'Grocery Stores & Supermarkets':     { ru: 'Продуктовые магазины', he: 'מכולות וסופרמרקטים' },
+      'City Walking Tours (Self-Guided)':  { ru: 'Пешие прогулки по городу', he: 'סיורי הליכה עצמאיים בעיר' },
+      // ---- AVOID ----
+      'Tourist-trap chains':                              { ru: 'Туристические ловушки', he: 'מלכודות תיירים' },
+      'Overly crowded attractions during peak hours':     { ru: 'Переполненные места в часы пик', he: 'אטרקציות צפופות בשעות שיא' },
+      'Scam-prone areas':                                 { ru: 'Районы с мошенничеством', he: 'אזורים עם סיכון להונאות' },
+      'Kid-oriented attractions & play areas':            { ru: 'Детские аттракционы', he: 'אטרקציות ומתקני משחק לילדים' },
+      'Noisy family restaurants':                         { ru: 'Шумные семейные рестораны', he: 'מסעדות משפחתיות רועשות' },
+      'Long guided tours':                                { ru: 'Длинные экскурсии с гидом', he: 'סיורים מודרכים ארוכים' },
+      'Traditional museums without interactive elements':  { ru: 'Музеи без интерактива', he: 'מוזיאונים ללא אינטראקציה' },
+      'Long periods of sitting still':                    { ru: 'Долгое сидение на месте', he: 'ישיבה ממושכת במקום' },
+      'Churches & religious sites (not engaging for kids)':{ ru: 'Церкви и религиозные объекты (не для детей)', he: 'כנסיות ואתרים דתיים (לא לילדים)' },
+      'Spicy food for kids':                              { ru: 'Острая еда для детей', he: 'אוכל חריף לילדים' },
+      'Venues without bathrooms / changing areas':        { ru: 'Места без туалетов / пеленальных', he: 'מקומות ללא שירותים / החתלה' },
+      'Activities requiring walking over 1km':            { ru: 'Прогулки более 1 км', he: 'פעילויות הדורשות הליכה מעל 1 ק״מ' },
+      'Loud fireworks or explosive shows':                { ru: 'Громкие салюты и взрывы', he: 'זיקוקים רועשים ומופעי פיצוצים' },
+      'Venues with no high chairs or stroller access':    { ru: 'Места без стульчиков / доступа для колясок', he: 'מקומות ללא כיסאות גבוהים או גישה לעגלות' },
+      'Attractions designed for small children':          { ru: 'Аттракционы для малышей', he: 'אטרקציות לילדים קטנים' },
+      'Activities requiring heavy physical effort':       { ru: 'Серьёзная физическая нагрузка', he: 'פעילויות הדורשות מאמץ גופני כבד' },
+      'Steep stairs without elevator access':             { ru: 'Крутые лестницы без лифта', he: 'מדרגות תלולות ללא מעלית' },
+      'Very loud clubs or concerts':                      { ru: 'Очень громкие клубы / концерты', he: 'מועדונים או קונצרטים רועשים מאוד' },
+      'Slow-paced guided tours':                          { ru: 'Медленные экскурсии', he: 'סיורים מודרכים בקצב איטי' },
+      'Crowded family attractions':                       { ru: 'Переполненные семейные аттракционы', he: 'אטרקציות משפחתיות צפופות' },
+      'Group tour buses':                                 { ru: 'Групповые автобусные туры', he: 'אוטובוסי סיורים קבוצתיים' },
+      'Extremely spicy cuisine':                          { ru: 'Очень острая кухня', he: 'מטבח חריף מאוד' },
+      'Exotic or unfamiliar foods':                       { ru: 'Экзотические или непривычные блюда', he: 'מאכלים אקזוטיים או לא מוכרים' },
+      'Street food with questionable hygiene':            { ru: 'Уличная еда с сомнительной гигиеной', he: 'אוכל רחוב עם היגיינה מפוקפקת' },
+      'Overly formal fine dining':                        { ru: 'Слишком формальные рестораны', he: 'מסעדות רשמיות מדי' },
+      'Hilly terrain & steep inclines':                   { ru: 'Холмистая местность и крутые подъёмы', he: 'שטח הררי ומעלות תלולים' },
+      'Activities without rest areas nearby':             { ru: 'Активности без мест для отдыха', he: 'פעילויות ללא מקומות מנוחה' },
+      'Nightlife areas after 10pm':                       { ru: 'Районы ночной жизни после 22:00', he: 'אזורי חיי לילה אחרי 22:00' },
+      'Large open-air concerts & festivals':              { ru: 'Большие концерты и фестивали', he: 'קונצרטים ופסטיבלים באוויר הפתוח' },
+      'Expensive skip-the-line tickets':                  { ru: 'Дорогие билеты без очереди', he: 'כרטיסים יקרים לדילוג על התור' },
+      'Overpriced tourist restaurants':                   { ru: 'Переоценённые туристические рестораны', he: 'מסעדות תיירים יקרות מדי' },
+      'Premium-only experiences':                         { ru: 'Только премиум-развлечения', he: 'חוויות פרימיום בלבד' },
+      'Unstructured free time blocks':                    { ru: 'Неструктурированное свободное время', he: 'זמן חופשי לא מתוכנן' },
+      'Last-minute itinerary changes':                    { ru: 'Изменения маршрута в последнюю минуту', he: 'שינויים ברגע האחרון בתוכנית' },
+      // ---- FOOD ----
+      'Traditional Local Cuisine':                        { ru: 'Традиционная местная кухня', he: 'מטבח מקומי מסורתי' },
+      'Cooking Classes (Local Dishes)':                   { ru: 'Кулинарные мастер-классы (местные блюда)', he: 'שיעורי בישול (מנות מקומיות)' },
+      'BBQ & Smokehouse Experiences':                     { ru: 'Барбекю и коптильни', he: 'ברביקיו ומעשנות' },
+      'Steakhouse & Grill Restaurants':                   { ru: 'Стейкхаус и грили', he: 'מסעדות סטייק וגריל' },
+      'Local Bakeries & Pastry Shops':                    { ru: 'Местные пекарни и кондитерские', he: 'מאפיות וקונדיטוריות מקומיות' },
+      'Ice Cream & Dessert Spots':                        { ru: 'Мороженое и десерты', he: 'גלידריות וקינוחים' },
+      'Kid-Friendly Restaurants with Play Areas':         { ru: 'Рестораны с детскими зонами', he: 'מסעדות לילדים עם פינות משחק' },
+      'Street Food Stalls & Hawker Markets':              { ru: 'Уличные ларьки и рынки', he: 'דוכני אוכל רחוב ושווקים' },
+      'Exotic & Unusual Local Delicacies':                { ru: 'Экзотические и необычные деликатесы', he: 'מעדנים אקזוטיים יוצאי דופן' },
+      'Spicy Food Challenges':                            { ru: 'Испытания острой едой', he: 'אתגרי אוכל חריף' },
+      'Vegan & Plant-Based Restaurants':                  { ru: 'Веганские рестораны', he: 'מסעדות טבעוניות' },
+      'Vegetarian & Health-Conscious Cafes':              { ru: 'Вегетарианские и ЗОЖ-кафе', he: 'בתי קפה צמחוניים ובריאותיים' },
+      'Fresh Juice & Smoothie Bars':                      { ru: 'Фреш-бары и смузи', he: 'בארי מיצים טבעיים וסמוזי' },
+      'Seafood & Fish Restaurants':                       { ru: 'Рестораны морепродуктов', he: 'מסעדות דגים ופירות ים' },
+      'Rooftop Dining with a View':                       { ru: 'Рестораны на крыше с видом', he: 'מסעדות על גג עם נוף' },
+      'Brunch & Breakfast Spots':                         { ru: 'Бранчи и завтраки', he: 'בראנצ׳ ומקומות ארוחת בוקר' },
+      'Whiskey & Spirits Tasting':                        { ru: 'Дегустация виски и крепких напитков', he: 'טעימות וויסקי ומשקאות חריפים' },
+      'Chocolate & Confectionery Tours':                  { ru: 'Шоколадные и кондитерские туры', he: 'סיורי שוקולד וממתקים' },
+      'Coffee Culture & Specialty Cafes':                 { ru: 'Культура кофе и спешелти-кафе', he: 'תרבות קפה ובתי קפה מיוחדים' },
+      'Pizza & Casual Family Dining':                     { ru: 'Пицца и семейные рестораны', he: 'פיצה וארוחות משפחתיות' },
+      // ---- VIBE ----
+      'Casual & authentic':                { ru: 'Непринуждённо и аутентично', he: 'קז׳ואל ואותנטי' },
+      'Outdoor seating preferred':         { ru: 'Предпочтительно на свежем воздухе', he: 'ישיבה בחוץ מועדפת' },
+      'Local hidden gems':                 { ru: 'Местные скрытые жемчужины', he: 'פנינים מקומיות נסתרות' },
+      'Waterfront / scenic views':         { ru: 'Набережная / живописные виды', he: 'חזית מים / נוף מרהיב' },
+      'Budget-friendly':                   { ru: 'Бюджетно', he: 'ידידותי לכיס' },
+      'Loud/forgiving environments':       { ru: 'Громкие / снисходительные места', he: 'סביבות רועשות / סלחניות' },
+      'Playgrounds for kids':              { ru: 'Площадки для детей', he: 'מגרשי משחקים לילדים' },
+      'Quick service / street food':       { ru: 'Быстрое обслуживание / стрит-фуд', he: 'שירות מהיר / אוכל רחוב' },
+      'Romantic & intimate':               { ru: 'Романтично и уютно', he: 'רומנטי ואינטימי' },
+      'Trendy & Instagram-worthy':         { ru: 'Модно и инстаграмно', he: 'טרנדי ואינסטגרמי' },
+      'Fine dining experience':            { ru: 'Опыт высокой кухни', he: 'חוויית מסעדת שף' },
+      'Lively bar atmosphere':             { ru: 'Живая барная атмосфера', he: 'אווירת בר תוססת' },
+      'Live music venues':                 { ru: 'Живая музыка', he: 'מקומות עם מוזיקה חיה' },
+      'Farm-to-table concept':             { ru: 'Концепция «с фермы на стол»', he: 'מהחווה לצלחת' },
+      'Late-night eats & diners':          { ru: 'Поздний ужин и закусочные', he: 'אוכל לשעות לילה מאוחרות' },
+      'Brunch spots':                      { ru: 'Бранчи', he: 'מקומות בראנצ׳' },
+      'Candlelit & cozy':                  { ru: 'При свечах и уютно', he: 'לאור נרות ונעים' },
+      'Quiet & comfortable':               { ru: 'Тихо и комфортно', he: 'שקט ונוח' },
+      'Traditional / heritage venues':     { ru: 'Традиционные / исторические места', he: 'מקומות מסורתיים / מורשתיים' },
+      'Accessible seating':                { ru: 'Доступные места для сидения', he: 'ישיבה נגישה' },
+    };
+
+    // Translate an item name (from any DB) using ITEM_I18N; falls back to English name
+    function tItem(name) {
+      if (currentLang === 'en') return name;
+      const entry = ITEM_I18N[name];
+      return (entry && entry[currentLang]) ? entry[currentLang] : name;
+    }
+
+    // ================================================================
     //  i18n — LANGUAGE ENGINE
     // ================================================================
     let currentLang = 'en';
@@ -4007,6 +4647,11 @@
       document.querySelectorAll('.lang-selector__item').forEach(item => {
         item.classList.toggle('is-active', item.dataset.lang === originalLang);
       });
+
+      // Sync report language dropdown to match UI language
+      const langToReport = { en:'English', ru:'Russian', he:'Hebrew', es:'Spanish', fr:'French', de:'German', it:'Italian', pt:'Portuguese', zh:'Chinese', ja:'Japanese', ko:'Korean', ar:'Arabic' };
+      const reportSelect = document.getElementById('reportLang');
+      if (reportSelect && langToReport[originalLang]) reportSelect.value = langToReport[originalLang];
 
       // Persist
       try { localStorage.setItem('tripIntakeLang', originalLang); } catch(e) {}
@@ -4459,60 +5104,171 @@
     });
 
     // ================================================================
-    //  2. DESTINATION AUTOCOMPLETE — OpenStreetMap Nominatim
+    //  2. DESTINATION AUTOCOMPLETE — Local country list + Nominatim cities
     // ================================================================
     const destInput = $('#destination');
     const destDropdown = $('#destDropdown');
     let acTimer = null;
     let acHighlight = -1;
 
+    // Local country list for reliable multilingual matching
+    const COUNTRIES = [
+      { code:'AT', en:'Austria', ru:'Австрия', he:'אוסטריה' },
+      { code:'AU', en:'Australia', ru:'Австралия', he:'אוסטרליה' },
+      { code:'BE', en:'Belgium', ru:'Бельгия', he:'בלגיה' },
+      { code:'BG', en:'Bulgaria', ru:'Болгария', he:'בולגריה' },
+      { code:'BR', en:'Brazil', ru:'Бразилия', he:'ברזיל' },
+      { code:'CA', en:'Canada', ru:'Канада', he:'קנדה' },
+      { code:'CH', en:'Switzerland', ru:'Швейцария', he:'שווייץ' },
+      { code:'CN', en:'China', ru:'Китай', he:'סין' },
+      { code:'CY', en:'Cyprus', ru:'Кипр', he:'קפריסין' },
+      { code:'CZ', en:'Czech Republic', ru:'Чехия', he:'צ\'כיה' },
+      { code:'DE', en:'Germany', ru:'Германия', he:'גרמניה' },
+      { code:'DK', en:'Denmark', ru:'Дания', he:'דנמרק' },
+      { code:'EG', en:'Egypt', ru:'Египет', he:'מצרים' },
+      { code:'ES', en:'Spain', ru:'Испания', he:'ספרד' },
+      { code:'FI', en:'Finland', ru:'Финляндия', he:'פינלנד' },
+      { code:'FR', en:'France', ru:'Франция', he:'צרפת' },
+      { code:'GB', en:'United Kingdom', ru:'Великобритания', he:'בריטניה' },
+      { code:'GE', en:'Georgia', ru:'Грузия', he:'גאורגיה' },
+      { code:'GR', en:'Greece', ru:'Греция', he:'יוון' },
+      { code:'HR', en:'Croatia', ru:'Хорватия', he:'קרואטיה' },
+      { code:'HU', en:'Hungary', ru:'Венгрия', he:'הונגריה' },
+      { code:'IE', en:'Ireland', ru:'Ирландия', he:'אירלנד' },
+      { code:'IL', en:'Israel', ru:'Израиль', he:'ישראל' },
+      { code:'IN', en:'India', ru:'Индия', he:'הודו' },
+      { code:'IS', en:'Iceland', ru:'Исландия', he:'איסלנד' },
+      { code:'IT', en:'Italy', ru:'Италия', he:'איטליה' },
+      { code:'JO', en:'Jordan', ru:'Иордания', he:'ירדן' },
+      { code:'JP', en:'Japan', ru:'Япония', he:'יפן' },
+      { code:'KR', en:'South Korea', ru:'Южная Корея', he:'דרום קוריאה' },
+      { code:'MA', en:'Morocco', ru:'Марокко', he:'מרוקו' },
+      { code:'MD', en:'Moldova', ru:'Молдова', he:'מולדובה' },
+      { code:'ME', en:'Montenegro', ru:'Черногория', he:'מונטנגרו' },
+      { code:'MX', en:'Mexico', ru:'Мексика', he:'מקסיקו' },
+      { code:'NL', en:'Netherlands', ru:'Нидерланды', he:'הולנד' },
+      { code:'NO', en:'Norway', ru:'Норвегия', he:'נורווגיה' },
+      { code:'NZ', en:'New Zealand', ru:'Новая Зеландия', he:'ניו זילנד' },
+      { code:'PL', en:'Poland', ru:'Польша', he:'פולין' },
+      { code:'PT', en:'Portugal', ru:'Португалия', he:'פורטוגל' },
+      { code:'RO', en:'Romania', ru:'Румыния', he:'רומניה' },
+      { code:'RS', en:'Serbia', ru:'Сербия', he:'סרביה' },
+      { code:'SE', en:'Sweden', ru:'Швеция', he:'שוודיה' },
+      { code:'SI', en:'Slovenia', ru:'Словения', he:'סלובניה' },
+      { code:'SK', en:'Slovakia', ru:'Словакия', he:'סלובקיה' },
+      { code:'TH', en:'Thailand', ru:'Таиланд', he:'תאילנד' },
+      { code:'TR', en:'Turkey', ru:'Турция', he:'טורקיה' },
+      { code:'UA', en:'Ukraine', ru:'Украина', he:'אוקראינה' },
+      { code:'AE', en:'United Arab Emirates', ru:'ОАЭ', he:'איחוד האמירויות' },
+      { code:'US', en:'United States', ru:'США', he:'ארצות הברית' },
+      { code:'VN', en:'Vietnam', ru:'Вьетнам', he:'וייטנאם' },
+      { code:'ZA', en:'South Africa', ru:'Южная Африка', he:'דרום אפריקה' },
+    ];
+
+    function getCountryName(c) {
+      return c[currentLang] || c.en;
+    }
+
+    function matchCountries(query) {
+      const q = query.toLowerCase();
+      return COUNTRIES.filter(c =>
+        c.en.toLowerCase().includes(q) ||
+        c.ru.toLowerCase().includes(q) ||
+        c.he.includes(q) ||
+        c.code.toLowerCase() === q
+      ).slice(0, 4);
+    }
+
     destInput.addEventListener('input', () => {
       clearTimeout(acTimer);
       const q = destInput.value.trim();
       if (q.length < 2) { destDropdown.classList.remove('is-open'); return; }
-      acTimer = setTimeout(() => fetchPlaces(q), 300);
+      // Show local country matches immediately
+      const localMatches = matchCountries(q);
+      if (localMatches.length) renderMixed(localMatches, []);
+      // Then fetch cities from Nominatim
+      acTimer = setTimeout(() => fetchPlaces(q, localMatches), 300);
     });
 
-    async function fetchPlaces(query) {
+    async function fetchPlaces(query, localMatches) {
       try {
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=6&accept-language=en&featuretype=city`;
+        const lang = (typeof currentLang !== 'undefined' && currentLang) ? currentLang : 'en';
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=6&accept-language=${lang}&featuretype=city`;
         const res = await fetch(url, { headers: { 'User-Agent': 'TripIntakeForm/1.0' } });
         const data = await res.json();
-        renderSuggestions(data);
-      } catch { destDropdown.classList.remove('is-open'); }
+        renderMixed(localMatches || [], data);
+      } catch {
+        if (!localMatches || !localMatches.length) destDropdown.classList.remove('is-open');
+      }
     }
 
-    function renderSuggestions(items) {
-      if (!items.length) { destDropdown.classList.remove('is-open'); return; }
+    function renderMixed(countries, nominatimItems) {
       acHighlight = -1;
-      // Deduplicate by display_name prefix (city, country)
+      let html = '';
+
+      // Local country results first
+      countries.forEach((c, i) => {
+        const name = getCountryName(c);
+        html += `<div class="autocomplete-item" data-index="${i}" data-city="${name}" data-country="${name}">
+          <div class="autocomplete-item__main">🌍 ${name}</div>
+          <div class="autocomplete-item__sub">${c.en !== name ? c.en : ''}</div>
+        </div>`;
+      });
+
+      // Nominatim city results (deduplicated against country list)
+      const countryNames = new Set(countries.flatMap(c => [c.en.toLowerCase(), c.ru.toLowerCase(), c.he]));
       const seen = new Set();
-      const unique = items.filter(it => {
+      const cities = (nominatimItems || []).filter(it => {
         const addr = it.address || {};
-        const key = `${addr.city || addr.town || addr.village || it.name}|${addr.country || ''}`;
+        const city = addr.city || addr.town || addr.village || '';
+        if (!city) return false;
+        const key = `${city.toLowerCase()}|${(addr.country || '').toLowerCase()}`;
         if (seen.has(key)) return false;
+        if (countryNames.has(city.toLowerCase())) return false;
         seen.add(key);
         return true;
       });
-      destDropdown.innerHTML = unique.map((it, i) => {
+
+      cities.forEach((it, i) => {
         const addr = it.address || {};
-        const city = addr.city || addr.town || addr.village || it.name || '';
+        const city = addr.city || addr.town || addr.village || '';
         const region = addr.state || addr.county || '';
         const country = addr.country || '';
         const sub = [region, country].filter(Boolean).join(', ');
-        return `<div class="autocomplete-item" data-index="${i}" data-city="${city}" data-country="${country}">
-          <div class="autocomplete-item__main">${city}</div>
+        const idx = countries.length + i;
+        html += `<div class="autocomplete-item" data-index="${idx}" data-city="${city}" data-country="${country}">
+          <div class="autocomplete-item__main">🏙️ ${city}</div>
           ${sub ? `<div class="autocomplete-item__sub">${sub}</div>` : ''}
         </div>`;
-      }).join('');
+      });
+
+      if (!html) { destDropdown.classList.remove('is-open'); return; }
+      destDropdown.innerHTML = html;
       destDropdown.classList.add('is-open');
+    }
+
+    function checkDestCityHint() {
+      const val = destInput.value.trim();
+      const hint = $('#destCityHint');
+      if (!val) { hint.style.display = 'none'; return; }
+      const parts = val.split(',').map(s => s.trim()).filter(Boolean);
+      // Show hint if: no comma, or city equals country (e.g. "Israel, Israel")
+      if (parts.length < 2 || parts[0].toLowerCase() === parts[parts.length - 1].toLowerCase()) {
+        hint.style.display = '';
+      } else {
+        hint.style.display = 'none';
+      }
     }
 
     destDropdown.addEventListener('click', (e) => {
       const item = e.target.closest('.autocomplete-item');
       if (!item) return;
-      destInput.value = `${item.dataset.city}, ${item.dataset.country}`;
+      const city = item.dataset.city;
+      const country = item.dataset.country;
+      // If city equals country (user selected a country), just set the country name
+      destInput.value = (city === country) ? country : `${city}, ${country}`;
       destDropdown.classList.remove('is-open');
+      checkDestCityHint();
     });
 
     // Keyboard navigation
@@ -4527,6 +5283,8 @@
       items.forEach(it => it.classList.remove('is-highlighted'));
       if (acHighlight >= 0) items[acHighlight].classList.add('is-highlighted');
     });
+
+    destInput.addEventListener('blur', () => setTimeout(checkDestCityHint, 200));
 
     // Close on outside click
     document.addEventListener('click', (e) => {
@@ -5196,11 +5954,12 @@
           const card = document.createElement('div');
           card.className = 'interest-card food-exp-card';
           card.dataset.gradient = String(i % 8);
+          card.dataset.enName = item.name;
           if (preSelect) card.classList.add('is-selected');
           card.innerHTML = `
             <div class="interest-card__check">&#10003;</div>
             <div class="interest-card__emoji">${item.emoji}</div>
-            <div class="interest-card__name">${item.name}</div>`;
+            <div class="interest-card__name">${tItem(item.name)}</div>`;
           card.addEventListener('click', () => card.classList.toggle('is-selected'));
           grid.appendChild(card);
         });
@@ -5229,10 +5988,11 @@
         card.type = 'button';
         card.className = 'avoid-card'; // reuse avoid-card style (same visual pattern)
         card.style.borderColor = 'var(--color-border)';
+        card.dataset.enName = item.name;
         card.innerHTML = `
           <div class="avoid-card__x" style="background:var(--color-brand-accent);">&#10003;</div>
           <div class="avoid-card__icon" style="background:rgba(201,151,43,0.08);">${item.emoji}</div>
-          <div class="avoid-card__name">${item.name}</div>`;
+          <div class="avoid-card__name">${tItem(item.name)}</div>`;
         card.addEventListener('click', () => {
           card.classList.toggle('is-selected');
           if (card.classList.contains('is-selected')) {
@@ -5411,10 +6171,11 @@
             card.classList.add('is-selected');
           }
 
+          card.dataset.enName = item.name;
           card.innerHTML = `
             <div class="interest-card__check">&#10003;</div>
             <div class="interest-card__emoji">${emoji}</div>
-            <div class="interest-card__name">${item.name}</div>
+            <div class="interest-card__name">${tItem(item.name)}</div>
           `;
           card.addEventListener('click', () => card.classList.toggle('is-selected'));
           grid.appendChild(card);
@@ -5587,10 +6348,11 @@
           card.classList.add('is-selected');
         }
         const emoji = AVOID_EMOJI[item.name] || '&#128683;';
+        card.dataset.enName = item.name;
         card.innerHTML = `
           <div class="avoid-card__x">&#10005;</div>
           <div class="avoid-card__icon">${emoji}</div>
-          <div class="avoid-card__name">${item.name}</div>`;
+          <div class="avoid-card__name">${tItem(item.name)}</div>`;
         card.addEventListener('click', () => card.classList.toggle('is-selected'));
         grid.appendChild(card);
       });
@@ -5598,6 +6360,7 @@
     }
 
     // Collect all selected items inside a container (works for cards, avoid-cards, and chips)
+    // Always returns English names for markdown output (uses data-en-name attribute)
     function getSelectedDynamic(containerId) {
       const container = document.getElementById(containerId);
       // Interest cards
@@ -5605,13 +6368,14 @@
       if (selectedCards.length > 0) {
         return Array.from(selectedCards).map(c => {
           const hlKey = c.dataset.hlKey;
-          return hlKey ? (TRANSLATIONS.en[hlKey] || hlKey) : c.querySelector('.interest-card__name').textContent;
+          if (hlKey) return TRANSLATIONS.en[hlKey] || hlKey;
+          return c.dataset.enName || c.querySelector('.interest-card__name').textContent;
         });
       }
       // Avoid cards
       const selectedAvoid = container.querySelectorAll('.avoid-card.is-selected');
       if (selectedAvoid.length > 0) {
-        return Array.from(selectedAvoid).map(c => c.querySelector('.avoid-card__name').textContent);
+        return Array.from(selectedAvoid).map(c => c.dataset.enName || c.querySelector('.avoid-card__name').textContent);
       }
       // Fallback: chips
       return Array.from(container.querySelectorAll('.chip.is-selected'))
@@ -5685,9 +6449,9 @@
           <div class="field">
             <label class="field__label" data-i18n="s1_dob">${t('s1_dob')}</label>
             <div class="dob-row">
-              <select class="select dob-year"></select>
-              <select class="select dob-month"></select>
-              <select class="select dob-day"></select>
+              <div><div class="dob-cell__label" data-i18n="s1_dob_year">${t('s1_dob_year')}</div><select class="select dob-year"></select></div>
+              <div><div class="dob-cell__label" data-i18n="s1_dob_month">${t('s1_dob_month')}</div><select class="select dob-month"></select></div>
+              <div><div class="dob-cell__label" data-i18n="s1_dob_day">${t('s1_dob_day')}</div><select class="select dob-day"></select></div>
             </div>
           </div>
         </div>`;
@@ -5756,9 +6520,9 @@
           <div class="field">
             <label class="field__label" data-i18n="s1_dob">${t('s1_dob')}</label>
             <div class="dob-row">
-              <select class="select dob-year"></select>
-              <select class="select dob-month"></select>
-              <select class="select dob-day"></select>
+              <div><div class="dob-cell__label" data-i18n="s1_dob_year">${t('s1_dob_year')}</div><select class="select dob-year"></select></div>
+              <div><div class="dob-cell__label" data-i18n="s1_dob_month">${t('s1_dob_month')}</div><select class="select dob-month"></select></div>
+              <div><div class="dob-cell__label" data-i18n="s1_dob_day">${t('s1_dob_day')}</div><select class="select dob-day"></select></div>
             </div>
           </div>
           <div class="field">
@@ -5812,25 +6576,12 @@
       if (step === 3) {
         buildInterestPage(prevInterestSel);
       }
-      // Reset and rebuild avoid page when entering step 4
+      // Rebuild avoid page when entering step 4 (quiz hidden, defaults used for scoring)
       if (step === 4) {
-        currentAvoidSubQ = 0;
-        goToAvoidSubQ(0);
-        showAvoidQuiz();
         buildAvoidPage(prevAvoidSel);
       }
-      // Init food step when entering step 5
+      // Init food step when entering step 5 (quiz hidden, defaults used for scoring)
       if (step === 5) {
-        currentFoodSubQ = 0;
-        goToFoodSubQ(0);
-        showFoodQuiz();
-        // Adapt Q3 label based on whether group has kids
-        const { flags: f5 } = analyzeGroup();
-        if (f5.withKids) {
-          $('#fq3Label').textContent = 'How are the kids with food?';
-        } else {
-          $('#fq3Label').textContent = 'Any dietary sensitivities in the group?';
-        }
         buildFoodPage();
         buildVibePage();
       }
@@ -5844,6 +6595,23 @@
       // Generate preview on last step
       if (step === totalSteps - 1) {
         $('#previewContent').textContent = generateMarkdown();
+        document.querySelector('.preview-box__tab').textContent = getTripFilename();
+        $('#postDownload').style.display = 'none';
+        $('#postDownloadCmdRow').style.display = '';
+        $('#postDownloadHint').style.display = '';
+        $('#pipelineLog').style.display = 'none';
+        $('#pipelineLog').innerHTML = '';
+        $('#pipelineStatus').style.display = 'none';
+        $('#pipelineProgress').style.display = 'none';
+        $('#pipelineProgressFill').style.width = '0%';
+        $('#pipelineProgressFill').style.background = '';
+        $('#pipelineProgressText').textContent = '0%';
+        document.querySelectorAll('.pipeline-roadmap__step').forEach(s =>
+          s.classList.remove('pipeline-roadmap__step--active', 'pipeline-roadmap__step--done'));
+        document.querySelectorAll('.pipeline-roadmap__bar-segment').forEach(b =>
+          b.classList.remove('pipeline-roadmap__bar-segment--active', 'pipeline-roadmap__bar-segment--done'));
+        const rm = document.querySelector('.pipeline-roadmap');
+        if (rm) rm.classList.remove('is-live');
       }
 
       $$('.step').forEach(s => {
@@ -6103,7 +6871,8 @@
 
       // Language
       const reportLang = $('#reportLang').value;
-      const poiLangs = $('#poiLangs').value.trim();
+      // POI languages: always local destination language + report language
+      const poiLangs = `Local destination language, ${reportLang}`;
 
       // Extra notes
       const extraNotes = $('#extraNotes').value.trim();
@@ -6178,9 +6947,7 @@
 
       md += `\n## Language Preference\n\n`;
       md += `- **Reporting language:** ${reportLang}\n`;
-      if (poiLangs) {
-        md += `- **POI languages:** ${poiLangs}\n`;
-      }
+      md += `- **POI languages:** ${poiLangs}\n`;
 
       if (extraNotes) {
         md += `\n## Additional Notes\n\n${extraNotes}\n`;
@@ -6192,6 +6959,51 @@
     // ================================================================
     //  9. COPY & DOWNLOAD
     // ================================================================
+    function getTripFilename() {
+      const nameEl = document.querySelector('#parentsContainer .traveler-card .parent-name');
+      let name = (nameEl?.value || '').trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+      if (!name) name = 'traveler';
+      const arrivalVal = $('#arrival').value || '';
+      const date = arrivalVal ? arrivalVal.substring(0, 10) : 'undated';
+      return `${name}_trip_details_${date}.md`;
+    }
+
+    // Pipeline roadmap data constants (from performance_analysis.md)
+    const PIPELINE_STEPS = [
+      { i18nKey: 's7_pipeline_step1', label: 'Overview & Manifest', time: '~2 min', pct: 8, major: false },
+      { i18nKey: 's7_pipeline_step2', label: 'Day Generation', time: '~12 min', pct: 42, major: true },
+      { i18nKey: 's7_pipeline_step3', label: 'Budget', time: '~1 min', pct: 4, major: false },
+      { i18nKey: 's7_pipeline_step4', label: 'Assembly', time: '~1 min', pct: 4, major: false },
+      { i18nKey: 's7_pipeline_step5', label: 'HTML Rendering', time: '~11 min', pct: 39, major: true },
+      { i18nKey: 's7_pipeline_step6', label: 'Quality Testing', time: '~1 min', pct: 3, major: false }
+    ];
+
+    function buildPipelineRoadmap() {
+      const container = $('#pipelineRoadmap');
+      if (!container) return;
+      let html = '<div class="pipeline-roadmap">';
+      html += '<div class="pipeline-roadmap__header">';
+      html += `<span class="pipeline-roadmap__title" data-i18n="s7_pipeline_title">${t('s7_pipeline_title')}</span>`;
+      html += `<span class="pipeline-roadmap__total" data-i18n="s7_pipeline_total">${t('s7_pipeline_total')}</span>`;
+      html += '</div><div class="pipeline-roadmap__steps">';
+      PIPELINE_STEPS.forEach((s, i) => {
+        const majorClass = s.major ? ' pipeline-roadmap__step--major' : '';
+        html += `<div class="pipeline-roadmap__step${majorClass}" style="flex-basis:${s.pct}%;">`;
+        html += `<div class="pipeline-roadmap__num">${i + 1}</div>`;
+        html += `<div class="pipeline-roadmap__label" data-i18n="${s.i18nKey}">${t(s.i18nKey)}</div>`;
+        html += `<div class="pipeline-roadmap__time">${s.time}</div>`;
+        html += '</div>';
+      });
+      html += '</div><div class="pipeline-roadmap__bar-track">';
+      PIPELINE_STEPS.forEach(s => {
+        const majorClass = s.major ? ' pipeline-roadmap__bar-segment--major' : '';
+        html += `<div class="pipeline-roadmap__bar-segment${majorClass}" style="width:${s.pct}%;" title="${t(s.i18nKey)}"></div>`;
+      });
+      html += '</div></div>';
+      container.innerHTML = html;
+    }
+    buildPipelineRoadmap();
+
     function handleCopy(btn) {
       const text = $('#previewContent').textContent;
       navigator.clipboard.writeText(text).then(() => {
@@ -6208,13 +7020,216 @@
     $('#btnCopy').addEventListener('click', () => handleCopy($('#btnCopy')));
     $('#btnCopyInline').addEventListener('click', () => handleCopy($('#btnCopyInline')));
 
-    $('#btnDownload').addEventListener('click', () => {
+    function connectToProgress(id) {
+      const es = new EventSource(`http://localhost:3456/progress/${id}`);
+      const steps = document.querySelectorAll('.pipeline-roadmap__step');
+      const bars = document.querySelectorAll('.pipeline-roadmap__bar-segment');
+      const logEl = $('#pipelineLog');
+      const statusEl = $('#pipelineStatus');
+      const progressEl = $('#pipelineProgress');
+      const fillEl = $('#pipelineProgressFill');
+      const pctEl = $('#pipelineProgressText');
+      const stepWeights = PIPELINE_STEPS.map(s => s.pct); // [8,42,4,4,39,3]
+
+      function updateProgress(completedSteps, activeStep) {
+        let pct = 0;
+        completedSteps.forEach(i => { pct += stepWeights[i] || 0; });
+        // Add half of active step for smooth progress feel
+        if (activeStep >= 0 && !completedSteps.includes(activeStep)) {
+          pct += Math.round((stepWeights[activeStep] || 0) / 2);
+        }
+        pct = Math.min(pct, 100);
+        fillEl.style.width = pct + '%';
+        pctEl.textContent = pct + '%';
+      }
+
+      const stopBtn = $('#btnStopGeneration');
+
+      logEl.style.display = '';
+      statusEl.style.display = '';
+      progressEl.style.display = '';
+      stopBtn.style.display = '';
+      statusEl.className = 'pipeline-roadmap__status pipeline-roadmap__status--running';
+
+      // Stop button handler
+      const stopHandler = () => {
+        fetch(`http://localhost:3456/cancel/${id}`, { method: 'POST' }).catch(() => {});
+        es.close();
+        stopBtn.style.display = 'none';
+        document.body.classList.remove('is-generating');
+        $('#postDownload').style.display = 'none';
+        // Reset pipeline UI for next run
+        steps.forEach(s => { s.classList.remove('pipeline-roadmap__step--active', 'pipeline-roadmap__step--done'); });
+        bars.forEach(b => { b.classList.remove('pipeline-roadmap__bar-segment--active', 'pipeline-roadmap__bar-segment--done'); });
+        const roadmapEl = document.querySelector('.pipeline-roadmap');
+        if (roadmapEl) roadmapEl.classList.remove('is-live');
+        fillEl.style.width = '0%'; fillEl.style.background = '';
+        pctEl.textContent = '0%';
+        logEl.innerHTML = '';
+        logEl.style.display = 'none';
+        statusEl.style.display = 'none';
+        progressEl.style.display = 'none';
+        $('#openTripBar').style.display = 'none';
+        $('#openTripBar').innerHTML = '';
+      };
+      stopBtn.onclick = stopHandler;
+      statusEl.textContent = t('s7_bridge_running');
+      // Activate live color coding (red=pending, blue=active, green=done)
+      const roadmapEl = document.querySelector('.pipeline-roadmap');
+      if (roadmapEl) roadmapEl.classList.add('is-live');
+      updateProgress([], -1);
+
+      es.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+
+        if (data.type === 'init') {
+          // Restore state if reconnecting
+          data.completedSteps.forEach(i => {
+            if (steps[i]) steps[i].classList.add('pipeline-roadmap__step--done');
+            if (bars[i]) bars[i].classList.add('pipeline-roadmap__bar-segment--done');
+          });
+          if (data.currentStep >= 0 && steps[data.currentStep]) {
+            steps[data.currentStep].classList.add('pipeline-roadmap__step--active');
+            if (bars[data.currentStep]) bars[data.currentStep].classList.add('pipeline-roadmap__bar-segment--active');
+          }
+          (data.logs || []).forEach(text => {
+            const line = document.createElement('div');
+            line.className = 'pipeline-roadmap__log-line';
+            line.textContent = text;
+            logEl.appendChild(line);
+          });
+          logEl.scrollTop = logEl.scrollHeight;
+          updateProgress(data.completedSteps || [], data.currentStep);
+        }
+
+        if (data.type === 'stage') {
+          steps.forEach((step, i) => {
+            step.classList.remove('pipeline-roadmap__step--active');
+            if (bars[i]) bars[i].classList.remove('pipeline-roadmap__bar-segment--active');
+          });
+          data.completedSteps.forEach(i => {
+            if (steps[i]) steps[i].classList.add('pipeline-roadmap__step--done');
+            if (bars[i]) { bars[i].classList.add('pipeline-roadmap__bar-segment--done'); bars[i].classList.remove('pipeline-roadmap__bar-segment--active'); }
+          });
+          if (steps[data.step]) steps[data.step].classList.add('pipeline-roadmap__step--active');
+          if (bars[data.step]) bars[data.step].classList.add('pipeline-roadmap__bar-segment--active');
+          const names = ['Overview & Manifest','Day Generation','Budget','Assembly','HTML Rendering','Quality Testing'];
+          statusEl.textContent = `${names[data.step] || ''}...`;
+          updateProgress(data.completedSteps || [], data.step);
+        }
+
+        if (data.type === 'log') {
+          const line = document.createElement('div');
+          line.className = 'pipeline-roadmap__log-line';
+          line.textContent = data.text;
+          logEl.appendChild(line);
+          // Keep log trimmed
+          while (logEl.children.length > 50) logEl.removeChild(logEl.firstChild);
+          logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        if (data.type === 'done') {
+          stopBtn.style.display = 'none';
+          steps.forEach(step => {
+            step.classList.remove('pipeline-roadmap__step--active');
+            step.classList.add('pipeline-roadmap__step--done');
+          });
+          bars.forEach(bar => {
+            bar.classList.remove('pipeline-roadmap__bar-segment--active');
+            bar.classList.add('pipeline-roadmap__bar-segment--done');
+          });
+          statusEl.className = 'pipeline-roadmap__status pipeline-roadmap__status--done';
+          statusEl.textContent = data.status === 'completed' ? t('s7_bridge_complete') : t('s7_bridge_error');
+          fillEl.style.width = '100%';
+          pctEl.textContent = '100%';
+          if (data.status === 'completed') {
+            fillEl.style.background = 'var(--color-success)';
+            // Fetch latest trip and show "Open Trip" button
+            fetch('http://localhost:3456/latest-trip')
+              .then(r => r.json())
+              .then(info => {
+                if (info.ok && info.files && info.files.length > 0) {
+                  const bar = document.getElementById('openTripBar');
+                  bar.innerHTML = info.files.map(f => {
+                    const url = `http://localhost:3456/file/generated_trips/${info.folder}/${f}`;
+                    const label = f.replace('.html', '').replace(/trip_full_?/i, '').toUpperCase() || 'Trip';
+                    return `<a class="open-trip-bar__btn" href="${url}" target="_blank">🗺️ ${t('s7_open_trip')} ${label !== 'TRIP' ? '(' + label + ')' : ''}</a>`;
+                  }).join('');
+                  bar.style.display = '';
+                }
+              })
+              .catch(() => {});
+          }
+          es.close();
+        }
+
+        if (data.type === 'error') {
+          stopBtn.style.display = 'none';
+          statusEl.className = 'pipeline-roadmap__status pipeline-roadmap__status--error';
+          statusEl.textContent = data.message || t('s7_bridge_error');
+          es.close();
+        }
+      };
+
+      es.onerror = () => {
+        statusEl.className = 'pipeline-roadmap__status pipeline-roadmap__status--error';
+        statusEl.textContent = t('s7_bridge_error');
+        es.close();
+      };
+    }
+
+    $('#btnDownload').addEventListener('click', async () => {
+      const filename = getTripFilename();
       const text = $('#previewContent').textContent;
+
+      // Try bridge server first (saves file + starts generation with progress)
+      try {
+        const resp = await fetch('http://localhost:3456/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename, content: text })
+        });
+        const data = await resp.json();
+        if (data.ok) {
+          document.querySelector('#postDownload .post-download__icon').innerHTML = '&#128640;';
+          $('#postDownloadTitle').textContent = t('s7_bridge_title');
+          $('#postDownloadInstruction').textContent = t('s7_bridge_desc');
+          $('#postDownloadCmdRow').style.display = 'none';
+          $('#postDownloadHint').style.display = 'none';
+          $('#postDownload').style.display = '';
+          // Enter generating mode — hide hero, search bar, preview, etc.
+          document.body.classList.add('is-generating');
+          if (window.showToast) window.showToast(t('s7_bridge_toast'), 'success');
+          connectToProgress(data.id);
+          return;
+        }
+      } catch (e) {
+        // Bridge not running — fall back to browser download
+      }
+
+      // Fallback: browser download + copy command
       const blob = new Blob([text], { type: 'text/markdown' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'llm_trip_details.md'; a.click();
+      a.href = url; a.download = filename; a.click();
       URL.revokeObjectURL(url);
+
+      document.querySelector('#postDownload .post-download__icon').innerHTML = '&#9989;';
+      $('#postDownloadTitle').textContent = t('s7_post_title');
+      $('#postDownloadInstruction').textContent = t('s7_post_instruction');
+      $('#postDownloadCmdRow').style.display = '';
+      $('#postDownloadHint').style.display = '';
+      const cmdText = `generate trip from ${filename}`;
+      $('#postDownloadCmd').textContent = cmdText;
+      $('#postDownloadHint').textContent = t('s7_post_hint');
+      $('#postDownload').style.display = '';
+    });
+
+    $('#btnCopyCmd').addEventListener('click', () => {
+      const cmdText = $('#postDownloadCmd').textContent;
+      navigator.clipboard.writeText(cmdText).then(() => {
+        if (window.showToast) window.showToast('Command copied to clipboard', 'success');
+      });
     });
 
     // ================================================================
@@ -6283,8 +7298,8 @@
           return;
         }
 
-        // Only show after search bar is used (step > -1 means we've hit Let's Go)
-        if (currentStep < 0) { bar.classList.remove('is-visible'); return; }
+        // Only show on step 0 (search bar screen); hide on all subsequent steps
+        if (currentStep !== 0) { bar.classList.remove('is-visible'); return; }
 
         bar.classList.add('is-visible');
 
@@ -6308,8 +7323,7 @@
           travelersText.textContent = document.getElementById('sbTravelersValue')?.textContent || '';
         }
 
-        // Hide on review step
-        if (currentStep === 7) bar.classList.remove('is-visible');
+        // (context bar is only visible on step 0, handled above)
       };
 
       // Click pills to navigate back
@@ -6561,9 +7575,14 @@
       const origGoToStep = goToStep;
       goToStep = function(step) {
         origGoToStep(step);
-        // Hide value props once user moves past landing
+        // Hide value props and search bar once user moves past landing
         const vp = document.getElementById('valueProps');
         if (vp) vp.classList.toggle('is-hidden', step > 0);
+        const sbWrap = document.getElementById('searchBarWrap');
+        if (sbWrap) sbWrap.style.display = step > 0 ? 'none' : '';
+        // Also hide city hint when search bar is hidden
+        const cityHint = document.getElementById('destCityHint');
+        if (cityHint && step > 0) cityHint.style.display = 'none';
         // Update Booking.com UX elements
         if (window._updateProgressBar) window._updateProgressBar();
         if (window._updateContextBar) window._updateContextBar();
@@ -6892,36 +7911,16 @@
           if (s >= 2 && s <= 6) stepQuestionCounts[s]++;
         }
 
-        // Step merging rules: if Step 5 has only 1 visible question (diet at depth 10/15),
-        // merge it into Step 4
+        // Step merging disabled — steps 4 and 5 always show as separate card-selection steps
         let mergedStep5Into4 = false;
-        if (stepQuestionCounts[5] === 1 && stepQuestionCounts[5] > 0) {
-          // Move diet question DOM element into Step 4 (after pace)
-          const dietSlide = document.querySelector('[data-question-key="diet"]');
-          const step4Section = document.querySelector('[data-step="4"]');
-          const step4Pace = step4Section?.querySelector('.pace-options')?.closest('.chip-section');
-          if (dietSlide && step4Pace) {
-            // Add separator before merged question
-            let sep = step4Section.querySelector('.diet-merge-separator');
-            if (!sep) {
-              sep = document.createElement('hr');
-              sep.className = 'step-divider diet-merge-separator';
-            }
-            step4Pace.after(sep);
-            // Move the diet slide's parent question-slide (which is inside food-quiz)
-            // Actually for diet, we need to show it as a standalone card, not inside the quiz
-            // Instead, just mark step 5 as merged and handle navigation
-            mergedStep5Into4 = true;
-            stepQuestionCounts[4] += stepQuestionCounts[5];
-            stepQuestionCounts[5] = 0;
-          }
-        }
 
         // Build active steps array
         activeSteps = [0, 1]; // always present
         for (let s = 2; s <= 6; s++) {
           // Steps 3, 6 always active (have supplementary fields: interests/report language/extra notes)
-          if (s === 3 || s === 6 || stepQuestionCounts[s] > 0) activeSteps.push(s);
+          // Steps 3-6 always active: 3=interests, 4=avoid cards, 5=food cards, 6=extras
+          if (s >= 3 && s <= 6) { activeSteps.push(s); continue; }
+          if (stepQuestionCounts[s] > 0) activeSteps.push(s);
         }
         activeSteps.push(7); // always present
 

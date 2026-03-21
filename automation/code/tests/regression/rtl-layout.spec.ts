@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { TripPage } from '../pages/TripPage';
+import { loadTripConfig } from '../utils/trip-config';
+
+const tripConfig = loadTripConfig();
 
 /**
  * RTL Layout Regression Tests
@@ -37,7 +40,7 @@ test.describe('RTL — Structural', () => {
   });
 
   test('should render all day sections', async () => {
-    await expect(tripPage.daySections).toHaveCount(14);
+    await expect(tripPage.daySections).toHaveCount(tripConfig.dayCount);
   });
 
   test('should render overview section', async () => {
@@ -107,16 +110,16 @@ test.describe('RTL — Navigation', () => {
     await page.goto(baseURL!);
   });
 
-  test('should have 16 sidebar links', async () => {
-    await expect(tripPage.sidebarLinks).toHaveCount(16);
+  test('should have correct number of sidebar links', async () => {
+    // overview + dayCount days + budget
+    const expectedCount = tripConfig.dayCount + 2;
+    await expect(tripPage.sidebarLinks).toHaveCount(expectedCount);
   });
 
   test('sidebar links should have correct hrefs', async () => {
     const expectedHrefs = [
       '#overview',
-      '#day-0', '#day-1', '#day-2', '#day-3', '#day-4', '#day-5',
-      '#day-6', '#day-7', '#day-8', '#day-9', '#day-10', '#day-11',
-      '#day-12', '#day-13',
+      ...Array.from({ length: tripConfig.dayCount }, (_, i) => `#day-${i}`),
       '#budget',
     ];
     for (let i = 0; i < expectedHrefs.length; i++) {
@@ -124,8 +127,9 @@ test.describe('RTL — Navigation', () => {
     }
   });
 
-  test('should have 16 mobile pills', async () => {
-    await expect(tripPage.mobilePills).toHaveCount(16);
+  test('should have correct number of mobile pills', async () => {
+    const expectedCount = tripConfig.dayCount + 2;
+    await expect(tripPage.mobilePills).toHaveCount(expectedCount);
   });
 });
 
@@ -212,7 +216,8 @@ test.describe('RTL — Day Cards', () => {
   });
 
   test('each day should have banner, itinerary table, and POI cards', async () => {
-    for (let i = 0; i <= 13; i++) {
+    const lastDayIndex = tripConfig.dayCount - 1;
+    for (let i = 0; i <= lastDayIndex; i++) {
       const daySection = tripPage.getDaySection(i);
       await expect.soft(daySection, `Day ${i}: section missing`).toBeAttached();
 
@@ -226,7 +231,7 @@ test.describe('RTL — Day Cards', () => {
       const rowCount = await rows.count();
       expect.soft(rowCount, `Day ${i}: should have 3+ itinerary rows`).toBeGreaterThanOrEqual(3);
 
-      if (i >= 1 && i <= 12) {
+      if (i >= 1 && i <= lastDayIndex - 1) {
         const poiCards = tripPage.getDayPoiCards(i);
         const poiCount = await poiCards.count();
         expect.soft(poiCount, `Day ${i}: should have at least 1 POI card`).toBeGreaterThanOrEqual(1);

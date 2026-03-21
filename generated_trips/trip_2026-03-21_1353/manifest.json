@@ -1,0 +1,24 @@
+{
+  "trip_details_file": "rrr_trip_details_2026-04-19.md",
+  "destination": "Tel Aviv-Jaffa, Israel",
+  "arrival": "2026-04-19",
+  "departure": "2026-04-21",
+  "total_days": 3,
+  "created": "2026-03-21T13:53:00",
+  "languages": {
+    "he": {
+      "phase_a_complete": true,
+      "days": {
+        "day_00": { "status": "complete", "title": "הגעה + יפו", "last_modified": "2026-03-21T13:58:00" },
+        "day_01": { "status": "complete", "title": "תל אביב מרכז", "last_modified": "2026-03-21T13:58:00" },
+        "day_02": { "status": "complete", "title": "יציאה", "last_modified": "2026-03-21T13:58:00" }
+      },
+      "budget_complete": true,
+      "assembly": {
+        "trip_full_md_built": "2026-03-21T14:00:00",
+        "trip_full_html_built": "2026-03-21T14:10:00",
+        "stale_days": []
+      }
+    }
+  }
+}

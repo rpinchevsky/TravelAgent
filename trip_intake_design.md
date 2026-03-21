@@ -312,9 +312,70 @@ A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choos
 ### Preview Box (Code Editor Style)
 - Dark theme container (`#1a1a2e` bg)
 - Tab-style header with `#252545` bg, active tab with accent underline
+- **Tab label:** Dynamic filename (`{name}_trip_details_{date}.md`) — refreshes on each Step 7 entry
 - Copy button in header (ghost style, success state on copy)
 - Monospace body, syntax-colored: headings blue, bold gold, bullets green, tables purple
 - Max-height 500px with scroll
+
+### Post-Download Section (`.post-download`)
+A contextual "next step" card that appears below the button bar after the user downloads the trip profile. Bridges the gap between intake and trip generation.
+
+**Layout:**
+- Surface card with `border-left: 4px solid var(--color-brand-primary)` accent
+- Border, radius-container, shadow-sm — consistent with standard surface cards
+- Hidden by default (`display: none`), revealed on download button click
+- Resets (hides) when navigating away from Step 7 and returning
+
+**Structure:**
+- `.post-download__header` (flex row: checkmark icon + title)
+- `p.post-download__instruction` (muted text)
+- `.post-download__cmd-row` (flex row: code + copy button)
+  - `code.post-download__cmd` (dark theme, monospace — matches preview box)
+  - `button.post-download__copy-btn` (`.btn--secondary`)
+- `p.post-download__hint` (xs muted text)
+
+**Command box:**
+- Same dark theme as preview body (`#1a1a2e` bg, `#c8cdd6` text, monospace)
+- Contains: `generate trip from {dynamic_filename}`
+- Read-only display (`<code>` element, not `<input>`)
+
+**Copy behavior:**
+- Copies command text to clipboard via `navigator.clipboard.writeText()`
+- Shows toast: "Command copied to clipboard" (success type)
+- Uses existing `showToast()` system
+
+**RTL:** Left accent border flips to right border
+**Mobile (<=480px):** Command row stacks vertically (command above, button below aligned right)
+**i18n:** All static text uses `data-i18n` attributes (keys: `s7_post_title`, `s7_post_instruction`, `s7_post_copy`, `s7_post_hint`)
+
+### Pipeline Roadmap (`.pipeline-roadmap`)
+A visual timeline inside the post-download section showing the 6 trip generation pipeline steps with proportional duration bars. Helps users understand what happens after they paste the command into Claude Code.
+
+**Layout:**
+- Nested inside `.post-download`, separated by `border-top`
+- Header row: title ("What happens next") + total time ("~28 min total")
+- Steps row: 6 step cards with `flex-basis` proportional to duration
+- Bar track: continuous proportional bar with colored segments
+
+**Steps (from performance_analysis.md):**
+| # | Label | Duration | % | Modifier |
+|---|-------|----------|---|----------|
+| 1 | Overview & Manifest | ~2 min | 6% | — |
+| 2 | Day Generation | ~12 min | 34% | `--major` |
+| 3 | Budget | ~1 min | 3% | — |
+| 4 | Assembly | ~1 min | 3% | — |
+| 5 | HTML Rendering | ~11 min | 31% | `--major` |
+| 6 | Quality Testing | ~1 min | 3% | — |
+
+**Step card:** Number badge (22px circle) + label + time estimate
+- Major steps (2, 5): brand-primary badge, higher opacity bar segment
+- Minor steps: surface-raised badge, lower opacity bar segment
+
+**Bar track:** 6px height, segments with `title` tooltips, full opacity on hover
+
+**RTL:** Steps row and bar track reverse direction
+**Mobile (<=480px):** Steps stack vertically as rows (badge | label | time), bar track at bottom
+**i18n:** Step labels and header use `data-i18n` (keys: `s7_pipeline_title`, `s7_pipeline_total`, `s7_pipeline_step1`–`s7_pipeline_step6`)
 
 ### Buttons
 - Primary (`.btn--primary`): brand-primary bg, inverse text

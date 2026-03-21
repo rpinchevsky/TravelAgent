@@ -1,0 +1,25 @@
+{
+  "trip_details_file": "rrr_trip_details_2026-04-19.md",
+  "destination": "Israel — Tel Aviv, Jaffa & Jerusalem",
+  "arrival": "2026-04-19",
+  "departure": "2026-04-22",
+  "total_days": 4,
+  "created": "2026-03-21T15:50:00",
+  "languages": {
+    "he": {
+      "phase_a_complete": true,
+      "days": {
+        "day_00": { "status": "complete", "title": "יפו ותל אביב דרום", "last_modified": "2026-03-21T16:05:00" },
+        "day_01": { "status": "complete", "title": "ירושלים — העיר העתיקה ומחנה יהודה", "last_modified": "2026-03-21T16:05:00" },
+        "day_02": { "status": "complete", "title": "יום הזיכרון ויום העצמאות", "last_modified": "2026-03-21T16:05:00" },
+        "day_03": { "status": "complete", "title": "יציאה", "last_modified": "2026-03-21T16:05:00" }
+      },
+      "budget_complete": true,
+      "assembly": {
+        "trip_full_md_built": "2026-03-21T16:10:00",
+        "trip_full_html_built": "2026-03-21T16:25:00",
+        "stale_days": []
+      }
+    }
+  }
+}
