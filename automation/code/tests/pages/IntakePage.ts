@@ -56,11 +56,40 @@ export class IntakePage {
   readonly adultPlus: Locator;
   readonly adultMinus: Locator;
 
+  // --- Step 3 (interests) ---
+  readonly interestCards: Locator;
+  readonly interestSections: Locator;
+
+  // --- Step 4 (avoid & pace) ---
+  readonly avoidCards: Locator;
+  readonly avoidSections: Locator;
+  readonly paceCards: Locator;
+
+  // --- Step 5 (food) ---
+  readonly foodExperienceCards: Locator;
+  readonly vibeCards: Locator;
+
+  // --- Step 6 (extras) ---
+  readonly depthExtraQuestions: Locator;
+  readonly reportLang: Locator;
+
   // --- Step 7 (review) ---
   readonly reviewStep: Locator;
+  readonly previewContent: Locator;
+  readonly previewTabLabel: Locator;
 
   // --- Step divider (merge indicator) ---
   readonly stepDivider: Locator;
+
+  // --- Search bar ---
+  readonly searchBar: Locator;
+  readonly destinationInput: Locator;
+  readonly datesDropdown: Locator;
+  readonly travelersDropdown: Locator;
+
+  // --- Language selector ---
+  readonly langSelector: Locator;
+  readonly langDropdown: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -110,11 +139,40 @@ export class IntakePage {
     this.adultPlus = page.locator('#adultPlus');
     this.adultMinus = page.locator('#adultMinus');
 
+    // Step 3
+    this.interestCards = page.locator('#interestsSections .interest-card');
+    this.interestSections = page.locator('#interestsSections .chip-section');
+
+    // Step 4
+    this.avoidCards = page.locator('#avoidSections .avoid-card');
+    this.avoidSections = page.locator('#avoidSections .chip-section');
+    this.paceCards = page.locator('.pace-card');
+
+    // Step 5
+    this.foodExperienceCards = page.locator('#foodExperienceCards .interest-card');
+    this.vibeCards = page.locator('#vibeGroup .avoid-card');
+
+    // Step 6
+    this.depthExtraQuestions = page.locator('.depth-extra-question');
+    this.reportLang = page.locator('#reportLang');
+
     // Step 7
     this.reviewStep = page.locator('section.step[data-step="7"]');
+    this.previewContent = page.locator('#previewContent');
+    this.previewTabLabel = page.locator('#previewTabLabel');
 
     // Step divider
     this.stepDivider = page.locator('.step-divider');
+
+    // Search bar
+    this.searchBar = page.locator('#searchBar');
+    this.destinationInput = page.locator('#destination');
+    this.datesDropdown = page.locator('#sbDatesDropdown');
+    this.travelersDropdown = page.locator('#sbTravelersDropdown');
+
+    // Language selector
+    this.langSelector = page.locator('#langSelector');
+    this.langDropdown = page.locator('#langDropdown');
   }
 
   // --- Parameterized Locators ---
@@ -297,5 +355,78 @@ export class IntakePage {
       return (await preview.first().textContent()) ?? '';
     }
     return (await reviewStep.textContent()) ?? '';
+  }
+
+  /**
+   * Get the raw markdown from the preview data attribute (used for copy/download).
+   */
+  async getRawMarkdown(): Promise<string> {
+    return await this.page.evaluate(() => {
+      const el = document.getElementById('previewContent');
+      return el?.dataset?.rawMd ?? el?.textContent ?? '';
+    });
+  }
+
+  /**
+   * Navigate to a specific step by clicking Continue/Back as needed.
+   * Starts from whatever step we're currently on.
+   */
+  async navigateToStep(targetStep: number) {
+    let current = await this.getCurrentStepNumber();
+    const maxAttempts = 10;
+    let attempts = 0;
+    while (current !== targetStep && attempts < maxAttempts) {
+      attempts++;
+      if (current < targetStep) {
+        const btn = this.continueButton();
+        if (await btn.count() > 0) await btn.click();
+      } else {
+        const btn = this.backButton();
+        if (await btn.count() > 0) await btn.click();
+      }
+      // Handle depth overlay if it appears
+      if (await this.depthOverlay.isVisible().catch(() => false)) {
+        await this.depthConfirmBtn.click();
+      }
+      current = await this.getCurrentStepNumber();
+    }
+  }
+
+  /**
+   * Get computed CSS property for an element.
+   */
+  async getComputedStyle(locator: Locator, property: string): Promise<string> {
+    return await locator.evaluate((el, prop) => {
+      return window.getComputedStyle(el).getPropertyValue(prop);
+    }, property);
+  }
+
+  /**
+   * Switch language by clicking the language selector.
+   */
+  async switchLanguage(langCode: string) {
+    await this.page.locator('#langBtn').click();
+    await this.page.locator(`.lang-selector__item[data-lang="${langCode}"]`).click();
+  }
+
+  /**
+   * Get card CSS properties for visual comparison.
+   * Returns an object with key style properties for a card element.
+   */
+  async getCardStyles(selector: string): Promise<Record<string, string>> {
+    return await this.page.evaluate((sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return {};
+      const cs = window.getComputedStyle(el);
+      return {
+        padding: cs.padding,
+        borderRadius: cs.borderRadius,
+        borderWidth: cs.borderWidth,
+        textAlign: cs.textAlign,
+        flexDirection: cs.flexDirection,
+        alignItems: cs.alignItems,
+        justifyContent: cs.justifyContent,
+      };
+    }, selector);
   }
 }

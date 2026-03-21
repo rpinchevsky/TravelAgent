@@ -157,8 +157,8 @@ A single horizontal bar (`.search-bar`) overlapping the hero bottom, containing 
 
 ## Step Layouts
 
-### Step 0 — Schedule Preferences
-Single card with daily schedule fields (start time, end time, buffer) — always visible, not collapsible. Uses `.step0-card` styling.
+### Step 0 — Where & When
+Simple step below the search bar. Just a hint message ("Fill in your destination and dates above") + Continue button. The search bar in the hero IS the content for this step. Standard `.step__title` + `.step__desc` + `.btn-bar`.
 
 ### Step 1 — Traveler Details
 - Guest counter bar (`.guest-counter`) — flex row, surface bg, shadow-sm, rounded
@@ -169,8 +169,10 @@ Single card with daily schedule fields (start time, end time, buffer) — always
 - Fields inside use row grid (`.row--3` for parents, `.row--2` for children)
 - Validation error: `.card-error` adds red border, `.select-error` on DOB year dropdown
 
-### Step 2 — Travel Style Questionnaire (One-at-a-Time)
-- Sub-step dots (`.sub-dots`) — 10px circles, centered, active = brand-primary scaled 1.2x, done = accent gold
+### Step 2 — All Preferences (One-at-a-Time Questionnaire)
+The single, unified questionnaire for ALL 30 preference questions (10-30 shown based on depth).
+
+- Sub-step dots (`.sub-dots`) — 10px circles, centered, active = brand-primary scaled 1.2x, done = accent gold. Dot count matches visible questions at selected depth.
 - Question slides — slide in/out with `slideInLeft`/`slideInRight` animations (0.35s ease)
 - Question cards (`.q-card`) — 3-column grid (stacks on mobile), min-height 200px, centered content
   - Icon: 2.5rem emoji
@@ -178,9 +180,12 @@ Single card with daily schedule fields (start time, end time, buffer) — always
   - Description: text-sm, muted
   - Selected: brand-primary border + tinted bg + outer glow
   - Auto-advance after 400ms delay
+- Rhythm question uses 4-column layout (`.question-options--4`)
+- Diet question uses 4-column layout (4 options)
+- All other questions use 3-column layout
+- After the last visible question, auto-advances to Step 3 (card selection phase)
 
-### Steps 4 & 5 — Mini-Quizzes
-Same visual pattern as Step 2 questionnaire. Quiz section collapses (`max-height` + `opacity` transition) after last question answered. Reappears when navigating back.
+**No mini-quizzes on Steps 3-5.** All preference questions are consolidated in Step 2. Steps 3-5 are pure card selection — no questions, no sub-dots, no hidden quiz DOM.
 
 ## UI Components
 
@@ -241,10 +246,26 @@ Dual-month calendar for selecting check-in / check-out date range. Lives inside 
 - Selected: accent border + outer glow
 
 ### Avoid Cards
-- 2-column grid (3 on ≥640px)
-- Compact: flex row with icon (32px rounded square, error-tinted bg) + name
-- Selected: error border + error-tinted bg
-- X badge: 18px circle, error bg, scales in on select
+- **Same visual pattern as Interest Cards** — centered vertical layout with emoji + name
+- 2-column grid (3 on ≥640px), same gap as interest grid
+- Emoji icon: 2rem (matches interest card `__emoji` size)
+- Text: sm, medium weight, primary color, centered
+- Hover: error border + translateY(-2px) + shadow-md
+- Active: scale(0.97)
+- Selected: error border + error-tinted bg (5% opacity) + outer glow
+- X badge: 22px circle, error bg, scales in with spring easing on select
+- **Design principle:** Avoid cards MUST visually match interest cards in size and layout, differing only in selection color (error-red vs accent-gold)
+
+### Vibe Cards (`.avoid-card--vibe`)
+- Same layout as avoid cards (2-column grid, flex row with icon + name)
+- Color variant: accent-gold instead of error-red
+- Selected: accent border + accent-tinted bg
+- Check badge: accent bg (gold) instead of error bg (red)
+- Applied via CSS modifier class `.avoid-card--vibe` — no inline JS style overrides
+
+### Chip Section Headers
+- `.chip-section__title`: uppercase, xs text, semibold, accent-alt color, 0.06em letter-spacing
+- `.chip-section__desc`: sm text, muted color, margin-bottom space-3 — used consistently for sub-section descriptions in Steps 3, 4, and 5
 
 ### Depth Selector Overlay
 
@@ -308,6 +329,13 @@ A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choos
 - Stepper circles are renumbered to show only active steps
 - Line fill recalculates: `fillPercent = (activeStepIndex / (activeSteps.length - 1)) * 100`
 - Step emojis and labels are preserved for visible steps
+
+### Depth Extra Questions (`.depth-extra-question`)
+- Used in Step 6 for Photography (T4) and Accessibility (T5)
+- Container: `margin-top: var(--space-4)`, no background/border
+- Label: `.field__label` restyled via `.depth-extra-question .field__label` — uppercase, xs text, semibold, accent-alt (matches `.chip-section__title` visual)
+- Cards: `.q-card` with reduced `min-height: 140px` (vs 200px standard) and compact padding, for proportionate fit within a form-based step
+- 3-column grid same as Step 2's `.question-options`
 
 ### Preview Box (Code Editor Style)
 - Dark theme container (`#1a1a2e` bg)

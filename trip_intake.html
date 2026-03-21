@@ -554,27 +554,16 @@
     .chip-section__title {
       font-size: var(--text-xs); font-weight: var(--font-weight-semibold);
       text-transform: uppercase; letter-spacing: 0.06em;
-      color: var(--color-brand-accent-alt); margin-bottom: var(--space-3);
+      color: var(--color-brand-accent-alt); margin-bottom: var(--space-2);
       padding-left: var(--space-1);
     }
+    .chip-section__desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-3);
+    }
 
-    /* Keep chip-group for avoid page & vibes */
-    .chip-group { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-    .chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px var(--space-3); border-radius: 999px;
-      border: 1px solid var(--color-border-strong); background: transparent;
-      color: var(--color-text-secondary); font-size: var(--text-sm);
-      font-weight: var(--font-weight-medium); cursor: pointer;
-      transition: all var(--transition-fast); user-select: none;
-      min-height: 40px;
-    }
-    .chip:hover { background-color: var(--color-surface-raised); color: var(--color-text-primary); transform: translateY(-1px); }
-    .chip.is-selected {
-      background-color: var(--color-brand-primary); border-color: var(--color-brand-primary);
-      color: var(--color-text-inverse);
-    }
-    .chip.is-selected:hover { opacity: 0.9; }
+
 
     /* === Traveler Cards === */
     .traveler-card {
@@ -714,7 +703,7 @@
     .post-download__title {
       font-size: var(--text-base);
       font-weight: var(--font-weight-semibold);
-      color: var(--color-text);
+      color: var(--color-text-primary);
     }
     .post-download__instruction {
       font-size: var(--text-sm);
@@ -1063,52 +1052,86 @@
       margin-top: var(--space-1); position: relative; z-index: 1; line-height: 1.4;
     }
 
-    /* === Avoid Cards (visual, not plain chips) === */
+    /* === Avoid Cards (same visual pattern as interest cards, error-red theme) === */
     .avoid-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2);
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3);
     }
     @media (min-width: 640px) { .avoid-grid { grid-template-columns: repeat(3, 1fr); } }
     .avoid-card {
       position: relative;
-      display: flex; align-items: center; gap: var(--space-2);
-      padding: var(--space-3); border: 2px solid var(--color-border);
-      border-radius: var(--radius-interactive); cursor: pointer;
-      background: var(--color-surface); box-shadow: var(--shadow-sm);
-      transition: all var(--transition-fast); user-select: none;
+      padding: var(--space-4) var(--space-3);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-container);
+      cursor: pointer; text-align: center;
+      transition: all var(--transition-fast);
+      background: var(--color-surface); user-select: none;
+      box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
     .avoid-card:hover {
       border-color: var(--color-error);
-      transform: translateY(-1px); box-shadow: var(--shadow-md);
+      transform: translateY(-2px); box-shadow: var(--shadow-md);
     }
     .avoid-card:active { transform: scale(0.97); }
     .avoid-card.is-selected {
       border-color: var(--color-error);
-      background: rgba(181,59,59,0.06);
-      box-shadow: 0 0 0 1px var(--color-error);
+      background: rgba(181,59,59,0.05);
+      box-shadow: 0 0 0 2px var(--color-error), var(--shadow-md);
     }
     @media (prefers-color-scheme: dark) {
       .avoid-card.is-selected { background: rgba(181,59,59,0.15); }
     }
     .avoid-card__icon {
-      font-size: 1.3rem; flex-shrink: 0;
-      width: 32px; height: 32px; display: flex;
-      align-items: center; justify-content: center;
-      border-radius: 8px; background: rgba(181,59,59,0.08);
+      font-size: 2rem;
+      margin-bottom: var(--space-2);
     }
-    .avoid-card.is-selected .avoid-card__icon { background: rgba(181,59,59,0.15); }
+    .avoid-card.is-selected .avoid-card__icon { opacity: 1; }
     .avoid-card__name {
-      font-size: var(--text-xs); font-weight: var(--font-weight-medium);
+      font-size: var(--text-sm); font-weight: var(--font-weight-medium);
       color: var(--color-text-primary); line-height: 1.3;
     }
     .avoid-card__x {
-      position: absolute; top: 6px; right: 6px;
-      width: 18px; height: 18px; border-radius: 50%;
+      position: absolute; top: 8px; right: 8px;
+      width: 22px; height: 22px; border-radius: 50%;
       background: var(--color-error); color: #fff;
-      font-size: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; display: flex; align-items: center; justify-content: center;
       opacity: 0; transform: scale(0.5);
       transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .avoid-card.is-selected .avoid-card__x { opacity: 1; transform: scale(1); }
+
+    /* === Vibe Cards (accent-gold variant of avoid-card) === */
+    .avoid-card.avoid-card--vibe:hover {
+      border-color: var(--color-brand-accent);
+    }
+    .avoid-card.avoid-card--vibe.is-selected {
+      border-color: var(--color-brand-accent);
+      background: rgba(201,151,43,0.04);
+      box-shadow: 0 0 0 2px var(--color-brand-accent), var(--shadow-md);
+    }
+    @media (prefers-color-scheme: dark) {
+      .avoid-card.avoid-card--vibe.is-selected { background: rgba(201,151,43,0.12); }
+    }
+    .avoid-card.avoid-card--vibe .avoid-card__x {
+      background: var(--color-brand-accent);
+    }
+
+    /* === Depth Extra Questions (Step 6 inline q-cards) === */
+    .depth-extra-question {
+      margin-top: var(--space-4);
+    }
+    .depth-extra-question .q-card {
+      min-height: 140px;
+      padding: var(--space-3) var(--space-2);
+    }
+    .depth-extra-question .field__label {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-brand-accent-alt);
+      margin-bottom: var(--space-2);
+    }
 
     /* === Section Divider === */
     .step-divider {
@@ -1305,17 +1328,9 @@
     }
 
     /* === Validation === */
-    .field--error .input, .field--error .select, .field--error .textarea, .field--error .step0-dest-input {
+    .field--error .input, .field--error .select, .field--error .textarea {
       border-color: var(--color-error); box-shadow: 0 0 0 3px rgba(181,59,59,0.1);
     }
-    .step0-dest-input.input-error {
-      border-color: var(--color-error); box-shadow: 0 0 0 3px rgba(181,59,59,0.1);
-    }
-    .step0-card__error {
-      font-size: var(--text-xs); color: var(--color-error);
-      margin-top: var(--space-2); display: none;
-    }
-    .step0-card__error.is-visible { display: block; }
     .dob-year.select-error {
       border-color: var(--color-error); box-shadow: 0 0 0 2px rgba(181,59,59,0.12);
     }
@@ -1479,29 +1494,6 @@
       to { opacity: 1; transform: scale(1); }
     }
 
-    /* === Booking.com: Floating Labels === */
-    .field--float { position: relative; }
-    .field--float .input,
-    .field--float .textarea {
-      padding-top: 20px; padding-bottom: 6px;
-    }
-    .field__label--float {
-      position: absolute; left: calc(var(--space-3) + 1px); top: 14px;
-      font-size: var(--text-base); font-weight: var(--font-weight-regular);
-      color: var(--color-text-muted); pointer-events: none;
-      transition: transform 0.2s ease, font-size 0.2s ease, color 0.2s ease;
-      transform-origin: left top;
-      z-index: 1;
-    }
-    .field--float .input:focus ~ .field__label--float,
-    .field--float .input:not(:placeholder-shown) ~ .field__label--float,
-    .field--float .textarea:focus ~ .field__label--float,
-    .field--float .textarea:not(:placeholder-shown) ~ .field__label--float {
-      transform: translateY(-10px) scale(0.75);
-      color: var(--color-brand-accent);
-      font-weight: var(--font-weight-semibold);
-    }
-
     /* === Booking.com: Info Tooltips === */
     .tooltip-trigger {
       display: inline-flex; align-items: center; justify-content: center;
@@ -1607,7 +1599,7 @@
 
     /* === i18n: Language Selector === */
     .lang-selector {
-      position: absolute; top: 12px; right: 16px;
+      position: absolute; top: 16px; right: 16px;
       z-index: 99; display: flex; align-items: center;
     }
     .lang-selector__btn {
@@ -1656,11 +1648,16 @@
     html[dir="rtl"] .lang-selector { right: auto; left: var(--space-3); }
     html[dir="rtl"] .lang-selector__item { text-align: right; }
     html[dir="rtl"] .interest-card__check { right: auto; left: 8px; }
-    html[dir="rtl"] .avoid-card__x { right: auto; left: 6px; }
+    html[dir="rtl"] .avoid-card__x { right: auto; left: 8px; }
     html[dir="rtl"] .pace-card__check { right: auto; left: 10px; }
     html[dir="rtl"] .traveler-card__header { flex-direction: row-reverse; }
     html[dir="rtl"] .btn-bar { flex-direction: row-reverse; }
     html[dir="rtl"] .context-bar__inner { flex-direction: row-reverse; }
+    html[dir="rtl"] .field--valid::after, html[dir="rtl"] .field--error::after { right: auto; left: 12px; }
+    html[dir="rtl"] .field--valid .input, html[dir="rtl"] .field--valid .select, html[dir="rtl"] .field--valid .textarea,
+    html[dir="rtl"] .field--error .input, html[dir="rtl"] .field--error .select, html[dir="rtl"] .field--error .textarea {
+      padding-right: var(--space-3); padding-left: 40px;
+    }
     html[dir="rtl"] .select { background-position: left 12px center; padding-left: 32px; padding-right: var(--space-3); }
     @media (max-width: 640px) {
       html[dir="rtl"] .search-bar__seg { border-left: none; border-bottom: 1px solid var(--color-border); }
@@ -1691,84 +1688,6 @@
       font-size: var(--text-xs); font-weight: var(--font-weight-semibold);
       background-color: rgba(46,125,154,0.12); color: var(--color-info);
     }
-    /* === Step 0 Visual Cards === */
-    .step0-cards { display: flex; flex-direction: column; gap: var(--space-4); }
-    .step0-card {
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-container);
-      padding: var(--space-4) var(--space-5);
-      box-shadow: var(--shadow-sm);
-      transition: box-shadow var(--transition-base);
-    }
-    .step0-card:hover { box-shadow: var(--shadow-md); }
-    .step0-card__header {
-      display: flex; align-items: center; gap: var(--space-3);
-      margin-bottom: var(--space-4);
-      padding-bottom: var(--space-3);
-      border-bottom: 1px solid var(--color-border);
-    }
-    .step0-card__icon {
-      width: 44px; height: 44px;
-      border-radius: var(--radius-container);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem;
-      flex-shrink: 0;
-    }
-    .step0-card__icon--dest { background: linear-gradient(135deg, rgba(46,125,154,0.15) 0%, rgba(26,60,94,0.15) 100%); }
-    .step0-card__icon--date { background: linear-gradient(135deg, rgba(201,151,43,0.15) 0%, rgba(212,168,58,0.15) 100%); }
-    .step0-card__icon--schedule { background: linear-gradient(135deg, rgba(45,125,58,0.12) 0%, rgba(46,125,154,0.12) 100%); }
-    .step0-card__label {
-      font-size: var(--text-lg); font-weight: var(--font-weight-semibold);
-      color: var(--color-text-primary);
-    }
-    .step0-card__sublabel {
-      font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px;
-    }
-    .step0-dest-input {
-      width: 100%; padding: 14px var(--space-4);
-      min-height: 52px;
-      border: 2px solid var(--color-border);
-      border-radius: var(--radius-container);
-      background-color: var(--color-surface-raised);
-      color: var(--color-text-primary);
-      font-size: var(--text-lg);
-      font-weight: var(--font-weight-medium);
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-    }
-    .step0-dest-input:focus {
-      outline: none;
-      border-color: var(--color-brand-accent-alt);
-      box-shadow: 0 0 0 4px rgba(46,125,154,0.12);
-      background-color: var(--color-surface);
-    }
-    .step0-dest-input::placeholder {
-      color: var(--color-text-muted);
-      font-weight: var(--font-weight-regular);
-    }
-    .step0-schedule-toggle {
-      display: flex; align-items: center; gap: var(--space-2);
-      padding: var(--space-3) 0;
-      cursor: pointer; user-select: none;
-      font-size: var(--text-sm); font-weight: var(--font-weight-medium);
-      color: var(--color-text-muted);
-      transition: color var(--transition-fast);
-      background: none; border: none; font-family: inherit;
-    }
-    .step0-schedule-toggle:hover { color: var(--color-text-secondary); }
-    .step0-schedule-toggle__arrow {
-      transition: transform var(--transition-base);
-      font-size: var(--text-xs);
-    }
-    .step0-schedule-toggle__arrow.is-open { transform: rotate(180deg); }
-    .step0-schedule-body {
-      max-height: 0; overflow: hidden; opacity: 0;
-      transition: max-height 0.3s ease, opacity 0.25s ease;
-    }
-    .step0-schedule-body.is-open {
-      max-height: 200px; opacity: 1;
-    }
-
     /* === Date Range Picker (Booking.com Style) === */
     .date-picker { user-select: none; }
     .date-picker__months {
@@ -1957,7 +1876,7 @@
       </div>
 
       <!-- Calendar Dropdown (sibling of segments — no event bubbling conflict) -->
-      <div class="search-bar__dropdown search-bar__dropdown--dates" id="sbDatesDropdown">
+      <div class="search-bar__dropdown search-bar__dropdown--dates" id="sbDatesDropdown" role="dialog" aria-label="Select dates">
         <input type="hidden" id="arrival">
         <input type="hidden" id="departure">
         <div class="date-picker" id="datePicker">
@@ -1975,16 +1894,16 @@
       </div>
 
       <!-- Travelers Dropdown (sibling of segments — no event bubbling conflict) -->
-      <div class="search-bar__dropdown search-bar__dropdown--travelers" id="sbTravelersDropdown">
+      <div class="search-bar__dropdown search-bar__dropdown--travelers" id="sbTravelersDropdown" role="dialog" aria-label="Select travelers">
         <div class="sb-counter">
           <div>
             <div class="sb-counter__label" data-i18n="sb_adults">Adults</div>
             <div class="sb-counter__sub" data-i18n="sb_adults_age">Age 18+</div>
           </div>
           <div class="sb-counter__controls">
-            <button type="button" class="sb-counter__btn" id="sbAdultMinus" disabled>&#8722;</button>
+            <button type="button" class="sb-counter__btn" id="sbAdultMinus" disabled aria-label="Remove adult">&#8722;</button>
             <span class="sb-counter__num" id="sbAdultNum">1</span>
-            <button type="button" class="sb-counter__btn" id="sbAdultPlus">&#43;</button>
+            <button type="button" class="sb-counter__btn" id="sbAdultPlus" aria-label="Add adult">&#43;</button>
           </div>
         </div>
         <div class="sb-counter">
@@ -1993,9 +1912,9 @@
             <div class="sb-counter__sub" data-i18n="sb_children_age">Age 0–17</div>
           </div>
           <div class="sb-counter__controls">
-            <button type="button" class="sb-counter__btn" id="sbChildMinus" disabled>&#8722;</button>
+            <button type="button" class="sb-counter__btn" id="sbChildMinus" disabled aria-label="Remove child">&#8722;</button>
             <span class="sb-counter__num" id="sbChildNum">0</span>
-            <button type="button" class="sb-counter__btn" id="sbChildPlus">&#43;</button>
+            <button type="button" class="sb-counter__btn" id="sbChildPlus" aria-label="Add child">&#43;</button>
           </div>
         </div>
         <button type="button" class="sb-counter__done" id="sbTravelersDone" data-i18n="sb_done">Done</button>
@@ -2018,10 +1937,10 @@
       <button type="button" class="context-bar__pill context-bar__pill--travelers" id="ctxTravelers" title="Edit travelers">
         &#128101; <span id="ctxTravelersText">—</span>
       </button>
-      <span class="context-bar__pill context-bar__pill--depth" id="depthPill" style="display:none;cursor:pointer;" title="Change question depth">
+      <button type="button" class="context-bar__pill context-bar__pill--depth" id="depthPill" style="display:none;" title="Change question depth">
         <span class="context-bar__pill-icon">&#128202;</span>
         <span id="depthPillText" data-i18n="depth_pill">20 questions</span>
-      </span>
+      </button>
       <button type="button" class="context-bar__pill context-bar__pill--style" id="ctxStyle" style="display:none" title="Edit style">
         &#127919; <span id="ctxStyleText"></span>
       </button>
@@ -2098,44 +2017,44 @@
         <!-- Traveler counter content cloned here on mobile -->
       </div>
       <div class="bottom-sheet__footer">
-        <button type="button" class="btn btn--primary" id="bsTravelerDone">Done</button>
+        <button type="button" class="btn btn--primary" id="bsTravelerDone" data-i18n="sb_done">Done</button>
       </div>
     </div>
   </div>
 
   <div class="page-shell">
     <!-- Named Progress Stepper -->
-    <nav class="stepper" id="stepper">
+    <nav class="stepper" id="stepper" role="tablist" aria-label="Wizard steps">
       <div class="stepper__line"><div class="stepper__line-fill" id="stepperFill"></div></div>
-      <div class="stepper__step is-active" data-step="0">
+      <div class="stepper__step is-active" data-step="0" role="tab" aria-selected="true">
         <div class="stepper__circle"><span>&#9992;&#65039;</span></div>
         <div class="stepper__label" data-i18n="step_trip">Trip</div>
       </div>
-      <div class="stepper__step" data-step="1">
+      <div class="stepper__step" data-step="1" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#128101;</span></div>
         <div class="stepper__label" data-i18n="step_travelers">Travelers</div>
       </div>
-      <div class="stepper__step" data-step="2">
+      <div class="stepper__step" data-step="2" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#127919;</span></div>
         <div class="stepper__label" data-i18n="step_style">Style</div>
       </div>
-      <div class="stepper__step" data-step="3">
+      <div class="stepper__step" data-step="3" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#10084;&#65039;</span></div>
         <div class="stepper__label" data-i18n="step_interests">Interests</div>
       </div>
-      <div class="stepper__step" data-step="4">
+      <div class="stepper__step" data-step="4" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#128683;</span></div>
         <div class="stepper__label" data-i18n="step_avoid">Avoid</div>
       </div>
-      <div class="stepper__step" data-step="5">
+      <div class="stepper__step" data-step="5" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#127869;</span></div>
         <div class="stepper__label" data-i18n="step_food">Food</div>
       </div>
-      <div class="stepper__step" data-step="6">
+      <div class="stepper__step" data-step="6" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#127758;</span></div>
         <div class="stepper__label" data-i18n="step_details">Details</div>
       </div>
-      <div class="stepper__step" data-step="7">
+      <div class="stepper__step" data-step="7" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#9989;</span></div>
         <div class="stepper__label" data-i18n="step_review">Review</div>
       </div>
@@ -2147,32 +2066,7 @@
         <h2 class="step__title" data-i18n="s0_title">What's Your Travel Rhythm?</h2>
         <p class="step__desc" data-i18n="s0_desc">This shapes your daily schedule — start times, evening plans, and pace between stops.</p>
 
-        <div class="question-options question-options--4" id="rhythmOptions" data-question-key="rhythm" data-tier="1">
-          <div class="q-card" data-value="early">
-            <div class="q-card__icon">&#9728;&#65039;</div>
-            <div class="q-card__title" data-i18n="s0_early">Early Bird</div>
-            <div class="q-card__desc" data-i18n="s0_early_desc">Up and out by 8:30, wind down by evening</div>
-            <div class="q-card__time">08:30 – 17:30</div>
-          </div>
-          <div class="q-card is-selected" data-value="balanced">
-            <div class="q-card__icon">&#9749;</div>
-            <div class="q-card__title" data-i18n="s0_balanced">Easy Going</div>
-            <div class="q-card__desc" data-i18n="s0_balanced_desc">Relaxed mornings, balanced day, dinner and an evening stroll</div>
-            <div class="q-card__time">10:00 – 19:00</div>
-          </div>
-          <div class="q-card" data-value="marathon">
-            <div class="q-card__icon">&#128170;</div>
-            <div class="q-card__title" data-i18n="s0_marathon">Dawn to Dusk</div>
-            <div class="q-card__desc" data-i18n="s0_marathon_desc">Start early, finish late — squeeze every moment out of the day</div>
-            <div class="q-card__time">08:30 – 23:00</div>
-          </div>
-          <div class="q-card" data-value="latenight">
-            <div class="q-card__icon">&#127769;</div>
-            <div class="q-card__title" data-i18n="s0_night">Night Owl</div>
-            <div class="q-card__desc" data-i18n="s0_night_desc">Sleep in, late start, the evenings are your highlight</div>
-            <div class="q-card__time">11:30 – 23:00</div>
-          </div>
-        </div>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-3);" data-i18n="s0_fill_hint">Fill in your destination and dates above, then continue.</p>
 
         <div class="btn-bar">
           <span></span>
@@ -2265,21 +2159,50 @@
         </div>
 
         <div class="questionnaire-viewport" id="questionnaireViewport">
-          <!-- Q1: Setting -->
-          <div class="question-slide is-visible" data-question="setting" data-qindex="0" data-question-key="setting" data-tier="1">
+          <!-- === T1 Questions (always shown) === -->
+
+          <!-- Q0: Rhythm (T1) -->
+          <div class="question-slide is-visible" data-question="rhythm" data-qindex="0" data-question-key="rhythm" data-tier="1">
+            <div class="question-slide__label" data-i18n="s0_title">What's Your Travel Rhythm?</div>
+            <div class="question-options question-options--4">
+              <div class="q-card" tabindex="0" role="button" data-value="early">
+                <div class="q-card__icon">&#9728;&#65039;</div>
+                <div class="q-card__title" data-i18n="s0_early">Early Bird</div>
+                <div class="q-card__desc" data-i18n="s0_early_desc">Up and out by 8:30, wind down by evening</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="balanced">
+                <div class="q-card__icon">&#9749;</div>
+                <div class="q-card__title" data-i18n="s0_balanced">Easy Going</div>
+                <div class="q-card__desc" data-i18n="s0_balanced_desc">Relaxed mornings, balanced day, dinner and an evening stroll</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="marathon">
+                <div class="q-card__icon">&#128170;</div>
+                <div class="q-card__title" data-i18n="s0_marathon">Dawn to Dusk</div>
+                <div class="q-card__desc" data-i18n="s0_marathon_desc">Start early, finish late — squeeze every moment out of the day</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="latenight">
+                <div class="q-card__icon">&#127769;</div>
+                <div class="q-card__title" data-i18n="s0_night">Night Owl</div>
+                <div class="q-card__desc" data-i18n="s0_night_desc">Sleep in, late start, the evenings are your highlight</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q1: Setting (T1) -->
+          <div class="question-slide" data-question="setting" data-qindex="1" data-question-key="setting" data-tier="1">
             <div class="question-slide__label" data-i18n="q_setting">Where do you feel most alive?</div>
             <div class="question-options">
-              <div class="q-card" data-value="city">
+              <div class="q-card" tabindex="0" role="button" data-value="city">
                 <div class="q-card__icon">&#127961;</div>
                 <div class="q-card__title" data-i18n="q_setting_city">City Streets</div>
                 <div class="q-card__desc" data-i18n="q_setting_city_desc">Architecture, shopping, nightlife, food scene</div>
               </div>
-              <div class="q-card is-selected" data-value="both">
+              <div class="q-card" tabindex="0" role="button" data-value="both">
                 <div class="q-card__icon">&#127758;</div>
                 <div class="q-card__title" data-i18n="q_setting_both">A Bit of Both</div>
                 <div class="q-card__desc" data-i18n="q_setting_both_desc">City days and nature escapes</div>
               </div>
-              <div class="q-card" data-value="nature">
+              <div class="q-card" tabindex="0" role="button" data-value="nature">
                 <div class="q-card__icon">&#127795;</div>
                 <div class="q-card__title" data-i18n="q_setting_nature">Nature & Outdoors</div>
                 <div class="q-card__desc" data-i18n="q_setting_nature_desc">Parks, trails, water, wildlife</div>
@@ -2287,21 +2210,21 @@
             </div>
           </div>
 
-          <!-- Q2: Culture -->
-          <div class="question-slide" data-question="culture" data-qindex="1" data-question-key="culture" data-tier="1">
+          <!-- Q2: Culture (T1) -->
+          <div class="question-slide" data-question="culture" data-qindex="2" data-question-key="culture" data-tier="1">
             <div class="question-slide__label" data-i18n="q_culture">When you travel, what draws you in?</div>
             <div class="question-options">
-              <div class="q-card" data-value="culture">
+              <div class="q-card" tabindex="0" role="button" data-value="culture">
                 <div class="q-card__icon">&#127963;</div>
                 <div class="q-card__title" data-i18n="q_culture_culture">History & Culture</div>
                 <div class="q-card__desc" data-i18n="q_culture_culture_desc">Museums, landmarks, local traditions</div>
               </div>
-              <div class="q-card is-selected" data-value="both">
+              <div class="q-card" tabindex="0" role="button" data-value="both">
                 <div class="q-card__icon">&#10024;</div>
                 <div class="q-card__title" data-i18n="q_culture_both">Both</div>
                 <div class="q-card__desc" data-i18n="q_culture_both_desc">Some culture, some pure fun</div>
               </div>
-              <div class="q-card" data-value="fun">
+              <div class="q-card" tabindex="0" role="button" data-value="fun">
                 <div class="q-card__icon">&#127914;</div>
                 <div class="q-card__title" data-i18n="q_culture_fun">Fun & Entertainment</div>
                 <div class="q-card__desc" data-i18n="q_culture_fun_desc">Theme parks, shows, games, nightlife</div>
@@ -2309,21 +2232,294 @@
             </div>
           </div>
 
-          <!-- Q3: Cultural Immersion (T3) -->
-          <div class="question-slide" data-question="culturalImmersion" data-qindex="2" data-question-key="culturalImmersion" data-tier="3">
+          <!-- Q3: Pace (T1) -->
+          <div class="question-slide" data-question="pace" data-qindex="3" data-question-key="pace" data-tier="1">
+            <div class="question-slide__label" data-i18n="s4_pace_desc">How packed should each day be?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="relaxed">
+                <div class="q-card__icon">&#127796;</div>
+                <div class="q-card__title" data-i18n="s4_pace_relaxed">Relaxed</div>
+                <div class="q-card__desc" data-i18n="s4_pace_relaxed_desc">2-3 activities, slow mornings, lots of downtime</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="balanced">
+                <div class="q-card__icon">&#9878;&#65039;</div>
+                <div class="q-card__title" data-i18n="s4_pace_balanced">Balanced</div>
+                <div class="q-card__desc" data-i18n="s4_pace_balanced_desc">3-5 activities, quality over quantity</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="packed">
+                <div class="q-card__icon">&#128640;</div>
+                <div class="q-card__title" data-i18n="s4_pace_packed">Action-Packed</div>
+                <div class="q-card__desc" data-i18n="s4_pace_packed_desc">5+ activities, maximize every hour</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q4: Noise (T1) -->
+          <div class="question-slide" data-question="noise" data-qindex="4" data-question-key="noise" data-tier="1">
+            <div class="question-slide__label" data-i18n="q_noise">What's your crowd & noise comfort?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="quiet">
+                <div class="q-card__icon">&#128524;</div>
+                <div class="q-card__title" data-i18n="q_noise_quiet">Quiet & Calm</div>
+                <div class="q-card__desc" data-i18n="q_noise_quiet_desc">Avoid crowds, loud venues, peak-hour rush</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="flexible">
+                <div class="q-card__icon">&#128522;</div>
+                <div class="q-card__title" data-i18n="q_noise_flex">Flexible</div>
+                <div class="q-card__desc" data-i18n="q_noise_flex_desc">Some bustle is fine, just not overwhelming</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="lively">
+                <div class="q-card__icon">&#129321;</div>
+                <div class="q-card__title" data-i18n="q_noise_lively">Bring the Energy</div>
+                <div class="q-card__desc" data-i18n="q_noise_lively_desc">Love the buzz — festivals, markets, nightlife</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q5: Food Adventure (T1) -->
+          <div class="question-slide" data-question="foodadventure" data-qindex="5" data-question-key="foodadventure" data-tier="1">
+            <div class="question-slide__label" data-i18n="q_food_adv">How adventurous with food?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="safe">
+                <div class="q-card__icon">&#127838;</div>
+                <div class="q-card__title" data-i18n="q_food_safe">Keep It Safe</div>
+                <div class="q-card__desc" data-i18n="q_food_safe_desc">Familiar flavors, nothing too exotic or spicy</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="open">
+                <div class="q-card__icon">&#127836;</div>
+                <div class="q-card__title" data-i18n="q_food_open">Open to Try</div>
+                <div class="q-card__desc" data-i18n="q_food_open_desc">Happy to taste local dishes, mild spice OK</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="fearless">
+                <div class="q-card__icon">&#127798;</div>
+                <div class="q-card__title" data-i18n="q_food_fearless">Fearless Foodie</div>
+                <div class="q-card__desc" data-i18n="q_food_fearless_desc">Street food, exotic meats, extreme spice — yes please</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q6: Budget (T1) -->
+          <div class="question-slide" data-question="budget" data-qindex="6" data-question-key="budget" data-tier="1">
+            <div class="question-slide__label" data-i18n="q_budget">What's your spending comfort?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="budget">
+                <div class="q-card__icon">&#128176;</div>
+                <div class="q-card__title" data-i18n="q_budget_low">Budget-Friendly</div>
+                <div class="q-card__desc" data-i18n="q_budget_low_desc">Free attractions, affordable meals, smart savings</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="balanced">
+                <div class="q-card__icon">&#9878;&#65039;</div>
+                <div class="q-card__title" data-i18n="q_budget_mid">Worth the Spend</div>
+                <div class="q-card__desc" data-i18n="q_budget_mid_desc">Mix of free and paid, splurge on highlights</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="premium">
+                <div class="q-card__icon">&#128142;</div>
+                <div class="q-card__title" data-i18n="q_budget_high">Treat Ourselves</div>
+                <div class="q-card__desc" data-i18n="q_budget_high_desc">Premium experiences, skip-the-line, comfort first</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q7: Flexibility (T1) -->
+          <div class="question-slide" data-question="flexibility" data-qindex="7" data-question-key="flexibility" data-tier="1">
+            <div class="question-slide__label" data-i18n="q_flex">How structured should the plan be?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="strict">
+                <div class="q-card__icon">&#128203;</div>
+                <div class="q-card__title" data-i18n="q_flex_strict">Stick to the Plan</div>
+                <div class="q-card__desc" data-i18n="q_flex_strict_desc">Timed schedule, pre-booked, no surprises</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="loose">
+                <div class="q-card__icon">&#128260;</div>
+                <div class="q-card__title" data-i18n="q_flex_loose">Loose Framework</div>
+                <div class="q-card__desc" data-i18n="q_flex_loose_desc">Key highlights planned, room to wander</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="spontaneous">
+                <div class="q-card__icon">&#127752;</div>
+                <div class="q-card__title" data-i18n="q_flex_spont">Go with the Flow</div>
+                <div class="q-card__desc" data-i18n="q_flex_spont_desc">Suggestions only, maximum spontaneity</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q8: Diet (T1) -->
+          <div class="question-slide" data-question="diet" data-qindex="8" data-question-key="diet" data-tier="1">
+            <div class="question-slide__label" data-i18n="q_diet">What does your group eat?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="omnivore">
+                <div class="q-card__icon">&#127830;</div>
+                <div class="q-card__title" data-i18n="q_diet_omni">Everything</div>
+                <div class="q-card__desc" data-i18n="q_diet_omni_desc">Meat, fish, veggies — no restrictions</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="omnivore-meat">
+                <div class="q-card__icon">&#129385;</div>
+                <div class="q-card__title" data-i18n="q_diet_meat">Meat Lovers</div>
+                <div class="q-card__desc" data-i18n="q_diet_meat_desc">Strong preference for quality meat & BBQ</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="vegetarian">
+                <div class="q-card__icon">&#129388;</div>
+                <div class="q-card__title" data-i18n="q_diet_veg">Mostly Veggie</div>
+                <div class="q-card__desc" data-i18n="q_diet_veg_desc">Vegetarian, pescatarian, or flexitarian</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="vegan">
+                <div class="q-card__icon">&#127793;</div>
+                <div class="q-card__title" data-i18n="q_diet_vegan">Plant-Based</div>
+                <div class="q-card__desc" data-i18n="q_diet_vegan_desc">Vegan or strict plant-based diet</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q9: Dining Style (T1) -->
+          <div class="question-slide" data-question="diningstyle" data-qindex="9" data-question-key="diningstyle" data-tier="1">
+            <div class="question-slide__label" data-i18n="q_dine">Where do you love eating?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="street">
+                <div class="q-card__icon">&#127838;</div>
+                <div class="q-card__title" data-i18n="q_dine_street">Street Food & Markets</div>
+                <div class="q-card__desc" data-i18n="q_dine_street_desc">Local stalls, food trucks, market halls</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="casual">
+                <div class="q-card__icon">&#127869;</div>
+                <div class="q-card__title" data-i18n="q_dine_casual">Casual Restaurants</div>
+                <div class="q-card__desc" data-i18n="q_dine_casual_desc">Relaxed sit-down, local favorites, family-friendly</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="upscale">
+                <div class="q-card__icon">&#127864;</div>
+                <div class="q-card__title" data-i18n="q_dine_upscale">Upscale Dining</div>
+                <div class="q-card__desc" data-i18n="q_dine_upscale_desc">Fine dining, tasting menus, wine pairings</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- === T2 Questions (shown at depth 15+) === -->
+
+          <!-- Q10: Kids Food (T2) -->
+          <div class="question-slide" data-question="kidsfood" data-qindex="10" data-question-key="kidsfood" data-tier="2">
+            <div class="question-slide__label" data-i18n="q_kids_food">Any dietary restrictions or allergies?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="picky">
+                <div class="q-card__icon">&#128556;</div>
+                <div class="q-card__title" data-i18n="q_kids_picky">Very Picky</div>
+                <div class="q-card__desc" data-i18n="q_kids_picky_desc">Limited menu options, familiar food only</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="some">
+                <div class="q-card__icon">&#128522;</div>
+                <div class="q-card__title" data-i18n="q_kids_some">Some Flexibility</div>
+                <div class="q-card__desc" data-i18n="q_kids_some_desc">Will try a few things, no spice</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="easy">
+                <div class="q-card__icon">&#129321;</div>
+                <div class="q-card__title" data-i18n="q_kids_easy">Eats Everything</div>
+                <div class="q-card__desc" data-i18n="q_kids_easy_desc">No issues — happy to try local food</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q11: Meal Priority (T2) -->
+          <div class="question-slide" data-question="mealpriority" data-qindex="11" data-question-key="mealpriority" data-tier="2">
+            <div class="question-slide__label" data-i18n="q_meal">Which meal matters most to you?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="breakfast">
+                <div class="q-card__icon">&#129370;</div>
+                <div class="q-card__title" data-i18n="q_meal_breakfast">Breakfast & Brunch</div>
+                <div class="q-card__desc" data-i18n="q_meal_breakfast_desc">Start the day right — cafes, pastries, lazy mornings</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="lunch">
+                <div class="q-card__icon">&#127828;</div>
+                <div class="q-card__title" data-i18n="q_meal_lunch">Lunch is King</div>
+                <div class="q-card__desc" data-i18n="q_meal_lunch_desc">Midday feasts, long sit-downs, local specials</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="dinner">
+                <div class="q-card__icon">&#127863;</div>
+                <div class="q-card__title" data-i18n="q_meal_dinner">Dinner is the Event</div>
+                <div class="q-card__desc" data-i18n="q_meal_dinner_desc">Evening dining is the highlight of the day</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q12: Local Food (T2) -->
+          <div class="question-slide" data-question="localfood" data-qindex="12" data-question-key="localfood" data-tier="2">
+            <div class="question-slide__label" data-i18n="q_local">How local should the food experience be?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="familiar">
+                <div class="q-card__icon">&#127829;</div>
+                <div class="q-card__title" data-i18n="q_local_familiar">Keep It Familiar</div>
+                <div class="q-card__desc" data-i18n="q_local_familiar_desc">International chains, comfort food, known flavors</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="mix">
+                <div class="q-card__icon">&#127835;</div>
+                <div class="q-card__title" data-i18n="q_local_mix">Mix of Both</div>
+                <div class="q-card__desc" data-i18n="q_local_mix_desc">Some local, some familiar — best of both worlds</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="fulllocal">
+                <div class="q-card__icon">&#127758;</div>
+                <div class="q-card__title" data-i18n="q_local_full">Full Local Immersion</div>
+                <div class="q-card__desc" data-i18n="q_local_full_desc">Only authentic local food, no tourist restaurants</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q13: Walking Tolerance (T2) -->
+          <div class="question-slide" data-question="walkingTolerance" data-qindex="13" data-question-key="walkingTolerance" data-tier="2">
+            <div class="question-slide__label" data-i18n="q_walking">How much walking can your group handle?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="light">
+                <div class="q-card__icon">&#128694;</div>
+                <div class="q-card__title" data-i18n="q_walking_light">Light Walks</div>
+                <div class="q-card__desc" data-i18n="q_walking_light_desc">~2km per day, frequent rest stops</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="moderate">
+                <div class="q-card__icon">&#128693;</div>
+                <div class="q-card__title" data-i18n="q_walking_moderate">Moderate</div>
+                <div class="q-card__desc" data-i18n="q_walking_moderate_desc">~5km per day, comfortable pace</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="marathon">
+                <div class="q-card__icon">&#127939;</div>
+                <div class="q-card__title" data-i18n="q_walking_marathon">Marathon Mode</div>
+                <div class="q-card__desc" data-i18n="q_walking_marathon_desc">~10km+ per day, bring it on</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q14: Weather Sensitivity (T2) -->
+          <div class="question-slide" data-question="weatherSensitivity" data-qindex="14" data-question-key="weatherSensitivity" data-tier="2">
+            <div class="question-slide__label" data-i18n="q_weather">How does weather affect your plans?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="indoor">
+                <div class="q-card__icon">&#127969;</div>
+                <div class="q-card__title" data-i18n="q_weather_indoor">Indoor Backup Please</div>
+                <div class="q-card__desc" data-i18n="q_weather_indoor_desc">Always have a Plan B for rain or heat</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="flexible">
+                <div class="q-card__icon">&#9925;</div>
+                <div class="q-card__title" data-i18n="q_weather_flexible">Flexible</div>
+                <div class="q-card__desc" data-i18n="q_weather_flexible_desc">Adjust on the fly, no big deal</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="anyweather">
+                <div class="q-card__icon">&#127782;&#65039;</div>
+                <div class="q-card__title" data-i18n="q_weather_any">Rain or Shine</div>
+                <div class="q-card__desc" data-i18n="q_weather_any_desc">Weather won't stop us, we're out regardless</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- === T3 Questions (shown at depth 20+) === -->
+
+          <!-- Q15: Cultural Immersion (T3) -->
+          <div class="question-slide" data-question="culturalImmersion" data-qindex="15" data-question-key="culturalImmersion" data-tier="3">
             <div class="question-slide__label" data-i18n="q_cultural_immersion">How deep do you want to go culturally?</div>
             <div class="question-options">
-              <div class="q-card" data-value="highlights">
+              <div class="q-card" tabindex="0" role="button" data-value="highlights">
                 <div class="q-card__icon">&#128248;</div>
                 <div class="q-card__title" data-i18n="q_cultural_highlights">Photo Ops & Highlights</div>
                 <div class="q-card__desc" data-i18n="q_cultural_highlights_desc">Snap the landmarks, get the vibe, move on</div>
               </div>
-              <div class="q-card is-selected" data-value="some">
+              <div class="q-card" tabindex="0" role="button" data-value="some">
                 <div class="q-card__icon">&#128218;</div>
                 <div class="q-card__title" data-i18n="q_cultural_some">Some Context</div>
                 <div class="q-card__desc" data-i18n="q_cultural_some_desc">A bit of history and backstory at each stop</div>
               </div>
-              <div class="q-card" data-value="full">
+              <div class="q-card" tabindex="0" role="button" data-value="full">
                 <div class="q-card__icon">&#127979;</div>
                 <div class="q-card__title" data-i18n="q_cultural_full">Full History & Stories</div>
                 <div class="q-card__desc" data-i18n="q_cultural_full_desc">Deep dives, guided tours, local narratives</div>
@@ -2331,24 +2527,314 @@
             </div>
           </div>
 
-          <!-- Q4: Nightlife (T3) -->
-          <div class="question-slide" data-question="nightlife" data-qindex="3" data-question-key="nightlife" data-tier="3">
+          <!-- Q16: Nightlife (T3) -->
+          <div class="question-slide" data-question="nightlife" data-qindex="16" data-question-key="nightlife" data-tier="3">
             <div class="question-slide__label" data-i18n="q_nightlife">How important is nightlife?</div>
             <div class="question-options">
-              <div class="q-card" data-value="none">
+              <div class="q-card" tabindex="0" role="button" data-value="none">
                 <div class="q-card__icon">&#128564;</div>
                 <div class="q-card__title" data-i18n="q_nightlife_none">Not At All</div>
                 <div class="q-card__desc" data-i18n="q_nightlife_none_desc">Early nights, save energy for tomorrow</div>
               </div>
-              <div class="q-card is-selected" data-value="some">
+              <div class="q-card" tabindex="0" role="button" data-value="some">
                 <div class="q-card__icon">&#127864;</div>
                 <div class="q-card__title" data-i18n="q_nightlife_some">A Night or Two</div>
                 <div class="q-card__desc" data-i18n="q_nightlife_some_desc">One or two evenings out, nothing extreme</div>
               </div>
-              <div class="q-card" data-value="essential">
+              <div class="q-card" tabindex="0" role="button" data-value="essential">
                 <div class="q-card__icon">&#127878;</div>
                 <div class="q-card__title" data-i18n="q_nightlife_essential">Essential</div>
                 <div class="q-card__desc" data-i18n="q_nightlife_essential_desc">Bars, clubs, live music — the night is young</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q17: Transport (T3) -->
+          <div class="question-slide" data-question="transport" data-qindex="17" data-question-key="transport" data-tier="3">
+            <div class="question-slide__label" data-i18n="q_transport">Preferred way of getting around?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="walking">
+                <div class="q-card__icon">&#128694;</div>
+                <div class="q-card__title" data-i18n="q_transport_walking">Walking</div>
+                <div class="q-card__desc" data-i18n="q_transport_walking_desc">Explore on foot, stay within walking distance</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="transit">
+                <div class="q-card__icon">&#128652;</div>
+                <div class="q-card__title" data-i18n="q_transport_transit">Public Transit</div>
+                <div class="q-card__desc" data-i18n="q_transport_transit_desc">Buses, metros, trams — like a local</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="taxi">
+                <div class="q-card__icon">&#128661;</div>
+                <div class="q-card__title" data-i18n="q_transport_taxi">Taxi & Rideshare</div>
+                <div class="q-card__desc" data-i18n="q_transport_taxi_desc">Door-to-door comfort, skip the wait</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q18: Morning Preference (T3) -->
+          <div class="question-slide" data-question="morningPreference" data-qindex="18" data-question-key="morningPreference" data-tier="3">
+            <div class="question-slide__label" data-i18n="q_morning">Morning or afternoon person?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="morning">
+                <div class="q-card__icon">&#127749;</div>
+                <div class="q-card__title" data-i18n="q_morning_am">Morning Person</div>
+                <div class="q-card__desc" data-i18n="q_morning_am_desc">Best energy before noon, front-load the day</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="nopref">
+                <div class="q-card__icon">&#9201;</div>
+                <div class="q-card__title" data-i18n="q_morning_nopref">No Preference</div>
+                <div class="q-card__desc" data-i18n="q_morning_nopref_desc">Happy any time of day</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="afternoon">
+                <div class="q-card__icon">&#127751;</div>
+                <div class="q-card__title" data-i18n="q_morning_pm">Afternoon Starter</div>
+                <div class="q-card__desc" data-i18n="q_morning_pm_desc">Slow mornings, peak energy after lunch</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q19: Crowd Tolerance (T3) -->
+          <div class="question-slide" data-question="crowdTolerance" data-qindex="19" data-question-key="crowdTolerance" data-tier="3">
+            <div class="question-slide__label" data-i18n="q_crowd">How do you feel about popular tourist spots?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="offpeak">
+                <div class="q-card__icon">&#128716;</div>
+                <div class="q-card__title" data-i18n="q_crowd_offpeak">Prefer Off-Peak</div>
+                <div class="q-card__desc" data-i18n="q_crowd_offpeak_desc">Visit early or late to avoid the masses</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="some">
+                <div class="q-card__icon">&#128101;</div>
+                <div class="q-card__title" data-i18n="q_crowd_some">Some Crowds OK</div>
+                <div class="q-card__desc" data-i18n="q_crowd_some_desc">Popular spots are fine, just not wall-to-wall</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="dontmind">
+                <div class="q-card__icon">&#127881;</div>
+                <div class="q-card__title" data-i18n="q_crowd_dontmind">Don't Mind Queuing</div>
+                <div class="q-card__desc" data-i18n="q_crowd_dontmind_desc">Worth the wait for the best attractions</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- === T4 Questions (shown at depth 25+) === -->
+
+          <!-- Q20: Group Splitting (T4) -->
+          <div class="question-slide" data-question="groupSplitting" data-qindex="20" data-question-key="groupSplitting" data-tier="4">
+            <div class="question-slide__label" data-i18n="q_splitting">Open to the group splitting up?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="together">
+                <div class="q-card__icon">&#128106;</div>
+                <div class="q-card__title" data-i18n="q_splitting_together">Stay Together</div>
+                <div class="q-card__desc" data-i18n="q_splitting_together_desc">Everyone does everything together</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="maybe">
+                <div class="q-card__icon">&#128100;&#128101;</div>
+                <div class="q-card__title" data-i18n="q_splitting_maybe">Maybe for 1-2 Activities</div>
+                <div class="q-card__desc" data-i18n="q_splitting_maybe_desc">Split for specific interests, regroup later</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="fine">
+                <div class="q-card__icon">&#128587;</div>
+                <div class="q-card__title" data-i18n="q_splitting_fine">Totally Fine</div>
+                <div class="q-card__desc" data-i18n="q_splitting_fine_desc">Each person follows their own path when needed</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q21: Souvenir Shopping (T4) -->
+          <div class="question-slide" data-question="souvenirShopping" data-qindex="21" data-question-key="souvenirShopping" data-tier="4">
+            <div class="question-slide__label" data-i18n="q_souvenir">What kind of souvenirs interest you?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="skip">
+                <div class="q-card__icon">&#128683;</div>
+                <div class="q-card__title" data-i18n="q_souvenir_skip">Skip Souvenirs</div>
+                <div class="q-card__desc" data-i18n="q_souvenir_skip_desc">Memories are enough, no need to buy stuff</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="local">
+                <div class="q-card__icon">&#127861;</div>
+                <div class="q-card__title" data-i18n="q_souvenir_local">Local Crafts & Food</div>
+                <div class="q-card__desc" data-i18n="q_souvenir_local_desc">Artisan goods, local delicacies, handmade items</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="everything">
+                <div class="q-card__icon">&#127873;</div>
+                <div class="q-card__title" data-i18n="q_souvenir_everything">Everything — Gifts for Everyone</div>
+                <div class="q-card__desc" data-i18n="q_souvenir_everything_desc">Fridge magnets to designer finds, we're shopping</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q22: Relaxation Time (T4) -->
+          <div class="question-slide" data-question="relaxationTime" data-qindex="22" data-question-key="relaxationTime" data-tier="4">
+            <div class="question-slide__label" data-i18n="q_relaxation">How much downtime do you need?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="keepgoing">
+                <div class="q-card__icon">&#9889;</div>
+                <div class="q-card__title" data-i18n="q_relaxation_keepgoing">Keep Going</div>
+                <div class="q-card__desc" data-i18n="q_relaxation_keepgoing_desc">Rest is overrated, maximize the day</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="short">
+                <div class="q-card__icon">&#9749;</div>
+                <div class="q-card__title" data-i18n="q_relaxation_short">Short Breaks</div>
+                <div class="q-card__desc" data-i18n="q_relaxation_short_desc">Coffee stops and breathers between activities</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="long">
+                <div class="q-card__icon">&#128524;</div>
+                <div class="q-card__title" data-i18n="q_relaxation_long">Long Leisurely Breaks</div>
+                <div class="q-card__desc" data-i18n="q_relaxation_long_desc">Extended lunches, park sits, afternoon naps</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q23: Snacking (T4) -->
+          <div class="question-slide" data-question="snacking" data-qindex="23" data-question-key="snacking" data-tier="4">
+            <div class="question-slide__label" data-i18n="q_snacking">How important is snacking between meals?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="skip">
+                <div class="q-card__icon">&#128581;</div>
+                <div class="q-card__title" data-i18n="q_snacking_skip">Skip Snacks</div>
+                <div class="q-card__desc" data-i18n="q_snacking_skip_desc">Meals are enough, no need for extras</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="occasional">
+                <div class="q-card__icon">&#127846;</div>
+                <div class="q-card__title" data-i18n="q_snacking_occasional">Occasional Nibbles</div>
+                <div class="q-card__desc" data-i18n="q_snacking_occasional_desc">Ice cream, pastry, street snack here and there</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="serious">
+                <div class="q-card__icon">&#129384;</div>
+                <div class="q-card__title" data-i18n="q_snacking_serious">Serious Snacker</div>
+                <div class="q-card__desc" data-i18n="q_snacking_serious_desc">Snacking IS the activity — food tours, tastings</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q24: Photography (T4) -->
+          <div class="question-slide" data-question="photography" data-qindex="24" data-question-key="photography" data-tier="4">
+            <div class="question-slide__label" data-i18n="q_photography">How important is photography?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="notpriority">
+                <div class="q-card__icon">&#128247;</div>
+                <div class="q-card__title" data-i18n="q_photo_notpriority">Not a Priority</div>
+                <div class="q-card__desc" data-i18n="q_photo_notpriority_desc">A few casual snaps is enough</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="bonus">
+                <div class="q-card__icon">&#128248;</div>
+                <div class="q-card__title" data-i18n="q_photo_bonus">Nice Bonus</div>
+                <div class="q-card__desc" data-i18n="q_photo_bonus_desc">Love good photo spots but won't detour for them</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="major">
+                <div class="q-card__icon">&#128247;</div>
+                <div class="q-card__title" data-i18n="q_photo_major">Major Activity</div>
+                <div class="q-card__desc" data-i18n="q_photo_major_desc">Plan around golden hour, scenic overlooks, iconic shots</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- === T5 Questions (shown at depth 30) === -->
+
+          <!-- Q25: Social Interaction (T5) -->
+          <div class="question-slide" data-question="socialInteraction" data-qindex="25" data-question-key="socialInteraction" data-tier="5">
+            <div class="question-slide__label" data-i18n="q_social">How social do you want the trip to be?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="private">
+                <div class="q-card__icon">&#128374;</div>
+                <div class="q-card__title" data-i18n="q_social_private">Private & Intimate</div>
+                <div class="q-card__desc" data-i18n="q_social_private_desc">Just our group, minimal interaction with strangers</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="small">
+                <div class="q-card__icon">&#128588;</div>
+                <div class="q-card__title" data-i18n="q_social_small">Small Group OK</div>
+                <div class="q-card__desc" data-i18n="q_social_small_desc">Group tours and shared experiences are fine</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="social">
+                <div class="q-card__icon">&#127881;</div>
+                <div class="q-card__title" data-i18n="q_social_social">Love Meeting People</div>
+                <div class="q-card__desc" data-i18n="q_social_social_desc">Locals, fellow travelers — the more the merrier</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q26: Surprise Openness (T5) -->
+          <div class="question-slide" data-question="surpriseOpenness" data-qindex="26" data-question-key="surpriseOpenness" data-tier="5">
+            <div class="question-slide__label" data-i18n="q_surprise">How open are you to spontaneous changes?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="plan">
+                <div class="q-card__icon">&#128203;</div>
+                <div class="q-card__title" data-i18n="q_surprise_plan">Prefer the Plan</div>
+                <div class="q-card__desc" data-i18n="q_surprise_plan_desc">Stick to what's scheduled, no surprises</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="detours">
+                <div class="q-card__icon">&#128260;</div>
+                <div class="q-card__title" data-i18n="q_surprise_detours">Small Detours OK</div>
+                <div class="q-card__desc" data-i18n="q_surprise_detours_desc">Open to small changes if something cool comes up</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="surprise">
+                <div class="q-card__icon">&#127775;</div>
+                <div class="q-card__title" data-i18n="q_surprise_surprise">Surprise Me!</div>
+                <div class="q-card__desc" data-i18n="q_surprise_surprise_desc">Love the unexpected — change plans anytime</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q27: Visit Duration (T5) -->
+          <div class="question-slide" data-question="visitDuration" data-qindex="27" data-question-key="visitDuration" data-tier="5">
+            <div class="question-slide__label" data-i18n="q_visit">Attraction visit style?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="quick">
+                <div class="q-card__icon">&#9889;</div>
+                <div class="q-card__title" data-i18n="q_visit_quick">Quick Highlights</div>
+                <div class="q-card__desc" data-i18n="q_visit_quick_desc">See the best, move on — more stops per day</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="moderate">
+                <div class="q-card__icon">&#128064;</div>
+                <div class="q-card__title" data-i18n="q_visit_moderate">Moderate Exploration</div>
+                <div class="q-card__desc" data-i18n="q_visit_moderate_desc">Take it in without rushing</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="deep">
+                <div class="q-card__icon">&#128270;</div>
+                <div class="q-card__title" data-i18n="q_visit_deep">Deep Immersion</div>
+                <div class="q-card__desc" data-i18n="q_visit_deep_desc">Spend hours, read every plaque, absorb it all</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q28: Shopping (T5) -->
+          <div class="question-slide" data-question="shopping" data-qindex="28" data-question-key="shopping" data-tier="5">
+            <div class="question-slide__label" data-i18n="q_shopping">How important is shopping?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="skip">
+                <div class="q-card__icon">&#128683;</div>
+                <div class="q-card__title" data-i18n="q_shopping_skip">Skip It</div>
+                <div class="q-card__desc" data-i18n="q_shopping_skip_desc">Not interested in shopping time</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="browse">
+                <div class="q-card__icon">&#128717;</div>
+                <div class="q-card__title" data-i18n="q_shopping_browse">Browse if Convenient</div>
+                <div class="q-card__desc" data-i18n="q_shopping_browse_desc">Pop into interesting shops along the way</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="dedicated">
+                <div class="q-card__icon">&#127981;</div>
+                <div class="q-card__title" data-i18n="q_shopping_dedicated">Dedicated Shopping Time</div>
+                <div class="q-card__desc" data-i18n="q_shopping_dedicated_desc">Block out time for markets, malls, local shops</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q29: Accessibility (T5) -->
+          <div class="question-slide" data-question="accessibility" data-qindex="29" data-question-key="accessibility" data-tier="5">
+            <div class="question-slide__label" data-i18n="q_accessibility">Any accessibility considerations?</div>
+            <div class="question-options">
+              <div class="q-card" tabindex="0" role="button" data-value="none">
+                <div class="q-card__icon">&#9989;</div>
+                <div class="q-card__title" data-i18n="q_access_none">No Special Needs</div>
+                <div class="q-card__desc" data-i18n="q_access_none_desc">No mobility or accessibility concerns</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="flat">
+                <div class="q-card__icon">&#128694;</div>
+                <div class="q-card__title" data-i18n="q_access_flat">Prefer Flat Routes</div>
+                <div class="q-card__desc" data-i18n="q_access_flat_desc">Avoid steep hills, long stairs, cobblestones</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="wheelchair">
+                <div class="q-card__icon">&#9855;</div>
+                <div class="q-card__title" data-i18n="q_access_wheelchair">Wheelchair Accessible</div>
+                <div class="q-card__desc" data-i18n="q_access_wheelchair_desc">Full wheelchair/stroller accessibility required</div>
               </div>
             </div>
           </div>
@@ -2387,373 +2873,9 @@
         <h2 class="step__title" data-i18n="s4_title">Set Your Boundaries</h2>
         <p class="step__desc" data-i18n="s4_desc">Deselect anything you'd prefer to skip on this trip.</p>
 
-        <!-- Mini-questionnaire (hidden — defaults used for scoring; cards only for clean UX) -->
-        <div class="avoid-quiz" id="avoidQuiz" style="display:none;"
-          <div class="sub-dots" id="avoidSubDots">
-            <span class="sub-dot is-active"></span>
-            <span class="sub-dot"></span>
-            <span class="sub-dot"></span>
-            <span class="sub-dot"></span>
-          </div>
-
-          <!-- AQ1: Crowd/Noise Tolerance -->
-          <div class="question-slide is-visible" data-aquestion="noise" data-aqindex="0" data-question-key="noise" data-tier="1">
-            <div class="question-slide__label" data-i18n="q_noise">What's your crowd & noise comfort?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="quiet">
-                <div class="q-card__icon">&#128524;</div>
-                <div class="q-card__title" data-i18n="q_noise_quiet">Quiet & Calm</div>
-                <div class="q-card__desc" data-i18n="q_noise_quiet_desc">Avoid crowds, loud venues, peak-hour rush</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="flexible">
-                <div class="q-card__icon">&#128522;</div>
-                <div class="q-card__title" data-i18n="q_noise_flex">Flexible</div>
-                <div class="q-card__desc" data-i18n="q_noise_flex_desc">Some bustle is fine, just not overwhelming</div>
-              </div>
-              <div class="q-card aq-card" data-value="lively">
-                <div class="q-card__icon">&#129321;</div>
-                <div class="q-card__title" data-i18n="q_noise_lively">Bring the Energy</div>
-                <div class="q-card__desc" data-i18n="q_noise_lively_desc">Love the buzz — festivals, markets, nightlife</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ2: Food Adventure -->
-          <div class="question-slide" data-aquestion="foodadventure" data-aqindex="1" data-question-key="foodadventure" data-tier="1">
-            <div class="question-slide__label" data-i18n="q_food_adv">How adventurous with food?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="safe">
-                <div class="q-card__icon">&#127838;</div>
-                <div class="q-card__title" data-i18n="q_food_safe">Keep It Safe</div>
-                <div class="q-card__desc" data-i18n="q_food_safe_desc">Familiar flavors, nothing too exotic or spicy</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="open">
-                <div class="q-card__icon">&#127836;</div>
-                <div class="q-card__title" data-i18n="q_food_open">Open to Try</div>
-                <div class="q-card__desc" data-i18n="q_food_open_desc">Happy to taste local dishes, mild spice OK</div>
-              </div>
-              <div class="q-card aq-card" data-value="fearless">
-                <div class="q-card__icon">&#127798;</div>
-                <div class="q-card__title" data-i18n="q_food_fearless">Fearless Foodie</div>
-                <div class="q-card__desc" data-i18n="q_food_fearless_desc">Street food, exotic meats, extreme spice — yes please</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ3: Budget Comfort (T1) -->
-          <div class="question-slide" data-aquestion="budget" data-aqindex="2" data-question-key="budget" data-tier="1">
-            <div class="question-slide__label" data-i18n="q_budget">What's your spending comfort?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="budget">
-                <div class="q-card__icon">&#128176;</div>
-                <div class="q-card__title" data-i18n="q_budget_low">Budget-Friendly</div>
-                <div class="q-card__desc" data-i18n="q_budget_low_desc">Free attractions, affordable meals, smart savings</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="balanced">
-                <div class="q-card__icon">&#9878;&#65039;</div>
-                <div class="q-card__title" data-i18n="q_budget_mid">Worth the Spend</div>
-                <div class="q-card__desc" data-i18n="q_budget_mid_desc">Mix of free and paid, splurge on highlights</div>
-              </div>
-              <div class="q-card aq-card" data-value="premium">
-                <div class="q-card__icon">&#128142;</div>
-                <div class="q-card__title" data-i18n="q_budget_high">Treat Ourselves</div>
-                <div class="q-card__desc" data-i18n="q_budget_high_desc">Premium experiences, skip-the-line, comfort first</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ4: Schedule Flexibility (T1) -->
-          <div class="question-slide" data-aquestion="flexibility" data-aqindex="3" data-question-key="flexibility" data-tier="1">
-            <div class="question-slide__label" data-i18n="q_flex">How structured should the plan be?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="strict">
-                <div class="q-card__icon">&#128203;</div>
-                <div class="q-card__title" data-i18n="q_flex_strict">Stick to the Plan</div>
-                <div class="q-card__desc" data-i18n="q_flex_strict_desc">Timed schedule, pre-booked, no surprises</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="loose">
-                <div class="q-card__icon">&#128260;</div>
-                <div class="q-card__title" data-i18n="q_flex_loose">Loose Framework</div>
-                <div class="q-card__desc" data-i18n="q_flex_loose_desc">Key highlights planned, room to wander</div>
-              </div>
-              <div class="q-card aq-card" data-value="spontaneous">
-                <div class="q-card__icon">&#127752;</div>
-                <div class="q-card__title" data-i18n="q_flex_spont">Go with the Flow</div>
-                <div class="q-card__desc" data-i18n="q_flex_spont_desc">Suggestions only, maximum spontaneity</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ5: Transport Preference (T3) -->
-          <div class="question-slide" data-aquestion="transport" data-aqindex="4" data-question-key="transport" data-tier="3">
-            <div class="question-slide__label" data-i18n="q_transport">Preferred way of getting around?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="walking">
-                <div class="q-card__icon">&#128694;</div>
-                <div class="q-card__title" data-i18n="q_transport_walking">Walking</div>
-                <div class="q-card__desc" data-i18n="q_transport_walking_desc">Explore on foot, stay within walking distance</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="transit">
-                <div class="q-card__icon">&#128652;</div>
-                <div class="q-card__title" data-i18n="q_transport_transit">Public Transit</div>
-                <div class="q-card__desc" data-i18n="q_transport_transit_desc">Buses, metros, trams — like a local</div>
-              </div>
-              <div class="q-card aq-card" data-value="taxi">
-                <div class="q-card__icon">&#128661;</div>
-                <div class="q-card__title" data-i18n="q_transport_taxi">Taxi & Rideshare</div>
-                <div class="q-card__desc" data-i18n="q_transport_taxi_desc">Door-to-door comfort, skip the wait</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ6: Morning Preference (T3) -->
-          <div class="question-slide" data-aquestion="morningPreference" data-aqindex="5" data-question-key="morningPreference" data-tier="3">
-            <div class="question-slide__label" data-i18n="q_morning">Morning or afternoon person?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="morning">
-                <div class="q-card__icon">&#127749;</div>
-                <div class="q-card__title" data-i18n="q_morning_am">Morning Person</div>
-                <div class="q-card__desc" data-i18n="q_morning_am_desc">Best energy before noon, front-load the day</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="nopref">
-                <div class="q-card__icon">&#9201;</div>
-                <div class="q-card__title" data-i18n="q_morning_nopref">No Preference</div>
-                <div class="q-card__desc" data-i18n="q_morning_nopref_desc">Happy any time of day</div>
-              </div>
-              <div class="q-card aq-card" data-value="afternoon">
-                <div class="q-card__icon">&#127751;</div>
-                <div class="q-card__title" data-i18n="q_morning_pm">Afternoon Starter</div>
-                <div class="q-card__desc" data-i18n="q_morning_pm_desc">Slow mornings, peak energy after lunch</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ7: Visit Duration (T5) -->
-          <div class="question-slide" data-aquestion="visitDuration" data-aqindex="6" data-question-key="visitDuration" data-tier="5">
-            <div class="question-slide__label" data-i18n="q_visit">Attraction visit style?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="quick">
-                <div class="q-card__icon">&#9889;</div>
-                <div class="q-card__title" data-i18n="q_visit_quick">Quick Highlights</div>
-                <div class="q-card__desc" data-i18n="q_visit_quick_desc">See the best, move on — more stops per day</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="moderate">
-                <div class="q-card__icon">&#128064;</div>
-                <div class="q-card__title" data-i18n="q_visit_moderate">Moderate Exploration</div>
-                <div class="q-card__desc" data-i18n="q_visit_moderate_desc">Take it in without rushing</div>
-              </div>
-              <div class="q-card aq-card" data-value="deep">
-                <div class="q-card__icon">&#128270;</div>
-                <div class="q-card__title" data-i18n="q_visit_deep">Deep Immersion</div>
-                <div class="q-card__desc" data-i18n="q_visit_deep_desc">Spend hours, read every plaque, absorb it all</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ8: Shopping (T5) -->
-          <div class="question-slide" data-aquestion="shopping" data-aqindex="7" data-question-key="shopping" data-tier="5">
-            <div class="question-slide__label" data-i18n="q_shopping">How important is shopping?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="skip">
-                <div class="q-card__icon">&#128683;</div>
-                <div class="q-card__title" data-i18n="q_shopping_skip">Skip It</div>
-                <div class="q-card__desc" data-i18n="q_shopping_skip_desc">Not interested in shopping time</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="browse">
-                <div class="q-card__icon">&#128717;</div>
-                <div class="q-card__title" data-i18n="q_shopping_browse">Browse if Convenient</div>
-                <div class="q-card__desc" data-i18n="q_shopping_browse_desc">Pop into interesting shops along the way</div>
-              </div>
-              <div class="q-card aq-card" data-value="dedicated">
-                <div class="q-card__icon">&#127981;</div>
-                <div class="q-card__title" data-i18n="q_shopping_dedicated">Dedicated Shopping Time</div>
-                <div class="q-card__desc" data-i18n="q_shopping_dedicated_desc">Block out time for markets, malls, local shops</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ9: Walking Tolerance (T2) -->
-          <div class="question-slide" data-aquestion="walkingTolerance" data-aqindex="8" data-question-key="walkingTolerance" data-tier="2">
-            <div class="question-slide__label" data-i18n="q_walking">How much walking can your group handle?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="light">
-                <div class="q-card__icon">&#128694;</div>
-                <div class="q-card__title" data-i18n="q_walking_light">Light Walks</div>
-                <div class="q-card__desc" data-i18n="q_walking_light_desc">~2km per day, frequent rest stops</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="moderate">
-                <div class="q-card__icon">&#128693;</div>
-                <div class="q-card__title" data-i18n="q_walking_moderate">Moderate</div>
-                <div class="q-card__desc" data-i18n="q_walking_moderate_desc">~5km per day, comfortable pace</div>
-              </div>
-              <div class="q-card aq-card" data-value="marathon">
-                <div class="q-card__icon">&#127939;</div>
-                <div class="q-card__title" data-i18n="q_walking_marathon">Marathon Mode</div>
-                <div class="q-card__desc" data-i18n="q_walking_marathon_desc">~10km+ per day, bring it on</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ10: Weather Sensitivity (T2) -->
-          <div class="question-slide" data-aquestion="weatherSensitivity" data-aqindex="9" data-question-key="weatherSensitivity" data-tier="2">
-            <div class="question-slide__label" data-i18n="q_weather">How does weather affect your plans?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="indoor">
-                <div class="q-card__icon">&#127969;</div>
-                <div class="q-card__title" data-i18n="q_weather_indoor">Indoor Backup Please</div>
-                <div class="q-card__desc" data-i18n="q_weather_indoor_desc">Always have a Plan B for rain or heat</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="flexible">
-                <div class="q-card__icon">&#9925;</div>
-                <div class="q-card__title" data-i18n="q_weather_flexible">Flexible</div>
-                <div class="q-card__desc" data-i18n="q_weather_flexible_desc">Adjust on the fly, no big deal</div>
-              </div>
-              <div class="q-card aq-card" data-value="anyweather">
-                <div class="q-card__icon">&#127782;&#65039;</div>
-                <div class="q-card__title" data-i18n="q_weather_any">Rain or Shine</div>
-                <div class="q-card__desc" data-i18n="q_weather_any_desc">Weather won't stop us, we're out regardless</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ11: Crowd Tolerance (T3) -->
-          <div class="question-slide" data-aquestion="crowdTolerance" data-aqindex="10" data-question-key="crowdTolerance" data-tier="3">
-            <div class="question-slide__label" data-i18n="q_crowd">How do you feel about popular tourist spots?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="offpeak">
-                <div class="q-card__icon">&#128716;</div>
-                <div class="q-card__title" data-i18n="q_crowd_offpeak">Prefer Off-Peak</div>
-                <div class="q-card__desc" data-i18n="q_crowd_offpeak_desc">Visit early or late to avoid the masses</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="some">
-                <div class="q-card__icon">&#128101;</div>
-                <div class="q-card__title" data-i18n="q_crowd_some">Some Crowds OK</div>
-                <div class="q-card__desc" data-i18n="q_crowd_some_desc">Popular spots are fine, just not wall-to-wall</div>
-              </div>
-              <div class="q-card aq-card" data-value="dontmind">
-                <div class="q-card__icon">&#127881;</div>
-                <div class="q-card__title" data-i18n="q_crowd_dontmind">Don't Mind Queuing</div>
-                <div class="q-card__desc" data-i18n="q_crowd_dontmind_desc">Worth the wait for the best attractions</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ12: Group Splitting (T4) -->
-          <div class="question-slide" data-aquestion="groupSplitting" data-aqindex="11" data-question-key="groupSplitting" data-tier="4">
-            <div class="question-slide__label" data-i18n="q_splitting">Open to the group splitting up?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="together">
-                <div class="q-card__icon">&#128106;</div>
-                <div class="q-card__title" data-i18n="q_splitting_together">Stay Together</div>
-                <div class="q-card__desc" data-i18n="q_splitting_together_desc">Everyone does everything together</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="maybe">
-                <div class="q-card__icon">&#128100;&#128101;</div>
-                <div class="q-card__title" data-i18n="q_splitting_maybe">Maybe for 1-2 Activities</div>
-                <div class="q-card__desc" data-i18n="q_splitting_maybe_desc">Split for specific interests, regroup later</div>
-              </div>
-              <div class="q-card aq-card" data-value="fine">
-                <div class="q-card__icon">&#128587;</div>
-                <div class="q-card__title" data-i18n="q_splitting_fine">Totally Fine</div>
-                <div class="q-card__desc" data-i18n="q_splitting_fine_desc">Each person follows their own path when needed</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ13: Souvenir Shopping (T4) -->
-          <div class="question-slide" data-aquestion="souvenirShopping" data-aqindex="12" data-question-key="souvenirShopping" data-tier="4">
-            <div class="question-slide__label" data-i18n="q_souvenir">What kind of souvenirs interest you?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="skip">
-                <div class="q-card__icon">&#128683;</div>
-                <div class="q-card__title" data-i18n="q_souvenir_skip">Skip Souvenirs</div>
-                <div class="q-card__desc" data-i18n="q_souvenir_skip_desc">Memories are enough, no need to buy stuff</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="local">
-                <div class="q-card__icon">&#127861;</div>
-                <div class="q-card__title" data-i18n="q_souvenir_local">Local Crafts & Food</div>
-                <div class="q-card__desc" data-i18n="q_souvenir_local_desc">Artisan goods, local delicacies, handmade items</div>
-              </div>
-              <div class="q-card aq-card" data-value="everything">
-                <div class="q-card__icon">&#127873;</div>
-                <div class="q-card__title" data-i18n="q_souvenir_everything">Everything — Gifts for Everyone</div>
-                <div class="q-card__desc" data-i18n="q_souvenir_everything_desc">Fridge magnets to designer finds, we're shopping</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ14: Relaxation Time (T4) -->
-          <div class="question-slide" data-aquestion="relaxationTime" data-aqindex="13" data-question-key="relaxationTime" data-tier="4">
-            <div class="question-slide__label" data-i18n="q_relaxation">How much downtime do you need?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="keepgoing">
-                <div class="q-card__icon">&#9889;</div>
-                <div class="q-card__title" data-i18n="q_relaxation_keepgoing">Keep Going</div>
-                <div class="q-card__desc" data-i18n="q_relaxation_keepgoing_desc">Rest is overrated, maximize the day</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="short">
-                <div class="q-card__icon">&#9749;</div>
-                <div class="q-card__title" data-i18n="q_relaxation_short">Short Breaks</div>
-                <div class="q-card__desc" data-i18n="q_relaxation_short_desc">Coffee stops and breathers between activities</div>
-              </div>
-              <div class="q-card aq-card" data-value="long">
-                <div class="q-card__icon">&#128524;</div>
-                <div class="q-card__title" data-i18n="q_relaxation_long">Long Leisurely Breaks</div>
-                <div class="q-card__desc" data-i18n="q_relaxation_long_desc">Extended lunches, park sits, afternoon naps</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ15: Social Interaction (T5) -->
-          <div class="question-slide" data-aquestion="socialInteraction" data-aqindex="14" data-question-key="socialInteraction" data-tier="5">
-            <div class="question-slide__label" data-i18n="q_social">How social do you want the trip to be?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="private">
-                <div class="q-card__icon">&#128374;</div>
-                <div class="q-card__title" data-i18n="q_social_private">Private & Intimate</div>
-                <div class="q-card__desc" data-i18n="q_social_private_desc">Just our group, minimal interaction with strangers</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="small">
-                <div class="q-card__icon">&#128588;</div>
-                <div class="q-card__title" data-i18n="q_social_small">Small Group OK</div>
-                <div class="q-card__desc" data-i18n="q_social_small_desc">Group tours and shared experiences are fine</div>
-              </div>
-              <div class="q-card aq-card" data-value="social">
-                <div class="q-card__icon">&#127881;</div>
-                <div class="q-card__title" data-i18n="q_social_social">Love Meeting People</div>
-                <div class="q-card__desc" data-i18n="q_social_social_desc">Locals, fellow travelers — the more the merrier</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AQ16: Surprise Openness (T5) -->
-          <div class="question-slide" data-aquestion="surpriseOpenness" data-aqindex="15" data-question-key="surpriseOpenness" data-tier="5">
-            <div class="question-slide__label" data-i18n="q_surprise">How open are you to spontaneous changes?</div>
-            <div class="question-options">
-              <div class="q-card aq-card" data-value="plan">
-                <div class="q-card__icon">&#128203;</div>
-                <div class="q-card__title" data-i18n="q_surprise_plan">Prefer the Plan</div>
-                <div class="q-card__desc" data-i18n="q_surprise_plan_desc">Stick to what's scheduled, no surprises</div>
-              </div>
-              <div class="q-card aq-card is-selected" data-value="detours">
-                <div class="q-card__icon">&#128260;</div>
-                <div class="q-card__title" data-i18n="q_surprise_detours">Small Detours OK</div>
-                <div class="q-card__desc" data-i18n="q_surprise_detours_desc">Open to small changes if something cool comes up</div>
-              </div>
-              <div class="q-card aq-card" data-value="surprise">
-                <div class="q-card__icon">&#127775;</div>
-                <div class="q-card__title" data-i18n="q_surprise_surprise">Surprise Me!</div>
-                <div class="q-card__desc" data-i18n="q_surprise_surprise_desc">Love the unexpected — change plans anytime</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <hr class="step-divider">
-
         <div class="chip-section">
           <div class="chip-section__title" data-i18n="s4_avoid_title">&#128683; We'd Suggest Avoiding</div>
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);" data-i18n="s4_avoid_desc">Based on your answers. Tap to adjust.</p>
+          <p class="chip-section__desc" data-i18n="s4_avoid_desc">Based on your answers. Tap to adjust.</p>
           <div id="avoidSections" data-question-key="avoidChips">
             <!-- Dynamically populated with avoid-cards -->
           </div>
@@ -2762,33 +2884,6 @@
         <div class="field" style="margin-top:var(--space-3);">
           <label class="field__label" for="customAvoid" data-i18n="s4_custom_avoid">Anything else to avoid?</label>
           <textarea class="textarea" id="customAvoid" placeholder="e.g. Bicycling activities, Heights, Water slides..." data-i18n-placeholder="s4_custom_avoid_placeholder" rows="2" data-question-key="customAvoid"></textarea>
-        </div>
-
-        <hr class="step-divider">
-
-        <div class="chip-section">
-          <div class="chip-section__title" data-i18n="s4_pace_title">&#9889; Your Daily Pace</div>
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);" data-i18n="s4_pace_desc">How packed should each day be?</p>
-          <div class="pace-options" id="paceOptions" data-question-key="pace" data-tier="1">
-            <div class="pace-card pace-card--relaxed" data-pace="relaxed">
-              <div class="pace-card__check">&#10003;</div>
-              <div class="pace-card__icon">&#127796;</div>
-              <div class="pace-card__title" data-i18n="s4_pace_relaxed">Relaxed</div>
-              <div class="pace-card__desc" data-i18n="s4_pace_relaxed_desc">2-3 activities, slow mornings, lots of downtime</div>
-            </div>
-            <div class="pace-card pace-card--balanced is-selected" data-pace="balanced">
-              <div class="pace-card__check">&#10003;</div>
-              <div class="pace-card__icon">&#9878;&#65039;</div>
-              <div class="pace-card__title" data-i18n="s4_pace_balanced">Balanced</div>
-              <div class="pace-card__desc" data-i18n="s4_pace_balanced_desc">3-5 activities, quality over quantity</div>
-            </div>
-            <div class="pace-card pace-card--packed" data-pace="packed">
-              <div class="pace-card__check">&#10003;</div>
-              <div class="pace-card__icon">&#128640;</div>
-              <div class="pace-card__title" data-i18n="s4_pace_packed">Action-Packed</div>
-              <div class="pace-card__desc" data-i18n="s4_pace_packed_desc">5+ activities, maximize every hour</div>
-            </div>
-          </div>
         </div>
 
         <div class="btn-bar">
@@ -2802,160 +2897,10 @@
         <h2 class="step__title" data-i18n="s5_title">Food & Dining</h2>
         <p class="step__desc" data-i18n="s5_desc">Select food experiences and dining vibes that match your group.</p>
 
-        <!-- Food mini-quiz (hidden — defaults used for scoring; cards only for clean UX) -->
-        <div class="food-quiz" id="foodQuiz" style="display:none;"
-          <div class="sub-dots" id="foodSubDots">
-            <span class="sub-dot is-active"></span>
-            <span class="sub-dot"></span>
-            <span class="sub-dot"></span>
-            <span class="sub-dot"></span>
-            <span class="sub-dot"></span>
-          </div>
-
-          <!-- FQ1: Diet Type -->
-          <div class="question-slide is-visible" data-fquestion="diet" data-fqindex="0" data-question-key="diet" data-tier="1">
-            <div class="question-slide__label" data-i18n="q_diet">What does your group eat?</div>
-            <div class="question-options">
-              <div class="q-card fq-card" data-value="omnivore">
-                <div class="q-card__icon">&#127830;</div>
-                <div class="q-card__title" data-i18n="q_diet_omni">Everything</div>
-                <div class="q-card__desc" data-i18n="q_diet_omni_desc">Meat, fish, veggies — no restrictions</div>
-              </div>
-              <div class="q-card fq-card" data-value="omnivore-meat">
-                <div class="q-card__icon">&#129385;</div>
-                <div class="q-card__title" data-i18n="q_diet_meat">Meat Lovers</div>
-                <div class="q-card__desc" data-i18n="q_diet_meat_desc">Strong preference for quality meat & BBQ</div>
-              </div>
-              <div class="q-card fq-card" data-value="vegetarian">
-                <div class="q-card__icon">&#129388;</div>
-                <div class="q-card__title" data-i18n="q_diet_veg">Mostly Veggie</div>
-                <div class="q-card__desc" data-i18n="q_diet_veg_desc">Vegetarian, pescatarian, or flexitarian</div>
-              </div>
-              <div class="q-card fq-card" data-value="vegan">
-                <div class="q-card__icon">&#127793;</div>
-                <div class="q-card__title" data-i18n="q_diet_vegan">Plant-Based</div>
-                <div class="q-card__desc" data-i18n="q_diet_vegan_desc">Vegan or strict plant-based diet</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- FQ2: Dining Style (T1) -->
-          <div class="question-slide" data-fquestion="diningstyle" data-fqindex="1" data-question-key="diningstyle" data-tier="1">
-            <div class="question-slide__label" data-i18n="q_dine">Where do you love eating?</div>
-            <div class="question-options">
-              <div class="q-card fq-card" data-value="street">
-                <div class="q-card__icon">&#127838;</div>
-                <div class="q-card__title" data-i18n="q_dine_street">Street Food & Markets</div>
-                <div class="q-card__desc" data-i18n="q_dine_street_desc">Local stalls, food trucks, market halls</div>
-              </div>
-              <div class="q-card fq-card is-selected" data-value="casual">
-                <div class="q-card__icon">&#127869;</div>
-                <div class="q-card__title" data-i18n="q_dine_casual">Casual Restaurants</div>
-                <div class="q-card__desc" data-i18n="q_dine_casual_desc">Relaxed sit-down, local favorites, family-friendly</div>
-              </div>
-              <div class="q-card fq-card" data-value="upscale">
-                <div class="q-card__icon">&#127864;</div>
-                <div class="q-card__title" data-i18n="q_dine_upscale">Upscale Dining</div>
-                <div class="q-card__desc" data-i18n="q_dine_upscale_desc">Fine dining, tasting menus, wine pairings</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- FQ3: Kids & Food (T2) -->
-          <div class="question-slide" data-fquestion="kidsfood" data-fqindex="2" data-question-key="kidsfood" data-tier="2">
-            <div class="question-slide__label" id="fq3Label" data-i18n="q_kids_food">Any dietary restrictions or allergies?</div>
-            <div class="question-options" id="fq3Options">
-              <div class="q-card fq-card" data-value="picky">
-                <div class="q-card__icon">&#128556;</div>
-                <div class="q-card__title" data-i18n="q_kids_picky">Very Picky</div>
-                <div class="q-card__desc" data-i18n="q_kids_picky_desc">Limited menu options, familiar food only</div>
-              </div>
-              <div class="q-card fq-card is-selected" data-value="some">
-                <div class="q-card__icon">&#128522;</div>
-                <div class="q-card__title" data-i18n="q_kids_some">Some Flexibility</div>
-                <div class="q-card__desc" data-i18n="q_kids_some_desc">Will try a few things, no spice</div>
-              </div>
-              <div class="q-card fq-card" data-value="easy">
-                <div class="q-card__icon">&#129321;</div>
-                <div class="q-card__title" data-i18n="q_kids_easy">Eats Everything</div>
-                <div class="q-card__desc" data-i18n="q_kids_easy_desc">No issues — happy to try local food</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- FQ4: Meal Priority (T2) -->
-          <div class="question-slide" data-fquestion="mealpriority" data-fqindex="3" data-question-key="mealpriority" data-tier="2">
-            <div class="question-slide__label" data-i18n="q_meal">Which meal matters most to you?</div>
-            <div class="question-options">
-              <div class="q-card fq-card" data-value="breakfast">
-                <div class="q-card__icon">&#129370;</div>
-                <div class="q-card__title" data-i18n="q_meal_breakfast">Breakfast & Brunch</div>
-                <div class="q-card__desc" data-i18n="q_meal_breakfast_desc">Start the day right — cafes, pastries, lazy mornings</div>
-              </div>
-              <div class="q-card fq-card" data-value="lunch">
-                <div class="q-card__icon">&#127828;</div>
-                <div class="q-card__title" data-i18n="q_meal_lunch">Lunch is King</div>
-                <div class="q-card__desc" data-i18n="q_meal_lunch_desc">Midday feasts, long sit-downs, local specials</div>
-              </div>
-              <div class="q-card fq-card is-selected" data-value="dinner">
-                <div class="q-card__icon">&#127863;</div>
-                <div class="q-card__title" data-i18n="q_meal_dinner">Dinner is the Event</div>
-                <div class="q-card__desc" data-i18n="q_meal_dinner_desc">Evening dining is the highlight of the day</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- FQ5: Local vs Familiar (T2) -->
-          <div class="question-slide" data-fquestion="localfood" data-fqindex="4" data-question-key="localfood" data-tier="2">
-            <div class="question-slide__label" data-i18n="q_local">How local should the food experience be?</div>
-            <div class="question-options">
-              <div class="q-card fq-card" data-value="familiar">
-                <div class="q-card__icon">&#127829;</div>
-                <div class="q-card__title" data-i18n="q_local_familiar">Keep It Familiar</div>
-                <div class="q-card__desc" data-i18n="q_local_familiar_desc">International chains, comfort food, known flavors</div>
-              </div>
-              <div class="q-card fq-card is-selected" data-value="mix">
-                <div class="q-card__icon">&#127835;</div>
-                <div class="q-card__title" data-i18n="q_local_mix">Mix of Both</div>
-                <div class="q-card__desc" data-i18n="q_local_mix_desc">Some local, some familiar — best of both worlds</div>
-              </div>
-              <div class="q-card fq-card" data-value="fulllocal">
-                <div class="q-card__icon">&#127758;</div>
-                <div class="q-card__title" data-i18n="q_local_full">Full Local Immersion</div>
-                <div class="q-card__desc" data-i18n="q_local_full_desc">Only authentic local food, no tourist restaurants</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- FQ6: Snacking (T4) -->
-          <div class="question-slide" data-fquestion="snacking" data-fqindex="5" data-question-key="snacking" data-tier="4">
-            <div class="question-slide__label" data-i18n="q_snacking">How important is snacking between meals?</div>
-            <div class="question-options">
-              <div class="q-card fq-card" data-value="skip">
-                <div class="q-card__icon">&#128581;</div>
-                <div class="q-card__title" data-i18n="q_snacking_skip">Skip Snacks</div>
-                <div class="q-card__desc" data-i18n="q_snacking_skip_desc">Meals are enough, no need for extras</div>
-              </div>
-              <div class="q-card fq-card is-selected" data-value="occasional">
-                <div class="q-card__icon">&#127846;</div>
-                <div class="q-card__title" data-i18n="q_snacking_occasional">Occasional Nibbles</div>
-                <div class="q-card__desc" data-i18n="q_snacking_occasional_desc">Ice cream, pastry, street snack here and there</div>
-              </div>
-              <div class="q-card fq-card" data-value="serious">
-                <div class="q-card__icon">&#129384;</div>
-                <div class="q-card__title" data-i18n="q_snacking_serious">Serious Snacker</div>
-                <div class="q-card__desc" data-i18n="q_snacking_serious_desc">Snacking IS the activity — food tours, tastings</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <hr class="step-divider">
-
         <!-- Dynamic food experience cards -->
         <div class="chip-section">
           <div class="chip-section__title" data-i18n="s5_food_title">&#127860; Food Experiences For You</div>
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);" data-i18n="s5_food_desc">Based on your answers. Tap to adjust.</p>
+          <p class="chip-section__desc" data-i18n="s5_food_desc">Based on your answers. Tap to adjust.</p>
           <div id="foodExperienceCards" data-question-key="foodExperience"></div>
         </div>
 
@@ -2964,7 +2909,7 @@
         <!-- Dynamic dining vibe cards -->
         <div class="chip-section">
           <div class="chip-section__title" data-i18n="s5_vibe_title">&#127879; Dining Vibe</div>
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);" data-i18n="s5_vibe_desc">What atmosphere are you looking for?</p>
+          <p class="chip-section__desc" data-i18n="s5_vibe_desc">What atmosphere are you looking for?</p>
           <div id="vibeGroup" data-question-key="diningVibe"></div>
         </div>
 
@@ -3012,50 +2957,6 @@
           <textarea class="textarea" id="extraNotes" placeholder="e.g. One child has a stroller, we want outlet shopping on one day, we need nearby supermarkets..." data-i18n-placeholder="s6_extra_placeholder" rows="4" data-question-key="extraNotes"></textarea>
         </div>
 
-        <!-- Photography Importance (T4) -->
-        <div class="depth-extra-question" data-question-key="photography" data-tier="4" style="margin-top:var(--space-4);">
-          <label class="field__label" data-i18n="q_photography">How important is photography?</label>
-          <div class="question-options" style="margin-top:var(--space-2);">
-            <div class="q-card depth-q-card" data-value="notpriority" data-answer-key="photography">
-              <div class="q-card__icon">&#128247;</div>
-              <div class="q-card__title" data-i18n="q_photo_notpriority">Not a Priority</div>
-              <div class="q-card__desc" data-i18n="q_photo_notpriority_desc">A few casual snaps is enough</div>
-            </div>
-            <div class="q-card depth-q-card is-selected" data-value="bonus" data-answer-key="photography">
-              <div class="q-card__icon">&#128248;</div>
-              <div class="q-card__title" data-i18n="q_photo_bonus">Nice Bonus</div>
-              <div class="q-card__desc" data-i18n="q_photo_bonus_desc">Love good photo spots but won't detour for them</div>
-            </div>
-            <div class="q-card depth-q-card" data-value="major" data-answer-key="photography">
-              <div class="q-card__icon">&#128247;</div>
-              <div class="q-card__title" data-i18n="q_photo_major">Major Activity</div>
-              <div class="q-card__desc" data-i18n="q_photo_major_desc">Plan around golden hour, scenic overlooks, iconic shots</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Accessibility (T5) -->
-        <div class="depth-extra-question" data-question-key="accessibility" data-tier="5" style="margin-top:var(--space-4);">
-          <label class="field__label" data-i18n="q_accessibility">Any accessibility considerations?</label>
-          <div class="question-options" style="margin-top:var(--space-2);">
-            <div class="q-card depth-q-card is-selected" data-value="none" data-answer-key="accessibility">
-              <div class="q-card__icon">&#9989;</div>
-              <div class="q-card__title" data-i18n="q_access_none">No Special Needs</div>
-              <div class="q-card__desc" data-i18n="q_access_none_desc">No mobility or accessibility concerns</div>
-            </div>
-            <div class="q-card depth-q-card" data-value="flat" data-answer-key="accessibility">
-              <div class="q-card__icon">&#128694;</div>
-              <div class="q-card__title" data-i18n="q_access_flat">Prefer Flat Routes</div>
-              <div class="q-card__desc" data-i18n="q_access_flat_desc">Avoid steep hills, long stairs, cobblestones</div>
-            </div>
-            <div class="q-card depth-q-card" data-value="wheelchair" data-answer-key="accessibility">
-              <div class="q-card__icon">&#9855;</div>
-              <div class="q-card__title" data-i18n="q_access_wheelchair">Wheelchair Accessible</div>
-              <div class="q-card__desc" data-i18n="q_access_wheelchair_desc">Full wheelchair/stroller accessibility required</div>
-            </div>
-          </div>
-        </div>
-
         <div class="btn-bar">
           <button type="button" class="btn btn--secondary btn-prev" data-i18n="btn_back">&larr; Back</button>
           <button type="button" class="btn btn--primary btn-next" data-i18n="s6_next">Review My Trip &rarr;</button>
@@ -3069,7 +2970,7 @@
 
         <div class="preview-box">
           <div class="preview-box__header">
-            <div class="preview-box__tab">llm_trip_details.md</div>
+            <div class="preview-box__tab" id="previewTabLabel">trip_details.md</div>
             <div class="preview-box__actions">
               <button type="button" class="preview-box__copy-btn" id="btnCopyInline" data-i18n="s7_copy">Copy</button>
             </div>
@@ -3121,6 +3022,17 @@
     // ================================================================
     const $ = (s) => document.querySelector(s);
     const $$ = (s) => document.querySelectorAll(s);
+
+    // Keyboard support: Enter/Space clicks card elements with role="button"
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const t = e.target;
+        if (t.getAttribute('role') === 'button' && (t.classList.contains('q-card') || t.classList.contains('interest-card'))) {
+          e.preventDefault();
+          t.click();
+        }
+      }
+    });
 
     // ================================================================
     //  i18n — TRANSLATIONS & LANGUAGE ENGINE
@@ -3248,7 +3160,9 @@
         s3_local_title: "🏛️ Local Tourist Highlights",
         s3_local_desc: "Don't miss the most popular attractions at your destination — the iconic spots every visitor should see.",
         s3_top_picks: "Top Picks For You",
+        s3_top_picks_desc: "Suggested based on your travel style. Tap to adjust.",
         s3_more: "You Might Also Like",
+        s3_more_desc: "More options that match your group. Tap to add.",
         s3_custom: "Other interests not listed above",
         s3_custom_placeholder: "e.g. Hot air balloon rides, Cooking classes...",
         s3_next: "Set Your Limits →",
@@ -3653,7 +3567,9 @@
         s3_local_title: "🏛️ Главные достопримечательности",
         s3_local_desc: "Не пропустите самые популярные места назначения — знаковые точки, которые стоит увидеть каждому.",
         s3_top_picks: "Лучшее для вас",
+        s3_top_picks_desc: "Подобрано на основе вашего стиля путешествий. Нажмите, чтобы изменить.",
         s3_more: "Вам также может понравиться",
+        s3_more_desc: "Ещё варианты для вашей группы. Нажмите, чтобы добавить.",
         s3_custom: "Другие интересы, не перечисленные выше",
         s3_custom_placeholder: "напр. Полёт на воздушном шаре, Кулинарные мастер-классы...",
         s3_next: "Установить ограничения →",
@@ -4056,7 +3972,9 @@
         s3_local_title: "🏛️ אטרקציות מקומיות מובילות",
         s3_local_desc: "אל תפספסו את האטרקציות הפופולריות ביותר ביעד — המקומות האייקוניים שכל מבקר צריך לראות.",
         s3_top_picks: "הבחירות המובילות שלנו",
+        s3_top_picks_desc: "מותאם לסגנון הטיול שלכם. לחצו לשינוי.",
         s3_more: "אולי גם תאהבו",
+        s3_more_desc: "עוד אפשרויות לקבוצה שלכם. לחצו להוספה.",
         s3_custom: "תחומי עניין נוספים שלא ברשימה",
         s3_custom_placeholder: "למשל טיסה בכדור פורח, סדנאות בישול...",
         s3_next: "הגדירו גבולות →",
@@ -4700,17 +4618,34 @@
     window.addEventListener('languagechange', () => {
       // Update search bar traveler text (uses t() for adult/child labels)
       if (typeof updateSearchBarTravelers === 'function') updateSearchBarTravelers();
+      // Re-render calendar with translated month/day names
+      if (window._rerenderDatePicker) window._rerenderDatePicker();
+      // Re-render DOB dropdowns with translated month names
+      document.querySelectorAll('.traveler-card').forEach(card => {
+        const monthSel = card.querySelector('.dob-month');
+        if (monthSel) {
+          const prev = monthSel.value;
+          const monthNames = getTranslatedMonths();
+          monthSel.innerHTML = `<option value="">${t('s1_dob_month')}</option>`;
+          monthNames.forEach((m, i) => {
+            monthSel.innerHTML += `<option value="${String(i + 1).padStart(2, '0')}">${m}</option>`;
+          });
+          if (prev) monthSel.value = prev;
+        }
+      });
     });
 
     // ================================================================
     //  DATE RANGE PICKER (Booking.com-style)
     // ================================================================
     (function initDatePicker() {
-      const DAYS_SHORT = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-      const MONTH_NAMES = [
+      const DAYS_SHORT_EN = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+      const MONTH_NAMES_EN = [
         'January','February','March','April','May','June',
         'July','August','September','October','November','December'
       ];
+      const getDaysShort = () => (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].days_short) || DAYS_SHORT_EN;
+      const getMonthNames = () => (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].months) || MONTH_NAMES_EN;
       const container = $('#dpMonths');
       const summaryEl = $('#dpSummary');
       const errorEl = $('#dpError');
@@ -4744,18 +4679,22 @@
         return d > lo && d < hi;
       }
 
+      function localDatetime(d, hour) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const h = String(hour).padStart(2, '0');
+        return `${y}-${m}-${day}T${h}:00`;
+      }
+
       function syncHidden() {
         if (startDate) {
-          const s = new Date(startDate);
-          s.setHours(10, 0, 0, 0);
-          arrivalInput.value = s.toISOString().slice(0, 16);
+          arrivalInput.value = localDatetime(new Date(startDate), 10);
         } else {
           arrivalInput.value = '';
         }
         if (endDate) {
-          const e = new Date(endDate);
-          e.setHours(10, 0, 0, 0);
-          departureInput.value = e.toISOString().slice(0, 16);
+          departureInput.value = localDatetime(new Date(endDate), 10);
         } else {
           departureInput.value = '';
         }
@@ -4799,12 +4738,12 @@
         let html = `<div class="date-picker__month">`;
         html += `<div class="date-picker__month-header">`;
         if (showPrev) html += `<button type="button" class="date-picker__nav date-picker__nav--prev" data-dir="-1">&#8249;</button>`;
-        html += `<span class="date-picker__month-label">${MONTH_NAMES[month]} ${year}</span>`;
+        html += `<span class="date-picker__month-label">${getMonthNames()[month]} ${year}</span>`;
         if (showNext) html += `<button type="button" class="date-picker__nav date-picker__nav--next" data-dir="1">&#8250;</button>`;
         html += `</div>`;
         html += `<div class="date-picker__grid">`;
 
-        DAYS_SHORT.forEach(d => { html += `<div class="date-picker__dow">${d}</div>`; });
+        getDaysShort().forEach(d => { html += `<div class="date-picker__dow">${d}</div>`; });
 
         for (let i = 0; i < firstDay; i++) {
           html += `<div class="date-picker__day is-empty"></div>`;
@@ -4836,6 +4775,7 @@
         container.innerHTML = renderMonth(y1, m1, true, false) + renderMonth(y2, m2, false, true);
         updateSummary();
       }
+      window._rerenderDatePicker = render;
 
       container.addEventListener('click', (e) => {
         const nav = e.target.closest('.date-picker__nav');
@@ -5048,11 +4988,15 @@
     // ================================================================
     //  1. DOB DROPDOWNS — Year / Month / Day
     // ================================================================
-    const MONTHS = [
+    const MONTHS_EN = [
       'January','February','March','April','May','June',
       'July','August','September','October','November','December'
     ];
     const currentYear = new Date().getFullYear();
+
+    function getTranslatedMonths() {
+      return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].months) || MONTHS_EN;
+    }
 
     function initDobSelects(container, minYear = 1940, maxYear = currentYear) {
       const yearSel = container.querySelector('.dob-year');
@@ -5060,14 +5004,15 @@
       const daySel = container.querySelector('.dob-day');
 
       // Year — most recent first
-      yearSel.innerHTML = '<option value="">Year</option>';
+      yearSel.innerHTML = `<option value="">${t('s1_dob_year')}</option>`;
       for (let y = maxYear; y >= minYear; y--) {
         yearSel.innerHTML += `<option value="${y}">${y}</option>`;
       }
 
       // Month
-      monthSel.innerHTML = '<option value="">Month</option>';
-      MONTHS.forEach((m, i) => {
+      const monthNames = getTranslatedMonths();
+      monthSel.innerHTML = `<option value="">${t('s1_dob_month')}</option>`;
+      monthNames.forEach((m, i) => {
         monthSel.innerHTML += `<option value="${String(i + 1).padStart(2, '0')}">${m}</option>`;
       });
 
@@ -5077,7 +5022,7 @@
         const y = parseInt(yearSel.value) || currentYear;
         const m = parseInt(monthSel.value) || 1;
         const maxDay = new Date(y, m, 0).getDate();
-        daySel.innerHTML = '<option value="">Day</option>';
+        daySel.innerHTML = `<option value="">${t('s1_dob_day')}</option>`;
         for (let d = 1; d <= maxDay; d++) {
           daySel.innerHTML += `<option value="${String(d).padStart(2, '0')}">${d}</option>`;
         }
@@ -5682,12 +5627,10 @@
       if (!card) return;
       const slide = card.closest('.question-slide');
       if (!slide) return;
-      // Only handle Step 2 style quiz cards (not aq-card or fq-card or depth-q-card)
-      if (card.classList.contains('aq-card') || card.classList.contains('fq-card') || card.classList.contains('depth-q-card')) return;
       slide.querySelectorAll('.q-card').forEach(c => c.classList.remove('is-selected'));
       card.classList.add('is-selected');
 
-      // Auto-advance after 400ms
+      // Auto-advance after 400ms when in Step 2 questionnaire
       if (currentStep === 2) {
         clearTimeout(questionAutoAdvanceTimer);
         questionAutoAdvanceTimer = setTimeout(() => {
@@ -5696,19 +5639,11 @@
           if (curIdx < visible.length - 1) {
             goToSubQuestion(curIdx + 1);
           } else {
-            // Last question — advance to step 3
+            // Last visible question — advance to step 3
             goToStep(3);
           }
         }, 400);
       }
-    });
-
-    // Rhythm card click (Step 0) — radio behavior
-    document.getElementById('rhythmOptions').addEventListener('click', (e) => {
-      const card = e.target.closest('.q-card');
-      if (!card) return;
-      document.querySelectorAll('#rhythmOptions .q-card').forEach(c => c.classList.remove('is-selected'));
-      card.classList.add('is-selected');
     });
 
     function goToSubQuestion(index) {
@@ -5733,157 +5668,22 @@
       currentSubQuestion = index;
     }
 
-    // ================================================================
-    //  3c. AVOID-QUIZ SUB-STEP LOGIC (Step 4, 3 questions)
-    // ================================================================
-    let currentAvoidSubQ = 0;
-    let avoidAutoAdvanceTimer = null;
+    // (Avoid-quiz and food-quiz sub-step logic removed — all questions now in Step 2 questionnaire viewport)
 
-    function getVisibleAvoidSlides() {
-      return Array.from(document.querySelectorAll('[data-aquestion]:not([data-depth-hidden])'));
-    }
-
-    // Avoid-quiz card click — radio + auto-advance within Step 4
-    document.addEventListener('click', (e) => {
-      const card = e.target.closest('.aq-card');
-      if (!card) return;
-      const slide = card.closest('[data-aquestion]');
-      if (!slide) return;
-      slide.querySelectorAll('.aq-card').forEach(c => c.classList.remove('is-selected'));
-      card.classList.add('is-selected');
-
-      // Auto-advance after 400ms
-      if (currentStep === 4) {
-        clearTimeout(avoidAutoAdvanceTimer);
-        avoidAutoAdvanceTimer = setTimeout(() => {
-          const visible = getVisibleAvoidSlides();
-          const curIdx = visible.indexOf(slide);
-          if (curIdx < visible.length - 1) {
-            goToAvoidSubQ(curIdx + 1);
-          } else {
-            // Last visible question — scroll down to the avoid results
-            hideAvoidQuiz();
-            // Rebuild avoid cards based on new answers
-            prevAvoidSel = new Set();
-            buildAvoidPage(prevAvoidSel);
-          }
-        }, 400);
-      }
-    });
-
-    function goToAvoidSubQ(index) {
-      const visible = getVisibleAvoidSlides();
-      if (index < 0 || index >= visible.length) return;
-      const direction = index > currentAvoidSubQ ? 'slide-left' : 'slide-right';
-
-      document.querySelectorAll('[data-aquestion]').forEach(s => s.classList.remove('is-visible', 'slide-left', 'slide-right'));
-      visible[index].classList.add('is-visible', direction);
-
-      // Update avoid sub-dots
-      document.querySelectorAll('#avoidSubDots .sub-dot').forEach((dot, i) => {
-        dot.classList.remove('is-active', 'is-done');
-        if (i < index) dot.classList.add('is-done');
-        if (i === index) dot.classList.add('is-active');
-      });
-
-      currentAvoidSubQ = index;
-    }
-
-    function hideAvoidQuiz() {
-      const quiz = document.getElementById('avoidQuiz');
-      quiz.style.maxHeight = quiz.scrollHeight + 'px';
-      quiz.style.transition = 'max-height 0.4s ease, opacity 0.3s ease';
-      requestAnimationFrame(() => {
-        quiz.style.maxHeight = '0';
-        quiz.style.opacity = '0';
-        quiz.style.overflow = 'hidden';
-      });
-    }
-
-    function showAvoidQuiz() {
-      const quiz = document.getElementById('avoidQuiz');
-      quiz.style.maxHeight = '';
-      quiz.style.opacity = '';
-      quiz.style.overflow = '';
-    }
-
-    // ================================================================
-    //  3d. FOOD-QUIZ SUB-STEP LOGIC (Step 5, 3 questions)
-    // ================================================================
-    let currentFoodSubQ = 0;
-    let foodAutoAdvanceTimer = null;
-
-    function getVisibleFoodSlides() {
-      return Array.from(document.querySelectorAll('[data-fquestion]:not([data-depth-hidden])'));
-    }
-
-    // Food-quiz card click — radio + auto-advance within Step 5
-    document.addEventListener('click', (e) => {
-      const card = e.target.closest('.fq-card');
-      if (!card) return;
-      const slide = card.closest('[data-fquestion]');
-      if (!slide) return;
-      slide.querySelectorAll('.fq-card').forEach(c => c.classList.remove('is-selected'));
-      card.classList.add('is-selected');
-
-      if (currentStep === 5) {
-        clearTimeout(foodAutoAdvanceTimer);
-        foodAutoAdvanceTimer = setTimeout(() => {
-          const visible = getVisibleFoodSlides();
-          const curIdx = visible.indexOf(slide);
-          if (curIdx < visible.length - 1) {
-            goToFoodSubQ(curIdx + 1);
-          } else {
-            hideFoodQuiz();
-            buildFoodPage();
-            buildVibePage();
-          }
-        }, 400);
-      }
-    });
-
-    function goToFoodSubQ(index) {
-      const visible = getVisibleFoodSlides();
-      if (index < 0 || index >= visible.length) return;
-      const direction = index > currentFoodSubQ ? 'slide-left' : 'slide-right';
-      document.querySelectorAll('[data-fquestion]').forEach(s => s.classList.remove('is-visible', 'slide-left', 'slide-right'));
-      visible[index].classList.add('is-visible', direction);
-
-      document.querySelectorAll('#foodSubDots .sub-dot').forEach((dot, i) => {
-        dot.classList.remove('is-active', 'is-done');
-        if (i < index) dot.classList.add('is-done');
-        if (i === index) dot.classList.add('is-active');
-      });
-      currentFoodSubQ = index;
-    }
-
-    function hideFoodQuiz() {
-      const quiz = document.getElementById('foodQuiz');
-      quiz.style.maxHeight = quiz.scrollHeight + 'px';
-      quiz.style.transition = 'max-height 0.4s ease, opacity 0.3s ease';
-      requestAnimationFrame(() => {
-        quiz.style.maxHeight = '0';
-        quiz.style.opacity = '0';
-        quiz.style.overflow = 'hidden';
-      });
-    }
-
-    function showFoodQuiz() {
-      const quiz = document.getElementById('foodQuiz');
-      quiz.style.maxHeight = '';
-      quiz.style.opacity = '';
-      quiz.style.overflow = '';
-    }
-
-    // Read food-quiz answers
+    // Read food-quiz answers from unified questionnaire viewport
     function getFoodQuizAnswers() {
+      const foodKeys = ['diet', 'diningstyle', 'kidsfood', 'mealpriority', 'localfood', 'snacking'];
       const answers = {};
-      document.querySelectorAll('[data-fquestion]').forEach(slide => {
-        const q = slide.dataset.fquestion;
-        const sel = slide.querySelector('.fq-card.is-selected');
-        answers[q] = sel ? sel.dataset.value : null;
+      foodKeys.forEach(key => {
+        const slide = document.querySelector(`.question-slide[data-question="${key}"]`);
+        if (slide) {
+          const sel = slide.querySelector('.q-card.is-selected');
+          answers[key] = sel ? sel.dataset.value : null;
+        } else {
+          answers[key] = null;
+        }
       });
-      return answers; // { diet, diningstyle, kidsfood, mealpriority, localfood }
+      return answers; // { diet, diningstyle, kidsfood, mealpriority, localfood, snacking }
     }
 
     // Score food items against quiz answers
@@ -5953,6 +5753,8 @@
         items.forEach((item, i) => {
           const card = document.createElement('div');
           card.className = 'interest-card food-exp-card';
+          card.tabIndex = 0;
+          card.setAttribute('role', 'button');
           card.dataset.gradient = String(i % 8);
           card.dataset.enName = item.name;
           if (preSelect) card.classList.add('is-selected');
@@ -5986,49 +5788,39 @@
       relevant.forEach(item => {
         const card = document.createElement('button');
         card.type = 'button';
-        card.className = 'avoid-card'; // reuse avoid-card style (same visual pattern)
-        card.style.borderColor = 'var(--color-border)';
+        card.className = 'avoid-card avoid-card--vibe';
         card.dataset.enName = item.name;
         card.innerHTML = `
-          <div class="avoid-card__x" style="background:var(--color-brand-accent);">&#10003;</div>
-          <div class="avoid-card__icon" style="background:rgba(201,151,43,0.08);">${item.emoji}</div>
+          <div class="avoid-card__x">&#10003;</div>
+          <div class="avoid-card__icon">${item.emoji}</div>
           <div class="avoid-card__name">${tItem(item.name)}</div>`;
         card.addEventListener('click', () => {
           card.classList.toggle('is-selected');
-          if (card.classList.contains('is-selected')) {
-            card.style.borderColor = 'var(--color-brand-accent)';
-            card.style.background = 'rgba(201,151,43,0.04)';
-          } else {
-            card.style.borderColor = 'var(--color-border)';
-            card.style.background = '';
-          }
         });
         grid.appendChild(card);
       });
       container.appendChild(grid);
     }
 
-    // Read all 5 style answers (from Step 2 only, not avoid-quiz)
+    // Read all style answers from unified questionnaire viewport
     function getStyleAnswers() {
       const answers = {};
-      document.querySelectorAll('[data-question]').forEach(slide => {
+      document.querySelectorAll('.question-slide[data-question]').forEach(slide => {
         const q = slide.dataset.question;
         const sel = slide.querySelector('.q-card.is-selected');
-        answers[q] = sel ? sel.dataset.value : (q === 'setting' ? 'both' : 'both');
+        answers[q] = sel ? sel.dataset.value : null;
       });
-      // Derive 'evening' from Daily Rhythm (Step 0) — maps: early→early, balanced→stroll, latenight→latenight
-      const rhythmCard = document.querySelector('#rhythmOptions .q-card.is-selected');
-      const rhythmVal = rhythmCard ? rhythmCard.dataset.value : 'balanced';
+      // Derive 'evening' from rhythm answer (now in questionnaire viewport)
+      const rhythmVal = answers.rhythm || 'balanced';
       const eveningMap = { early: 'early', balanced: 'stroll', marathon: 'stroll', latenight: 'latenight' };
       answers.evening = eveningMap[rhythmVal] || 'stroll';
-      // Derive 'energy' from pace selector (removed as redundant question)
-      const paceCard = document.querySelector('.pace-card.is-selected');
-      const paceVal = paceCard ? paceCard.dataset.pace : 'balanced';
+      // Derive 'energy' from pace answer (now in questionnaire viewport)
+      const paceVal = answers.pace || 'balanced';
       answers.energy = paceVal === 'relaxed' ? 'chill' : paceVal === 'packed' ? 'active' : 'mixed';
-      // Derive 'food' from avoid-quiz foodadventure (removed as redundant question)
-      const aq = getAvoidQuizAnswers();
-      answers.food = aq.foodadventure === 'fearless' ? 'highlight' : aq.foodadventure === 'safe' ? 'fuel' : 'nice';
-      return answers; // { setting, culture, evening (from rhythm), energy (derived), food (derived) }
+      // Derive 'food' from foodadventure answer (now in questionnaire viewport)
+      const foodAdvVal = answers.foodadventure || 'open';
+      answers.food = foodAdvVal === 'fearless' ? 'highlight' : foodAdvVal === 'safe' ? 'fuel' : 'nice';
+      return answers;
     }
 
     // Emoji map for interest categories
@@ -6150,16 +5942,20 @@
 
       let gradientCounter = 0;
 
-      const renderSection = (title, items, preSelect) => {
+      const renderSection = (title, items, preSelect, desc) => {
         if (!items.length) return;
         const section = document.createElement('div');
         section.className = 'chip-section';
-        section.innerHTML = `<div class="chip-section__title">${title}</div>`;
+        let headerHtml = `<div class="chip-section__title">${title}</div>`;
+        if (desc) headerHtml += `<p class="chip-section__desc">${desc}</p>`;
+        section.innerHTML = headerHtml;
         const grid = document.createElement('div');
         grid.className = 'interest-grid';
         items.forEach(item => {
           const card = document.createElement('div');
           card.className = 'interest-card';
+          card.tabIndex = 0;
+          card.setAttribute('role', 'button');
           card.dataset.gradient = String(gradientCounter % 8);
           gradientCounter++;
           const emoji = getEmojiForInterest(item.name);
@@ -6198,12 +5994,14 @@
       const hlSection = document.createElement('div');
       hlSection.className = 'chip-section';
       hlSection.innerHTML = `<div class="chip-section__title">${t('s3_local_title')}</div>
-        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);">${t('s3_local_desc')}</p>`;
+        <p class="chip-section__desc">${t('s3_local_desc')}</p>`;
       const hlGrid = document.createElement('div');
       hlGrid.className = 'interest-grid';
       localHighlights.forEach(item => {
         const card = document.createElement('div');
         card.className = 'interest-card';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
         card.dataset.gradient = String(gradientCounter % 8);
         card.dataset.hlKey = item.key;
         gradientCounter++;
@@ -6226,24 +6024,32 @@
       hlSection.appendChild(hlGrid);
       container.appendChild(hlSection);
 
-      renderSection(t('s3_top_picks'), topPicks, true);
-      renderSection(t('s3_more'), more, false);
+      renderSection(t('s3_top_picks'), topPicks, true, t('s3_top_picks_desc'));
+      renderSection(t('s3_more'), more, false, t('s3_more_desc'));
     }
 
     // Build avoid page — audience-filtered, no scoring needed
-    // Read the 3 avoid-quiz answers
+    // Read avoid-quiz answers from unified questionnaire viewport
     function getAvoidQuizAnswers() {
+      const avoidKeys = ['noise', 'foodadventure', 'budget', 'flexibility', 'transport',
+        'morningPreference', 'crowdTolerance', 'walkingTolerance', 'weatherSensitivity',
+        'visitDuration', 'shopping', 'groupSplitting', 'souvenirShopping', 'relaxationTime',
+        'socialInteraction', 'surpriseOpenness'];
       const answers = {};
-      document.querySelectorAll('[data-aquestion]').forEach(slide => {
-        const q = slide.dataset.aquestion;
-        const sel = slide.querySelector('.aq-card.is-selected');
-        answers[q] = sel ? sel.dataset.value : null;
+      avoidKeys.forEach(key => {
+        const slide = document.querySelector(`.question-slide[data-question="${key}"]`);
+        if (slide) {
+          const sel = slide.querySelector('.q-card.is-selected');
+          answers[key] = sel ? sel.dataset.value : null;
+        } else {
+          answers[key] = null;
+        }
       });
-      // Derive 'mobility' from pace selector (removed as redundant question)
-      const paceCard = document.querySelector('.pace-card.is-selected');
-      const paceVal = paceCard ? paceCard.dataset.pace : 'balanced';
+      // Derive 'mobility' from pace answer (now in questionnaire viewport)
+      const paceSlide = document.querySelector('.question-slide[data-question="pace"]');
+      const paceVal = paceSlide ? (paceSlide.querySelector('.q-card.is-selected')?.dataset.value || 'balanced') : 'balanced';
       answers.mobility = paceVal === 'relaxed' ? 'limited' : paceVal === 'packed' ? 'high' : 'moderate';
-      return answers; // { noise, foodadventure, budget, flexibility, mobility (derived) }
+      return answers;
     }
 
     // Emoji map for avoid items
@@ -6536,15 +6342,7 @@
       syncChildCounter();
     }
 
-    // ================================================================
-    //  6. PACE SELECTION
-    // ================================================================
-    $('#paceOptions').addEventListener('click', (e) => {
-      const card = e.target.closest('.pace-card');
-      if (!card) return;
-      $$('.pace-card').forEach(c => c.classList.remove('is-selected'));
-      card.classList.add('is-selected');
-    });
+    // (Pace selection handler removed — pace is now a q-card in the unified questionnaire viewport)
 
     // ================================================================
     //  7. NAVIGATION (with slide transitions + questionnaire sub-steps)
@@ -6594,7 +6392,9 @@
 
       // Generate preview on last step
       if (step === totalSteps - 1) {
-        $('#previewContent').textContent = generateMarkdown();
+        const rawMd = generateMarkdown();
+        $('#previewContent').dataset.rawMd = rawMd;
+        $('#previewContent').innerHTML = highlightMarkdown(rawMd);
         document.querySelector('.preview-box__tab').textContent = getTripFilename();
         $('#postDownload').style.display = 'none';
         $('#postDownloadCmdRow').style.display = '';
@@ -6618,15 +6418,19 @@
         s.classList.remove('is-visible', 'slide-left', 'slide-right');
       });
       const targetStep = document.querySelector(`.step[data-step="${step}"]`);
-      const slideClass = navDirection === 'forward' ? 'slide-left' : 'slide-right';
+      const slideClass = navDirection === 'forward' ? 'slide-right' : 'slide-left';
       targetStep.classList.add('is-visible', slideClass);
 
       // Update stepper
       $$('.stepper__step').forEach(s => {
         const i = parseInt(s.dataset.step);
         s.classList.remove('is-active', 'is-done');
+        s.setAttribute('aria-selected', 'false');
         if (i < step) s.classList.add('is-done');
-        if (i === step) s.classList.add('is-active');
+        if (i === step) {
+          s.classList.add('is-active');
+          s.setAttribute('aria-selected', 'true');
+        }
       });
 
       // Update stepper line fill
@@ -6732,7 +6536,7 @@
         if (!msg) {
           msg = document.createElement('div');
           msg.className = 'traveler-card__error';
-          msg.textContent = 'Please fill in name and birth year for all travelers';
+          msg.textContent = t('s1_validation_error');
           step.querySelector('.step__desc').insertAdjacentElement('afterend', msg);
         }
         if (firstBad) firstBad.focus();
@@ -6779,37 +6583,33 @@
             return;
           }
         }
-        // Special handling for avoid-quiz back (Step 4)
-        if (currentStep === 4) {
-          const quiz = document.getElementById('avoidQuiz');
-          const quizVisible = quiz.style.opacity !== '0';
-          if (quizVisible && currentAvoidSubQ > 0) {
-            goToAvoidSubQ(currentAvoidSubQ - 1);
-            return;
-          }
-        }
-        // Special handling for food-quiz back (Step 5)
-        if (currentStep === 5) {
-          const quiz = document.getElementById('foodQuiz');
-          const quizVisible = quiz.style.opacity !== '0';
-          if (quizVisible && currentFoodSubQ > 0) {
-            goToFoodSubQ(currentFoodSubQ - 1);
-            return;
-          }
-        }
+        // (Avoid-quiz and food-quiz back handlers removed — all questions now in Step 2)
         goToStep(currentStep - 1);
       }
     });
 
     // ================================================================
-    //  8. GENERATE MARKDOWN
+    //  8. MARKDOWN SYNTAX HIGHLIGHTING
+    // ================================================================
+    function highlightMarkdown(md) {
+      const esc = md.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return esc
+        .replace(/^(#{1,3} .+)$/gm, '<span class="md-heading">$1</span>')
+        .replace(/\*\*(.+?)\*\*/g, '<span class="md-bold">**$1**</span>')
+        .replace(/^(- .+)$/gm, '<span class="md-bullet">$1</span>')
+        .replace(/^(\|.+)$/gm, '<span class="md-table">$1</span>');
+    }
+
+    // ================================================================
+    //  9. GENERATE MARKDOWN
     // ================================================================
     function generateMarkdown() {
       const dest = $('#destination').value || 'TBD';
-      const arrival = $('#arrival').value ? new Date($('#arrival').value).toISOString().replace('.000Z', '') : 'TBD';
-      const departure = $('#departure').value ? new Date($('#departure').value).toISOString().replace('.000Z', '') : 'TBD';
-      // Derive schedule from Daily Rhythm card
-      const rhythmSel = document.querySelector('#rhythmOptions .q-card.is-selected');
+      const arrival = $('#arrival').value || 'TBD';
+      const departure = $('#departure').value || 'TBD';
+      // Derive schedule from rhythm question in unified questionnaire viewport
+      const rhythmSlide = document.querySelector('.question-slide[data-question="rhythm"]');
+      const rhythmSel = rhythmSlide ? rhythmSlide.querySelector('.q-card.is-selected') : null;
       const rhythm = rhythmSel ? rhythmSel.dataset.value : 'balanced';
       const scheduleMap = {
         early:     { start: '08:30', end: '17:30' },
@@ -6850,24 +6650,25 @@
         customAvoid.split(/[,\n]/).map(s => s.trim()).filter(Boolean).forEach(a => avoids.push(a));
       }
 
-      // Pace
-      const paceCard = document.querySelector('.pace-card.is-selected');
+      // Pace — read from unified questionnaire viewport
+      const paceSlide = document.querySelector('.question-slide[data-question="pace"]');
+      const paceSelCard = paceSlide ? paceSlide.querySelector('.q-card.is-selected') : null;
       const paceMap = {
         'relaxed': 'Relaxed \u2014 2-3 activities per day, lots of downtime',
         'balanced': 'Quality over quantity, 10:00\u201318:00',
         'packed': 'Action-packed \u2014 maximize every hour'
       };
-      const pace = paceCard ? paceMap[paceCard.dataset.pace] || 'Balanced' : 'Quality over quantity';
+      const pace = paceSelCard ? paceMap[paceSelCard.dataset.value] || 'Balanced' : 'Quality over quantity';
 
       // Culinary — read from food-quiz + visual cards
       const fq = getFoodQuizAnswers();
       const dietMap = { 'omnivore': 'Omnivore', 'omnivore-meat': 'Omnivore, strong preference for high-quality meat', 'vegetarian': 'Vegetarian', 'vegan': 'Vegan' };
       const dietStyle = dietMap[fq.diet] || 'Omnivore';
       const foodExperiences = Array.from(document.querySelectorAll('#foodExperienceCards .interest-card.is-selected'))
-        .map(c => c.querySelector('.interest-card__name').textContent);
+        .map(c => c.dataset.enName || c.querySelector('.interest-card__name').textContent);
       const foodNotes = ($('#foodNotes')?.value || '').trim();
       const vibes = Array.from(document.querySelectorAll('#vibeGroup .avoid-card.is-selected'))
-        .map(c => c.querySelector('.avoid-card__name').textContent);
+        .map(c => c.dataset.enName || c.querySelector('.avoid-card__name').textContent);
 
       // Language
       const reportLang = $('#reportLang').value;
@@ -7005,7 +6806,7 @@
     buildPipelineRoadmap();
 
     function handleCopy(btn) {
-      const text = $('#previewContent').textContent;
+      const text = $('#previewContent').dataset.rawMd || $('#previewContent').textContent;
       navigator.clipboard.writeText(text).then(() => {
         const orig = btn.textContent;
         btn.textContent = 'Copied!';
@@ -7180,7 +6981,7 @@
 
     $('#btnDownload').addEventListener('click', async () => {
       const filename = getTripFilename();
-      const text = $('#previewContent').textContent;
+      const text = $('#previewContent').dataset.rawMd || $('#previewContent').textContent;
 
       // Try bridge server first (saves file + starts generation with progress)
       try {
@@ -7298,8 +7099,8 @@
           return;
         }
 
-        // Only show on step 0 (search bar screen); hide on all subsequent steps
-        if (currentStep !== 0) { bar.classList.remove('is-visible'); return; }
+        // Show on Steps 1-6 (after search bar data confirmed); hide on Step 0 and Step 7
+        if (currentStep === 0 || currentStep === 7) { bar.classList.remove('is-visible'); return; }
 
         bar.classList.add('is-visible');
 
@@ -7314,7 +7115,8 @@
           const s = new Date(arrival);
           const e = new Date(departure);
           const nights = Math.round((e - s) / 86400000);
-          datesText.textContent = `${s.toLocaleDateString('en-US', opts)} – ${e.toLocaleDateString('en-US', opts)} (${nights}n)`;
+          const locale = currentLang || 'en';
+          datesText.textContent = `${s.toLocaleDateString(locale, opts)} – ${e.toLocaleDateString(locale, opts)} (${nights}n)`;
         }
 
         // Travelers pill
@@ -7323,7 +7125,7 @@
           travelersText.textContent = document.getElementById('sbTravelersValue')?.textContent || '';
         }
 
-        // (context bar is only visible on step 0, handled above)
+        // (context bar visible on Steps 1-6, hidden on Steps 0 and 7)
       };
 
       // Click pills to navigate back
@@ -7873,7 +7675,7 @@
       function applyDepth(level) {
         const maxTier = DEPTH_TO_MAX_TIER[level] || 3;
 
-        // Show/hide question elements by tier
+        // Show/hide question slides by tier
         document.querySelectorAll('[data-tier]').forEach(el => {
           const tier = parseInt(el.dataset.tier);
           if (tier <= maxTier) {
@@ -7885,44 +7687,11 @@
           }
         });
 
-        // Recalculate active steps: a step is active if it has at least 1 visible question
-        // Steps 0, 1, 7 are always active (not counted in question budget)
-        const stepQuestionCounts = {};
-        for (let s = 2; s <= 6; s++) {
-          stepQuestionCounts[s] = 0;
-        }
-
-        // Count visible questions per step
-        for (const [key, tier] of Object.entries(QUESTION_TIERS)) {
-          if (tier > maxTier) continue;
-          // Determine which step this question belongs to
-          const stepMap = {
-            rhythm: 0, setting: 2, culture: 2, culturalImmersion: 2, nightlife: 2,
-            noise: 4, foodadventure: 4, budget: 4, flexibility: 4, pace: 4,
-            transport: 4, morningPreference: 4, visitDuration: 4, shopping: 4,
-            walkingTolerance: 4, weatherSensitivity: 4, crowdTolerance: 4,
-            groupSplitting: 4, souvenirShopping: 4, relaxationTime: 4,
-            socialInteraction: 4, surpriseOpenness: 4,
-            diet: 5, diningstyle: 5, kidsfood: 5, mealpriority: 5, localfood: 5,
-            snacking: 5,
-            photography: 6, accessibility: 6
-          };
-          const s = stepMap[key];
-          if (s >= 2 && s <= 6) stepQuestionCounts[s]++;
-        }
-
-        // Step merging disabled — steps 4 and 5 always show as separate card-selection steps
-        let mergedStep5Into4 = false;
-
-        // Build active steps array
-        activeSteps = [0, 1]; // always present
-        for (let s = 2; s <= 6; s++) {
-          // Steps 3, 6 always active (have supplementary fields: interests/report language/extra notes)
-          // Steps 3-6 always active: 3=interests, 4=avoid cards, 5=food cards, 6=extras
-          if (s >= 3 && s <= 6) { activeSteps.push(s); continue; }
-          if (stepQuestionCounts[s] > 0) activeSteps.push(s);
-        }
-        activeSteps.push(7); // always present
+        // All questions are now in Step 2 questionnaire viewport.
+        // Steps 0 (not used as separate step anymore), 1, 2 always active.
+        // Steps 3-6 always active (supplementary content: interests, avoid cards, food cards, extras).
+        // Step 7 always active (review).
+        activeSteps = [0, 1, 2, 3, 4, 5, 6, 7];
 
         // Update stepper visibility
         document.querySelectorAll('.stepper__step').forEach(stepEl => {
@@ -7930,27 +7699,11 @@
           stepEl.style.display = activeSteps.includes(s) ? '' : 'none';
         });
 
-        // Rebuild sub-step dots for style quiz (Step 2) based on visible questions
+        // Rebuild sub-step dots for Step 2 based on visible question slides
         rebuildStyleSubDots(maxTier);
 
-        // Rebuild sub-step dots for avoid quiz (Step 4) based on visible questions
-        rebuildAvoidSubDots(maxTier);
-
-        // Rebuild sub-step dots for food quiz (Step 5) based on visible questions
-        rebuildFoodSubDots(maxTier);
-
-        // Update step 4 description to reflect question count
-        const s4desc = document.querySelector('[data-step="4"] .step__desc');
-        if (s4desc) {
-          const visibleAQs = document.querySelectorAll('[data-aquestion]:not([data-depth-hidden])').length;
-          if (visibleAQs > 0) {
-            s4desc.setAttribute('data-i18n', 's4_desc');
-            s4desc.textContent = t('s4_desc');
-          }
-        }
-
-        // Handle merged step 5 state
-        window._mergedStep5Into4 = mergedStep5Into4;
+        // Apply default selections for all questions
+        applyDefaultSelections();
 
         // Save localStorage
         try { localStorage.setItem('tripIntakeDepth', String(level)); } catch(e) {}
@@ -7975,31 +7728,21 @@
         }
       }
 
-      function rebuildAvoidSubDots(maxTier) {
-        const dotsContainer = document.getElementById('avoidSubDots');
-        if (!dotsContainer) return;
-        const visibleSlides = document.querySelectorAll('[data-aquestion]:not([data-depth-hidden])');
-        dotsContainer.innerHTML = '';
-        visibleSlides.forEach((_, i) => {
-          const dot = document.createElement('span');
-          dot.className = 'sub-dot' + (i === 0 ? ' is-active' : '');
-          dotsContainer.appendChild(dot);
-        });
-        // Update totalAvoidSubQs to reflect visible count
-        window._visibleAvoidSubQs = visibleSlides.length;
-      }
+      // (rebuildAvoidSubDots and rebuildFoodSubDots removed — all questions now in Step 2 viewport)
 
-      function rebuildFoodSubDots(maxTier) {
-        const dotsContainer = document.getElementById('foodSubDots');
-        if (!dotsContainer) return;
-        const visibleSlides = document.querySelectorAll('[data-fquestion]:not([data-depth-hidden])');
-        dotsContainer.innerHTML = '';
-        visibleSlides.forEach((_, i) => {
-          const dot = document.createElement('span');
-          dot.className = 'sub-dot' + (i === 0 ? ' is-active' : '');
-          dotsContainer.appendChild(dot);
-        });
-        window._visibleFoodSubQs = visibleSlides.length;
+      // Apply default selections to all question slides based on QUESTION_DEFAULTS
+      function applyDefaultSelections() {
+        for (const [questionKey, defaultValue] of Object.entries(QUESTION_DEFAULTS)) {
+          const slide = document.querySelector(`.question-slide[data-question="${questionKey}"]`);
+          if (!slide) continue;
+          // Only apply default if no card is already selected
+          const alreadySelected = slide.querySelector('.q-card.is-selected');
+          if (alreadySelected) continue;
+          const defaultCard = slide.querySelector(`.q-card[data-value="${defaultValue}"]`);
+          if (defaultCard) {
+            defaultCard.classList.add('is-selected');
+          }
+        }
       }
 
       function findNearestActiveStep(target) {
@@ -8119,32 +7862,7 @@
       });
     })();
 
-    // ================================================================
-    //  DEPTH: Auto-advance for new T4/T5 quiz questions
-    // ================================================================
-    (function initNewQuestionAutoAdvance() {
-      // Radio behavior for depth-extra-question cards (photography, accessibility in Step 6)
-      document.addEventListener('click', (e) => {
-        const card = e.target.closest('.depth-q-card');
-        if (!card) return;
-        const container = card.closest('.depth-extra-question, .question-options');
-        if (!container) return;
-        // Get all cards in same question group
-        const answerKey = card.dataset.answerKey;
-        if (answerKey) {
-          document.querySelectorAll(`.depth-q-card[data-answer-key="${answerKey}"]`).forEach(c => {
-            c.classList.remove('is-selected');
-          });
-          card.classList.add('is-selected');
-        }
-      });
-
-      // The new avoid-quiz questions (transport, morningPreference, visitDuration, shopping)
-      // are already handled by the existing aq-card click handler since they use .aq-card class
-      // We just need to update the totalAvoidSubQs to be dynamic
-    })();
-
-    // (Quiz navigation patches removed — auto-advance logic is now natively depth-aware)
+    // (depth-q-card auto-advance removed — all questions now use q-card in unified questionnaire viewport)
 
     // ================================================================
     //  DEPTH: Patch generateMarkdown to use defaults for hidden questions
@@ -8256,26 +7974,26 @@
         return md;
       };
 
+      // Unified answer reader — all questions now use [data-question] slides with .q-card
       function getDepthQuizAnswer(key, prefix) {
-        const attrName = prefix === 'aq' ? 'data-aquestion' : 'data-fquestion';
-        const slide = document.querySelector(`[${attrName}="${key}"]`);
+        const slide = document.querySelector(`.question-slide[data-question="${key}"]`);
         if (!slide) return null;
-        const cardClass = prefix === 'aq' ? '.aq-card.is-selected' : '.fq-card.is-selected';
-        const sel = slide.querySelector(cardClass);
+        const sel = slide.querySelector('.q-card.is-selected');
         return sel ? sel.dataset.value : null;
       }
 
       function getStyleQuizAnswer(key) {
-        const slide = document.querySelector(`[data-question="${key}"]`);
+        const slide = document.querySelector(`.question-slide[data-question="${key}"]`);
         if (!slide) return null;
         const sel = slide.querySelector('.q-card.is-selected');
         return sel ? sel.dataset.value : null;
       }
 
       function getDepthCardAnswer(key) {
-        const container = document.querySelector(`[data-question-key="${key}"].depth-extra-question`);
-        if (!container) return null;
-        const sel = container.querySelector('.depth-q-card.is-selected');
+        // Now reads from unified question-slide, same as other answer readers
+        const slide = document.querySelector(`.question-slide[data-question="${key}"]`);
+        if (!slide) return null;
+        const sel = slide.querySelector('.q-card.is-selected');
         return sel ? sel.dataset.value : null;
       }
     })();

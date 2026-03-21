@@ -28,26 +28,47 @@ The page supports 12 languages: English, Russian, Hebrew, Spanish, French, Germa
 
 ## Wizard Flow (8 Steps)
 
-The form is a linear multi-step wizard with a progress bar. Steps are numbered 0-7. Step 2 uses a questionnaire pattern (visual card questions, auto-advancing, with sub-step dot indicators). Steps 3-5 use a **consistent card-selection pattern**: title, short description, and a grid of selectable cards — no inline quizzes. Redundant questions were removed — `energy` and `food` (Step 2) and `mobility` (Step 4) are now derived from the pace selector and food adventure answer respectively.
+The form follows a strict **two-phase** design:
 
-**Design consistency rule:** Steps 3 (Interests), 4 (Avoid), and 5 (Food & Dining) must follow the same visual pattern: a step title, a one-line description, and a grid of selectable cards. No quiz questions, sub-step dots, or multi-phase UI should appear on these steps. This ensures users experience a uniform, predictable interaction across all selection screens.
+1. **Data & Questions Phase** (Steps 0-2): Collect trip details, traveler info, and all preference questions one-by-one.
+2. **Card Selection Phase** (Steps 3-5): Present pre-scored card grids for the user to select/deselect POIs, avoids, and food experiences.
 
-**Search bar & hero visibility:** The search bar (destination, dates, travelers) and value-prop badges are only visible on Step 0. Once the user proceeds to Step 1+, these elements are hidden to keep the focus on the current step content. Going back to Step 0 restores them.
+Steps are numbered 0-7. The two phases are kept strictly separate — **no questions appear on card selection steps**, and **no card grids appear on question steps**. This keeps the flow simple and intuitive.
 
-**Question Depth Selector:** After completing Step 1 (Who's Traveling), an overlay presents 5 depth options: 10 (Quick), 15 (Light), 20 (Standard — default), 25 (Detailed), 30 (Deep Dive). The selected depth determines which questions are shown in Step 2 via a tier system. Steps 0, 1, 3-7 are always fully present regardless of depth. The selector can be reopened at any point before Step 7. See "Question Inventory & Depth Tiers" section for the full tier table.
+**Phase 1 — Data & Questions:**
+- **Step 0**: Define country and dates (search bar)
+- **Step 1**: Define people in trip (traveler form)
+- **Depth selector overlay**: Choose how many questions (10-30)
+- **Step 2**: ALL preference questions, asked one-by-one with auto-advance and sub-step dots. The number of questions matches the selected depth. No card selection grids on this step.
+
+**Phase 2 — Card Selection:**
+- **Step 3**: Interests — multi-select card grid (pre-scored based on Step 2 answers)
+- **Step 4**: Things to Avoid — multi-select card grid (pre-scored based on Step 2 answers)
+- **Step 5**: Food & Dining — multi-select card grid + dining vibes
+
+**Finalize:**
+- **Step 6**: Language & extras (simple form: report language + notes)
+- **Step 7**: Review & download
+
+**Design consistency rule:** Steps 3, 4, and 5 must follow the same visual pattern at both page-structure and card-component levels: step title, description, and a grid of selectable cards. All cards share the same dimensions, padding, layout (centered vertical), and font sizes — differing only in selection color. Sub-sections use `.chip-section__title` + `.chip-section__desc` consistently.
+
+**Search bar & hero visibility:** The search bar and value-prop badges are only visible on Step 0. Hidden on Steps 1+.
+
+**Question Depth Selector:** After completing Step 1, an overlay presents 5 depth options: 10 (Quick), 15 (Light), 20 (Standard — default), 25 (Detailed), 30 (Deep Dive). The selected depth determines which questions are shown in Step 2. Steps 0, 1, 3-7 are always fully present regardless of depth.
 
 ### Step 0 — Where & When
+
+**Search Bar Fields (Booking.com-style bar in hero):**
 
 | Field | Type | Required | Default | Notes |
 |---|---|---|---|---|
 | Destination | Text + autocomplete | Yes | — | Typeahead via OpenStreetMap Nominatim API |
-| Arrival | datetime-local | Yes | — | |
-| Departure | datetime-local | Yes | — | Must be after arrival |
-| Preferred day start | time | No | 10:00 | Collapsible section |
-| Preferred day end | time | No | 18:30 | |
-| Buffer time (min) | number | No | 20 | Range 0-60 |
+| Arrival | Calendar date picker | Yes | — | Booking.com-style dual-month calendar |
+| Departure | Calendar date picker | Yes | — | Must be after arrival |
 
 **Validation:** Destination, arrival, and departure are mandatory. Cannot proceed to Step 1 without all three filled. Departure must be after arrival.
+
+**Note:** Travel rhythm was previously on Step 0 as card selector. It is now a one-by-one question in Step 2 (question key: `rhythm`).
 
 ### Step 1 — Who's Traveling
 Two sections: **Parents/Adults** and **Children**. Both are dynamic lists with add/remove via +/− counter.
@@ -84,20 +105,16 @@ Two sections: **Parents/Adults** and **Children**. Both are dynamic lists with a
 
 **Validation:** Name and birth year are mandatory for every traveler. Cannot proceed to Step 2 without all travelers having name + year filled.
 
-### Step 2 — Travel Style Questionnaire
+### Step 2 — All Preferences (One-by-One Questionnaire)
 
-2-4 visual questions (count varies by depth) that profile the traveler's preferences. Answers drive **pre-selection** of interest/avoid chips on the next steps. Each question has 3 options (radio behavior — one selected per question). Default is the middle option. Sub-step dots are dynamically rebuilt based on visible questions.
+**ALL preference questions** are presented here in a single one-by-one questionnaire with sub-step dots and auto-advance. The number of visible questions depends on the selected depth (10-30). Each question has 3-4 options (radio behavior — one selected per question). Default is the middle/balanced option. Sub-step dots are dynamically rebuilt based on visible questions at the selected depth.
 
-| # | Question Key | Tier | Question | Option A | Option B (default) | Option C |
-|---|---|---|---|---|---|---|
-| 1 | `setting` | T1 | Where do you feel most alive? | City Streets | A Bit of Both | Nature & Outdoors |
-| 2 | `culture` | T1 | What draws you in? | History & Culture | Both | Fun & Entertainment |
-| 3 | `culturalImmersion` | T3 | How deep do you want to go culturally? | Photo Ops & Highlights | Some Context | Full History & Stories |
-| 4 | `nightlife` | T3 | How important is nightlife? | Not At All | A Night or Two | Essential |
+This step contains questions that were previously spread across Steps 0 (rhythm), 4 (avoid-quiz), 5 (food-quiz), and 6 (photography/accessibility). They are now consolidated here for a clean sequential experience.
 
-**Removed questions (redundant):**
-- `energy` ("What's your ideal day?") — redundant with Step 4 pace selector. Now **derived** from pace: relaxed→chill, balanced→mixed, packed→active.
-- `food` ("How important is food?") — redundant with Step 4 `foodadventure` + Step 5 `mealpriority`. Now **derived** from foodadventure: fearless→highlight, open→nice, safe→fuel.
+**Derived values (not asked as questions):**
+- `energy`: derived from pace answer (relaxed→chill, balanced→mixed, packed→active)
+- `food`: derived from foodadventure (fearless→highlight, open→nice, safe→fuel)
+- `evening`: derived from rhythm (early→early, balanced→stroll, latenight→latenight)
 
 #### Answer → Pre-selection Mapping
 
@@ -119,36 +136,28 @@ The scoring function uses `energy` and `food` as derived values (see above). Pre
 
 **Reset rule:** When the user leaves the questionnaire step (Step 2), all saved interest/avoid selections are cleared, so changed answers always produce fresh pre-selections. Manual selections are only preserved when navigating between Steps 3↔4↔5 (not when returning through the questionnaire).
 
-### Step 3 — Interests (Dynamic)
-Interest chip suggestions are **dynamically generated** based on traveler composition (Step 1) + questionnaire answers (Step 2). A "group summary" banner shows the analyzed group (e.g., "Robert 45y M, Tamir 8y B, Ariel 6y G").
+### Step 3 — Interests (Card Selection)
+Interest card suggestions are **dynamically generated** based on traveler composition (Step 1) + questionnaire answers (Step 2). A "group summary" banner shows the analyzed group.
 
-Chips are organized into labeled sections. Only sections matching active profile flags are shown. Chips matching questionnaire answers are **pre-selected**.
+Cards are organized into labeled sections. Only sections matching active profile flags are shown. Cards matching questionnaire answers are **pre-selected**. Free-text textarea at bottom for custom interests.
 
-**Local Highlights Rule:** The interest suggestions must always include a "Local Tourist Highlights" section advising the user to visit the destination's most popular and iconic tourist attractions. This section appears for every group composition (it is not gated by any profile flag). It contains a prompt reminding users to consider the destination's top-rated landmarks, viewpoints, and must-see spots. The section header is "🏛️ Local Tourist Highlights" and includes a helper text: "Don't miss the most popular attractions at your destination — the iconic spots every visitor should see."
+**Local Highlights Rule:** Always includes a "Local Tourist Highlights" section for iconic attractions. Not gated by any profile flag.
 
-Free-text textarea at the bottom for custom interests not in the predefined list.
+See §Dynamic Interest Engine below for pool definitions and flag logic.
 
-See §Dynamic Interest Engine below for the full pool definitions and flag logic.
+### Step 4 — Things to Avoid (Card Selection)
+Dynamic avoid cards filtered by audience flags and scored using Step 2 answers (noise, foodadventure, budget, flexibility, pace). Cards with score ≥ 3 are pre-selected. Free-text textarea for custom avoids.
 
-### Step 4 — Avoid & Pace
-Two parts (consistent card-selection design, no inline quiz):
+**No hidden quiz DOM.** All preference questions are now asked in Step 2. Scoring functions read answers directly from Step 2's question slides.
 
-1. **Things to Avoid** — Dynamic cards filtered by audience flags and scored using default preference values (noise=flexible, foodadventure=open, budget=balanced, flexibility=loose, mobility derived from pace). Cards with score ≥ 3 are pre-selected. The user can select/deselect freely. Free-text textarea for custom avoids.
-2. **Trip Pace** — 3 options:
-   - Relaxed (2-3 activities/day)
-   - Balanced (3-5, quality over quantity) — **default selected**
-   - Action-Packed (5+ activities)
+### Step 5 — Food & Dining (Card Selection)
+Three parts:
 
-**Note:** The avoid-quiz questions (noise, foodadventure, budget, flexibility, transport, etc.) exist in the DOM with default values but are hidden (`display: none`). Their default `is-selected` values feed into `getAvoidQuizAnswers()` for scoring. The quiz UI was removed for design consistency with Steps 3 and 5.
-
-### Step 5 — Food & Dining
-Consistent card-selection design (no inline quiz). Three parts:
-
-1. **Food Experience Cards** — Dynamic cards filtered by audience flags and scored using default food preferences (diet=omnivore, diningstyle=casual, adventure=open). Top-scored items are pre-selected. The user can select/deselect freely.
-2. **Dining Vibe Cards** — Selectable vibe cards filtered by audience flags (e.g., "Romantic & intimate" for couples, "Playgrounds for kids" for families).
+1. **Food Experience Cards** — Dynamic cards scored using Step 2 answers (diet, diningstyle, foodadventure). Pre-selected based on scores.
+2. **Dining Vibe Cards** — Accent-gold variant (`.avoid-card--vibe`). Filtered by audience flags.
 3. **Food Notes** — Free-text textarea for allergies, must-haves, dislikes.
 
-**Note:** The food-quiz questions (diet, diningstyle, kidsfood, mealpriority, localfood, snacking) exist in the DOM with default values but are hidden (`display: none`). Their default values feed into `getFoodQuizAnswers()` for scoring. The quiz UI was removed for design consistency with Steps 3 and 4.
+**No hidden quiz DOM.** All food preference questions are now asked in Step 2.
 
 ### Step 6 — Language & Extras
 | Field | Tier | Type | Notes |
