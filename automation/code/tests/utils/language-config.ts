@@ -64,7 +64,12 @@ export interface PoiLanguageConfig {
  */
 export function loadPoiLanguageConfig(): PoiLanguageConfig {
   const projectRoot = path.resolve(__dirname, '..', '..', '..', '..');
-  const tripDetailsPath = path.resolve(projectRoot, 'trip_details.md');
+
+  // Trip details filename is configurable via TRIP_DETAILS_FILE env var.
+  // Defaults to 'trip_details.md' for backward compatibility.
+  // Example: TRIP_DETAILS_FILE=Maryan.md npx playwright test
+  const tripDetailsFile = process.env.TRIP_DETAILS_FILE || 'trip_details.md';
+  const tripDetailsPath = path.resolve(projectRoot, tripDetailsFile);
   const raw = fs.readFileSync(tripDetailsPath, 'utf-8');
 
   const reportingMatch = raw.match(/\*\*Reporting language:\*\*\s*(.+)/i);
@@ -76,11 +81,13 @@ export function loadPoiLanguageConfig(): PoiLanguageConfig {
     : [];
 
   if (poiLangs.length === 0) {
-    throw new Error('trip_details.md: Language Preference → POI languages is empty or missing');
+    throw new Error(`${tripDetailsFile}: Language Preference → POI languages is empty or missing`);
   }
 
   const validators: LanguageValidator[] = poiLangs.map(lang => {
-    const entry = SCRIPT_MAP[lang];
+    // Normalize to title-case for SCRIPT_MAP lookup (e.g., "hebrew" → "Hebrew")
+    const normalizedLang = lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase();
+    const entry = SCRIPT_MAP[normalizedLang] || SCRIPT_MAP[lang];
     if (!entry) {
       throw new Error(
         `No script mapping for language "${lang}". ` +

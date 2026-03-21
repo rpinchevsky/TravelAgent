@@ -249,7 +249,7 @@ When delegating HTML fragment generation to a sub-agent (whether for full parall
 #### Batch-Specific Context (for parallel day batch subagents)
 10. **Assigned day list:** Explicit list of day numbers the subagent must generate (e.g., "Generate fragments for day_03, day_04, day_05"). The subagent generates ONLY these days.
 11. **Day source files:** Only the `day_XX_LANG.md` files for the assigned batch — not all day files.
-12. **Shell context (read-only):** `overview_LANG.md` and `manifest.json` for cross-referencing (trip metadata, navigation structure). The subagent does NOT regenerate shell, overview, or budget fragments.
+12. **Shell context (read-only):** `overview_LANG.md`, `manifest.json`, and the active trip details file (filename read from `manifest.json → trip_details_file`) for cross-referencing (trip metadata, navigation structure). The subagent does NOT regenerate shell, overview, or budget fragments.
 13. **Fragment output path:** The trip folder path where `fragment_day_XX_LANG.html` files must be written.
 
 #### Overview Subagent Context (for parallel overview fragment generation)
@@ -299,6 +299,6 @@ When a single day is edited (detected via `manifest.json → assembly.stale_days
 - Output the final, fully-assembled HTML file. Do NOT modify `rendering_style_config.css` or `base_layout.html` source files.
 - **CSS Inlining (Mandatory):** During assembly, replace the `<link rel="stylesheet" href="rendering_style_config.css">` tag in `base_layout.html` with a `<style>` block containing the full contents of `rendering_style_config.css`. The Google Fonts `<link>` tags may remain (they are external CDN resources). The output must never reference `rendering_style_config.css` via `<link>`.
 - **SVG Resilience:** Every inline `<svg>` element in the output must have explicit `width` and `height` HTML attributes.
-- **Country Flag Rule (Mandatory):** Windows does not render country flag emojis — it displays two-letter ISO codes (e.g., "HU" instead of a flag). Therefore, **never use flag emojis** in the HTML output. Instead, render the destination country's flag as an inline `<svg>` with the correct colors. The SVG must have `width="28" height="20"`, `role="img"`, `aria-label="{Country} flag"`, `style="vertical-align:middle;display:inline-block;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.1)"`. Look up the official flag colors for the destination from `trip_details.md → trip_context.destination`.
+- **Country Flag Rule (Mandatory):** Windows does not render country flag emojis — it displays two-letter ISO codes (e.g., "HU" instead of a flag). Therefore, **never use flag emojis** in the HTML output. Instead, render the destination country's flag as an inline `<svg>` with the correct colors. The SVG must have `width="28" height="20"`, `role="img"`, `aria-label="{Country} flag"`, `style="vertical-align:middle;display:inline-block;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.1)"`. Look up the official flag colors for the destination from the active trip details file (identified by `trip_details_file` in `manifest.json`) → `trip_context.destination`.
 - **Post-Action:** Confirm the successful creation of `trip_full.html` in the trip folder.
 - **Consistency:** Ensure the timestamp logic and contrast rules from the external config are applied to every export.

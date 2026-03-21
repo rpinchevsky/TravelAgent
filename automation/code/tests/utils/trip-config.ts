@@ -135,12 +135,17 @@ export interface TripConfig {
 // ────────────────────────────────────────────────────────
 
 let _cached: TripConfig | null = null;
+let _cachedFile: string | null = null;
 
 export function loadTripConfig(): TripConfig {
-  if (_cached) return _cached;
+  // Trip details filename is configurable via TRIP_DETAILS_FILE env var.
+  // Defaults to 'trip_details.md' for backward compatibility.
+  // Example: TRIP_DETAILS_FILE=Maryan.md npx playwright test
+  const tripDetailsFile = process.env.TRIP_DETAILS_FILE || 'trip_details.md';
+  if (_cached && _cachedFile === tripDetailsFile) return _cached;
 
   const projectRoot = path.resolve(__dirname, '..', '..', '..', '..');
-  const tripDetailsPath = path.resolve(projectRoot, 'trip_details.md');
+  const tripDetailsPath = path.resolve(projectRoot, tripDetailsFile);
   const raw = fs.readFileSync(tripDetailsPath, 'utf-8');
 
   // Parse destination
@@ -151,7 +156,7 @@ export function loadTripConfig(): TripConfig {
   const arrivalMatch = raw.match(/\*\*Arrival:\*\*\s*(.+)/i);
   const departureMatch = raw.match(/\*\*Departure:\*\*\s*(.+)/i);
   if (!arrivalMatch || !departureMatch) {
-    throw new Error('trip_details.md: Arrival or Departure date is missing');
+    throw new Error(`${tripDetailsFile}: Arrival or Departure date is missing`);
   }
   const arrivalDate = new Date(arrivalMatch[1].trim());
   const departureDate = new Date(departureMatch[1].trim());
@@ -161,21 +166,32 @@ export function loadTripConfig(): TripConfig {
   const dayCount = Math.round((departureDate.getTime() - arrivalDate.getTime()) / msPerDay) + 1;
 
   // Parse travelers (parents + children)
+  // Supports both 2-column (Name | DOB) and 3-column (Name | Gender | DOB) table formats.
+  // DOB can be YYYY-MM-DD, YYYY-MM, or YYYY.
   const travelers: string[] = [];
-  const parentRows = raw.match(/\|\s*(\w+)\s*\|\s*\d{4}-\d{2}-\d{2}\s*\|/g);
-  if (parentRows) {
-    for (const row of parentRows) {
-      const m = row.match(/\|\s*(\w+)\s*\|/);
-      if (m) travelers.push(m[1]);
+  const parentSection = raw.split('### Parents')[1]?.split('###')[0] || '';
+  const parentNameRegex = /^\|\s*([^|]+?)\s*\|/gm;
+  let parentMatch: RegExpExecArray | null;
+  while ((parentMatch = parentNameRegex.exec(parentSection)) !== null) {
+    const name = parentMatch[1].trim();
+    // Skip table header rows (contain "Role", "Name", dashes, or are empty).
+    // Note: Maryan.md uses "Role" as the first column header, but the column values
+    // are actually traveler names (e.g., "maryan moshe"). The filter skips the header
+    // row itself. If a future file uses actual role values (e.g., "Mother") in a
+    // separate column, the parser would need structural changes.
+    if (name && !name.match(/^[-\s]+$/) && !name.match(/^(Role|Name)\s*$/i)) {
+      travelers.push(name.split(/\s+/)[0]); // Use first word as traveler name
     }
   }
-  const childSection = raw.split('### Children')[1];
+
+  const childSection = raw.split('### Children')[1]?.split(/^##\s/m)[0] || '';
   if (childSection) {
-    const childRows = childSection.match(/\|\s*(\w+)\s*\|\s*\d{4}-\d{2}-\d{2}\s*\|/g);
-    if (childRows) {
-      for (const row of childRows) {
-        const m = row.match(/\|\s*(\w+)\s*\|/);
-        if (m) travelers.push(m[1]);
+    const childNameRegex = /^\|\s*([^|]+?)\s*\|/gm;
+    let childMatch: RegExpExecArray | null;
+    while ((childMatch = childNameRegex.exec(childSection)) !== null) {
+      const name = childMatch[1].trim();
+      if (name && !name.match(/^[-\s]+$/) && !name.match(/^(Name)\s*$/i)) {
+        travelers.push(name.split(/\s+/)[0]);
       }
     }
   }
@@ -241,6 +257,7 @@ export function loadTripConfig(): TripConfig {
     excludedSections,
   };
 
+  _cachedFile = tripDetailsFile;
   _cached = Object.freeze(result) as TripConfig;
   return _cached;
 }

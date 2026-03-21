@@ -1,8 +1,17 @@
 import { test, expect } from '../fixtures/shared-page';
+import { loadTripConfig } from '../utils/trip-config';
+
+const tripConfig = loadTripConfig();
+const expectedLinkCount = tripConfig.dayCount + 2; // overview + days + budget
+const expectedHrefs = [
+  '#overview',
+  ...Array.from({ length: tripConfig.dayCount }, (_, i) => `#day-${i}`),
+  '#budget',
+];
 
 test.describe('Navigation — Desktop Sidebar', () => {
-  test('should have exactly 16 sidebar links', async ({ tripPage }) => {
-    await expect(tripPage.sidebarLinks).toHaveCount(16);
+  test(`should have exactly ${expectedLinkCount} sidebar links`, async ({ tripPage }) => {
+    await expect(tripPage.sidebarLinks).toHaveCount(expectedLinkCount);
   });
 
   test('should have first sidebar link as active with aria-current', async ({ tripPage }) => {
@@ -15,13 +24,6 @@ test.describe('Navigation — Desktop Sidebar', () => {
   });
 
   test('should have correct sidebar link hrefs', async ({ tripPage }) => {
-    const expectedHrefs = [
-      '#overview',
-      '#day-0', '#day-1', '#day-2', '#day-3', '#day-4', '#day-5',
-      '#day-6', '#day-7', '#day-8', '#day-9', '#day-10', '#day-11',
-      '#day-12', '#day-13',
-      '#budget',
-    ];
     for (let i = 0; i < expectedHrefs.length; i++) {
       await expect(tripPage.sidebarLinks.nth(i)).toHaveAttribute('href', expectedHrefs[i]);
     }
@@ -37,8 +39,8 @@ test.describe('Navigation — Desktop Sidebar', () => {
 });
 
 test.describe('Navigation — Mobile Pills', () => {
-  test('should have exactly 16 mobile pills', async ({ tripPage }) => {
-    await expect(tripPage.mobilePills).toHaveCount(16);
+  test(`should have exactly ${expectedLinkCount} mobile pills`, async ({ tripPage }) => {
+    await expect(tripPage.mobilePills).toHaveCount(expectedLinkCount);
   });
 
   test('should have first pill as active', async ({ tripPage }) => {
@@ -49,13 +51,6 @@ test.describe('Navigation — Mobile Pills', () => {
   });
 
   test('should have correct pill hrefs', async ({ tripPage }) => {
-    const expectedHrefs = [
-      '#overview',
-      '#day-0', '#day-1', '#day-2', '#day-3', '#day-4', '#day-5',
-      '#day-6', '#day-7', '#day-8', '#day-9', '#day-10', '#day-11',
-      '#day-12', '#day-13',
-      '#budget',
-    ];
     for (let i = 0; i < expectedHrefs.length; i++) {
       await expect(tripPage.mobilePills.nth(i)).toHaveAttribute('href', expectedHrefs[i]);
     }

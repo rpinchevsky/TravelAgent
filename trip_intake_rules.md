@@ -2,10 +2,10 @@
 
 ## Purpose
 
-`trip_intake.html` is a standalone, self-contained wizard page that collects traveler information and outputs `llm_trip_details.md` — the input file the trip generation pipeline reads from. It replaces manual authoring of `trip_details.md` with a guided, user-friendly form.
+`trip_intake.html` is a standalone, self-contained wizard page that collects traveler information and outputs a trip details file — the input file the trip generation pipeline reads from. It replaces manual authoring of `trip_details.md` with a guided, user-friendly form.
 
 **File:** `trip_intake.html` (project root)
-**Output:** `llm_trip_details.md` (downloaded by user or copied to clipboard)
+**Output:** `llm_trip_details.md` by default (downloaded by user or copied to clipboard). The user may rename the downloaded file (e.g., `Maryan.md`). Any file following the trip details markdown structure is a valid input to the Trip Generation Pipeline.
 **Dependencies:** None (standalone HTML — no build step, no external JS frameworks)
 **Design spec:** `trip_intake_design.md` (visual layout, CSS classes, component specs, animations)
 

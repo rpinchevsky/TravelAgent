@@ -20,7 +20,7 @@ generated_trips/
 ### Naming Rules
 - **Folder name:** `trip_YYYY-MM-DD_HHmm` — timestamp only. One folder holds all language variants of the same trip.
 - **File language suffix:** Every content file includes a two-letter ISO 639-1 language code before the extension: `day_01_ru.md`, `day_01_en.md`, `overview_he.md`, `trip_full_ru.html`, etc. This ensures reports in different languages coexist without overwriting each other.
-- **Language code mapping:** Russian → `ru`, English → `en`, Hebrew → `he`, German → `de`, French → `fr`, Spanish → `es`, etc. Derived from `language_preference.reporting_language` in `trip_details.md`.
+- **Language code mapping:** Russian → `ru`, English → `en`, Hebrew → `he`, German → `de`, French → `fr`, Spanish → `es`, etc. Derived from `language_preference.reporting_language` in the active trip details file.
 - **Timestamping:** Always run `date +"%Y-%m-%d_%H%M"` via the Bash tool to determine the correct current local time.
 - **Re-generation in another language:** When regenerating an existing trip in a different language, write new `_LANG` files into the **same** trip folder. The manifest tracks each language's state independently.
 - **Day files:** `day_00_LANG.md` through `day_NN_LANG.md` — zero-padded two-digit day number + language code.
@@ -32,6 +32,7 @@ Created during Phase A, updated after all days are generated (see Day Generation
 
 ```json
 {
+  "trip_details_file": "trip_details.md",
   "destination": "Budapest, Hungary",
   "arrival": "2026-08-20",
   "departure": "2026-08-31",
@@ -57,6 +58,7 @@ Created during Phase A, updated after all days are generated (see Day Generation
 ```
 
 **Field rules:**
+- `trip_details_file` — the filename of the trip details source file used to generate this trip (e.g., `"trip_details.md"`, `"Maryan.md"`). Defaults to `"trip_details.md"` if absent (backward compatibility with older manifests). Written during Phase A manifest creation.
 - `languages` — keyed by ISO 639-1 code. Each language has its own `phase_a_complete`, `days`, `budget_complete`, and `assembly` state. Adding a new language creates a new key (e.g., `"en": { ... }`).
 - `days` keys match filenames without the language suffix (e.g., `day_00` → `day_00_ru.md`).
 - `status` values: `"pending"` | `"complete"`.
@@ -83,7 +85,7 @@ Provide a table with:
    - Trip title and subtitle (destination, dates, travelers with ages).
    - Holiday advisory (if applicable).
    - Phase A summary table.
-3. Write `manifest.json` with the language key under `languages`, all days listed as `"pending"`, `phase_a_complete: true`.
+3. Write `manifest.json` with `trip_details_file` set to the active trip details filename, the language key under `languages`, all days listed as `"pending"`, `phase_a_complete: true`.
 4. Proceed directly to Phase B (do not wait for user approval).
 
 ---
@@ -95,7 +97,7 @@ Phase B generates **each day into its own file**, using parallel subagents for f
 ### Generation Context per Day
 
 When generating `day_XX_LANG.md`, load only:
-1. `trip_details.md` — travelers, interests, schedule preferences.
+1. The active trip details file — travelers, interests, schedule preferences.
 2. `overview_LANG.md` — the Phase A master plan (for cross-day context).
 3. The current day's row from the Phase A table.
 
@@ -176,7 +178,7 @@ Batches are assigned in chronological order: batch 1 gets the lowest-numbered da
 The main agent spawns one subagent per batch using the Agent tool. **All subagent calls must appear in the same response block** so they execute in parallel, not sequentially.
 
 Each subagent receives this context:
-1. `trip_details.md` -- travelers, interests, schedule preferences.
+1. The active trip details file -- travelers, interests, schedule preferences.
 2. `overview_LANG.md` -- the Phase A master plan (for cross-day context).
 3. The assigned day rows from the Phase A table (only the rows for this batch).
 4. The trip folder path and language code.

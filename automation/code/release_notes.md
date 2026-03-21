@@ -1,5 +1,35 @@
 # Release Notes
 
+## 2026-03-21 — Dynamic Trip Details Filename: Automation Tests
+
+### Changes
+
+#### New Progression Test (appended to `progression.spec.ts`)
+- **TC-006 — Manifest `trip_details_file` Field:** Hard-asserts that `manifest.json` contains a `trip_details_file` field as a non-empty string. Also soft-asserts `destination` field presence per QF-1 recommendation. No conditional logic — test assumes manifest was generated after DD changes (per QF-2).
+
+#### New Code Quality Tests (appended to `language-independence.spec.ts`)
+- **TC-008 — Env Var Documentation:** Verifies both `trip-config.ts` and `language-config.ts` contain a reference to `TRIP_DETAILS_FILE` env var. Uses `expect.soft()` for batched file scanning.
+- **TC-009 — No Hardcoded `path.resolve` with `trip_details.md`:** Scans `trip-config.ts` and `language-config.ts` for the pattern `resolve(..., 'trip_details.md')`. The env var fallback `|| 'trip_details.md'` is intentionally NOT flagged. Uses precise regex `/resolve\(.*['"]trip_details\.md['"]\)/` per QF-3.
+
+#### Dual-Run Validation (no new test code)
+- TC-001 through TC-005, TC-007, TC-010: Existing trip-agnostic tests validate alternate file behavior when run with `TRIP_DETAILS_FILE=Maryan.md` env var set externally. No code changes needed.
+
+#### Files Modified
+- `tests/regression/progression.spec.ts` — TC-006 test appended to Manifest Integrity block
+- `tests/code-quality/language-independence.spec.ts` — TC-008 and TC-009 tests appended as new describe block
+
+#### Files Added
+- None
+
+#### New POM Locators
+- None — all new tests are file-level (manifest JSON, source code scanning), not DOM-level
+
+### Affected Sections
+- No HTML or content changes — test-only update
+- New tests cover: manifest `trip_details_file` field validation (TC-006), env var documentation check (TC-008), hardcoded filename lint guard (TC-009)
+
+---
+
 ## 2026-03-21 — Parallelize Overview and Budget Fragment Generation with Day Batches
 
 ### Changes

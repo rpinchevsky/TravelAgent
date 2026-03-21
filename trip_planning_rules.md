@@ -2,7 +2,7 @@
 
 ## Pre-Flight Setup (Mandatory)
 Before any planning or answering, perform these steps:
-1. **Data Retrieval:** Read `trip_details.md`.
+1. **Data Retrieval:** Read the active trip details file (as specified at pipeline invocation; defaults to `trip_details.md`).
 2. **Age Calculation:** Calculate the exact age of each traveler at the time of `trip_context.timing.arrival`.
    - Use these calculated ages for all "Age Filters" and the "Kids' Fun Index."
    - *Example:* If the youngest is calculated as 4, apply the 4-year-old safety/engagement rules.
@@ -55,7 +55,7 @@ If `Google Search` detects a local holiday, major festival, or "bridge day" duri
 
 ### 1. Identify "Family-First" Programming
 - Actively search for `trip_context.destination` + `[Identified Holiday]` + "children's activities" or "interactive workshops".
-- Prioritize events that align with the `trip_context.universal_interests` found in `trip_details.md`.
+- Prioritize events that align with the `trip_context.universal_interests` found in the active trip details file.
 
 ### 2. Infrastructure & Mobility Alert
 - Identify specific closures of **Bridges**, **Main Squares**, or **Transit Hubs** due to festivities.

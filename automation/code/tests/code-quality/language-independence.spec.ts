@@ -14,6 +14,7 @@ import * as path from 'path';
  */
 
 const TESTS_DIR = path.resolve(__dirname, '..');
+const UTILS_DIR = path.resolve(TESTS_DIR, 'utils');
 const ALLOWED_FILES = [
   'utils/trip-config.ts',       // LANGUAGE_LABELS map — the ONLY place for localized strings
   'utils/language-config.ts',   // SCRIPT_MAP — unicode range definitions
@@ -125,6 +126,45 @@ test.describe('Language Independence — Source Code Lint', () => {
     expect(
       violations,
       `Hardcoded lang attribute values found in test source code:\n${violations.join('\n')}`
+    ).toHaveLength(0);
+  });
+});
+
+test.describe('Dynamic Trip Details — Code Quality (TC-008/TC-009)', () => {
+  const UTILITY_FILES = ['trip-config.ts', 'language-config.ts'];
+
+  test('trip-config.ts and language-config.ts should document TRIP_DETAILS_FILE env var (TC-008)', () => {
+    for (const file of UTILITY_FILES) {
+      const filePath = path.join(UTILS_DIR, file);
+      const content = fs.readFileSync(filePath, 'utf-8');
+      expect.soft(
+        content.includes('TRIP_DETAILS_FILE'),
+        `${file} should contain a reference to TRIP_DETAILS_FILE env var`
+      ).toBe(true);
+    }
+  });
+
+  test('no hardcoded path.resolve with trip_details.md in utility files (TC-009)', () => {
+    // Matches: resolve(..., 'trip_details.md') or resolve(..., "trip_details.md")
+    // Does NOT flag: process.env.TRIP_DETAILS_FILE || 'trip_details.md' (the fallback default)
+    const hardcodedResolvePattern = /resolve\(.*['"]trip_details\.md['"]\)/;
+    const violations: string[] = [];
+
+    for (const file of UTILITY_FILES) {
+      const filePath = path.join(UTILS_DIR, file);
+      const content = fs.readFileSync(filePath, 'utf-8');
+      const lines = content.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].trim().startsWith('//') || lines[i].trim().startsWith('*')) continue;
+        if (hardcodedResolvePattern.test(lines[i])) {
+          violations.push(`${file}:${i + 1}: ${lines[i].trim().substring(0, 100)}`);
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `Hardcoded path.resolve with trip_details.md found — use TRIP_DETAILS_FILE env var:\n${violations.join('\n')}`
     ).toHaveLength(0);
   });
 });

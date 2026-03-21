@@ -47,7 +47,7 @@ When adding features, changing rules, or fixing gaps between requirements and im
 - **Reference doc:** `development_process.md` has full stakeholder responsibilities (not loaded into context — read only if needed).
 
 ## Trip Generation Pipeline (Execute in Order)
-1. **Plan** — Read `trip_details.md`, calculate ages, research destination (`trip_planning_rules.md`)
+1. **Plan** — Read the trip details file (default: `trip_details.md`; override by specifying a filename, e.g., "generate trip from `Maryan.md`"), calculate ages, research destination (`trip_planning_rules.md`)
 2. **Phase A** — High-level summary table → create trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`, write `overview.md` + `manifest.json` (`content_format_rules.md`)
 3. **Phase B** — Parallel day generation: spawn subagents to write `day_00.md` through `day_NN.md`, verify all files, update manifest once (`content_format_rules.md`)
 4. **Budget** — Aggregate per-day costs into `budget.md` (`content_format_rules.md`)

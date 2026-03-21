@@ -165,4 +165,36 @@ test.describe('Progression — Manifest Integrity (TC-005/TC-006)', () => {
       ).toBe(true);
     }
   });
+
+  test('manifest should contain trip_details_file field', async () => {
+    const manifestPath = getManifestPath();
+    const raw = fs.readFileSync(manifestPath, 'utf-8');
+
+    let manifest: Record<string, unknown>;
+    try {
+      manifest = JSON.parse(raw);
+    } catch {
+      throw new Error(`Failed to parse manifest.json at ${manifestPath}: invalid JSON`);
+    }
+
+    // Hard assert: trip_details_file must exist and be a non-empty string (QF-2)
+    // This test assumes the latest trip was generated after the DD changes.
+    // If running against a stale manifest, regenerate the trip first.
+    const tripDetailsFile = manifest['trip_details_file'];
+    expect(
+      tripDetailsFile,
+      'manifest should have "trip_details_file" field — regenerate trip if missing'
+    ).toBeDefined();
+    expect(
+      typeof tripDetailsFile === 'string' && tripDetailsFile.length > 0,
+      `trip_details_file should be a non-empty string, got "${tripDetailsFile}"`
+    ).toBe(true);
+
+    // QF-1: Also validate destination is present (REQ-005 AC-2)
+    const destination = manifest['destination'];
+    expect.soft(
+      destination && typeof destination === 'string' && (destination as string).length > 0,
+      `manifest "destination" should be a non-empty string, got "${destination}"`
+    ).toBe(true);
+  });
 });

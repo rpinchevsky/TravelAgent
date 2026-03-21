@@ -11,7 +11,7 @@ Generate per-day HTML fragments from trip markdown and assemble into `trip_full_
 
 - If the user provides a trip folder path, use it as the source.
 - If no argument is provided, auto-discover the latest `generated_trips/trip_YYYY-MM-DD_HHmm/` folder via `manifest.json`.
-- Language: use the `_LANG` suffix from existing day files, or default to `language_preference.reporting_language` from `trip_details.md`.
+- Language: use the `_LANG` suffix from existing day files, or default to `language_preference.reporting_language` from the active trip details file (read `trip_details_file` from `manifest.json`; defaults to `trip_details.md`).
 
 ## Before You Start — Load Context
 
