@@ -102,7 +102,7 @@ export const LANGUAGE_LABELS: Record<string, LanguageLabels> = {
     pageTitlePattern: (dest, year) => `${dest} ${year} — מסלול משפחתי`,
     fileSuffix: 'he',
     dayHeadingRegex: /^#{1,2}\s+יום\s+(\d+)/,
-    destinationNames: { 'Budapest': 'בודפשט' },
+    destinationNames: { 'Budapest': 'בודפשט', 'Moldova': 'מולדובה' },
   },
 };
 

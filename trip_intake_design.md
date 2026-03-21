@@ -2,7 +2,7 @@
 
 ## Internationalization (i18n)
 
-The page supports **12 languages** with a language selector on the hero section. All static UI text is translatable via `data-i18n` attributes.
+The page supports **12 languages** with a language selector on the hero section. All static UI text is translatable via `data-i18n` attributes. Full translation blocks exist for en, ru, he; the remaining 9 languages fall back to English via the `t()` function. LANG_META defines display metadata for all 12.
 
 ### Supported Languages
 | Code | Language | Direction |
@@ -15,7 +15,7 @@ The page supports **12 languages** with a language selector on the hero section.
 | `de` | German | LTR |
 | `it` | Italian | LTR |
 | `pt` | Portuguese | LTR |
-| `zh` | Chinese (Simplified) | LTR |
+| `zh` | Chinese | LTR |
 | `ja` | Japanese | LTR |
 | `ko` | Korean | LTR |
 | `ar` | Arabic | RTL |
@@ -92,6 +92,29 @@ The page uses the **same design tokens** as the trip rendering system (`renderin
 ### Layout
 - **Max width:** 960px search bar, 800px page content, centered
 - **Responsive:** Search bar stacks vertically at 640px breakpoint; grid rows collapse to single column at 480px
+
+## Value Propositions (`.value-props`)
+
+A 4-card grid placed between the search bar and the wizard content, inspired by Booking.com's "Why choose us" trust badges. Builds confidence before users start the wizard.
+
+### Layout
+- **Container:** `max-width: 960px`, centered, `grid-template-columns: repeat(4, 1fr)`
+- **Responsive:** 2×2 grid at ≤768px, stays 2-column at ≤480px with smaller padding/icons
+- **Cards:** Surface bg, border, radius-container, centered text
+- **Hover:** `shadow-md` + `translateY(-2px)` lift effect
+
+### Cards
+| Icon | i18n Key Prefix | Message |
+|---|---|---|
+| ✈️ | `vp_custom` | Custom-made itinerary, no templates |
+| 🎯 | `vp_prefs` | Learns preferences, matches POIs to passions |
+| 💎 | `vp_local` | Hidden gems, avoids tourist traps |
+| 👨‍👩‍👧‍👦 | `vp_family` | Age-appropriate for toddlers to grandparents |
+
+### Typography
+- **Icon:** 2rem (1.5rem mobile)
+- **Title:** `text-sm`, `font-weight-semibold`
+- **Description:** `text-xs`, `color-text-muted`
 
 ## Search Bar (Booking.com Style)
 
@@ -223,6 +246,41 @@ Dual-month calendar for selecting check-in / check-out date range. Lives inside 
 - Selected: error border + error-tinted bg
 - X badge: 18px circle, error bg, scales in on select
 
+### Depth Selector Overlay
+
+A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choose how many questions they want to answer. 5 depth cards (10, 15, 20, 25, 30) with labels and estimated completion times.
+
+**Layout:**
+- Fixed overlay with `rgba(0,0,0,0.5)` backdrop, z-index 500
+- Centered card: surface bg, shadow-lg, radius-container, max-width 640px
+- 5 depth cards in horizontal flex row (wraps to 2x2+1 grid on mobile)
+- Confirm button: accent gradient, 200px min-width
+
+**Depth Cards (`.depth-card`):**
+- Flex column: number (3xl, bold, brand-primary) + label (sm, semibold) + time (xs, muted)
+- Border 2px, radius-container, hover: accent border + translateY(-2px)
+- Selected: brand-primary border + 4px ring + tinted bg
+- "Standard" (20) card has "Recommended" badge absolutely positioned at top
+
+**Keyboard Navigation:**
+- Arrow Left/Right: move between cards
+- Enter/Space: confirm selection
+- Tab: move to confirm button
+- Escape: dismiss overlay, return to Step 1
+
+**Focus Management:**
+- On open: focus moves to pre-selected card
+- On confirm: overlay closes, focus to Step 2 title
+- On escape: focus to Step 1 Continue button
+
+**Re-entry (from context bar pill):**
+- Same animation, current depth pre-selected
+- Confirm button uses "Update" label
+- On confirm: returns to user's current step
+
+**Responsive (< 480px):**
+- Cards: 2-column grid + centered 5th, min-width 120px
+
 ### Pace Selector
 - 3 visual cards in a grid (stacks on mobile)
 - Full gradient backgrounds (relaxed = purple, balanced = teal-navy, packed = pink)
@@ -244,6 +302,12 @@ Dual-month calendar for selecting check-in / check-out date range. Lives inside 
   - Done: accent bg, white checkmark
 - Labels: 10px semibold, hidden on mobile except active step
 - Emoji icons per step, replaced with checkmark when done
+
+**Dynamic Step Count:**
+- Steps with all questions hidden are removed from the stepper (`display: none`)
+- Stepper circles are renumbered to show only active steps
+- Line fill recalculates: `fillPercent = (activeStepIndex / (activeSteps.length - 1)) * 100`
+- Step emojis and labels are preserved for visible steps
 
 ### Preview Box (Code Editor Style)
 - Dark theme container (`#1a1a2e` bg)
@@ -322,9 +386,13 @@ A thin (3px) colored bar fixed to the very top of the viewport, showing overall 
 - When sticky search bar is active, progress bar sits above it
 
 **Calculation:**
-- Total steps: 8 (steps 0–7). Each completed step = 12.5%
-- Within each step, sub-progress contributes partial fill (e.g., filling 2/3 fields in Step 0 = ~8% total)
+- Total steps: dynamic, based on depth selection (varies from 5 to 8 active steps)
+- Formula: `pct = currentActiveIndex === 0 ? 0 : Math.round((currentActiveIndex / (activeSteps.length - 1)) * 100)`
 - Reaches 100% on Step 7 (Review) — fill color changes to `var(--color-success)` green
+
+**Dynamic Calculation:**
+- Denominator = number of active steps (varies by depth)
+- At depth 10: steps may be reduced (e.g., Step 5 merged into Step 4)
 
 ### 4. Inline Validation Indicators (`.field--valid`, `.field--error`)
 Real-time validation feedback with visual icons, matching Booking.com's pattern of showing green checkmarks and red crosses inside input fields as the user types.
@@ -365,6 +433,7 @@ A persistent, compact bar below the sticky search bar (or below the stepper on d
   - Destination: brand-primary bg, inverse text, pin icon prefix
   - Dates: accent bg, dark text, calendar icon prefix
   - Travelers: accent-alt bg, inverse text, people icon prefix
+  - **Depth: info bg (teal), inverse text, chart icon prefix — shown after depth selection, tapping re-opens depth overlay**
   - Trip style (after Step 2): info bg, icon prefix
 - Only visible after Step 0 (once search bar data is confirmed)
 - Tapping any pill scrolls back to / opens the relevant section for editing
@@ -399,6 +468,7 @@ Non-intrusive, ephemeral feedback messages that appear briefly to confirm action
 - "3 interests selected" — after toggling interest cards
 - "Traveler added" — after adding adult/child
 - "Copied to clipboard" — after copy button
+- **"Quick mode: 10 questions selected" — after depth selection (info type, per-depth message)**
 
 ### 7. Pulse CTA Animation (`.btn--pulse`)
 When all required fields in the current step are valid, the primary "Continue" button glows with a subtle pulse animation to draw the user's eye — Booking.com does this on their "Reserve" and "Book now" buttons.

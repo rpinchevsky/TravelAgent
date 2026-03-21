@@ -1,5 +1,91 @@
 # Release Notes
 
+## 2026-03-21 — Parallelize Overview and Budget Fragment Generation with Day Batches
+
+### Changes
+
+#### New Regression Tests (appended to `overview-budget.spec.ts`)
+- **TC-004 — Budget Section Isolation:** Added `expect.soft()` assertion inside existing `test('should have budget section visible')` block to verify `#budget` is not nested inside any `.day-card` element. Selector: `.day-card #budget`, expected count: 0.
+- **TC-005 — Assembly Order:** New `test.describe('Assembly Order', ...)` block with a single `test()` using `page.evaluate()` and `Node.compareDocumentPosition()` to verify that `#overview` precedes `#day-0` and `#budget` follows `#day-{N}` in document order. Returns named-property object `{ overviewBeforeDay0, budgetAfterLastDay }` for independent `expect.soft()` messages. Last day index derived from `tripConfig.dayCount - 1`.
+- **TC-008 — Fragment File Existence:** New `test.describe('Fragment File Existence', ...)` block using `baseTest`/`baseExpect` from `@playwright/test` (aliased import, scoped exclusively to this describe block). Checks `fragment_overview_{langCode}.html` and `fragment_budget_{langCode}.html` exist on disk via `fs.existsSync()`. Trip folder path derived from `getManifestPath()`. Language code from `tripConfig.labels.langCode`. Path construction uses `path.join()` for platform independence.
+
+#### Files Modified
+- `tests/regression/overview-budget.spec.ts` — TC-004 assertion added to existing test block; TC-005 and TC-008 describe blocks appended
+
+#### Files Added
+- None
+
+### Affected Sections
+- No HTML or content changes — test-only update
+- New tests cover: budget section isolation (TC-004), assembly DOM order (TC-005), fragment file existence on disk (TC-008)
+
+---
+
+## 2026-03-20 — Moldova Hebrew 14-Day Trip Generation & Test Data Sync
+
+### Changes
+
+#### Trip Generated: Chișinău, Moldova (Hebrew, RTL)
+- 14-day itinerary: May 18–31 2026 (`trip_2026-03-20_1814/`)
+- 84 total POI cards across 14 days (day_00–day_13)
+- Budget: ~56,728 MDL / ~2,908 EUR
+- Language: Hebrew (`he`), direction: RTL
+
+#### Test Data Sync (required per §4)
+- `rtl-layout.spec.ts`: `daySections` count 12 → 14; sidebar/pill counts 14 → 16; hrefs array added `#day-12`, `#day-13`; day loop extended to `i <= 13`; POI check range updated to `i <= 12`
+- `navigation.spec.ts`: sidebar/pill counts 14 → 16; hrefs arrays added `#day-12`, `#day-13`
+- `trip-config.ts` Hebrew `destinationNames`: added `'Moldova': 'מולדובה'`
+- `poi-cards.spec.ts`: link-exempt test now skips gracefully when no exempt cards present (trip has no `data-link-exempt` cards)
+- `trip_full_he.html`: `<title>` corrected from "מסלול המסע" → "מסלול משפחתי" to match `pageTitlePattern`
+
+---
+
+## 2026-03-19 — Question Depth Selector: Intake Page Test Suite (37 Tests)
+
+### Changes
+
+#### New POM: `tests/pages/IntakePage.ts`
+- Page Object Model for the trip intake wizard page (`trip_intake.html`), separate from `TripPage.ts` which targets trip output HTML.
+- **20+ locators** covering: depth selector overlay, depth cards, context bar, progress bar, stepper, toast notifications, step sections, questions by key/tier, review step.
+- **Helper methods**: `completePrerequisiteSteps()`, `setupWithDepth(n)`, `selectDepthAndConfirm(n)`, `navigateForwardThroughAllSteps()`, `getCurrentStepNumber()`, `getVisibleQuestionKeys()`, `countAllVisibleQuestions()`, `getReviewContent()`.
+
+#### New Spec Files: `tests/intake/` (8 files, 37 test cases)
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `intake-depth-selector.spec.ts` | 3 (TC-001, TC-002, TC-003) | Overlay rendering, default selection, card interaction |
+| `intake-depth-questions.spec.ts` | 8 (TC-004–TC-009, TC-033–TC-035) | Question visibility per depth (data-driven), auto-advance, T4/T5 rendering |
+| `intake-depth-stepper.spec.ts` | 6 (TC-010–TC-015) | Stepper adaptation, sub-step dots, progress bar, empty step prevention, step merging |
+| `intake-depth-change.spec.ts` | 5 (TC-016–TC-018, TC-036, TC-037) | Mid-wizard depth change, answer preservation, re-entry overlay, Escape behavior |
+| `intake-depth-output.spec.ts` | 5 (TC-019–TC-023) | Markdown output completeness, defaults, pre-selection scoring |
+| `intake-depth-feedback.spec.ts` | 3 (TC-024–TC-026) | Context bar pill, toast notifications, smooth transitions |
+| `intake-depth-a11y.spec.ts` | 4 (TC-027–TC-030) | Keyboard navigation, Escape dismissal, ARIA roles, focus management |
+| `intake-depth-i18n.spec.ts` | 2 (TC-031, TC-032) | i18n key presence for 12 languages (depth + new questions) |
+
+#### Implementation Notes
+- All tests use standard `@playwright/test` import (all tests mutate the page).
+- TC-004 through TC-009 consolidated into data-driven parameterized tests per QA feedback (QF-2).
+- Spec files placed in `tests/intake/` directory (separate from `tests/regression/`) per QA feedback (QF-1).
+- No hardcoded language-specific strings — all assertions use CSS selectors, `data-*` attributes, and structural checks.
+- TC-023 follows QF-4 guidance: passes through quiz step before checking chip pre-selections.
+
+#### Files Added
+- `tests/pages/IntakePage.ts` — Intake page POM
+- `tests/intake/intake-depth-selector.spec.ts`
+- `tests/intake/intake-depth-questions.spec.ts`
+- `tests/intake/intake-depth-stepper.spec.ts`
+- `tests/intake/intake-depth-change.spec.ts`
+- `tests/intake/intake-depth-output.spec.ts`
+- `tests/intake/intake-depth-feedback.spec.ts`
+- `tests/intake/intake-depth-a11y.spec.ts`
+- `tests/intake/intake-depth-i18n.spec.ts`
+
+### Affected Sections
+- No HTML or content changes — test-only update
+- Tests target `trip_intake.html` (not trip output HTML)
+
+---
+
 ## 2026-03-15 — Parallel Phase B: Progression Tests for POI Uniqueness & Manifest Integrity
 
 ### Changes

@@ -39,22 +39,22 @@ If ANY check fails, report and stop — do NOT generate HTML from incomplete dat
 
 Follow `rendering-config.md` → "HTML Generation Pipeline (Fragment Master Mode)":
 
-**Step 2a — Sequential fragments:**
+**Step 2a — Sequential shell fragments:**
 1. Generate shell fragments (PAGE_TITLE, NAV_LINKS, NAV_PILLS) from `overview_LANG.md` + `manifest.json`
-2. Generate overview fragment from `overview_LANG.md`
-3. Generate budget fragment from `budget_LANG.md`
 
 **Step 2b — Batch assignment:**
 4. Determine batch count from the batch sizing table in `rendering-config.md` § Step 2b (same table as Phase B in `content_format_rules.md`).
 5. Assign days to batches in chronological order.
 
-**Step 2c — Parallel day fragment generation:**
-6. Spawn one Agent-tool subagent per batch in a **single response block** (parallel execution).
-7. Each subagent receives: the 9-item core contract (§ 2.5) + batch-specific items 10-13. It reads its assigned `day_XX_LANG.md` files and writes `fragment_day_XX_LANG.html` files to the trip folder.
+**Step 2c — Parallel fragment generation:**
+6. Spawn all subagents in a **single response block** (parallel execution): one overview subagent, one budget subagent, and one subagent per day batch.
+7. Overview subagent: receives core contract (§ 2.5 items 14-17), reads `overview_LANG.md` + `manifest.json`, writes `fragment_overview_LANG.html` to the trip folder.
+8. Budget subagent: receives core contract (§ 2.5 items 18-21), reads `budget_LANG.md` + `manifest.json`, writes `fragment_budget_LANG.html` to the trip folder.
+9. Day batch subagents: each receives the 9-item core contract (§ 2.5) + batch-specific items 10-13. Reads assigned `day_XX_LANG.md` files and writes `fragment_day_XX_LANG.html` files to the trip folder.
 
 **Step 2d — Verification:**
-8. Verify all `fragment_day_XX_LANG.html` files exist (day_00 through day_NN).
-9. If any missing: re-spawn failed batch subagent(s) once. If still missing after retry, report and stop.
+10. Verify all required fragments exist: `fragment_overview_LANG.html`, `fragment_day_00_LANG.html` through `fragment_day_NN_LANG.html`, and `fragment_budget_LANG.html`.
+11. If any missing: re-spawn only the failed subagent (overview, budget, or the failed day batch). Single retry per subagent. If still missing after retry, report and stop.
 
 All component rules, CSS class requirements, POI card structure, activity label linking, SVG attributes, CSS inlining, and flag rendering rules are defined in `rendering-config.md`. Follow that file — it is the single source of truth for rendering.
 
@@ -86,7 +86,7 @@ When only specific days changed (detected via `manifest.json → assembly.stale_
 
 ## Agent Prompt Contract
 
-When delegating HTML generation to a sub-agent, the prompt MUST include all 9 core items defined in `rendering-config.md` §2.5. For parallel batch subagents, items 10-13 (batch-specific context) are also mandatory. Never delegate without the full contract.
+When delegating HTML generation to a sub-agent, the prompt MUST include all 9 core items defined in `rendering-config.md` §2.5. For parallel day batch subagents, items 10-13 are also mandatory. For the overview subagent, items 14-17 are mandatory. For the budget subagent, items 18-21 are mandatory. Never delegate without the full contract.
 
 ## Reference Files
 

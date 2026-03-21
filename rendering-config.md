@@ -141,9 +141,9 @@ Generate per-day HTML fragments using batched parallel subagents for full genera
 
 This per-day approach avoids output token limits — each day's HTML is generated independently.
 
-#### Step 2a: Shell, Overview, and Budget Fragments (Sequential)
+#### Step 2a: Shell Fragments (Sequential)
 
-Generate shell fragments, the overview fragment, and the budget fragment sequentially. These are fast and provide context needed by day fragment subagents.
+Generate the three shell fragments sequentially. These provide navigation context required by day fragment subagents and must be resolved before the parallel step.
 
 **Shell Fragments (generated once from overview.md + manifest.json):**
 
@@ -159,15 +159,6 @@ Generate shell fragments, the overview fragment, and the budget fragment sequent
    - Create a list of `<a class="mobile-nav__pill">` tags.
    - Assign matching `href="#day-X"` and include the `is-active` class for the first item only.
    - **Ordering:** Must match `{{NAV_LINKS}}` exactly.
-
-4. **{{TRIP_CONTENT}}** — assembled from per-day fragments:
-   - `#overview` section (from `overview.md`): itinerary summary table.
-   - `#day-0` through `#day-N` sections (from `fragment_day_XX_LANG.html` files): day cards with POI cards.
-   - `#budget` section (from `budget.md`): aggregated budget table.
-   - Each POI card MUST have `id="poi-day-{D}-{N}"`.
-   - **Activity Label Linking:** POI-referencing labels use `<a class="activity-label" href="#poi-day-{D}-{N}">`. Generic actions remain as `<span class="activity-label">`.
-   - Ensure all `<img>` tags include `loading="lazy"`.
-   - **POI Parity:** Verify per-day `.poi-card` count matches markdown `###` POI count in the source day file.
 
 #### Step 2b: Batch Assignment for Day Fragments
 
@@ -191,31 +182,55 @@ Batches are assigned in chronological order: batch 1 gets the lowest-numbered da
 
 #### Step 2c: Parallel Subagent Execution
 
-Spawn one subagent per batch using the Agent tool. **All subagent calls must appear in the same response block** so they execute in parallel, not sequentially.
+Spawn all subagents in the same single response block using the Agent tool: one overview subagent, one budget subagent, and one subagent per day batch. **All subagent calls must appear in the same response block** so they execute in parallel, not sequentially. No subagent within this block may depend on the output of any other subagent within this block.
 
-Each subagent receives the context defined in Step 2.5 (Agent Prompt Contract) plus its batch-specific day assignment.
+**Overview subagent:**
+- Receives: `rendering-config.md` + `overview_LANG.md` + `manifest.json` (see Step 2.5 for full contract).
+- Writes: `fragment_overview_LANG.html` to the trip folder.
+- Fragment contains only the `<section id="overview">...</section>` block — no `<html>`, `<head>`, or `<body>` wrappers.
+- Does NOT modify day fragments, shell fragments, budget fragment, or `manifest.json`.
 
-Each subagent:
+**Budget subagent:**
+- Receives: `rendering-config.md` + `budget_LANG.md` + `manifest.json` (see Step 2.5 for full contract).
+- Writes: `fragment_budget_LANG.html` to the trip folder.
+- Fragment contains only the `<section id="budget">...</section>` block — no `<html>`, `<head>`, or `<body>` wrappers.
+- Does NOT modify day fragments, shell fragments, overview fragment, or `manifest.json`.
+
+**Day batch subagents (one per batch):**
+- Each receives the context defined in Step 2.5 (Agent Prompt Contract) plus its batch-specific day assignment.
 - Reads only its assigned `day_XX_LANG.md` files from the trip folder.
 - Generates one `fragment_day_XX_LANG.html` file per assigned day, written to the trip folder.
 - Each fragment file contains only the `<div class="day-card" id="day-{N}">...</div>` block — no `<html>`, `<head>`, or `<body>` wrappers.
 - Does NOT read or write fragment files outside its assigned day range.
-- Does NOT modify `manifest.json`, shell fragments, overview, or budget.
+- Does NOT modify `manifest.json`, shell fragments, overview fragment, or budget fragment.
 
 Fragment files are ephemeral build artifacts: overwritten on each full generation and not used by incremental rebuild mode.
 
+**Incremental rebuild exception:** Overview and budget parallel subagents are a full-generation-only pattern. In incremental rebuild mode (single-day edits via `stale_days`), skip overview and budget subagents — generate only the stale day fragment(s) sequentially.
+
 #### Step 2d: Fragment Verification
 
-After all subagents return, verify that every expected fragment file (`fragment_day_00_LANG.html` through `fragment_day_NN_LANG.html`) exists in the trip folder.
+After all subagents return, verify that ALL expected fragment files exist in the trip folder:
+- `fragment_overview_LANG.html`
+- `fragment_day_00_LANG.html` through `fragment_day_NN_LANG.html`
+- `fragment_budget_LANG.html`
+
+Verification is independent per fragment type. A missing day fragment does not affect the overview/budget retry, and vice versa.
 
 - **All present:** Proceed to Step 3 (Assembly).
-- **Missing fragments:** Identify the failed batch(es). Re-spawn one subagent per failed batch (single retry). After retry, verify again:
-  - All present: proceed to Step 3.
-  - Still missing: report the missing day numbers and stop. Do NOT proceed to assembly with incomplete fragments.
+- **Missing day fragment(s):** Identify the failed batch(es). Re-spawn one subagent per failed batch (single retry). After retry, verify day fragments again:
+  - All day fragments present: continue with overview/budget check.
+  - Still missing: report the missing day numbers and stop.
+- **Missing `fragment_overview_LANG.html`:** Re-spawn only the overview subagent (single retry). After retry, verify overview fragment again:
+  - Present: continue.
+  - Still missing: report and stop.
+- **Missing `fragment_budget_LANG.html`:** Re-spawn only the budget subagent (single retry). After retry, verify budget fragment again:
+  - Present: continue.
+  - Still missing: report and stop.
+
+Do NOT proceed to Step 3 (Assembly) with any fragment missing. All three fragment types (overview, days, budget) must be fully present before assembly.
 
 Verification checks fragment file existence only — content validation happens in Step 4 (pre-regression gate).
-
-**Incremental rebuild exception:** When operating in incremental rebuild mode (single-day edits via `stale_days`), skip batch assignment and generate only the stale fragment(s) sequentially. Parallel batching applies only to full generation mode.
 
 ### Step 2.5: Agent Prompt Contract (Mandatory)
 When delegating HTML fragment generation to a sub-agent (whether for full parallel generation or single-day incremental rebuild), the prompt MUST include these items:
@@ -231,17 +246,33 @@ When delegating HTML fragment generation to a sub-agent (whether for full parall
 8. Activity label linking rule: POI-referencing labels use `<a class="activity-label" href="#poi-day-{D}-{N}">`, POI cards have matching `id="poi-day-{D}-{N}"`
 9. **Modular source rule:** HTML is generated per-day from individual `day_XX.md` files, not from a monolithic trip file. The agent must read each day file separately and produce one HTML fragment file per day.
 
-#### Batch-Specific Context (for parallel day fragment generation)
+#### Batch-Specific Context (for parallel day batch subagents)
 10. **Assigned day list:** Explicit list of day numbers the subagent must generate (e.g., "Generate fragments for day_03, day_04, day_05"). The subagent generates ONLY these days.
 11. **Day source files:** Only the `day_XX_LANG.md` files for the assigned batch — not all day files.
 12. **Shell context (read-only):** `overview_LANG.md` and `manifest.json` for cross-referencing (trip metadata, navigation structure). The subagent does NOT regenerate shell, overview, or budget fragments.
 13. **Fragment output path:** The trip folder path where `fragment_day_XX_LANG.html` files must be written.
 
-**Gate:** Never delegate HTML generation without all 9 core items in the prompt. For parallel batch subagents, items 10-13 are also mandatory. See `development_rules.md` Rule 4.
+#### Overview Subagent Context (for parallel overview fragment generation)
+14. **Source file:** `overview_LANG.md` from the trip folder.
+15. **Reference file:** `manifest.json` for trip metadata.
+16. **Output file:** `fragment_overview_LANG.html` written to the trip folder. Contains only the `<section id="overview">...</section>` block — no `<html>`, `<head>`, or `<body>` wrappers.
+17. **Isolation:** The overview subagent MUST NOT modify day fragments, shell fragments, budget fragment, or `manifest.json`. It does NOT require NAV_LINKS or NAV_PILLS.
+
+#### Budget Subagent Context (for parallel budget fragment generation)
+18. **Source file:** `budget_LANG.md` from the trip folder.
+19. **Reference file:** `manifest.json` for trip metadata.
+20. **Output file:** `fragment_budget_LANG.html` written to the trip folder. Contains only the `<section id="budget">...</section>` block — no `<html>`, `<head>`, or `<body>` wrappers.
+21. **Isolation:** The budget subagent MUST NOT modify day fragments, shell fragments, overview fragment, or `manifest.json`. It does NOT require NAV_LINKS or NAV_PILLS.
+
+**Gate:** Never delegate HTML generation without all 9 core items in the prompt. For parallel day batch subagents, items 10-13 are also mandatory. For the overview subagent, items 14-17 are mandatory. For the budget subagent, items 18-21 are mandatory. See `development_rules.md` Rule 4.
 
 ### Step 3: Assembly & Final Export
 1. **Read** (do not modify) `base_layout.html` to use as a template.
-2. **Assemble** `{{TRIP_CONTENT}}` by concatenating: overview fragment + day fragment files (read `fragment_day_00_LANG.html` through `fragment_day_NN_LANG.html` in chronological order) + budget fragment.
+2. **Assemble** `{{TRIP_CONTENT}}` by reading and concatenating these fragment files from the trip folder, in order:
+   - `fragment_overview_LANG.html` — the `#overview` section
+   - `fragment_day_00_LANG.html` through `fragment_day_NN_LANG.html` — day cards, in chronological order
+   - `fragment_budget_LANG.html` — the `#budget` section
+   All three fragment types are read exclusively from their respective files. There is no inline or embedded fallback for overview or budget content.
 3. **Inject** all fragments into the placeholders.
 4. **Save** the result as `trip_full_LANG.html` inside the trip folder.
 5. **Validation:** Ensure the original `base_layout.html` still contains its `{{PAGE_TITLE}}`, `{{NAV_LINKS}}`, `{{NAV_PILLS}}`, `{{TRIP_CONTENT}}` placeholders for future use.

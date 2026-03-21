@@ -37,7 +37,7 @@ test.describe('RTL — Structural', () => {
   });
 
   test('should render all day sections', async () => {
-    await expect(tripPage.daySections).toHaveCount(12);
+    await expect(tripPage.daySections).toHaveCount(14);
   });
 
   test('should render overview section', async () => {
@@ -107,8 +107,8 @@ test.describe('RTL — Navigation', () => {
     await page.goto(baseURL!);
   });
 
-  test('should have 14 sidebar links', async () => {
-    await expect(tripPage.sidebarLinks).toHaveCount(14);
+  test('should have 16 sidebar links', async () => {
+    await expect(tripPage.sidebarLinks).toHaveCount(16);
   });
 
   test('sidebar links should have correct hrefs', async () => {
@@ -116,6 +116,7 @@ test.describe('RTL — Navigation', () => {
       '#overview',
       '#day-0', '#day-1', '#day-2', '#day-3', '#day-4', '#day-5',
       '#day-6', '#day-7', '#day-8', '#day-9', '#day-10', '#day-11',
+      '#day-12', '#day-13',
       '#budget',
     ];
     for (let i = 0; i < expectedHrefs.length; i++) {
@@ -123,8 +124,8 @@ test.describe('RTL — Navigation', () => {
     }
   });
 
-  test('should have 14 mobile pills', async () => {
-    await expect(tripPage.mobilePills).toHaveCount(14);
+  test('should have 16 mobile pills', async () => {
+    await expect(tripPage.mobilePills).toHaveCount(16);
   });
 });
 
@@ -211,7 +212,7 @@ test.describe('RTL — Day Cards', () => {
   });
 
   test('each day should have banner, itinerary table, and POI cards', async () => {
-    for (let i = 0; i <= 11; i++) {
+    for (let i = 0; i <= 13; i++) {
       const daySection = tripPage.getDaySection(i);
       await expect.soft(daySection, `Day ${i}: section missing`).toBeAttached();
 
@@ -225,7 +226,7 @@ test.describe('RTL — Day Cards', () => {
       const rowCount = await rows.count();
       expect.soft(rowCount, `Day ${i}: should have 3+ itinerary rows`).toBeGreaterThanOrEqual(3);
 
-      if (i >= 1 && i <= 10) {
+      if (i >= 1 && i <= 12) {
         const poiCards = tripPage.getDayPoiCards(i);
         const poiCount = await poiCards.count();
         expect.soft(poiCount, `Day ${i}: should have at least 1 POI card`).toBeGreaterThanOrEqual(1);

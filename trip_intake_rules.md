@@ -26,6 +26,8 @@ The page supports 12 languages: English, Russian, Hebrew, Spanish, French, Germa
 
 The form is a linear multi-step wizard with a progress bar. Steps are numbered 0-7. Each step with a questionnaire follows a standardized pattern: **3-5 questions per quiz**, auto-advancing, with sub-step dot indicators. Redundant questions were removed — `energy` and `food` (Step 2) and `mobility` (Step 4) are now derived from the pace selector and food adventure answer respectively.
 
+**Question Depth Selector:** After completing Step 1 (Who's Traveling), an overlay presents 5 depth options: 10 (Quick), 15 (Light), 20 (Standard — default), 25 (Detailed), 30 (Deep Dive). The selected depth determines which questions are shown via a tier system. Steps 0, 1, and 7 are always fully present. The selector can be reopened from the context bar depth pill at any point before Step 7. See "Question Inventory & Depth Tiers" section for the full tier table.
+
 ### Step 0 — Where & When
 
 | Field | Type | Required | Default | Notes |
@@ -76,13 +78,14 @@ Two sections: **Parents/Adults** and **Children**. Both are dynamic lists with a
 
 ### Step 2 — Travel Style Questionnaire
 
-3 quick visual questions that profile the traveler's preferences. Answers drive **pre-selection** of interest/avoid chips on the next steps. Each question has 3 options (radio behavior — one selected per question). Default is the middle option.
+2-4 visual questions (count varies by depth) that profile the traveler's preferences. Answers drive **pre-selection** of interest/avoid chips on the next steps. Each question has 3 options (radio behavior — one selected per question). Default is the middle option. Sub-step dots are dynamically rebuilt based on visible questions.
 
-| # | Question Key | Question | Option A | Option B (default) | Option C |
-|---|---|---|---|---|---|
-| 1 | `setting` | Where do you feel most alive? | City Streets | A Bit of Both | Nature & Outdoors |
-| 2 | `culture` | What draws you in? | History & Culture | Both | Fun & Entertainment |
-| 3 | `evening` | Your ideal evening? | Cozy Early Night | Dinner & Stroll | Late Night Out |
+| # | Question Key | Tier | Question | Option A | Option B (default) | Option C |
+|---|---|---|---|---|---|---|
+| 1 | `setting` | T1 | Where do you feel most alive? | City Streets | A Bit of Both | Nature & Outdoors |
+| 2 | `culture` | T1 | What draws you in? | History & Culture | Both | Fun & Entertainment |
+| 3 | `culturalImmersion` | T3 | How deep do you want to go culturally? | Photo Ops & Highlights | Some Context | Full History & Stories |
+| 4 | `nightlife` | T3 | How important is nightlife? | Not At All | A Night or Two | Essential |
 
 **Removed questions (redundant):**
 - `energy` ("What's your ideal day?") — redundant with Step 4 pace selector. Now **derived** from pace: relaxed→chill, balanced→mixed, packed→active.
@@ -121,14 +124,26 @@ See §Dynamic Interest Engine below for the full pool definitions and flag logic
 
 ### Step 4 — Avoid & Pace
 Three parts:
-1. **Avoid Mini-Quiz** — 4 visual card questions (auto-advance):
+1. **Avoid Mini-Quiz** — up to 16 visual card questions (auto-advance, count varies by depth):
 
-| # | Question Key | Question | Option A | Option B (default) | Option C |
-|---|---|---|---|---|---|
-| 1 | `noise` | What's your crowd & noise comfort? | Quiet & Calm | Flexible | Bring the Energy |
-| 2 | `foodadventure` | How adventurous with food? | Keep It Safe | Open to Try | Fearless Foodie |
-| 3 | `budget` | What's your spending comfort? | Budget-Friendly | Worth the Spend | Treat Ourselves |
-| 4 | `flexibility` | How structured should the plan be? | Stick to the Plan | Loose Framework | Go with the Flow |
+| # | Question Key | Tier | Question | Option A | Option B (default) | Option C |
+|---|---|---|---|---|---|---|
+| 1 | `noise` | T1 | What's your crowd & noise comfort? | Quiet & Calm | Flexible | Bring the Energy |
+| 2 | `foodadventure` | T1 | How adventurous with food? | Keep It Safe | Open to Try | Fearless Foodie |
+| 3 | `budget` | T1 | What's your spending comfort? | Budget-Friendly | Worth the Spend | Treat Ourselves |
+| 4 | `flexibility` | T1 | How structured should the plan be? | Stick to the Plan | Loose Framework | Go with the Flow |
+| 5 | `transport` | T3 | Preferred getting around? | Walking | Public Transit | Taxi & Rideshare |
+| 6 | `morningPreference` | T3 | Morning or afternoon person? | Morning Person | No Preference | Afternoon Starter |
+| 7 | `visitDuration` | T5 | Attraction visit style? | Quick Highlights | Moderate Exploration | Deep Immersion |
+| 8 | `shopping` | T5 | How important is shopping? | Skip It | Browse if Convenient | Dedicated Shopping Time |
+| 9 | `walkingTolerance` | T2 | How much walking can your group handle? | Light Walks (~2km) | Moderate (~5km) | Marathon Mode (~10km+) |
+| 10 | `weatherSensitivity` | T2 | How does weather affect your plans? | Indoor Backup Please | Flexible | Rain or Shine |
+| 11 | `crowdTolerance` | T3 | How do you feel about popular tourist spots? | Prefer Off-Peak | Some Crowds OK | Don't Mind Queuing |
+| 12 | `groupSplitting` | T4 | Open to the group splitting up? | Stay Together | Maybe for 1-2 Activities | Totally Fine |
+| 13 | `souvenirShopping` | T4 | What kind of souvenirs interest you? | Skip Souvenirs | Local Crafts & Food | Everything |
+| 14 | `relaxationTime` | T4 | How much downtime do you need? | Keep Going | Short Breaks | Long Leisurely Breaks |
+| 15 | `socialInteraction` | T5 | How social do you want the trip to be? | Private & Intimate | Small Group OK | Love Meeting People |
+| 16 | `surpriseOpenness` | T5 | How open are you to spontaneous changes? | Prefer the Plan | Small Detours OK | Surprise Me! |
 
 **Removed question:** `mobility` ("How active can your group be?") — redundant with the pace selector below. Now **derived** from pace: relaxed→limited, balanced→moderate, packed→high.
 
@@ -141,30 +156,33 @@ After quiz completes, quiz collapses and avoid cards + pace selector appear belo
    - Action-Packed (5+ activities)
 
 ### Step 5 — Food & Dining
-**Food Mini-Quiz** — 5 visual card questions (auto-advance):
+**Food Mini-Quiz** — up to 6 visual card questions (auto-advance, count varies by depth):
 
-| # | Question Key | Question | Options |
-|---|---|---|---|
-| 1 | `diet` | What does your group eat? | Everything / Meat Lovers / Mostly Veggie / Plant-Based |
-| 2 | `diningstyle` | Where do you love eating? | Street Food & Markets / Casual Restaurants (default) / Upscale Dining |
-| 3 | `kidsfood` | Any dietary restrictions or allergies? | Very Picky / Some Flexibility (default) / Eats Everything |
-| 4 | `mealpriority` | Which meal matters most? | Breakfast & Brunch / Lunch is King / Dinner is the Event (default) |
-| 5 | `localfood` | How local should the food be? | Keep It Familiar / Mix of Both (default) / Full Local Immersion |
+| # | Question Key | Tier | Question | Options |
+|---|---|---|---|---|
+| 1 | `diet` | T1 | What does your group eat? | Everything / Meat Lovers / Mostly Veggie / Plant-Based |
+| 2 | `diningstyle` | T1 | Where do you love eating? | Street Food & Markets / Casual Restaurants (default) / Upscale Dining |
+| 3 | `kidsfood` | T2 | Any dietary restrictions or allergies? | Very Picky / Some Flexibility (default) / Eats Everything |
+| 4 | `mealpriority` | T2 | Which meal matters most? | Breakfast & Brunch / Lunch is King / Dinner is the Event (default) |
+| 5 | `localfood` | T2 | How local should the food be? | Keep It Familiar / Mix of Both (default) / Full Local Immersion |
+| 6 | `snacking` | T4 | How important is snacking? | Skip Snacks / Occasional Nibbles (default) / Serious Snacker |
 
 After quiz completes, quiz collapses and food experience cards + dining vibe cards appear below.
 
 | Field | Type | Notes |
 |---|---|---|
-| Food experience cards | dynamic cards | Scored by diet, dining style, adventure, localness |
-| Dining Vibe | chip group (dynamic) | Built from vibe pools matching traveler flags |
-| Food notes textarea | textarea | Allergies, must-haves, dislikes |
+| Food experience cards | dynamic cards (supplementary) | Scored by diet, dining style, adventure, localness |
+| Dining Vibe | chip group (supplementary) | Built from vibe pools matching traveler flags |
+| Food notes textarea | textarea (supplementary) | Allergies, must-haves, dislikes |
 
 ### Step 6 — Language & Extras
-| Field | Type | Notes |
-|---|---|---|
-| Report Language | select | Options: English, Russian, Hebrew, Spanish, French, German, Italian, Portuguese, Chinese, Japanese, Korean, Arabic |
-| POI Languages | text | Comma-separated, e.g., "Hungarian, English" |
-| Additional Notes | textarea | Free-form |
+| Field | Tier | Type | Notes |
+|---|---|---|---|
+| Report Language | — | select (supplementary) | Options: English, Russian, Hebrew, Spanish, French, German, Italian, Portuguese, Chinese, Japanese, Korean, Arabic |
+| POI Languages | — | text (supplementary) | Comma-separated, e.g., "Hungarian, English" |
+| Additional Notes | — | textarea (supplementary) | Free-form |
+| Photography | T4 | 3-option card | Not a Priority / Nice Bonus (default) / Major Activity |
+| Accessibility | T5 | 3-option card | No Special Needs (default) / Prefer Flat Routes / Wheelchair Accessible |
 
 ### Step 7 — Review & Download
 - **Preview:** Rendered markdown in preview box
@@ -193,6 +211,51 @@ GET https://nominatim.openstreetmap.org/search
   &accept-language=en&featuretype=city
 Headers: User-Agent: TripIntakeForm/1.0
 ```
+
+## Question Inventory & Depth Tiers
+
+The wizard supports 5 depth levels: 10 (Quick), 15 (Light), 20 (Standard), 25 (Detailed), 30 (Deep Dive). Each question has a tier assignment (T1-T5) that determines at which depth levels it appears.
+
+### Tier Table (Quiz Questions Only)
+
+All 30 tiered questions are real visual quiz-card questions with 3 selectable options each.
+
+| Tier | Questions | Count | Cumulative | Depth Levels |
+|------|-----------|-------|------------|-------------|
+| T1 | rhythm, setting, culture, noise, foodadventure, pace, diet, budget, flexibility, diningstyle | 10 | 10 | 10, 15, 20, 25, 30 |
+| T2 | kidsfood, mealpriority, localfood, walkingTolerance, weatherSensitivity | 5 | 15 | 15, 20, 25, 30 |
+| T3 | crowdTolerance, culturalImmersion, nightlife, transport, morningPreference | 5 | 20 | 20, 25, 30 |
+| T4 | groupSplitting, souvenirShopping, relaxationTime, snacking, photography | 5 | 25 | 25, 30 |
+| T5 | socialInteraction, surpriseOpenness, visitDuration, shopping, accessibility | 5 | 30 | 30 |
+
+### Supplementary Fields (Always Visible)
+
+These fields are always visible within their step and do not count toward the question budget:
+
+| Field | Type | Step |
+|-------|------|------|
+| interests | Chip selection grid | Step 3 |
+| customInterests | Textarea | Step 3 |
+| avoidChips | Chip selection grid | Step 4 |
+| customAvoid | Textarea | Step 4 |
+| foodExperience | Dynamic cards | Step 5 |
+| diningVibe | Chip group | Step 5 |
+| foodNotes | Textarea | Step 5 |
+| reportLang | Dropdown | Step 6 |
+| poiLangs | Text input | Step 6 |
+| extraNotes | Textarea | Step 6 |
+
+### Depth Defaults
+
+When a question is hidden due to depth selection, its default value is used in the generated markdown. Defaults are always the "middle" or "balanced" option. See the `QUESTION_DEFAULTS` constant in `trip_intake.html` for the complete default values table.
+
+### Step Visibility Rules
+
+- If ALL questions in a step are hidden -> step is auto-skipped (stepper hides it)
+- If SOME questions in a step are hidden -> step is shown with reduced content
+- Minimum 2 visible questions per shown step; if only 1, merge with adjacent step
+- Quiz sub-step dots reflect only visible questions
+- At depth 10/15: Step 5 (Food) has only `diet` (1 question) -> merged into Step 4
 
 ## Dynamic Interest Engine
 
@@ -350,6 +413,26 @@ The generated markdown must match the structure of `trip_details.md` so it can b
 ## Additional Notes
 
 {free-text, only if provided}
+
+## Additional Preferences
+
+- **Transport preference:** {walking|public transit|taxi & rideshare}
+- **Morning preference:** {morning person|no preference|afternoon starter}
+- **Snacking importance:** {skip|occasional|serious}
+- **Photography importance:** {not a priority|nice bonus|major activity}
+- **Visit duration style:** {quick highlights|moderate exploration|deep immersion}
+- **Shopping importance:** {skip|browse if convenient|dedicated time}
+- **Accessibility needs:** {none|prefer flat routes|wheelchair accessible}
+- **Walking tolerance:** {light (~2km/day)|moderate (~5km/day)|marathon (~10km+/day)}
+- **Weather sensitivity:** {indoor backup needed|flexible|rain or shine}
+- **Crowd tolerance:** {prefer off-peak|some crowds OK|don't mind queuing}
+- **Cultural immersion:** {photo ops & highlights|some context|full history & stories}
+- **Nightlife importance:** {not important|a night or two|essential}
+- **Group splitting:** {stay together|maybe for 1-2 activities|totally fine}
+- **Souvenir shopping:** {skip|local crafts & food|everything}
+- **Relaxation time:** {keep going|short breaks|long leisurely breaks}
+- **Social interaction:** {private & intimate|small group OK|love meeting people}
+- **Spontaneity:** {prefer the plan|small detours OK|surprise me!}
 ```
 
 ### Output Rules

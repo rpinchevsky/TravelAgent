@@ -1,0 +1,90 @@
+{
+  "destination": "Chișinău, Moldova",
+  "arrival": "2026-05-18",
+  "departure": "2026-05-31",
+  "total_days": 14,
+  "created": "2026-03-20T18:14:00",
+  "languages": {
+    "he": {
+      "phase_a_complete": true,
+      "days": {
+        "day_00": {
+          "status": "complete",
+          "title": "הגעה לקישינב",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_01": {
+          "status": "complete",
+          "title": "מרכז קישינב",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_02": {
+          "status": "complete",
+          "title": "מוזיאונים ופארקים",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_03": {
+          "status": "complete",
+          "title": "Cricova — עיר היין",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_04": {
+          "status": "complete",
+          "title": "Mileștii Mici — שיא גינס",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_05": {
+          "status": "complete",
+          "title": "Orheiul Vechi",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_06": {
+          "status": "complete",
+          "title": "מצודת סורוקה",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_07": {
+          "status": "complete",
+          "title": "שמורת טיפובה",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_08": {
+          "status": "complete",
+          "title": "טרנסניסטריה",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_09": {
+          "status": "complete",
+          "title": "חוויה מקומית בקישינב",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_10": {
+          "status": "complete",
+          "title": "Purcari — יין פרימיום",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_11": {
+          "status": "complete",
+          "title": "Cahul ואגם בלאו",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_12": {
+          "status": "complete",
+          "title": "קישינב — יום אחרון",
+          "last_modified": "2026-03-20T18:14:00"
+        },
+        "day_13": {
+          "status": "complete",
+          "title": "יציאה מהארץ",
+          "last_modified": "2026-03-20T18:14:00"
+        }
+      },
+      "budget_complete": true,
+      "assembly": {
+        "trip_full_md_built": "2026-03-20T18:30:00",
+        "trip_full_html_built": "2026-03-21T00:00:00",
+        "stale_days": []
+      }
+    }
+  }
+}

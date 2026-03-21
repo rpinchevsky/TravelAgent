@@ -1027,7 +1027,22 @@ a.activity-label:focus-visible {
 
 
 /* --------------------------------------------------------------------------
-   14. PRINT STYLES
+   14. RTL OVERRIDES
+   -------------------------------------------------------------------------- */
+
+[dir="rtl"] .pro-tip {
+  border-left: none;
+  border-right: 3px solid var(--color-brand-accent-alt);
+  border-radius: var(--radius-interactive) 0 0 var(--radius-interactive);
+}
+
+[dir="rtl"] .itinerary-table thead th {
+  text-align: right;
+}
+
+
+/* --------------------------------------------------------------------------
+   15. PRINT STYLES
    -------------------------------------------------------------------------- */
 
 @media print {
