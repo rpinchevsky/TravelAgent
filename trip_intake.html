@@ -3358,27 +3358,28 @@
         if (startDate && endDate) {
           const opts = { day: 'numeric', month: 'short' };
           const nights = Math.round((endDate - startDate) / 86400000);
-          const flexNote = flexibility > 0 ? ` <span>(&plusmn; ${flexibility} day${flexibility > 1 ? 's' : ''})</span>` : '';
+          const flexNote = flexibility > 0 ? ` <span>(&plusmn; ${flexibility})</span>` : '';
+          const nightLabel = nights !== 1 ? t('dp_nights') : t('dp_night');
           summaryEl.innerHTML =
-            `Check-in: <span>${startDate.toLocaleDateString('en-US', opts)}</span> &rarr; ` +
-            `Check-out: <span>${endDate.toLocaleDateString('en-US', opts)}</span> ` +
-            `(<span>${nights} night${nights !== 1 ? 's' : ''}</span>)${flexNote}`;
+            `${t('dp_checkin')}: <span>${startDate.toLocaleDateString(currentLang, opts)}</span> &rarr; ` +
+            `${t('dp_checkout')}: <span>${endDate.toLocaleDateString(currentLang, opts)}</span> ` +
+            `(<span>${nights} ${nightLabel}</span>)${flexNote}`;
           // Update search bar display
           if (sbVal) {
-            sbVal.textContent = `${startDate.toLocaleDateString('en-US', opts)} \u2014 ${endDate.toLocaleDateString('en-US', opts)} (${nights}n)`;
+            sbVal.textContent = `${startDate.toLocaleDateString(currentLang, opts)} \u2014 ${endDate.toLocaleDateString(currentLang, opts)} (${nights}n)`;
             sbVal.classList.remove('search-bar__value--placeholder');
           }
         } else if (startDate) {
           const opts = { day: 'numeric', month: 'short' };
-          summaryEl.innerHTML = `Check-in: <span>${startDate.toLocaleDateString('en-US', opts)}</span> &rarr; Select check-out`;
+          summaryEl.innerHTML = `${t('dp_checkin')}: <span>${startDate.toLocaleDateString(currentLang, opts)}</span> &rarr; ${t('dp_select_checkout')}`;
           if (sbVal) {
-            sbVal.textContent = `${startDate.toLocaleDateString('en-US', opts)} \u2014 ...`;
+            sbVal.textContent = `${startDate.toLocaleDateString(currentLang, opts)} \u2014 ...`;
             sbVal.classList.remove('search-bar__value--placeholder');
           }
         } else {
           summaryEl.innerHTML = '';
           if (sbVal) {
-            sbVal.innerHTML = 'Check-in &mdash; Check-out';
+            sbVal.textContent = t('sb_dates_placeholder');
             sbVal.classList.add('search-bar__value--placeholder');
           }
         }

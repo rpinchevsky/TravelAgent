@@ -66,6 +66,7 @@
   "step_review": "Review",
   "s0_title": "What's Your Travel Rhythm?",
   "s0_desc": "This shapes your daily schedule — start times, evening plans, and pace between stops.",
+  "s0_fill_hint": "Fill in your destination and dates above, then continue.",
   "s0_early": "Early Bird",
   "s0_early_desc": "Up and out by 8:30, wind down by evening",
   "s0_balanced": "Easy Going",
