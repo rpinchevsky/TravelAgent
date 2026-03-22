@@ -290,6 +290,43 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Serve trip_intake.html (required for fetch()-based i18n)
+  // NOTE (SA FB-5): This route only serves trip_intake.html itself. If future changes
+  // externalize CSS or JS files, the bridge server would need a more general static file
+  // route for the project root. For now, purpose-specific routes (/locales/*, /trip_intake.html)
+  // are correct for the current scope.
+  if (req.method === 'GET' && (req.url === '/' || req.url === '/trip_intake.html')) {
+    const absPath = path.join(PROJECT_DIR, 'trip_intake.html');
+    try {
+      const content = fs.readFileSync(absPath);
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(content);
+    } catch (e) {
+      res.writeHead(404); res.end('File not found');
+    }
+    return;
+  }
+
+  // Serve locale files (locales/*.json) for i18n catalogs
+  if (req.method === 'GET' && req.url.startsWith('/locales/')) {
+    const relPath = decodeURIComponent(req.url.slice(1)); // "locales/ui_en.json"
+    if (relPath.includes('..') || !relPath.startsWith('locales/')) {
+      res.writeHead(403); res.end('Forbidden'); return;
+    }
+    const absPath = path.join(PROJECT_DIR, relPath);
+    try {
+      const content = fs.readFileSync(absPath);
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=3600'
+      });
+      res.end(content);
+    } catch (e) {
+      res.writeHead(404); res.end('Locale file not found');
+    }
+    return;
+  }
+
   res.writeHead(404);
   res.end('Not found');
 });
@@ -302,10 +339,12 @@ server.listen(PORT, () => {
   console.log(`  Project:   ${PROJECT_DIR}`);
   console.log('');
   console.log('  Endpoints:');
-  console.log('    GET  /health        — check server status');
-  console.log('    POST /generate      — save file + start generation');
-  console.log('    GET  /progress/:id  — SSE stream of generation progress');
-  console.log('    GET  /latest-trip   — find latest generated trip HTML');
-  console.log('    GET  /file/:path    — serve files from generated_trips/');
+  console.log('    GET  /                — trip intake page');
+  console.log('    GET  /health          — check server status');
+  console.log('    POST /generate        — save file + start generation');
+  console.log('    GET  /progress/:id    — SSE stream of generation progress');
+  console.log('    GET  /latest-trip     — find latest generated trip HTML');
+  console.log('    GET  /file/:path      — serve files from generated_trips/');
+  console.log('    GET  /locales/:file   — serve i18n catalog JSON files');
   console.log('');
 });

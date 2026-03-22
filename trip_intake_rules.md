@@ -6,8 +6,8 @@
 
 **File:** `trip_intake.html` (project root)
 **Output:** Downloaded with a dynamic filename `{name}_trip_details_{date}.md` (see Output Format for construction rules). The user may rename the downloaded file. Any file following the trip details markdown structure is a valid input to the Trip Generation Pipeline.
-**Bridge server:** `trip_bridge.js` — optional Node.js server (`node trip_bridge.js`) that enables one-click trip generation. When running, the "Build My Dream Trip" button saves the file directly to the project directory and launches `claude` in a new terminal to generate the trip. When not running, the page falls back to browser download + copy command. Endpoints: `POST /generate` (save + start), `GET /progress/:id` (SSE stream), `POST /cancel/:id` (stop generation), `GET /latest-trip` (find generated HTML), `GET /file/*` (serve from generated_trips/).
-**Dependencies:** None (standalone HTML — no build step, no external JS frameworks)
+**Bridge server:** `trip_bridge.js` — optional Node.js server (`node trip_bridge.js`) that enables one-click trip generation. When running, the "Build My Dream Trip" button saves the file directly to the project directory and launches `claude` in a new terminal to generate the trip. When not running, the page falls back to browser download + copy command. Endpoints: `GET /` and `/trip_intake.html` (intake page), `POST /generate` (save + start), `GET /progress/:id` (SSE stream), `POST /cancel/:id` (stop generation), `GET /latest-trip` (find generated HTML), `GET /file/*` (serve from generated_trips/), `GET /locales/*` (i18n catalog JSON files).
+**Dependencies:** HTTP server required for i18n catalog loading (recommended: `node trip_bridge.js`). No build step, no external JS frameworks.
 **Design spec:** `trip_intake_design.md` (visual layout, CSS classes, component specs, animations)
 
 ### Internationalization (i18n)
@@ -16,13 +16,18 @@ The page supports 12 languages: English, Russian, Hebrew, Spanish, French, Germa
 
 **Rules:**
 - All static UI text uses `data-i18n="key"` attributes. Placeholders use `data-i18n-placeholder="key"`.
-- The `setLanguage(code)` function translates all marked elements, sets `dir="rtl"` for Hebrew/Arabic, and persists the choice in `localStorage('tripIntakeLang')`.
+- **Translation catalogs are external JSON files** in the `locales/` folder:
+  - `locales/ui_{lang}.json` — one per language (12 files), flat key-value objects
+  - Each `ui_{lang}.json` also contains an `_items` key with item name translations (merged from the former `ITEM_I18N` object)
+- `setLanguage(code)` fetches `locales/ui_{lang}.json` via `fetch()`, caches in memory, and applies translations. Falls back to English catalog, then a minimal inline emergency catalog.
+- `tItem(name)` reads from `_uiCache[currentLang]._items` with fallback to `_uiCache.en._items`. Same observable behavior as before.
+- The page requires HTTP serving (e.g., `node trip_bridge.js` on `localhost:3456`) for catalog loading. Direct `file://` access shows an informative error message.
 - Default language: detected from `navigator.language` (browser locale), falling back to English.
-- **All UI text — including dynamically generated card names — must display in the selected UI language.** The `ITEM_I18N` map provides RU/HE translations for all INTEREST_DB, AVOID_DB, FOOD_DB, and VIBE_DB items. The `tItem(name)` helper returns the translated display name. Each card stores its English name in `data-en-name` for markdown output.
+- **All UI text — including dynamically generated card names — must display in the selected UI language.** The `_items` key in each `ui_{lang}.json` provides translations for all INTEREST_DB, AVOID_DB, FOOD_DB, and VIBE_DB items. The `tItem(name)` helper returns the translated display name. Each card stores its English name in `data-en-name` for markdown output.
 - **The generated markdown output always uses English names** regardless of UI language. `getSelectedDynamic()` reads `data-en-name` attributes to ensure the trip planning pipeline receives consistent English identifiers.
 - The generated markdown output (Step 7 preview) always uses the **Report Language** selected in Step 6, not the UI language. The report language defaults to match the UI language.
-- When adding new UI text, always include a `data-i18n` attribute and add the key to the `TRANSLATIONS` object for all 12 languages.
-- When adding new items to INTEREST_DB, AVOID_DB, FOOD_DB, or VIBE_DB, also add RU and HE translations to the `ITEM_I18N` map.
+- When adding new UI text, always include a `data-i18n` attribute and add the key to all `locales/ui_{lang}.json` files for all 12 languages.
+- When adding new items to INTEREST_DB, AVOID_DB, FOOD_DB, or VIBE_DB, also add the item's translated name to the `_items` key in `locales/ui_ru.json` and `locales/ui_he.json`, and the English identity mapping to all other `ui_{lang}.json` files.
 - RTL languages (Hebrew, Arabic) flip layout direction: borders, paddings, text alignment, button arrows, and stepper direction all reverse.
 - **Language consistency rule:** Every screen the user sees during trip customization must display entirely in the selected UI language. Mixed-language screens (e.g., Hebrew labels with English card names) are a bug.
 
@@ -189,24 +194,27 @@ Three parts:
 
 ## Destination Autocomplete
 
-Uses a **hybrid approach**: local country list for instant multilingual matching + OpenStreetMap Nominatim API for city results.
+Uses a **three-tier hybrid approach**: local country list + local islands/regions list for instant multilingual matching, plus GeoNames API for city fallback.
 
 ### Behavior
 - **Local countries** (50 entries with en/ru/he names): matched instantly as the user types, shown with 🌍 icon. Matching works across all 3 languages (e.g., typing "ישראל" matches Israel).
-- **Nominatim API cities**: fetched after 2+ characters with 300ms debounce, shown with 🏙️ icon. Max 6 results, deduplicated by city+country.
-- Countries appear first in the dropdown, then cities. Duplicate entries are removed.
+- **Local islands & regions** (~40 popular travel destinations with en/ru/he names + parent country): matched instantly, shown with 🏝️ icon. Includes Greek islands (Crete, Santorini, Rhodes…), Spanish islands (Mallorca, Tenerife, Ibiza…), Italian regions (Tuscany, Amalfi Coast…), Thai islands (Phuket, Koh Samui…), and more.
+- **GeoNames API cities**: fetched after 2+ characters with 300ms debounce, shown with 🏙️ icon. Max 6 results, deduplicated against local lists by name.
+- Display order: countries first → islands/regions second → cities third. Duplicate entries are removed.
 - Keyboard navigation: Arrow Up/Down to highlight, Enter to select, Escape to close
 - Click outside closes dropdown
 - On country selection, input is set to the country name only (not "Country, Country") and a **city hint** appears below the search bar: "Tip: specify a city for a more detailed itinerary" (red text).
-- On city selection, input is set to `"City, Country"` format and the city hint is hidden.
+- On island/region or city selection, input is set to `"Name, Country"` format and the city hint is hidden.
 
 ### API Call
 ```
-GET https://nominatim.openstreetmap.org/search
-  ?q={query}&format=json&addressdetails=1&limit=6
-  &accept-language={currentLang}&featuretype=city
-Headers: User-Agent: TripIntakeForm/1.0
+GET https://secure.geonames.org/searchJSON
+  ?name_startsWith={query}&featureClass=P&maxRows=6
+  &lang={currentLang}&username=robertp
 ```
+- `featureClass=P` returns populated places (cities, towns, villages)
+- Islands and regions are covered by the local REGIONS list, not the API
+- GeoNames username: `robertp` (free tier, requires account activation at geonames.org)
 
 ## Question Inventory & Depth Tiers
 
@@ -446,11 +454,25 @@ The generated markdown must match the structure of `trip_details.md` so it can b
 
 ## How to Modify
 
+### Adding new UI text
+1. Add the `data-i18n="key"` attribute to the HTML element (or `data-i18n-placeholder` for input placeholders)
+2. Add the key with the English value to `locales/ui_en.json`
+3. Add the key with translated values to `locales/ui_ru.json` and `locales/ui_he.json`
+4. Add the key with the English fallback value to the remaining 9 `locales/ui_{lang}.json` files
+5. Update this document if the key belongs to a documented section
+
+### Adding new items to INTEREST_DB/AVOID_DB/FOOD_DB/VIBE_DB
+1. Add the item to the appropriate pool in `trip_intake.html`
+2. Add the item's translated name to the `_items` key in `locales/ui_ru.json` and `locales/ui_he.json`
+3. Add the item's English identity mapping to the `_items` key in all other 10 `locales/ui_{lang}.json` files
+4. Update the pool tables in this document
+
 ### Adding a new interest pool
 1. Add the flag to `analyzeGroup()` with its condition
 2. Add the pool array to `INTEREST_POOLS` (and optionally `AVOID_POOLS`, `VIBE_POOLS`)
 3. Add the section label to `SECTION_LABELS`
 4. Update the flag tables in this document
+5. Add RU and HE translations for all new items to the `_items` key in `locales/ui_ru.json` and `locales/ui_he.json`, and English identity mappings to all other `ui_{lang}.json` files
 
 ### Adding a new form field
 1. Add the HTML in the appropriate step section

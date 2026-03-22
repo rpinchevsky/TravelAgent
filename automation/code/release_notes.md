@@ -1,5 +1,78 @@
 # Release Notes
 
+## 2026-03-22 — i18n Alignment Regression: Key Leak Scanner & Field Alignment Tests (2 TCs)
+
+### Changes
+
+#### New Spec Files: `tests/intake/` (2 files, 2 test cases)
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `intake-i18n-key-leak.spec.ts` | 1 (TC-132) | Generic i18n key leak scanner — scans all visible text, select options, and input placeholders for raw i18n key patterns (`/\b[a-z]\d+_[a-z]\w*\b/`) in non-English UI |
+| `intake-step1-alignment.spec.ts` | 1 (TC-133) | Step 1 form field vertical alignment — validates Name input, Gender select, and DOB-year select top edges are within 5px tolerance in `.row--3` grid rows |
+
+#### Playwright Config Changes
+- Broadened `intake-i18n` project `testMatch` to `/intake-i18n-catalog|intake-i18n-key-leak|intake-step1-alignment/`
+- Updated `desktop-chromium` `testIgnore` to exclude `intake-i18n-key-leak` and `intake-step1-alignment` (these require HTTP transport via bridge server)
+
+#### Files Modified
+- `playwright.config.ts` — updated testMatch/testIgnore patterns for new intake test files
+
+#### Files Added
+- `tests/intake/intake-i18n-key-leak.spec.ts` — 1 invariant test scanning for i18n key leaks
+- `tests/intake/intake-step1-alignment.spec.ts` — 1 structural test validating form field alignment
+
+#### New POM Locators
+- None — both tests use existing `IntakePage` methods plus `page.evaluate()` for DOM inspection
+
+### Affected Sections
+- No HTML or content changes — test-only update
+- Tests target `trip_intake.html` (intake page, not generated trip HTML)
+- BRD coverage: REQ-003 (AC-1 through AC-6) and REQ-004 (AC-1 through AC-6)
+
+---
+
+## 2026-03-22 — i18n External Catalogs: Automation Tests (32 TCs)
+
+### Changes
+
+#### New Spec Files: `tests/intake/` (2 files, 32 test cases)
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `intake-i18n-catalogs.spec.ts` | 10 (TC-100–TC-107, TC-125–TC-127) | JSON file existence, validity, structure, cross-catalog consistency, removed consts, no build step, rule file documentation |
+| `intake-i18n-catalog-loading.spec.ts` | 22 (TC-108–TC-124, TC-128–TC-131) | Catalog fetching, caching, fallback chain, emergency catalog, translations, RTL, localStorage persistence, FOUC prevention, card rendering, markdown output, bridge server, file:// detection, race conditions, cross-validation |
+
+#### New POM Method: `IntakePage.waitForI18nReady()`
+- Waits for `body.i18n-loading` class to be removed. Mandatory after every `goto()` or `page.reload()` on the intake page.
+- Implementation: `await this.page.waitForFunction(() => !document.body.classList.contains('i18n-loading'))`
+
+#### New Shared Utility: `tests/intake/utils/request-counter.ts`
+- `createRequestCounter(page, urlPattern)` — monitors network requests matching a glob pattern. Returns `{ count, requests, reset() }`. Used by TC-108, TC-109, TC-112, TC-117, TC-118 to avoid duplicating request interception logic.
+
+#### Playwright Config Changes
+- Added `intake-i18n` project with `baseURL: 'http://localhost:3456/trip_intake.html'` and `testMatch: /intake-i18n-catalog/`
+- Added `webServer` block to auto-start `trip_bridge.js` on port 3456 with `reuseExistingServer: true` and `timeout: 10000`
+
+#### Files Modified
+- `tests/pages/IntakePage.ts` — added `waitForI18nReady()` method
+- `playwright.config.ts` — added intake-i18n project and webServer config
+
+#### Files Added
+- `tests/intake/intake-i18n-catalogs.spec.ts` — 10 filesystem validation tests
+- `tests/intake/intake-i18n-catalog-loading.spec.ts` — 22 browser-based tests
+- `tests/intake/utils/request-counter.ts` — shared network request counter utility
+
+#### New POM Locators
+- None — all new tests use existing `IntakePage` locators plus `page.evaluate()` and `page.route()` for network monitoring
+
+### Affected Sections
+- No HTML or content changes — test-only update
+- Tests target `trip_intake.html` (intake page, not generated trip HTML)
+- BRD coverage: all 7 requirements (REQ-001 through REQ-007) and all 39 acceptance criteria
+
+---
+
 ## 2026-03-21 — Dynamic Trip Details Filename: Automation Tests
 
 ### Changes

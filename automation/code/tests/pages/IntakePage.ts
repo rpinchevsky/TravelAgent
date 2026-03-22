@@ -410,6 +410,17 @@ export class IntakePage {
   }
 
   /**
+   * Wait for i18n catalogs to finish loading.
+   * Resolves once the `i18n-loading` class is removed from `<body>`.
+   * Must be called after every `goto()` or `page.reload()` on the intake page.
+   */
+  async waitForI18nReady() {
+    await this.page.waitForFunction(
+      () => !document.body.classList.contains('i18n-loading')
+    );
+  }
+
+  /**
    * Get card CSS properties for visual comparison.
    * Returns an object with key style properties for a card element.
    */

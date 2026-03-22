@@ -33,14 +33,25 @@ The page supports **12 languages** with a language selector on the hero section.
 ### Translation System
 - All static text elements have `data-i18n="key"` attribute
 - Placeholders use `data-i18n-placeholder="key"`
-- `TRANSLATIONS` object contains all strings keyed by language code
-- `setLanguage(code)` function:
-  1. Iterates all `[data-i18n]` elements and sets `textContent`
-  2. Iterates all `[data-i18n-placeholder]` elements and sets `placeholder`
-  3. Sets `dir="rtl"` on `<html>` for Hebrew/Arabic, `dir="ltr"` otherwise
-  4. Adds `lang` attribute on `<html>`
-  5. Updates `localStorage`
-  6. Dispatches `languagechange` custom event for dynamic content
+- Translation data lives in external JSON catalogs under `locales/`:
+  - `locales/ui_{lang}.json` — one file per language (12 total), flat key-value objects
+  - Each file includes an `_items` key containing item name translations (interests, avoids, food, vibes)
+- The page requires HTTP serving for catalog loading (`file://` shows an error message)
+- `setLanguage(code)` function (async):
+  1. Increments sequence counter to guard against race conditions on rapid language switching
+  2. Checks in-memory cache for the requested language catalog
+  3. On cache miss: fetches `locales/ui_{lang}.json` via `fetch()`
+  4. After fetch: checks sequence counter — aborts if superseded by a newer call
+  5. On fetch failure: falls back to English catalog (eagerly loaded), then inline emergency catalog
+  6. Iterates all `[data-i18n]` elements and sets `textContent` (with per-key English fallback)
+  7. Iterates all `[data-i18n-placeholder]` elements and sets `placeholder`
+  8. Sets `dir="rtl"` on `<html>` for Hebrew/Arabic, `dir="ltr"` otherwise
+  9. Adds `lang` attribute on `<html>`
+  10. Updates `localStorage`
+  11. Dispatches `languagechange` custom event for dynamic content
+- Caching strategy: fetched catalogs stored in `_uiCache` object, keyed by language code. Subsequent switches to a previously loaded language are synchronous (instant).
+- FOUC prevention: `<body class="i18n-loading">` hides `[data-i18n]` elements until first `setLanguage()` completes.
+- On page init: file:// detection runs first (abort with error if file://). English UI catalog loaded eagerly (includes item translations via `_items` key). User's preferred language catalog loaded next (if not English). Page unhidden after all initial loading completes. Cold load: 1 request (EN) or 2 requests (EN + target lang).
 
 ### RTL Support
 - Hebrew (`he`) and Arabic (`ar`) trigger `dir="rtl"` on `<html>`

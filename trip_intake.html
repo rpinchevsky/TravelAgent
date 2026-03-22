@@ -388,12 +388,12 @@
 
     .row { display: grid; gap: var(--space-3); }
     .row--2 { grid-template-columns: 1fr 1fr; }
-    .row--3 { grid-template-columns: 1fr 1fr 1fr; }
+    .row--3 { grid-template-columns: 1fr 1fr 1fr; align-items: end; }
     @media (max-width: 480px) { .row--2, .row--3 { grid-template-columns: 1fr; } }
 
     /* === DOB Dropdown Group === */
     .dob-row { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: var(--space-2); }
-    .dob-row .select { padding: 8px var(--space-2); font-size: var(--text-sm); padding-right: 28px; background-position: right 8px center; min-height: 40px; }
+    .dob-row .select { padding: 8px var(--space-2); font-size: var(--text-sm); padding-right: 28px; background-position: right 8px center; }
     .dob-cell__label { font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: 2px; }
     html[dir="rtl"] .dob-row .select { background-position: left 8px center; padding-right: var(--space-2); padding-left: 28px; }
 
@@ -1802,9 +1802,14 @@
       margin-top: var(--space-2); display: none;
     }
     .date-picker__error.is-visible { display: block; }
+    /* Hide translatable content until i18n catalogs are loaded */
+    body.i18n-loading [data-i18n],
+    body.i18n-loading [data-i18n-placeholder] {
+      visibility: hidden;
+    }
   </style>
 </head>
-<body>
+<body class="i18n-loading">
   <!-- Booking.com: Top Progress Bar -->
   <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
     <div class="progress-bar__fill" id="progressBarFill"></div>
@@ -3035,7 +3040,7 @@
     });
 
     // ================================================================
-    //  i18n — TRANSLATIONS & LANGUAGE ENGINE
+    //  i18n — EXTERNAL CATALOGS & LANGUAGE ENGINE
     // ================================================================
     const LANG_META = {
       en: { name: 'English', flag: '🇬🇧', dir: 'ltr' },
@@ -3053,1474 +3058,63 @@
     };
 
 
-    const TRANSLATIONS = {
-      en: {
-        hero_title: "Your perfect trip starts here",
-        hero_subtitle: "Answer a few questions and we'll design the perfect itinerary",
-        vp_custom_title: "Custom-Made Itinerary",
-        vp_custom_desc: "Every trip is built from scratch for your group — no cookie-cutter templates",
-        vp_prefs_title: "Tailored to Your Interests",
-        vp_prefs_desc: "We learn what each traveler loves and match every stop to their passions",
-        vp_local_title: "Hidden Gems, Not Tourist Traps",
-        vp_local_desc: "Authentic local experiences and secret spots the guidebooks miss",
-        vp_family_title: "Built for Every Age",
-        vp_family_desc: "Age-appropriate activities for everyone, from toddlers to grandparents",
-        sb_destination: "Destination",
-        sb_destination_placeholder: "Where are you going?",
-        sb_dates: "Dates",
-        sb_dates_placeholder: "Check-in — Check-out",
-        sb_travelers: "Travelers",
-        sb_letsgo: "Let's Go →",
-        sb_error_dest: "Please enter a destination",
-        sb_city_hint: "Tip: specify a city for a more detailed itinerary",
-        sb_error_dates: "Please select your travel dates",
-        sb_adults: "Adults",
-        sb_adults_age: "Age 18+",
-        sb_children: "Children",
-        sb_children_age: "Age 0–17",
-        sb_done: "Done",
-        dp_checkin: "Check-in",
-        dp_checkout: "Check-out",
-        dp_nights: "nights",
-        dp_night: "night",
-        dp_select_checkout: "Select check-out",
-        dp_exact: "Exact dates",
-        dp_flex_1: "± 1 day",
-        dp_flex_2: "± 2 days",
-        dp_flex_3: "± 3 days",
-        dp_flex_7: "± 7 days",
-        months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
-        days_short: ["Su","Mo","Tu","We","Th","Fr","Sa"],
-        step_trip: "Trip",
-        step_travelers: "Travelers",
-        step_style: "Style",
-        step_interests: "Interests",
-        step_avoid: "Avoid",
-        step_food: "Food",
-        step_details: "Details",
-        step_review: "Review",
-        s0_title: "What's Your Travel Rhythm?",
-        s0_desc: "This shapes your daily schedule — start times, evening plans, and pace between stops.",
-        s0_early: "Early Bird",
-        s0_early_desc: "Up and out by 8:30, wind down by evening",
-        s0_balanced: "Easy Going",
-        s0_balanced_desc: "Relaxed mornings, balanced day, dinner and an evening stroll",
-        s0_marathon: "Dawn to Dusk",
-        s0_marathon_desc: "Start early, finish late — squeeze every moment out of the day",
-        s0_night: "Night Owl",
-        s0_night_desc: "Sleep in, late start, the evenings are your highlight",
-        btn_continue: "Continue →",
-        s1_title: "Who's Traveling?",
-        s1_desc: "Add all travelers so we can tailor activities by age and interest.",
-        s1_adults: "Adults",
-        s1_adults_age: "Age 18+",
-        s1_children: "Children",
-        s1_children_age: "Age 0-17",
-        s1_adult_n: "Adult",
-        s1_child_n: "Child",
-        s1_name: "Name",
-        s1_name_placeholder: "e.g. Robert",
-        s1_gender: "Gender",
-        s1_gender_select: "Select...",
-        s1_gender_male: "Male",
-        s1_gender_female: "Female",
-        s1_dob: "Date of Birth",
-        s1_dob_year: "Year",
-        s1_dob_month: "Month",
-        s1_dob_day: "Day",
-        s1_year: "Year",
-        s1_month: "Month",
-        s1_day: "Day",
-        s1_child_name_placeholder: "e.g. Emma",
-        s1_child_notes: "Special notes",
-        s1_child_notes_placeholder: "e.g. Loves dinosaurs, afraid of heights",
-        s1_next: "Choose Your Style →",
-        s1_validation_error: "Please fill in name and birth year for all travelers",
-        btn_back: "← Back",
-        s2_title: "What's Your Travel Style?",
-        s2_desc: "Quick questions to understand your perfect trip.",
-        q_setting: "Where do you feel most alive?",
-        q_setting_city: "City Streets",
-        q_setting_city_desc: "Architecture, shopping, nightlife, food scene",
-        q_setting_both: "A Bit of Both",
-        q_setting_both_desc: "City days and nature escapes",
-        q_setting_nature: "Nature & Outdoors",
-        q_setting_nature_desc: "Parks, trails, water, wildlife",
-        q_culture: "When you travel, what draws you in?",
-        q_culture_culture: "History & Culture",
-        q_culture_culture_desc: "Museums, landmarks, local traditions",
-        q_culture_both: "Both",
-        q_culture_both_desc: "Some culture, some pure fun",
-        q_culture_fun: "Fun & Entertainment",
-        q_culture_fun_desc: "Theme parks, shows, games, nightlife",
-        // q_evening* keys removed — evening question was removed, now inferred from Daily Rhythm
-        s3_title: "What Do You Love?",
-        s3_desc: "Based on your answers, we've pre-selected some suggestions. Adjust as you like.",
-        s3_group: "Your group:",
-        s3_local_title: "🏛️ Local Tourist Highlights",
-        s3_local_desc: "Don't miss the most popular attractions at your destination — the iconic spots every visitor should see.",
-        s3_top_picks: "Top Picks For You",
-        s3_top_picks_desc: "Suggested based on your travel style. Tap to adjust.",
-        s3_more: "You Might Also Like",
-        s3_more_desc: "More options that match your group. Tap to add.",
-        s3_custom: "Other interests not listed above",
-        s3_custom_placeholder: "e.g. Hot air balloon rides, Cooking classes...",
-        s3_next: "Set Your Limits →",
-        s4_title: "Set Your Boundaries",
-        s4_desc: "Deselect anything you'd prefer to skip on this trip.",
-        q_noise: "What's your crowd & noise comfort?",
-        q_noise_quiet: "Quiet & Calm",
-        q_noise_quiet_desc: "Avoid crowds, loud venues, peak-hour rush",
-        q_noise_flex: "Flexible",
-        q_noise_flex_desc: "Some bustle is fine, just not overwhelming",
-        q_noise_lively: "Bring the Energy",
-        q_noise_lively_desc: "Love the buzz — festivals, markets, nightlife",
-        q_food_adv: "How adventurous with food?",
-        q_food_safe: "Keep It Safe",
-        q_food_safe_desc: "Familiar flavors, nothing too exotic or spicy",
-        q_food_open: "Open to Try",
-        q_food_open_desc: "Happy to taste local dishes, mild spice OK",
-        q_food_fearless: "Fearless Foodie",
-        q_food_fearless_desc: "Street food, exotic meats, extreme spice — yes please",
-        q_budget: "What's your spending comfort?",
-        q_budget_low: "Budget-Friendly",
-        q_budget_low_desc: "Free attractions, affordable meals, smart savings",
-        q_budget_mid: "Worth the Spend",
-        q_budget_mid_desc: "Mix of free and paid, splurge on highlights",
-        q_budget_high: "Treat Ourselves",
-        q_budget_high_desc: "Premium experiences, skip-the-line, comfort first",
-        q_flex: "How structured should the plan be?",
-        q_flex_strict: "Stick to the Plan",
-        q_flex_strict_desc: "Timed schedule, pre-booked, no surprises",
-        q_flex_loose: "Loose Framework",
-        q_flex_loose_desc: "Key highlights planned, room to wander",
-        q_flex_spont: "Go with the Flow",
-        q_flex_spont_desc: "Suggestions only, maximum spontaneity",
-        s4_avoid_title: "🚫 We'd Suggest Avoiding",
-        s4_avoid_desc: "Based on your answers. Tap to adjust.",
-        s4_custom_avoid: "Anything else to avoid?",
-        s4_custom_avoid_placeholder: "e.g. Bicycling activities, Heights, Water slides...",
-        s4_pace_title: "⚡ Your Daily Pace",
-        s4_pace_desc: "How packed should each day be?",
-        s4_pace_relaxed: "Relaxed",
-        s4_pace_relaxed_desc: "2-3 activities, slow mornings, lots of downtime",
-        s4_pace_balanced: "Balanced",
-        s4_pace_balanced_desc: "3-5 activities, quality over quantity",
-        s4_pace_packed: "Action-Packed",
-        s4_pace_packed_desc: "5+ activities, maximize every hour",
-        s4_next: "Food & Dining →",
-        s5_title: "Food & Dining",
-        s5_desc: "Select food experiences and dining vibes that match your group.",
-        q_diet: "What does your group eat?",
-        q_diet_omni: "Everything",
-        q_diet_omni_desc: "Meat, fish, veggies — no restrictions",
-        q_diet_meat: "Meat Lovers",
-        q_diet_meat_desc: "Strong preference for quality meat & BBQ",
-        q_diet_veg: "Mostly Veggie",
-        q_diet_veg_desc: "Vegetarian, pescatarian, or flexitarian",
-        q_diet_vegan: "Plant-Based",
-        q_diet_vegan_desc: "Vegan or strict plant-based diet",
-        q_dine: "Where do you love eating?",
-        q_dine_street: "Street Food & Markets",
-        q_dine_street_desc: "Local stalls, food trucks, market halls",
-        q_dine_casual: "Casual Restaurants",
-        q_dine_casual_desc: "Relaxed sit-down, local favorites, family-friendly",
-        q_dine_upscale: "Upscale Dining",
-        q_dine_upscale_desc: "Fine dining, tasting menus, wine pairings",
-        q_kids_food: "How are the kids with food?",
-        q_kids_food_alt: "Any dietary sensitivities in the group?",
-        q_kids_picky: "Very Picky",
-        q_kids_picky_desc: "Limited menu options, familiar food only",
-        q_kids_some: "Some Flexibility",
-        q_kids_some_desc: "Will try a few things, no spice",
-        q_kids_easy: "Eats Everything",
-        q_kids_easy_desc: "No issues — happy to try local food",
-        q_meal: "Which meal matters most to you?",
-        q_meal_breakfast: "Breakfast & Brunch",
-        q_meal_breakfast_desc: "Start the day right — cafes, pastries, lazy mornings",
-        q_meal_lunch: "Lunch is King",
-        q_meal_lunch_desc: "Midday feasts, long sit-downs, local specials",
-        q_meal_dinner: "Dinner is the Event",
-        q_meal_dinner_desc: "Evening dining is the highlight of the day",
-        q_local: "How local should the food experience be?",
-        q_local_familiar: "Keep It Familiar",
-        q_local_familiar_desc: "International chains, comfort food, known flavors",
-        q_local_mix: "Mix of Both",
-        q_local_mix_desc: "Some local, some familiar — best of both worlds",
-        q_local_full: "Full Local Immersion",
-        q_local_full_desc: "Only authentic local food, no tourist restaurants",
-        s5_food_title: "🍽️ Food Experiences For You",
-        s5_food_desc: "Based on your answers. Tap to adjust.",
-        s5_vibe_title: "🎉 Dining Vibe",
-        s5_vibe_desc: "What atmosphere are you looking for?",
-        s5_notes: "Anything else about food? (allergies, must-haves, dislikes)",
-        s5_notes_placeholder: "e.g. Nut allergy, must try local pastries, no raw fish...",
-        s5_next: "Almost Done →",
-        s6_title: "Language & Extras",
-        s6_desc: "Final touches for your perfect trip plan.",
-        s6_report_lang: "Report Language",
-        s6_poi_auto_hint: "POI info cards will automatically use the local destination language and your report language.",
-        s6_extra: "Anything else we should know?",
-        s6_extra_placeholder: "e.g. One child has a stroller, we want outlet shopping on one day, we need nearby supermarkets...",
-        s6_next: "Review My Trip →",
-        s7_title: "Review Your Trip Details",
-        s7_desc: "Here's the generated file. Review and download when ready.",
-        s7_copy: "Copy",
-        s7_copied: "Copied!",
-        s7_edit: "← Edit",
-        s7_copy_clip: "Copy to Clipboard",
-        s7_download: "Build My Dream Trip ✨",
-        s7_post_title: "Profile saved! Ready to generate your trip.",
-        s7_post_instruction: "Paste this command into Claude Code to start generating your personalized trip:",
-        s7_post_copy: "Copy Command",
-        s7_post_hint: "Make sure the downloaded file is in your project directory and Claude Code is open.",
-        s7_pipeline_title: "What happens next",
-        s7_pipeline_total: "~28 min total",
-        s7_pipeline_step1: "Overview & Manifest",
-        s7_pipeline_step2: "Day Generation",
-        s7_pipeline_step3: "Budget",
-        s7_pipeline_step4: "Assembly",
-        s7_pipeline_step5: "HTML Rendering",
-        s7_pipeline_step6: "Quality Testing",
-        s7_bridge_title: "Trip generation started!",
-        s7_bridge_desc: "Your trip is being generated in a new terminal window. This takes ~28 minutes.",
-        s7_bridge_hint: "Check the terminal window for progress. You can close this page.",
-        s7_bridge_toast: "File saved & generation started",
-        s7_bridge_running: "Generating your trip...",
-        s7_bridge_complete: "Trip generation complete!",
-        s7_bridge_error: "Generation encountered an error",
-        s7_open_trip: "Open Trip",
-        s7_stop_generation: "Stop & Edit Details",
-        bs_dates: "Select Dates",
-        bs_travelers: "Travelers",
-        bs_apply: "Apply Dates",
-        toast_dates: "Dates saved",
-        toast_copied: "Copied to clipboard",
-        toast_traveler_added: "Traveler added",
-        lang_label: "Language",
-        adult: "adult",
-        adults: "adults",
-        child_singular: "child",
-        children_plural: "children",
-        s1_boy: "Boy",
-        s1_girl: "Girl",
-        s1_child_name_label: "Name",
-        s1_child_name_placeholder: "e.g. Tamir",
-        hl_landmarks: "Top-Rated Landmarks",
-        hl_viewpoints: "Iconic Viewpoints & Observation Decks",
-        hl_squares: "Famous Squares & Plazas",
-        hl_museums: "Must-See Museums",
-        hl_bridges: "Signature Bridges & Monuments",
-        hl_historic: "Historic Districts & Old Town",
-        hl_tours: "Popular Guided City Tours",
-        hl_markets: "Local Markets & Bazaars",
-        s5_perfect: "Perfect For You",
-        s5_also_enjoy: "You Might Also Enjoy",
-        // Depth selector
-        depth_title: "How much detail would you like?",
-        depth_desc: "Choose how many questions to answer. Fewer = faster, more = more personalized.",
-        depth_confirm: "Let's Go \u2192",
-        depth_update: "Update",
-        depth_10: "Quick",
-        depth_15: "Light",
-        depth_20: "Standard",
-        depth_25: "Detailed",
-        depth_30: "Deep Dive",
-        depth_10_time: "~2 min",
-        depth_15_time: "~3 min",
-        depth_20_time: "~5 min",
-        depth_25_time: "~7 min",
-        depth_30_time: "~10 min",
-        depth_recommended: "Recommended",
-        depth_pill: "20 questions",
-        depth_toast_10: "Quick mode: 10 questions selected",
-        depth_toast_15: "Light mode: 15 questions selected",
-        depth_toast_20: "Standard: 20 questions \u2014 the full experience",
-        depth_toast_25: "Detailed: 25 questions for extra personalization",
-        depth_toast_30: "Deep Dive: 30 questions for maximum customization",
-        // New T4/T5 questions
-        q_transport: "Preferred way of getting around?",
-        q_transport_walking: "Walking",
-        q_transport_walking_desc: "Explore on foot, stay within walking distance",
-        q_transport_transit: "Public Transit",
-        q_transport_transit_desc: "Buses, metros, trams \u2014 like a local",
-        q_transport_taxi: "Taxi & Rideshare",
-        q_transport_taxi_desc: "Door-to-door comfort, skip the wait",
-        q_morning: "Morning or afternoon person?",
-        q_morning_am: "Morning Person",
-        q_morning_am_desc: "Best energy before noon, front-load the day",
-        q_morning_nopref: "No Preference",
-        q_morning_nopref_desc: "Happy any time of day",
-        q_morning_pm: "Afternoon Starter",
-        q_morning_pm_desc: "Slow mornings, peak energy after lunch",
-        q_visit: "Attraction visit style?",
-        q_visit_quick: "Quick Highlights",
-        q_visit_quick_desc: "See the best, move on \u2014 more stops per day",
-        q_visit_moderate: "Moderate Exploration",
-        q_visit_moderate_desc: "Take it in without rushing",
-        q_visit_deep: "Deep Immersion",
-        q_visit_deep_desc: "Spend hours, read every plaque, absorb it all",
-        q_shopping: "How important is shopping?",
-        q_shopping_skip: "Skip It",
-        q_shopping_skip_desc: "Not interested in shopping time",
-        q_shopping_browse: "Browse if Convenient",
-        q_shopping_browse_desc: "Pop into interesting shops along the way",
-        q_shopping_dedicated: "Dedicated Shopping Time",
-        q_shopping_dedicated_desc: "Block out time for markets, malls, local shops",
-        q_snacking: "How important is snacking between meals?",
-        q_snacking_skip: "Skip Snacks",
-        q_snacking_skip_desc: "Meals are enough, no need for extras",
-        q_snacking_occasional: "Occasional Nibbles",
-        q_snacking_occasional_desc: "Ice cream, pastry, street snack here and there",
-        q_snacking_serious: "Serious Snacker",
-        q_snacking_serious_desc: "Snacking IS the activity \u2014 food tours, tastings",
-        q_photography: "How important is photography?",
-        q_photo_notpriority: "Not a Priority",
-        q_photo_notpriority_desc: "A few casual snaps is enough",
-        q_photo_bonus: "Nice Bonus",
-        q_photo_bonus_desc: "Love good photo spots but won't detour for them",
-        q_photo_major: "Major Activity",
-        q_photo_major_desc: "Plan around golden hour, scenic overlooks, iconic shots",
-        q_accessibility: "Any accessibility considerations?",
-        q_access_none: "No Special Needs",
-        q_access_none_desc: "No mobility or accessibility concerns",
-        q_access_flat: "Prefer Flat Routes",
-        q_access_flat_desc: "Avoid steep hills, long stairs, cobblestones",
-        q_access_wheelchair: "Wheelchair Accessible",
-        q_access_wheelchair_desc: "Full wheelchair/stroller accessibility required",
-        // New T2-T5 quiz questions
-        q_walking: "How much walking can your group handle?",
-        q_walking_light: "Light Walks",
-        q_walking_light_desc: "~2km per day, frequent rest stops",
-        q_walking_moderate: "Moderate",
-        q_walking_moderate_desc: "~5km per day, comfortable pace",
-        q_walking_marathon: "Marathon Mode",
-        q_walking_marathon_desc: "~10km+ per day, bring it on",
-        q_weather: "How does weather affect your plans?",
-        q_weather_indoor: "Indoor Backup Please",
-        q_weather_indoor_desc: "Always have a Plan B for rain or heat",
-        q_weather_flexible: "Flexible",
-        q_weather_flexible_desc: "Adjust on the fly, no big deal",
-        q_weather_any: "Rain or Shine",
-        q_weather_any_desc: "Weather won't stop us, we're out regardless",
-        q_crowd: "How do you feel about popular tourist spots?",
-        q_crowd_offpeak: "Prefer Off-Peak",
-        q_crowd_offpeak_desc: "Visit early or late to avoid the masses",
-        q_crowd_some: "Some Crowds OK",
-        q_crowd_some_desc: "Popular spots are fine, just not wall-to-wall",
-        q_crowd_dontmind: "Don't Mind Queuing",
-        q_crowd_dontmind_desc: "Worth the wait for the best attractions",
-        q_cultural_immersion: "How deep do you want to go culturally?",
-        q_cultural_highlights: "Photo Ops & Highlights",
-        q_cultural_highlights_desc: "Snap the landmarks, get the vibe, move on",
-        q_cultural_some: "Some Context",
-        q_cultural_some_desc: "A bit of history and backstory at each stop",
-        q_cultural_full: "Full History & Stories",
-        q_cultural_full_desc: "Deep dives, guided tours, local narratives",
-        q_nightlife: "How important is nightlife?",
-        q_nightlife_none: "Not At All",
-        q_nightlife_none_desc: "Early nights, save energy for tomorrow",
-        q_nightlife_some: "A Night or Two",
-        q_nightlife_some_desc: "One or two evenings out, nothing extreme",
-        q_nightlife_essential: "Essential",
-        q_nightlife_essential_desc: "Bars, clubs, live music \u2014 the night is young",
-        q_splitting: "Open to the group splitting up?",
-        q_splitting_together: "Stay Together",
-        q_splitting_together_desc: "Everyone does everything together",
-        q_splitting_maybe: "Maybe for 1-2 Activities",
-        q_splitting_maybe_desc: "Split for specific interests, regroup later",
-        q_splitting_fine: "Totally Fine",
-        q_splitting_fine_desc: "Each person follows their own path when needed",
-        q_souvenir: "What kind of souvenirs interest you?",
-        q_souvenir_skip: "Skip Souvenirs",
-        q_souvenir_skip_desc: "Memories are enough, no need to buy stuff",
-        q_souvenir_local: "Local Crafts & Food",
-        q_souvenir_local_desc: "Artisan goods, local delicacies, handmade items",
-        q_souvenir_everything: "Everything \u2014 Gifts for Everyone",
-        q_souvenir_everything_desc: "Fridge magnets to designer finds, we're shopping",
-        q_relaxation: "How much downtime do you need?",
-        q_relaxation_keepgoing: "Keep Going",
-        q_relaxation_keepgoing_desc: "Rest is overrated, maximize the day",
-        q_relaxation_short: "Short Breaks",
-        q_relaxation_short_desc: "Coffee stops and breathers between activities",
-        q_relaxation_long: "Long Leisurely Breaks",
-        q_relaxation_long_desc: "Extended lunches, park sits, afternoon naps",
-        q_social: "How social do you want the trip to be?",
-        q_social_private: "Private & Intimate",
-        q_social_private_desc: "Just our group, minimal interaction with strangers",
-        q_social_small: "Small Group OK",
-        q_social_small_desc: "Group tours and shared experiences are fine",
-        q_social_social: "Love Meeting People",
-        q_social_social_desc: "Locals, fellow travelers \u2014 the more the merrier",
-        q_surprise: "How open are you to spontaneous changes?",
-        q_surprise_plan: "Prefer the Plan",
-        q_surprise_plan_desc: "Stick to what's scheduled, no surprises",
-        q_surprise_detours: "Small Detours OK",
-        q_surprise_detours_desc: "Open to small changes if something cool comes up",
-        q_surprise_surprise: "Surprise Me!",
-        q_surprise_surprise_desc: "Love the unexpected \u2014 change plans anytime"
-      },
+    // i18n catalogs loaded from external JSON files (locales/ui_{lang}.json)
+    // Each catalog includes UI strings + item translations (under _items key)
+    const _uiCache = {};    // { lang: { key: value, ..., _items: { "English Name": "Translated Name" } } } — populated by fetchUiCatalog()
+    let _langRequestId = 0; // Sequence counter for race condition guard on rapid language switching (SA FB-2)
 
-      ru: {
-        hero_title: "Ваше идеальное путешествие начинается здесь",
-        hero_subtitle: "Ответьте на несколько вопросов, и мы составим идеальный маршрут",
-        vp_custom_title: "Индивидуальный маршрут",
-        vp_custom_desc: "Каждое путешествие создаётся с нуля для вашей группы — никаких шаблонов",
-        vp_prefs_title: "Под ваши интересы",
-        vp_prefs_desc: "Мы узнаём, что нравится каждому, и подбираем места по вашим увлечениям",
-        vp_local_title: "Скрытые жемчужины, а не туристические ловушки",
-        vp_local_desc: "Аутентичные местные впечатления и секретные места, о которых не пишут в путеводителях",
-        vp_family_title: "Для любого возраста",
-        vp_family_desc: "Занятия по возрасту для всех — от малышей до бабушек и дедушек",
-        sb_destination: "Направление",
-        sb_destination_placeholder: "Куда вы едете?",
-        sb_dates: "Даты",
-        sb_dates_placeholder: "Заезд — Выезд",
-        sb_travelers: "Путешественники",
-        sb_letsgo: "Поехали →",
-        sb_error_dest: "Укажите направление",
-        sb_city_hint: "Совет: укажите город для более детального маршрута",
-        sb_error_dates: "Выберите даты поездки",
-        sb_adults: "Взрослые",
-        sb_adults_age: "От 18 лет",
-        sb_children: "Дети",
-        sb_children_age: "0–17 лет",
-        sb_done: "Готово",
-        dp_checkin: "Заезд",
-        dp_checkout: "Выезд",
-        dp_nights: "ночей",
-        dp_night: "ночь",
-        dp_select_checkout: "Выберите дату выезда",
-        dp_exact: "Точные даты",
-        dp_flex_1: "± 1 день",
-        dp_flex_2: "± 2 дня",
-        dp_flex_3: "± 3 дня",
-        dp_flex_7: "± 7 дней",
-        months: ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"],
-        days_short: ["Вс","Пн","Вт","Ср","Чт","Пт","Сб"],
-        step_trip: "Поездка",
-        step_travelers: "Путешественники",
-        step_style: "Стиль",
-        step_interests: "Интересы",
-        step_avoid: "Избегать",
-        step_food: "Еда",
-        step_details: "Детали",
-        step_review: "Обзор",
-        s0_title: "Какой у вас ритм путешествия?",
-        s0_desc: "Это определит ваш распорядок дня — время начала, вечерние планы и темп между остановками.",
-        s0_early: "Ранняя пташка",
-        s0_early_desc: "На ногах к 8:30, вечером отдыхать",
-        s0_balanced: "Без спешки",
-        s0_balanced_desc: "Неспешное утро, сбалансированный день, ужин и вечерняя прогулка",
-        s0_marathon: "От рассвета до заката",
-        s0_marathon_desc: "Ранний старт, поздний финиш — выжать максимум из каждого дня",
-        s0_night: "Ночная сова",
-        s0_night_desc: "Выспаться, поздний старт, вечер — главное событие дня",
-        btn_continue: "Продолжить →",
-        s1_title: "Кто едет?",
-        s1_desc: "Добавьте всех путешественников, чтобы мы подобрали активности по возрасту и интересам.",
-        s1_adults: "Взрослые",
-        s1_adults_age: "От 18 лет",
-        s1_children: "Дети",
-        s1_children_age: "0-17 лет",
-        s1_adult_n: "Взрослый",
-        s1_child_n: "Ребёнок",
-        s1_name: "Имя",
-        s1_name_placeholder: "напр. Роберт",
-        s1_gender: "Пол",
-        s1_gender_select: "Выберите...",
-        s1_gender_male: "Мужской",
-        s1_gender_female: "Женский",
-        s1_dob: "Дата рождения",
-        s1_dob_year: "Год",
-        s1_dob_month: "Месяц",
-        s1_dob_day: "День",
-        s1_year: "Год",
-        s1_month: "Месяц",
-        s1_day: "День",
-        s1_child_name_placeholder: "напр. Эмма",
-        s1_child_notes: "Особые заметки",
-        s1_child_notes_placeholder: "напр. Любит динозавров, боится высоты",
-        s1_next: "Выберите стиль →",
-        s1_validation_error: "Заполните имя и год рождения для всех путешественников",
-        btn_back: "← Назад",
-        s2_title: "Какой у вас стиль путешествий?",
-        s2_desc: "Быстрые вопросы, чтобы понять ваше идеальное путешествие.",
-        q_setting: "Где вы чувствуете себя живее всего?",
-        q_setting_city: "Городские улицы",
-        q_setting_city_desc: "Архитектура, шопинг, ночная жизнь, гастрономия",
-        q_setting_both: "Всего понемногу",
-        q_setting_both_desc: "Городские дни и вылазки на природу",
-        q_setting_nature: "Природа и активный отдых",
-        q_setting_nature_desc: "Парки, тропы, водоёмы, дикая природа",
-        q_culture: "Что привлекает вас в путешествиях?",
-        q_culture_culture: "История и культура",
-        q_culture_culture_desc: "Музеи, достопримечательности, местные традиции",
-        q_culture_both: "И то, и другое",
-        q_culture_both_desc: "Немного культуры, немного развлечений",
-        q_culture_fun: "Развлечения и веселье",
-        q_culture_fun_desc: "Парки аттракционов, шоу, игры, ночная жизнь",
-        // q_evening* keys removed — evening question was removed, now inferred from Daily Rhythm
-        s3_title: "Что вы любите?",
-        s3_desc: "На основе ваших ответов мы подобрали предложения. Настройте по своему вкусу.",
-        s3_group: "Ваша группа:",
-        s3_local_title: "🏛️ Главные достопримечательности",
-        s3_local_desc: "Не пропустите самые популярные места назначения — знаковые точки, которые стоит увидеть каждому.",
-        s3_top_picks: "Лучшее для вас",
-        s3_top_picks_desc: "Подобрано на основе вашего стиля путешествий. Нажмите, чтобы изменить.",
-        s3_more: "Вам также может понравиться",
-        s3_more_desc: "Ещё варианты для вашей группы. Нажмите, чтобы добавить.",
-        s3_custom: "Другие интересы, не перечисленные выше",
-        s3_custom_placeholder: "напр. Полёт на воздушном шаре, Кулинарные мастер-классы...",
-        s3_next: "Установить ограничения →",
-        s4_title: "Установите границы",
-        s4_desc: "Снимите выделение с того, что хотите пропустить в этом путешествии.",
-        q_noise: "Как вы относитесь к толпе и шуму?",
-        q_noise_quiet: "Тишина и спокойствие",
-        q_noise_quiet_desc: "Избегать толп, громких мест, часов пик",
-        q_noise_flex: "Гибко",
-        q_noise_flex_desc: "Немного суеты — нормально, лишь бы не перегружать",
-        q_noise_lively: "Дайте энергии",
-        q_noise_lively_desc: "Люблю движуху — фестивали, рынки, ночная жизнь",
-        q_food_adv: "Насколько вы смелы в еде?",
-        q_food_safe: "Поосторожнее",
-        q_food_safe_desc: "Знакомые вкусы, ничего слишком экзотичного или острого",
-        q_food_open: "Готов попробовать",
-        q_food_open_desc: "С удовольствием попробую местные блюда, умеренная острота — ок",
-        q_food_fearless: "Бесстрашный гурман",
-        q_food_fearless_desc: "Уличная еда, экзотика, острое — давайте всё",
-        q_budget: "Какой уровень расходов комфортен?",
-        q_budget_low: "Бюджетно",
-        q_budget_low_desc: "Бесплатные достопримечательности, доступная еда, экономия",
-        q_budget_mid: "Стоит потратить",
-        q_budget_mid_desc: "Микс бесплатного и платного, траты на лучшее",
-        q_budget_high: "Побалуем себя",
-        q_budget_high_desc: "Премиум-впечатления, без очередей, комфорт прежде всего",
-        q_flex: "Насколько структурированным должен быть план?",
-        q_flex_strict: "Чёткий план",
-        q_flex_strict_desc: "Расписание по часам, всё забронировано, без сюрпризов",
-        q_flex_loose: "Свободная рамка",
-        q_flex_loose_desc: "Основные точки запланированы, есть место для импровизации",
-        q_flex_spont: "Плыть по течению",
-        q_flex_spont_desc: "Только рекомендации, максимум спонтанности",
-        s4_avoid_title: "🚫 Рекомендуем избегать",
-        s4_avoid_desc: "На основе ваших ответов. Нажмите, чтобы изменить.",
-        s4_custom_avoid: "Что-то ещё избегать?",
-        s4_custom_avoid_placeholder: "напр. Велосипедные прогулки, Высота, Водные горки...",
-        s4_pace_title: "⚡ Ваш дневной темп",
-        s4_pace_desc: "Насколько насыщенным должен быть каждый день?",
-        s4_pace_relaxed: "Расслабленный",
-        s4_pace_relaxed_desc: "2-3 активности, неспешные утра, много свободного времени",
-        s4_pace_balanced: "Сбалансированный",
-        s4_pace_balanced_desc: "3-5 активностей, качество важнее количества",
-        s4_pace_packed: "Максимум впечатлений",
-        s4_pace_packed_desc: "5+ активностей, использовать каждый час",
-        s4_next: "Еда и рестораны →",
-        s5_title: "Еда и рестораны",
-        s5_desc: "Выберите гастрономические впечатления и атмосферу, подходящие вашей группе.",
-        q_diet: "Что ест ваша группа?",
-        q_diet_omni: "Всё",
-        q_diet_omni_desc: "Мясо, рыба, овощи — без ограничений",
-        q_diet_meat: "Мясоеды",
-        q_diet_meat_desc: "Предпочитаем качественное мясо и барбекю",
-        q_diet_veg: "Больше овощей",
-        q_diet_veg_desc: "Вегетарианцы, пескетарианцы или флекситарианцы",
-        q_diet_vegan: "Растительная пища",
-        q_diet_vegan_desc: "Веганская или строго растительная диета",
-        q_dine: "Где вы любите есть?",
-        q_dine_street: "Уличная еда и рынки",
-        q_dine_street_desc: "Местные лавки, фудтраки, рыночные залы",
-        q_dine_casual: "Обычные рестораны",
-        q_dine_casual_desc: "Уютные заведения, местные фавориты, для всей семьи",
-        q_dine_upscale: "Ресторан высокой кухни",
-        q_dine_upscale_desc: "Изысканная кухня, дегустационные меню, винные пары",
-        q_kids_food: "Как дети относятся к еде?",
-        q_kids_food_alt: "Есть ли в группе пищевые особенности?",
-        q_kids_picky: "Очень привередливы",
-        q_kids_picky_desc: "Ограниченный выбор, только знакомая еда",
-        q_kids_some: "Немного гибкие",
-        q_kids_some_desc: "Попробуют кое-что, без острого",
-        q_kids_easy: "Едят всё",
-        q_kids_easy_desc: "Без проблем — с радостью попробуют местное",
-        q_meal: "Какой приём пищи для вас самый важный?",
-        q_meal_breakfast: "Завтрак и бранч",
-        q_meal_breakfast_desc: "Начать день правильно — кафе, выпечка, неспешное утро",
-        q_meal_lunch: "Обед — главный",
-        q_meal_lunch_desc: "Дневные пиры, долгие застолья, местные специалитеты",
-        q_meal_dinner: "Ужин — событие",
-        q_meal_dinner_desc: "Вечерний ужин — главное событие дня",
-        q_local: "Насколько местной должна быть еда?",
-        q_local_familiar: "Привычная еда",
-        q_local_familiar_desc: "Международные сети, знакомые вкусы, комфортная еда",
-        q_local_mix: "Микс обоих",
-        q_local_mix_desc: "Немного местного, немного привычного — лучшее из двух миров",
-        q_local_full: "Полное погружение",
-        q_local_full_desc: "Только аутентичная местная кухня, никаких туристических ресторанов",
-        s5_food_title: "🍽️ Гастрономические впечатления для вас",
-        s5_food_desc: "На основе ваших ответов. Нажмите, чтобы изменить.",
-        s5_vibe_title: "🎉 Атмосфера ресторана",
-        s5_vibe_desc: "Какую атмосферу вы ищете?",
-        s5_notes: "Что-нибудь ещё о еде? (аллергии, обязательное, нелюбимое)",
-        s5_notes_placeholder: "напр. Аллергия на орехи, обязательно попробовать местную выпечку, без сырой рыбы...",
-        s5_next: "Почти готово →",
-        s6_title: "Язык и дополнительно",
-        s6_desc: "Последние штрихи для вашего идеального плана путешествия.",
-        s6_report_lang: "Язык отчёта",
-        s6_poi_auto_hint: "Карточки достопримечательностей будут автоматически на местном языке и языке отчёта.",
-        s6_extra: "Что-нибудь ещё, что нам стоит знать?",
-        s6_extra_placeholder: "напр. У одного ребёнка коляска, хотим аутлет-шопинг в один из дней, нужны ближайшие супермаркеты...",
-        s6_next: "Обзор моей поездки →",
-        s7_title: "Обзор деталей поездки",
-        s7_desc: "Вот сгенерированный файл. Просмотрите и скачайте, когда будете готовы.",
-        s7_copy: "Копировать",
-        s7_copied: "Скопировано!",
-        s7_edit: "← Редактировать",
-        s7_copy_clip: "Копировать в буфер",
-        s7_download: "Создать моё путешествие ✨",
-        s7_post_title: "Профиль сохранён! Готовы сгенерировать путешествие.",
-        s7_post_instruction: "Вставьте эту команду в Claude Code, чтобы начать генерацию вашего путешествия:",
-        s7_post_copy: "Копировать команду",
-        s7_post_hint: "Убедитесь, что скачанный файл находится в папке проекта и Claude Code открыт.",
-        s7_pipeline_title: "Что будет дальше",
-        s7_pipeline_total: "~28 мин всего",
-        s7_pipeline_step1: "Обзор и манифест",
-        s7_pipeline_step2: "Генерация дней",
-        s7_pipeline_step3: "Бюджет",
-        s7_pipeline_step4: "Сборка",
-        s7_pipeline_step5: "HTML рендеринг",
-        s7_pipeline_step6: "Тестирование качества",
-        s7_bridge_title: "Генерация путешествия запущена!",
-        s7_bridge_desc: "Ваше путешествие генерируется в новом окне терминала. Это займёт ~28 минут.",
-        s7_bridge_hint: "Следите за прогрессом в окне терминала. Эту страницу можно закрыть.",
-        s7_bridge_toast: "Файл сохранён, генерация запущена",
-        s7_bridge_running: "Генерируем ваше путешествие...",
-        s7_bridge_complete: "Генерация путешествия завершена!",
-        s7_bridge_error: "Ошибка при генерации",
-        s7_open_trip: "Открыть маршрут",
-        s7_stop_generation: "Остановить и изменить данные",
-        bs_dates: "Выберите даты",
-        bs_travelers: "Путешественники",
-        bs_apply: "Применить даты",
-        toast_dates: "Даты сохранены",
-        toast_copied: "Скопировано в буфер",
-        toast_traveler_added: "Путешественник добавлен",
-        lang_label: "Язык",
-        adult: "взрослый",
-        adults: "взрослых",
-        child_singular: "ребёнок",
-        children_plural: "детей",
-        s1_boy: "Мальчик",
-        s1_girl: "Девочка",
-        s1_child_name_label: "Имя",
-        s1_child_name_placeholder: "напр. Тамир",
-        hl_landmarks: "Главные достопримечательности",
-        hl_viewpoints: "Смотровые площадки и обзорные точки",
-        hl_squares: "Знаменитые площади и скверы",
-        hl_museums: "Обязательные музеи",
-        hl_bridges: "Знаковые мосты и монументы",
-        hl_historic: "Исторические районы и Старый город",
-        hl_tours: "Популярные экскурсии по городу",
-        hl_markets: "Местные рынки и базары",
-        s5_perfect: "Идеально для вас",
-        s5_also_enjoy: "Вам также может понравиться",
-        depth_title: "Сколько деталей вы хотите?",
-        depth_desc: "Выберите количество вопросов. Меньше = быстрее, больше = персональнее.",
-        depth_confirm: "Поехали \u2192",
-        depth_update: "Обновить",
-        depth_10: "Быстро",
-        depth_15: "Легко",
-        depth_20: "Стандарт",
-        depth_25: "Подробно",
-        depth_30: "Глубокое погружение",
-        depth_10_time: "~2 мин",
-        depth_15_time: "~3 мин",
-        depth_20_time: "~5 мин",
-        depth_25_time: "~7 мин",
-        depth_30_time: "~10 мин",
-        depth_recommended: "Рекомендуется",
-        depth_pill: "20 вопросов",
-        depth_toast_10: "Быстрый режим: 10 вопросов",
-        depth_toast_15: "Лёгкий режим: 15 вопросов",
-        depth_toast_20: "Стандарт: 20 вопросов \u2014 полный опыт",
-        depth_toast_25: "Подробный: 25 вопросов для доп. персонализации",
-        depth_toast_30: "Глубокое погружение: 30 вопросов для максимальной настройки",
-        q_transport: "Предпочтительный способ передвижения?",
-        q_transport_walking: "Пешком",
-        q_transport_walking_desc: "Исследовать пешком, в пешей доступности",
-        q_transport_transit: "Общественный транспорт",
-        q_transport_transit_desc: "Автобусы, метро, трамваи \u2014 как местный",
-        q_transport_taxi: "Такси и каршеринг",
-        q_transport_taxi_desc: "Комфорт от двери до двери",
-        q_morning: "Утренний или дневной человек?",
-        q_morning_am: "Жаворонок",
-        q_morning_am_desc: "Лучшая энергия до полудня",
-        q_morning_nopref: "Без предпочтений",
-        q_morning_nopref_desc: "Хорошо в любое время дня",
-        q_morning_pm: "Дневной старт",
-        q_morning_pm_desc: "Неспешные утра, пик энергии после обеда",
-        q_visit: "Стиль посещения достопримечательностей?",
-        q_visit_quick: "Быстрый обзор",
-        q_visit_quick_desc: "Увидеть лучшее и двигаться дальше",
-        q_visit_moderate: "Умеренное исследование",
-        q_visit_moderate_desc: "Осмотреть без спешки",
-        q_visit_deep: "Глубокое погружение",
-        q_visit_deep_desc: "Часами изучать, впитывать всё",
-        q_shopping: "Насколько важен шопинг?",
-        q_shopping_skip: "Пропустить",
-        q_shopping_skip_desc: "Не интересует шопинг",
-        q_shopping_browse: "Если по пути",
-        q_shopping_browse_desc: "Заглянуть в интересные магазины по дороге",
-        q_shopping_dedicated: "Специальное время",
-        q_shopping_dedicated_desc: "Выделить время на рынки, моллы, местные лавки",
-        q_snacking: "Насколько важны перекусы между приёмами пищи?",
-        q_snacking_skip: "Без перекусов",
-        q_snacking_skip_desc: "Основных приёмов пищи достаточно",
-        q_snacking_occasional: "Иногда",
-        q_snacking_occasional_desc: "Мороженое, выпечка, уличная еда время от времени",
-        q_snacking_serious: "Серьёзный перекусчик",
-        q_snacking_serious_desc: "Перекусы \u2014 это активность: фуд-туры, дегустации",
-        q_photography: "Насколько важна фотография?",
-        q_photo_notpriority: "Не приоритет",
-        q_photo_notpriority_desc: "Несколько случайных снимков достаточно",
-        q_photo_bonus: "Приятный бонус",
-        q_photo_bonus_desc: "Люблю фото-места, но не буду делать крюк",
-        q_photo_major: "Основная активность",
-        q_photo_major_desc: "Планировать вокруг золотого часа и видовых точек",
-        q_accessibility: "Есть ли особые потребности доступности?",
-        q_access_none: "Без особых потребностей",
-        q_access_none_desc: "Нет проблем с мобильностью",
-        q_access_flat: "Ровные маршруты",
-        q_access_flat_desc: "Избегать крутых подъёмов, длинных лестниц",
-        q_access_wheelchair: "Доступность для колясок",
-        q_access_wheelchair_desc: "Требуется полная доступность для колясок",
-        // New T2-T5 quiz questions
-        q_walking: "Сколько ваша группа может ходить пешком?",
-        q_walking_light: "Лёгкие прогулки",
-        q_walking_light_desc: "~2 км в день, частые остановки",
-        q_walking_moderate: "Умеренно",
-        q_walking_moderate_desc: "~5 км в день, комфортный темп",
-        q_walking_marathon: "Марафонский режим",
-        q_walking_marathon_desc: "~10+ км в день, давайте!",
-        q_weather: "Как погода влияет на ваши планы?",
-        q_weather_indoor: "Нужен запасной план",
-        q_weather_indoor_desc: "Всегда иметь план Б на случай дождя или жары",
-        q_weather_flexible: "Гибко",
-        q_weather_flexible_desc: "Подстроимся на ходу, не проблема",
-        q_weather_any: "В любую погоду",
-        q_weather_any_desc: "Погода нас не остановит, гуляем в любом случае",
-        q_crowd: "Как вы относитесь к популярным туристическим местам?",
-        q_crowd_offpeak: "Лучше в непиковое время",
-        q_crowd_offpeak_desc: "Посещать рано или поздно, чтобы избежать толп",
-        q_crowd_some: "Немного толпы — ОК",
-        q_crowd_some_desc: "Популярные места — нормально, но без давки",
-        q_crowd_dontmind: "Не против очередей",
-        q_crowd_dontmind_desc: "Стоит подождать ради лучших достопримечательностей",
-        q_cultural_immersion: "Насколько глубоко вы хотите погрузиться в культуру?",
-        q_cultural_highlights: "Фото и основное",
-        q_cultural_highlights_desc: "Сфотографировать, уловить атмосферу, двигаться дальше",
-        q_cultural_some: "Немного контекста",
-        q_cultural_some_desc: "Немного истории и предыстории на каждой остановке",
-        q_cultural_full: "Полная история и рассказы",
-        q_cultural_full_desc: "Глубокие погружения, экскурсии, местные истории",
-        q_nightlife: "Насколько важна ночная жизнь?",
-        q_nightlife_none: "Совсем нет",
-        q_nightlife_none_desc: "Ранний отбой, копим энергию на завтра",
-        q_nightlife_some: "Пару вечеров",
-        q_nightlife_some_desc: "Один-два вечера, ничего экстремального",
-        q_nightlife_essential: "Обязательно",
-        q_nightlife_essential_desc: "Бары, клубы, живая музыка \u2014 ночь молода",
-        q_splitting: "Готовы ли вы разделяться на группы?",
-        q_splitting_together: "Все вместе",
-        q_splitting_together_desc: "Все делают всё вместе",
-        q_splitting_maybe: "Может быть на 1-2 активности",
-        q_splitting_maybe_desc: "Разделиться по интересам, потом собраться",
-        q_splitting_fine: "Совершенно нормально",
-        q_splitting_fine_desc: "Каждый следует своим путём, когда нужно",
-        q_souvenir: "Какие сувениры вас интересуют?",
-        q_souvenir_skip: "Без сувениров",
-        q_souvenir_skip_desc: "Воспоминания — достаточно, не нужно ничего покупать",
-        q_souvenir_local: "Местные изделия и еда",
-        q_souvenir_local_desc: "Ремесленные товары, местные деликатесы, ручная работа",
-        q_souvenir_everything: "Всё \u2014 подарки для всех",
-        q_souvenir_everything_desc: "От магнитиков до дизайнерских находок",
-        q_relaxation: "Сколько отдыха вам нужно?",
-        q_relaxation_keepgoing: "Продолжаем!",
-        q_relaxation_keepgoing_desc: "Отдых переоценён, максимум из дня",
-        q_relaxation_short: "Короткие перерывы",
-        q_relaxation_short_desc: "Кофе-паузы и передышки между активностями",
-        q_relaxation_long: "Долгие перерывы",
-        q_relaxation_long_desc: "Длинные обеды, отдых в парке, послеобеденный сон",
-        q_social: "Насколько социальной должна быть поездка?",
-        q_social_private: "Приватно и уютно",
-        q_social_private_desc: "Только наша группа, минимум контактов с незнакомыми",
-        q_social_small: "Небольшая группа — ОК",
-        q_social_small_desc: "Групповые экскурсии и совместные впечатления — нормально",
-        q_social_social: "Любим знакомиться",
-        q_social_social_desc: "Местные, другие путешественники \u2014 чем больше, тем веселее",
-        q_surprise: "Насколько вы открыты к спонтанным изменениям?",
-        q_surprise_plan: "Придерживаемся плана",
-        q_surprise_plan_desc: "Следовать расписанию, без сюрпризов",
-        q_surprise_detours: "Небольшие отклонения — ОК",
-        q_surprise_detours_desc: "Открыты к небольшим изменениям, если что-то классное",
-        q_surprise_surprise: "Удивите нас!",
-        q_surprise_surprise_desc: "Любим неожиданности \u2014 менять планы в любой момент"
-      },
-
-      he: {
-        hero_title: "הטיול המושלם שלכם מתחיל כאן",
-        hero_subtitle: "ענו על כמה שאלות ונעצב עבורכם את המסלול המושלם",
-        vp_custom_title: "מסלול בהתאמה אישית",
-        vp_custom_desc: "כל טיול נבנה מאפס עבור הקבוצה שלכם — בלי תבניות מוכנות",
-        vp_prefs_title: "מותאם לתחומי העניין שלכם",
-        vp_prefs_desc: "אנחנו לומדים מה כל מטייל אוהב ומתאימים כל תחנה לתשוקות שלו",
-        vp_local_title: "פנינים נסתרות, לא מלכודות תיירים",
-        vp_local_desc: "חוויות מקומיות אותנטיות ומקומות סודיים שמדריכי הטיולים מפספסים",
-        vp_family_title: "מתאים לכל גיל",
-        vp_family_desc: "פעילויות מותאמות גיל לכולם — מפעוטות ועד סבים וסבתות",
-        sb_destination: "יעד",
-        sb_destination_placeholder: "לאן אתם טסים?",
-        sb_dates: "תאריכים",
-        sb_dates_placeholder: "צ'ק-אין — צ'ק-אאוט",
-        sb_travelers: "מטיילים",
-        sb_letsgo: "יאללה →",
-        sb_error_dest: "אנא הזינו יעד",
-        sb_city_hint: "טיפ: ציינו עיר לקבלת מסלול מפורט יותר",
-        sb_error_dates: "אנא בחרו תאריכי טיול",
-        sb_adults: "מבוגרים",
-        sb_adults_age: "גיל 18+",
-        sb_children: "ילדים",
-        sb_children_age: "גיל 0–17",
-        sb_done: "סיום",
-        dp_checkin: "צ'ק-אין",
-        dp_checkout: "צ'ק-אאוט",
-        dp_nights: "לילות",
-        dp_night: "לילה",
-        dp_select_checkout: "בחרו תאריך צ'ק-אאוט",
-        dp_exact: "תאריכים מדויקים",
-        dp_flex_1: "± יום אחד",
-        dp_flex_2: "± יומיים",
-        dp_flex_3: "± 3 ימים",
-        dp_flex_7: "± 7 ימים",
-        months: ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"],
-        days_short: ["א׳","ב׳","ג׳","ד׳","ה׳","ו׳","ש׳"],
-        step_trip: "טיול",
-        step_travelers: "מטיילים",
-        step_style: "סגנון",
-        step_interests: "תחומי עניין",
-        step_avoid: "להימנע",
-        step_food: "אוכל",
-        step_details: "פרטים",
-        step_review: "סקירה",
-        s0_title: "מה הקצב שלכם בטיול?",
-        s0_desc: "זה יעצב את לוח הזמנים היומי — שעות התחלה, תוכניות ערב וקצב בין התחנות.",
-        s0_early: "ציפור מוקדמת",
-        s0_early_desc: "בחוץ עד 8:30, לנוח בערב",
-        s0_balanced: "בלי לחץ",
-        s0_balanced_desc: "בקרים רגועים, יום מאוזן, ארוחת ערב וטיול לילי",
-        s0_marathon: "מהבוקר עד הלילה",
-        s0_marathon_desc: "התחלה מוקדמת, סיום מאוחר — לסחוט כל רגע מהיום",
-        s0_night: "ינשוף לילה",
-        s0_night_desc: "לישון, התחלה מאוחרת, הערבים הם השיא",
-        btn_continue: "המשך →",
-        s1_title: "מי טס?",
-        s1_desc: "הוסיפו את כל המטיילים כדי שנתאים פעילויות לפי גיל ותחומי עניין.",
-        s1_adults: "מבוגרים",
-        s1_adults_age: "גיל 18+",
-        s1_children: "ילדים",
-        s1_children_age: "גיל 0-17",
-        s1_adult_n: "מבוגר",
-        s1_child_n: "ילד",
-        s1_name: "שם",
-        s1_name_placeholder: "למשל רוברט",
-        s1_gender: "מגדר",
-        s1_gender_select: "בחרו...",
-        s1_gender_male: "זכר",
-        s1_gender_female: "נקבה",
-        s1_dob: "תאריך לידה",
-        s1_dob_year: "שנה",
-        s1_dob_month: "חודש",
-        s1_dob_day: "יום",
-        s1_year: "שנה",
-        s1_month: "חודש",
-        s1_day: "יום",
-        s1_child_name_placeholder: "למשל אמה",
-        s1_child_notes: "הערות מיוחדות",
-        s1_child_notes_placeholder: "למשל אוהב דינוזאורים, מפחד מגובה",
-        s1_next: "בחרו סגנון →",
-        s1_validation_error: "אנא מלאו שם ושנת לידה לכל המטיילים",
-        btn_back: "← חזרה",
-        s2_title: "מה סגנון הטיול שלכם?",
-        s2_desc: "שאלות קצרות כדי להבין את הטיול המושלם שלכם.",
-        q_setting: "איפה אתם מרגישים הכי חיים?",
-        q_setting_city: "רחובות העיר",
-        q_setting_city_desc: "אדריכלות, קניות, חיי לילה, סצנת אוכל",
-        q_setting_both: "קצת מהכל",
-        q_setting_both_desc: "ימי עיר ובריחות לטבע",
-        q_setting_nature: "טבע וחוצות",
-        q_setting_nature_desc: "פארקים, שבילים, מים, חיות בר",
-        q_culture: "מה מושך אתכם כשאתם מטיילים?",
-        q_culture_culture: "היסטוריה ותרבות",
-        q_culture_culture_desc: "מוזיאונים, אתרים, מסורות מקומיות",
-        q_culture_both: "שניהם",
-        q_culture_both_desc: "קצת תרבות, קצת כיף",
-        q_culture_fun: "כיף ובידור",
-        q_culture_fun_desc: "פארקי שעשועים, מופעים, משחקים, חיי לילה",
-        // q_evening* keys removed — evening question was removed, now inferred from Daily Rhythm
-        s3_title: "מה אתם אוהבים?",
-        s3_desc: "על סמך התשובות שלכם, בחרנו מראש כמה הצעות. התאימו כרצונכם.",
-        s3_group: "הקבוצה שלכם:",
-        s3_local_title: "🏛️ אטרקציות מקומיות מובילות",
-        s3_local_desc: "אל תפספסו את האטרקציות הפופולריות ביותר ביעד — המקומות האייקוניים שכל מבקר צריך לראות.",
-        s3_top_picks: "הבחירות המובילות שלנו",
-        s3_top_picks_desc: "מותאם לסגנון הטיול שלכם. לחצו לשינוי.",
-        s3_more: "אולי גם תאהבו",
-        s3_more_desc: "עוד אפשרויות לקבוצה שלכם. לחצו להוספה.",
-        s3_custom: "תחומי עניין נוספים שלא ברשימה",
-        s3_custom_placeholder: "למשל טיסה בכדור פורח, סדנאות בישול...",
-        s3_next: "הגדירו גבולות →",
-        s4_title: "הגדירו את הגבולות שלכם",
-        s4_desc: "בטלו סימון מכל מה שתעדיפו לדלג עליו בטיול הזה.",
-        q_noise: "מה רמת הנוחות שלכם עם המון ורעש?",
-        q_noise_quiet: "שקט ורגוע",
-        q_noise_quiet_desc: "להימנע מהמונים, מקומות רועשים, שעות עומס",
-        q_noise_flex: "גמישים",
-        q_noise_flex_desc: "קצת המולה זה בסדר, רק לא מכריע",
-        q_noise_lively: "תנו אנרגיה",
-        q_noise_lively_desc: "אוהבים את הבאזז — פסטיבלים, שווקים, חיי לילה",
-        q_food_adv: "כמה הרפתקניים עם אוכל?",
-        q_food_safe: "על הבטוח",
-        q_food_safe_desc: "טעמים מוכרים, בלי דברים אקזוטיים או חריפים",
-        q_food_open: "פתוחים לנסות",
-        q_food_open_desc: "שמחים לטעום מנות מקומיות, חריפות קלה בסדר",
-        q_food_fearless: "גורמה ללא פחד",
-        q_food_fearless_desc: "אוכל רחוב, בשרים אקזוטיים, חריף קיצוני — בבקשה",
-        q_budget: "מה רמת ההוצאות הנוחה?",
-        q_budget_low: "חסכוני",
-        q_budget_low_desc: "אטרקציות חינם, ארוחות במחיר נוח, חיסכון חכם",
-        q_budget_mid: "שווה את ההוצאה",
-        q_budget_mid_desc: "מיקס של חינם ובתשלום, פינוק בהיילייטס",
-        q_budget_high: "לפנק את עצמנו",
-        q_budget_high_desc: "חוויות פרימיום, דילוג על תורים, נוחות קודם",
-        q_flex: "כמה מובנה צריך להיות התוכנית?",
-        q_flex_strict: "לפי התוכנית",
-        q_flex_strict_desc: "לוח זמנים מתוזמן, הזמנות מראש, ללא הפתעות",
-        q_flex_loose: "מסגרת רופפת",
-        q_flex_loose_desc: "היילייטס מתוכננים, מקום לשוטט",
-        q_flex_spont: "לזרום",
-        q_flex_spont_desc: "הצעות בלבד, מקסימום ספונטניות",
-        s4_avoid_title: "🚫 מומלץ להימנע מ",
-        s4_avoid_desc: "על סמך התשובות שלכם. לחצו כדי להתאים.",
-        s4_custom_avoid: "משהו נוסף להימנע ממנו?",
-        s4_custom_avoid_placeholder: "למשל רכיבה על אופניים, גובה, מגלשות מים...",
-        s4_pace_title: "⚡ הקצב היומי שלכם",
-        s4_pace_desc: "כמה עמוס צריך להיות כל יום?",
-        s4_pace_relaxed: "רגוע",
-        s4_pace_relaxed_desc: "2-3 פעילויות, בקרים רגועים, הרבה זמן חופשי",
-        s4_pace_balanced: "מאוזן",
-        s4_pace_balanced_desc: "3-5 פעילויות, איכות על פני כמות",
-        s4_pace_packed: "עמוס לעייפה",
-        s4_pace_packed_desc: "5+ פעילויות, למקסם כל שעה",
-        s4_next: "אוכל ומסעדות →",
-        s5_title: "אוכל ומסעדות",
-        s5_desc: "בחרו חוויות אוכל ואווירת מסעדות שמתאימות לקבוצה שלכם.",
-        q_diet: "מה הקבוצה שלכם אוכלת?",
-        q_diet_omni: "הכל",
-        q_diet_omni_desc: "בשר, דגים, ירקות — ללא הגבלות",
-        q_diet_meat: "אוהבי בשר",
-        q_diet_meat_desc: "העדפה חזקה לבשר איכותי וברביקיו",
-        q_diet_veg: "בעיקר ירקות",
-        q_diet_veg_desc: "צמחוניים, פסקטריאנים או פלקסיטריאנים",
-        q_diet_vegan: "צמחי",
-        q_diet_vegan_desc: "טבעוני או דיאטה צמחית קפדנית",
-        q_dine: "איפה אתם אוהבים לאכול?",
-        q_dine_street: "אוכל רחוב ושווקים",
-        q_dine_street_desc: "דוכנים מקומיים, פוד טראקים, אולמות שוק",
-        q_dine_casual: "מסעדות קז׳ואל",
-        q_dine_casual_desc: "ישיבה רגועה, מקומות מקומיים מועדפים, ידידותי למשפחות",
-        q_dine_upscale: "מסעדות יוקרה",
-        q_dine_upscale_desc: "מטבח גבוה, תפריטי טעימות, שילובי יין",
-        q_kids_food: "איך הילדים עם אוכל?",
-        q_kids_food_alt: "יש רגישויות תזונתיות בקבוצה?",
-        q_kids_picky: "מאוד בררנים",
-        q_kids_picky_desc: "אפשרויות מוגבלות, רק אוכל מוכר",
-        q_kids_some: "קצת גמישות",
-        q_kids_some_desc: "ינסו כמה דברים, בלי חריף",
-        q_kids_easy: "אוכלים הכל",
-        q_kids_easy_desc: "ללא בעיות — שמחים לנסות אוכל מקומי",
-        q_meal: "איזו ארוחה הכי חשובה לכם?",
-        q_meal_breakfast: "ארוחת בוקר ובראנץ׳",
-        q_meal_breakfast_desc: "להתחיל את היום נכון — בתי קפה, מאפים, בקרים עצלנים",
-        q_meal_lunch: "צהריים זה המלך",
-        q_meal_lunch_desc: "סעודות צהריים, ישיבות ארוכות, מנות מקומיות",
-        q_meal_dinner: "ארוחת ערב היא האירוע",
-        q_meal_dinner_desc: "ארוחת ערב היא שיא היום",
-        q_local: "כמה מקומי צריך להיות האוכל?",
-        q_local_familiar: "להישאר עם המוכר",
-        q_local_familiar_desc: "רשתות בינלאומיות, אוכל נוחות, טעמים מוכרים",
-        q_local_mix: "מיקס של שניהם",
-        q_local_mix_desc: "קצת מקומי, קצת מוכר — הטוב משני העולמות",
-        q_local_full: "טבילה מקומית מלאה",
-        q_local_full_desc: "רק אוכל מקומי אותנטי, ללא מסעדות תיירותיות",
-        s5_food_title: "🍽️ חוויות אוכל בשבילכם",
-        s5_food_desc: "על סמך התשובות שלכם. לחצו כדי להתאים.",
-        s5_vibe_title: "🎉 אווירת ארוחה",
-        s5_vibe_desc: "איזו אווירה אתם מחפשים?",
-        s5_notes: "משהו נוסף על אוכל? (אלרגיות, חובה לנסות, לא אוהבים)",
-        s5_notes_placeholder: "למשל אלרגיה לאגוזים, חובה לנסות מאפים מקומיים, בלי דג נא...",
-        s5_next: "כמעט סיימנו →",
-        s6_title: "שפה ותוספות",
-        s6_desc: "נגיעות אחרונות לתוכנית הטיול המושלמת שלכם.",
-        s6_report_lang: "שפת הדו״ח",
-        s6_poi_auto_hint: "כרטיסי נקודות עניין ישתמשו אוטומטית בשפה המקומית ובשפת הדוח שלכם.",
-        s6_extra: "משהו נוסף שכדאי לנו לדעת?",
-        s6_extra_placeholder: "למשל לילד אחד יש עגלה, רוצים אאוטלט קניות ביום אחד, צריכים סופרמרקטים קרובים...",
-        s6_next: "סקירת הטיול שלי →",
-        s7_title: "סקירת פרטי הטיול",
-        s7_desc: "הנה הקובץ שנוצר. עברו עליו והורידו כשתהיו מוכנים.",
-        s7_copy: "העתק",
-        s7_copied: "הועתק!",
-        s7_edit: "← עריכה",
-        s7_copy_clip: "העתק ללוח",
-        s7_download: "בנו לי את טיול החלומות ✨",
-        s7_post_title: "הפרופיל נשמר! מוכנים ליצור את הטיול.",
-        s7_post_instruction: "הדביקו את הפקודה הזו ב-Claude Code כדי להתחיל ליצור את הטיול שלכם:",
-        s7_post_copy: "העתק פקודה",
-        s7_post_hint: "ודאו שהקובץ שהורדתם נמצא בתיקיית הפרויקט ושClaude Code פתוח.",
-        s7_pipeline_title: "מה קורה הלאה",
-        s7_pipeline_total: "~28 דקות סה\"כ",
-        s7_pipeline_step1: "סקירה ומניפסט",
-        s7_pipeline_step2: "יצירת ימים",
-        s7_pipeline_step3: "תקציב",
-        s7_pipeline_step4: "הרכבה",
-        s7_pipeline_step5: "עיבוד HTML",
-        s7_pipeline_step6: "בדיקות איכות",
-        s7_bridge_title: "יצירת הטיול החלה!",
-        s7_bridge_desc: "הטיול שלכם נוצר בחלון טרמינל חדש. זה ייקח כ-28 דקות.",
-        s7_bridge_hint: "עקבו אחרי ההתקדמות בחלון הטרמינל. ניתן לסגור דף זה.",
-        s7_bridge_toast: "הקובץ נשמר והיצירה החלה",
-        s7_bridge_running: "יוצרים את הטיול שלכם...",
-        s7_bridge_complete: "יצירת הטיול הושלמה!",
-        s7_bridge_error: "שגיאה ביצירת הטיול",
-        s7_open_trip: "פתח מסלול",
-        s7_stop_generation: "עצור וערוך פרטים",
-        bs_dates: "בחרו תאריכים",
-        bs_travelers: "מטיילים",
-        bs_apply: "החל תאריכים",
-        toast_dates: "התאריכים נשמרו",
-        toast_copied: "הועתק ללוח",
-        toast_traveler_added: "מטייל נוסף",
-        lang_label: "שפה",
-        adult: "מבוגר",
-        adults: "מבוגרים",
-        child_singular: "ילד",
-        children_plural: "ילדים",
-        s1_boy: "בן",
-        s1_girl: "בת",
-        s1_child_name_label: "שם",
-        s1_child_name_placeholder: "למשל תמיר",
-        hl_landmarks: "אטרקציות מדורגות גבוה",
-        hl_viewpoints: "תצפיות ומצפים איקוניים",
-        hl_squares: "כיכרות ורחבות מפורסמות",
-        hl_museums: "מוזיאונים שחובה לראות",
-        hl_bridges: "גשרים ואנדרטאות סמליים",
-        hl_historic: "רובעים היסטוריים והעיר העתיקה",
-        hl_tours: "סיורים מודרכים פופולריים",
-        hl_markets: "שווקים מקומיים ובזארים",
-        s5_perfect: "מושלם בשבילכם",
-        s5_also_enjoy: "אולי גם תיהנו מ",
-        depth_title: "כמה פרטים תרצו?",
-        depth_desc: "בחרו כמה שאלות לענות. פחות = מהיר יותר, יותר = מותאם אישית יותר.",
-        depth_confirm: "\u2192 יאללה",
-        depth_update: "עדכון",
-        depth_10: "מהיר",
-        depth_15: "קל",
-        depth_20: "סטנדרט",
-        depth_25: "מפורט",
-        depth_30: "צלילה עמוקה",
-        depth_10_time: "~2 דק׳",
-        depth_15_time: "~3 דק׳",
-        depth_20_time: "~5 דק׳",
-        depth_25_time: "~7 דק׳",
-        depth_30_time: "~10 דק׳",
-        depth_recommended: "מומלץ",
-        depth_pill: "20 שאלות",
-        depth_toast_10: "מצב מהיר: 10 שאלות נבחרו",
-        depth_toast_15: "מצב קל: 15 שאלות נבחרו",
-        depth_toast_20: "סטנדרט: 20 שאלות \u2014 החוויה המלאה",
-        depth_toast_25: "מפורט: 25 שאלות להתאמה נוספת",
-        depth_toast_30: "צלילה עמוקה: 30 שאלות להתאמה מקסימלית",
-        q_transport: "דרך מועדפת להתניידות?",
-        q_transport_walking: "הליכה",
-        q_transport_walking_desc: "לחקור ברגל, להישאר במרחק הליכה",
-        q_transport_transit: "תחבורה ציבורית",
-        q_transport_transit_desc: "אוטובוסים, מטרו, חשמליות \u2014 כמו מקומי",
-        q_transport_taxi: "מונית ושירותי הסעה",
-        q_transport_taxi_desc: "נוחות מדלת לדלת",
-        q_morning: "אדם של בוקר או צהריים?",
-        q_morning_am: "אדם של בוקר",
-        q_morning_am_desc: "האנרגיה הטובה ביותר לפני הצהריים",
-        q_morning_nopref: "ללא העדפה",
-        q_morning_nopref_desc: "שמח בכל שעה ביום",
-        q_morning_pm: "מתחיל אחר הצהריים",
-        q_morning_pm_desc: "בקרים איטיים, שיא האנרגיה אחרי הצהריים",
-        q_visit: "סגנון ביקור באטרקציות?",
-        q_visit_quick: "הילייטס מהירים",
-        q_visit_quick_desc: "לראות את הטוב ביותר ולהמשיך",
-        q_visit_moderate: "חקירה מתונה",
-        q_visit_moderate_desc: "לספוג בלי למהר",
-        q_visit_deep: "טבילה עמוקה",
-        q_visit_deep_desc: "לבלות שעות, לקרוא כל שלט, לספוג הכל",
-        q_shopping: "כמה חשוב שופינג?",
-        q_shopping_skip: "לדלג",
-        q_shopping_skip_desc: "לא מעוניינים בזמן קניות",
-        q_shopping_browse: "אם נוח",
-        q_shopping_browse_desc: "להיכנס לחנויות מעניינות בדרך",
-        q_shopping_dedicated: "זמן ייעודי לקניות",
-        q_shopping_dedicated_desc: "להקדיש זמן לשווקים, קניונים, חנויות",
-        q_snacking: "כמה חשובים חטיפים בין הארוחות?",
-        q_snacking_skip: "בלי חטיפים",
-        q_snacking_skip_desc: "הארוחות מספיקות",
-        q_snacking_occasional: "פה ושם",
-        q_snacking_occasional_desc: "גלידה, מאפה, חטיף רחוב פה ושם",
-        q_snacking_serious: "חטיפן רציני",
-        q_snacking_serious_desc: "חטיפים זו הפעילות \u2014 סיורי אוכל, טעימות",
-        q_photography: "כמה חשובה צילום?",
-        q_photo_notpriority: "לא בעדיפות",
-        q_photo_notpriority_desc: "כמה תמונות אקראיות מספיקות",
-        q_photo_bonus: "בונוס נחמד",
-        q_photo_bonus_desc: "אוהבים נקודות צילום אבל לא נסטה בשבילן",
-        q_photo_major: "פעילות מרכזית",
-        q_photo_major_desc: "לתכנן סביב שעת הזהב ותצפיות",
-        q_accessibility: "שיקולי נגישות?",
-        q_access_none: "ללא צרכים מיוחדים",
-        q_access_none_desc: "אין בעיות ניידות או נגישות",
-        q_access_flat: "מעדיפים מסלולים שטוחים",
-        q_access_flat_desc: "להימנע מגבעות תלולות, מדרגות ארוכות",
-        q_access_wheelchair: "נגיש לכיסא גלגלים",
-        q_access_wheelchair_desc: "נדרשת נגישות מלאה לכיסא גלגלים/עגלה",
-        // New T2-T5 quiz questions
-        q_walking: "כמה הליכה הקבוצה שלכם יכולה לעמוד בה?",
-        q_walking_light: "הליכות קלות",
-        q_walking_light_desc: "~2 ק\"מ ביום, עצירות מנוחה תכופות",
-        q_walking_moderate: "בינוני",
-        q_walking_moderate_desc: "~5 ק\"מ ביום, קצב נוח",
-        q_walking_marathon: "מצב מרתון",
-        q_walking_marathon_desc: "~10+ ק\"מ ביום, קדימה!",
-        q_weather: "איך מזג האוויר משפיע על התוכניות שלכם?",
-        q_weather_indoor: "תוכנית גיבוי בפנים",
-        q_weather_indoor_desc: "תמיד עם תוכנית ב' לגשם או חום",
-        q_weather_flexible: "גמיש",
-        q_weather_flexible_desc: "מסתגלים תוך כדי, לא עניין גדול",
-        q_weather_any: "בכל מזג אוויר",
-        q_weather_any_desc: "מזג האוויר לא יעצור אותנו, יוצאים בכל מקרה",
-        q_crowd: "איך אתם מרגישים לגבי אתרים תיירותיים פופולריים?",
-        q_crowd_offpeak: "מעדיפים שעות שקטות",
-        q_crowd_offpeak_desc: "לבקר מוקדם או מאוחר כדי להימנע מהמונים",
-        q_crowd_some: "קצת קהל — בסדר",
-        q_crowd_some_desc: "מקומות פופולריים זה בסדר, רק לא צפוף מדי",
-        q_crowd_dontmind: "לא מפריע לנו לחכות",
-        q_crowd_dontmind_desc: "שווה לחכות בשביל האטרקציות הטובות ביותר",
-        q_cultural_immersion: "כמה עמוק אתם רוצים להיכנס לתרבות?",
-        q_cultural_highlights: "תמונות והיילייטס",
-        q_cultural_highlights_desc: "לצלם, לספוג אווירה, ולהמשיך הלאה",
-        q_cultural_some: "קצת הקשר",
-        q_cultural_some_desc: "קצת היסטוריה ורקע בכל תחנה",
-        q_cultural_full: "היסטוריה וסיפורים מלאים",
-        q_cultural_full_desc: "צלילות עמוקות, סיורים מודרכים, סיפורים מקומיים",
-        q_nightlife: "כמה חשוב לכם חיי הלילה?",
-        q_nightlife_none: "בכלל לא",
-        q_nightlife_none_desc: "לישון מוקדם, לחסוך אנרגיה למחר",
-        q_nightlife_some: "ערב-ערביים",
-        q_nightlife_some_desc: "ערב או שניים בחוץ, כלום קיצוני",
-        q_nightlife_essential: "חיוני",
-        q_nightlife_essential_desc: "ברים, מועדונים, מוזיקה חיה \u2014 הלילה צעיר",
-        q_splitting: "מוכנים שהקבוצה תתפצל?",
-        q_splitting_together: "נישאר ביחד",
-        q_splitting_together_desc: "כולם עושים הכל ביחד",
-        q_splitting_maybe: "אולי ל-1-2 פעילויות",
-        q_splitting_maybe_desc: "להתפצל לפי תחומי עניין, להתאסף אחר כך",
-        q_splitting_fine: "בהחלט בסדר",
-        q_splitting_fine_desc: "כל אחד הולך בדרכו כשצריך",
-        q_souvenir: "איזה סוג מזכרות מעניין אתכם?",
-        q_souvenir_skip: "בלי מזכרות",
-        q_souvenir_skip_desc: "זיכרונות מספיקים, לא צריך לקנות דברים",
-        q_souvenir_local: "אומנות ואוכל מקומי",
-        q_souvenir_local_desc: "מוצרי אומנים, מעדנים מקומיים, עבודת יד",
-        q_souvenir_everything: "הכל \u2014 מתנות לכולם",
-        q_souvenir_everything_desc: "ממגנטים ועד מציאות מעצבים, אנחנו קונים",
-        q_relaxation: "כמה זמן מנוחה אתם צריכים?",
-        q_relaxation_keepgoing: "ממשיכים!",
-        q_relaxation_keepgoing_desc: "מנוחה מוגזמת, למקסם את היום",
-        q_relaxation_short: "הפסקות קצרות",
-        q_relaxation_short_desc: "הפסקות קפה ונשימה בין פעילויות",
-        q_relaxation_long: "הפסקות ארוכות ונינוחות",
-        q_relaxation_long_desc: "ארוחות צהריים ארוכות, ישיבה בפארק, תנומה",
-        q_social: "כמה חברותית תרצו שהטיול יהיה?",
-        q_social_private: "פרטי ואינטימי",
-        q_social_private_desc: "רק הקבוצה שלנו, מינימום אינטראקציה עם זרים",
-        q_social_small: "קבוצה קטנה — בסדר",
-        q_social_small_desc: "סיורים קבוצתיים וחוויות משותפות — בסדר",
-        q_social_social: "אוהבים להכיר אנשים",
-        q_social_social_desc: "מקומיים, מטיילים אחרים \u2014 ככל שיותר כך יותר כיף",
-        q_surprise: "כמה פתוחים אתם לשינויים ספונטניים?",
-        q_surprise_plan: "מעדיפים את התוכנית",
-        q_surprise_plan_desc: "לעקוב אחרי מה שתוכנן, בלי הפתעות",
-        q_surprise_detours: "סטיות קטנות — בסדר",
-        q_surprise_detours_desc: "פתוחים לשינויים קטנים אם משהו מגניב צץ",
-        q_surprise_surprise: "!הפתיעו אותנו",
-        q_surprise_surprise_desc: "אוהבים את הלא צפוי \u2014 לשנות תוכניות בכל רגע"
-      },
+    // Emergency fallback: minimal UI strings if all external catalogs fail to load.
+    // Only includes critical navigation elements to keep the page minimally usable.
+    // NOTE (SA FB-4): If both fetches fail for an RTL user (HE/AR), setLanguage() will
+    // still set dir="rtl" (from LANG_META), so these English strings render in RTL layout.
+    // This is cosmetically awkward but functionally tolerable — an accepted degraded state.
+    // Do NOT suppress RTL for emergency mode, as the user's actual catalog may load later.
+    const _EMERGENCY_CATALOG = {
+      hero_title: "Your perfect trip starts here",
+      hero_subtitle: "Answer a few questions and we'll design the perfect itinerary",
+      sb_letsgo: "Let's Go \u2192",
+      sb_destination: "Destination",
+      sb_dates: "Dates",
+      sb_travelers: "Travelers",
+      btn_continue: "Continue \u2192",
+      btn_back: "\u2190 Back",
+      step_trip: "Trip",
+      step_travelers: "Travelers",
+      step_style: "Style",
+      step_interests: "Interests",
+      step_avoid: "Avoid",
+      step_food: "Food",
+      step_details: "Details",
+      step_review: "Review",
+      months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+      days_short: ["Su","Mo","Tu","We","Th","Fr","Sa"]
     };
 
-    // ================================================================
-    //  i18n — ITEM TRANSLATIONS (Interest, Avoid, Food, Vibe cards)
-    // ================================================================
-    // Keyed by English name → { ru, he }. Used for UI display only;
-    // markdown output always uses English names via data-en-name attribute.
-    const ITEM_I18N = {
-      // ---- INTEREST: FOOD & CULINARY ----
-      'Local Food Markets & Street Food':  { ru: 'Местные рынки и стрит-фуд', he: 'שווקי אוכל מקומיים ואוכל רחוב' },
-      'Local Cooking Classes':             { ru: 'Местные кулинарные мастер-классы', he: 'שיעורי בישול מקומיים' },
-      'Wine Tasting & Vineyard Tours':     { ru: 'Дегустация вин и виноградники', he: 'טעימות יין וסיורי כרמים' },
-      'Craft Beer & Brewery Visits':       { ru: 'Крафтовое пиво и пивоварни', he: 'בירה בוטיק וסיורי מבשלות' },
-      'Fine Dining & Tasting Menus':       { ru: 'Высокая кухня и дегустации', he: 'מסעדות שף ותפריטי טעימות' },
-      'Food Tours & Culinary Walks':       { ru: 'Гастрономические туры', he: 'סיורי אוכל וטעימות' },
-      'Farmers Markets & Gourmet Shops':   { ru: 'Фермерские рынки и деликатесы', he: 'שווקי חקלאים וחנויות גורמה' },
-      'Barbecue & Smokehouse Experiences': { ru: 'Барбекю и коптильни', he: 'ברביקיו וחוויות מעשנה' },
-      'Afternoon Tea & Patisseries':       { ru: 'Чаепитие и кондитерские', he: 'תה אחר הצהריים ומאפיות' },
-      'Family Cooking Workshops':          { ru: 'Семейные кулинарные мастер-классы', he: 'סדנאות בישול משפחתיות' },
-      // ---- INTEREST: NATURE & OUTDOORS ----
-      'National Parks & Nature Reserves':  { ru: 'Национальные парки и заповедники', he: 'פארקים לאומיים ושמורות טבע' },
-      'Waterfalls & Gorges':               { ru: 'Водопады и ущелья', he: 'מפלים וקניונים' },
-      'Hiking & Nature Trails':            { ru: 'Пешие маршруты и тропы', he: 'טיולי הליכה ושבילי טבע' },
-      'Lake & Beach Relaxation':           { ru: 'Отдых на озере или пляже', he: 'נופש באגם או בחוף' },
-      'Botanical Gardens & Arboretums':    { ru: 'Ботанические сады', he: 'גנים בוטניים' },
-      'Cave Explorations':                 { ru: 'Исследование пещер', he: 'סיורי מערות' },
-      'Horseback Riding in Nature':        { ru: 'Верховая езда на природе', he: 'רכיבה על סוסים בטבע' },
-      'River Rafting & Canoeing':          { ru: 'Рафтинг и каноэ', he: 'רפטינג וקיאקים' },
-      'Camping & Glamping':                { ru: 'Кемпинг и глэмпинг', he: 'קמפינג וגלמפינג' },
-      'Mountain Chairlifts & Cable Cars':  { ru: 'Канатные дороги и подъёмники', he: 'רכבלים ומעליות הרים' },
-      'Forest Bathing & Meditation Walks': { ru: 'Лесные прогулки и медитация', he: 'טבילת יער והליכות מדיטציה' },
-      'Bird Watching & Wildlife Safari':   { ru: 'Наблюдение за птицами и сафари', he: 'צפרות וספארי חיות בר' },
-      'Nature Walks & Easy Hikes':         { ru: 'Прогулки и лёгкие походы', he: 'הליכות בטבע וטיולים קלים' },
-      // ---- INTEREST: CITY & CULTURE ----
-      'Historical Landmarks & Architecture':{ ru: 'Исторические достопримечательности', he: 'אתרים היסטוריים וארכיטקטורה' },
-      'Art Galleries & Exhibitions':       { ru: 'Галереи и выставки', he: 'גלריות אמנות ותערוכות' },
-      'Theater, Opera & Ballet':           { ru: 'Театр, опера и балет', he: 'תיאטרון, אופרה ובלט' },
-      'Guided Walking & History Tours':    { ru: 'Экскурсии с гидом', he: 'סיורים מודרכים והיסטוריים' },
-      'Classical Music & Opera':           { ru: 'Классическая музыка и опера', he: 'מוזיקה קלאסית ואופרה' },
-      'Cultural Festivals & Local Events': { ru: 'Культурные фестивали и события', he: 'פסטיבלים תרבותיים ואירועים מקומיים' },
-      'Bookshop Cafes & Literary Tours':   { ru: 'Книжные кафе и литературные туры', he: 'בתי קפה ספרותיים וסיורי ספרות' },
-      'Antique & Flea Markets':            { ru: 'Антикварные и блошиные рынки', he: 'שווקי עתיקות ופשפשים' },
-      'Tactical / Military History Sites': { ru: 'Военно-исторические объекты', he: 'אתרי היסטוריה צבאית' },
-      'Kid-Friendly Historical Sites':     { ru: 'Исторические места для детей', he: 'אתרים היסטוריים לילדים' },
-      // ---- INTEREST: ACTIVE & ADVENTURE ----
-      'Cycling & E-bike Tours':            { ru: 'Велосипедные туры', he: 'סיורי אופניים ואופניים חשמליים' },
-      'Kayaking & Paddleboarding':         { ru: 'Каякинг и сап-серфинг', he: 'קיאקים ופאדלבורד' },
-      'Paragliding & Skydiving':           { ru: 'Парапланеризм и скайдайвинг', he: 'מצנחי רחיפה וצניחה חופשית' },
-      'Diving & Snorkeling':               { ru: 'Дайвинг и снорклинг', he: 'צלילה ושנורקלינג' },
-      'Bungee Jumping & Extreme Sports':   { ru: 'Банджи-джампинг и экстрим', he: 'בנג׳י ג׳אמפינג וספורט אתגרי' },
-      'Hot Air Balloon Rides':             { ru: 'Полёт на воздушном шаре', he: 'טיסות בכדור פורח' },
-      'Off-Road & ATV Adventures':         { ru: 'Внедорожные приключения', he: 'טיולי שטח וטרקטורונים' },
-      'Rope Parks & Adventure Courses':    { ru: 'Верёвочные парки', he: 'פארקי חבלים ומסלולי הרפתקאות' },
-      'Surfing & Wakeboarding':            { ru: 'Сёрфинг и вейкборд', he: 'גלישה ווייקבורד' },
-      // ---- INTEREST: FUN & ENTERTAINMENT ----
-      'Escape Rooms & Puzzle Experiences': { ru: 'Квесты и головоломки', he: 'חדרי בריחה וחידות' },
-      'Amusement & Theme Parks':           { ru: 'Парки развлечений', he: 'לונה פארק ופארקי שעשועים' },
-      'Arcade Games & Entertainment Centers':{ ru: 'Аркады и развлекательные центры', he: 'משחקי ארקייד ומרכזי בידור' },
-      'Gaming Cafes & VR Arcades':         { ru: 'Гейминг-кафе и VR-аркады', he: 'קפה גיימינג ומשחקי VR' },
-      'Bowling & Laser Tag':               { ru: 'Боулинг и лазертаг', he: 'באולינג ולייזר טאג' },
-      'Mini Golf':                         { ru: 'Мини-гольф', he: 'מיני גולף' },
-      'Trampoline Parks':                  { ru: 'Батутные парки', he: 'פארקי טרמפולינות' },
-      'Go-Karts & Racing Simulators':      { ru: 'Картинг и гоночные симуляторы', he: 'קארטינג וסימולטורי מירוצים' },
-      'Stand-up Comedy Shows':             { ru: 'Стендап-шоу', he: 'מופעי סטנדאפ' },
-      'Karaoke Bars':                      { ru: 'Караоке-бары', he: 'בארי קריוקי' },
-      // ---- INTEREST: RELAXATION & WELLNESS ----
-      'Spa & Thermal Baths':               { ru: 'Спа и термальные купальни', he: 'ספא ומרחצאות תרמיות' },
-      'Thermal Baths & Wellness Spas':     { ru: 'Термальные бани и велнес-спа', he: 'מרחצאות תרמיות וספא בריאות' },
-      'Wellness Retreats & Yoga':          { ru: 'Велнес-ретриты и йога', he: 'ריטריטים ויוגה' },
-      'Yoga & Pilates Studios':            { ru: 'Студии йоги и пилатеса', he: 'סטודיו יוגה ופילאטיס' },
-      'Couples Spa & Massage':             { ru: 'Спа и массаж для пар', he: 'ספא ועיסוי לזוגות' },
-      // ---- INTEREST: NIGHTLIFE & EVENING ----
-      'Rooftop Bars & Cocktail Lounges':   { ru: 'Руфтоп-бары и коктейли', he: 'בארים על גגות וטרקליני קוקטיילים' },
-      'Live Music & Jazz Clubs':           { ru: 'Живая музыка и джаз-клубы', he: 'מוזיקה חיה ומועדוני ג׳אז' },
-      'Nightclubs & Dance Venues':         { ru: 'Ночные клубы и танцпол', he: 'מועדוני לילה וריקודים' },
-      'Pub Crawls & Bar Hopping':          { ru: 'Пабы и бар-хоппинг', he: 'סיבוב פאבים ובארים' },
-      'Beach Clubs & Pool Parties':        { ru: 'Пляжные клубы и бассейны', he: 'מועדוני חוף ומסיבות בריכה' },
-      'Music Festivals & Open-Air Concerts':{ ru: 'Музыкальные фестивали', he: 'פסטיבלי מוזיקה והופעות' },
-      // ---- INTEREST: SHOPPING ----
-      'Shopping (Outlet / Local Brands)':  { ru: 'Шопинг (аутлеты / местные бренды)', he: 'קניות (אאוטלטים / מותגים מקומיים)' },
-      'Outdoor Markets & Craft Stalls':    { ru: 'Уличные рынки и ярмарки', he: 'שווקים פתוחים ודוכני מלאכת יד' },
-      'Boutique & Designer Shopping':      { ru: 'Бутики и дизайнерские магазины', he: 'בוטיקים וקניות מעצבים' },
-      'Fashion District & Concept Stores': { ru: 'Модные кварталы и концепт-сторы', he: 'רובעי אופנה וחנויות קונספט' },
-      'Vintage & Thrift Shopping':         { ru: 'Винтаж и секонд-хенд', he: 'קניות וינטג׳ ויד שנייה' },
-      'Shopping Districts & Malls':        { ru: 'Торговые центры и моллы', he: 'מרכזי קניות וקניונים' },
-      // ---- INTEREST: SCENIC & SIGHTSEEING ----
-      'Scenic Walking & Viewpoints':       { ru: 'Живописные прогулки и смотровые', he: 'הליכות נופיות ותצפיות' },
-      'Boat or River Cruises':             { ru: 'Круизы по реке', he: 'שייט בנהר או בסירה' },
-      'Photography Spots & Scenic Lookouts':{ ru: 'Фотогеничные места и обзорные', he: 'נקודות צילום ותצפיות' },
-      'Parks & Gardens':                   { ru: 'Парки и сады', he: 'פארקים וגנים' },
-      'Romantic Sunset Cruises':           { ru: 'Романтический круиз на закате', he: 'שייט רומנטי בשקיעה' },
-      'Stargazing Experiences':            { ru: 'Наблюдение за звёздами', he: 'צפייה בכוכבים' },
-      'Scenic Train & Tram Rides':         { ru: 'Живописные поездки на поезде', he: 'נסיעות נוף ברכבת ובחשמלית' },
-      // ---- INTEREST: ROMANTIC / COUPLE ----
-      'Candlelit Dinner Experiences':      { ru: 'Ужин при свечах', he: 'ארוחת ערב לאור נרות' },
-      'Wine & Cheese Pairings':            { ru: 'Дегустация вин и сыров', he: 'טעימות יין וגבינות' },
-      'Scenic Picnic Spots':               { ru: 'Живописные пикники', he: 'פיקניק בנקודות נוף' },
-      'Romantic Horse-Drawn Carriage':     { ru: 'Романтическая прогулка в карете', he: 'נסיעה רומנטית בכרכרה' },
-      // ---- INTEREST: MALE-LEANING ----
-      'Sports Bars & Live Game Viewing':   { ru: 'Спорт-бары и трансляции', he: 'בארי ספורט וצפייה במשחקים' },
-      'Craft Distilleries & Whiskey Tours':{ ru: 'Дистиллерии и виски-туры', he: 'מזקקות ויסקי וסיורים' },
-      'Motorsport & Race Tracks':          { ru: 'Автоспорт и гоночные трассы', he: 'מוטורספורט ומסלולי מירוצים' },
-      'Fishing & Angling Trips':           { ru: 'Рыбалка', he: 'דיג וטיולי דייג' },
-      'Sports Events (Football, Basketball)':{ ru: 'Спортивные события (футбол, баскетбол)', he: 'אירועי ספורט (כדורגל, כדורסל)' },
-      // ---- INTEREST: FEMALE-LEANING ----
-      'Flower Markets & Garden Tours':     { ru: 'Цветочные рынки и сады', he: 'שווקי פרחים וסיורי גנים' },
-      'Pottery & Ceramic Workshops':       { ru: 'Гончарные мастер-классы', he: 'סדנאות קרמיקה' },
-      'Perfume Making Workshops':          { ru: 'Мастер-классы по парфюмерии', he: 'סדנאות יצירת בשמים' },
-      'Jewelry Making Classes':            { ru: 'Мастер-классы по ювелирному делу', he: 'סדנאות יצירת תכשיטים' },
-      // ---- INTEREST: KIDS (generic) ----
-      'Playgrounds & Parks with Splash Areas':{ ru: 'Площадки с водными зонами', he: 'מגרשי משחקים עם מתקני מים' },
-      'Family-Friendly Museums':           { ru: 'Музеи для всей семьи', he: 'מוזיאונים למשפחות' },
-      'Aquariums & Touch Tanks':           { ru: 'Аквариумы и контактные бассейны', he: 'אקווריומים ובריכות מגע' },
-      'Interactive Science Centers':       { ru: 'Интерактивные научные центры', he: 'מרכזי מדע אינטראקטיביים' },
-      'Zoo & Wildlife Parks':              { ru: 'Зоопарки и парки дикой природы', he: 'גני חיות ופארקי חיות בר' },
-      'Family Restaurants with Play Areas':{ ru: 'Рестораны с детскими зонами', he: 'מסעדות עם פינות משחק' },
-      'Family Bike Rides & Rentals':       { ru: 'Семейные велопрогулки', he: 'טיולי אופניים משפחתיים' },
-      'Picnic in the Park':                { ru: 'Пикник в парке', he: 'פיקניק בפארק' },
-      // ---- INTEREST: TODDLER ----
-      'Soft Play Areas & Indoor Playgrounds':{ ru: 'Мягкие игровые зоны', he: 'מתחמי משחק רכים ומקורים' },
-      'Petting Zoos & Small Animal Farms': { ru: 'Контактные зоопарки и фермы', he: 'גני חיות מלטפים וחוות חיות' },
-      'Splash Pads & Shallow Pools':       { ru: 'Водные площадки и мелкие бассейны', he: 'מתקני מים רדודים ובריכות פעוטות' },
-      'Stroller-Friendly Walks & Paths':   { ru: 'Дорожки для колясок', he: 'שבילים נוחים לעגלות' },
-      'Sandbox Parks & Toddler Rides':     { ru: 'Песочницы и аттракционы для малышей', he: 'ארגזי חול ומתקנים לפעוטות' },
-      // ---- INTEREST: PRESCHOOL ----
-      'Circus & Magic Shows':              { ru: 'Цирк и шоу фокусов', he: 'קרקס ומופעי קסמים' },
-      'Train & Vehicle Rides':             { ru: 'Поездки на паровозиках', he: 'נסיעות ברכבות ורכבים' },
-      'Interactive Water Parks':           { ru: 'Интерактивные аквапарки', he: 'פארקי מים אינטראקטיביים' },
-      'Plushie & Toy Shops':               { ru: 'Магазины игрушек', he: 'חנויות בובות וצעצועים' },
-      'Carousel & Gentle Amusement Rides': { ru: 'Карусели и детские аттракционы', he: 'קרוסלות ומתקני שעשועים עדינים' },
-      'Face Painting & Craft Workshops':   { ru: 'Аквагрим и творческие мастер-классы', he: 'ציורי פנים וסדנאות יצירה' },
-      'Treasure Hunts & Scavenger Hunts':  { ru: 'Поиск сокровищ', he: 'ציד אוצרות ומשחקי חיפוש' },
-      // ---- INTEREST: SCHOOL-AGE ----
-      'Escape Rooms (Family-Friendly)':    { ru: 'Квесты для всей семьи', he: 'חדרי בריחה למשפחות' },
-      'Bike Rentals & Easy Trails':        { ru: 'Прокат велосипедов и лёгкие маршруты', he: 'השכרת אופניים ושבילים קלים' },
-      'Castles & History (Kid-Friendly)':  { ru: 'Замки и история для детей', he: 'טירות והיסטוריה לילדים' },
-      'Claw Machines & Prize Redemption':  { ru: 'Автоматы с призами', he: 'מכונות פרסים ומתקני שליפה' },
-      'Outdoor Obstacle Courses':          { ru: 'Полосы препятствий', he: 'מסלולי מכשולים בחוץ' },
-      'Drone & Robot Workshops':           { ru: 'Мастер-классы: дроны и роботы', he: 'סדנאות רחפנים ורובוטים' },
-      // ---- INTEREST: TEEN ----
-      'Escape Rooms':                      { ru: 'Квесты', he: 'חדרי בריחה' },
-      'Laser Tag & VR Experiences':        { ru: 'Лазертаг и VR', he: 'לייזר טאג וחוויות VR' },
-      'Street Art & Graffiti Tours':       { ru: 'Стрит-арт и граффити-туры', he: 'אמנות רחוב וסיורי גרפיטי' },
-      'Extreme Sports (Zipline, Climbing)':{ ru: 'Экстрим (зиплайн, скалолазание)', he: 'ספורט אתגרי (זיפליין, טיפוס)' },
-      'Skateparks & BMX':                  { ru: 'Скейтпарки и BMX', he: 'סקייטפארקים ו-BMX' },
-      'Water Sports (Jet Ski, Kayak)':     { ru: 'Водный спорт (гидроцикл, каяк)', he: 'ספורט ימי (אופנוע ים, קיאק)' },
-      // ---- INTEREST: BOY-KID ----
-      'Construction Vehicle & Heavy Machinery Exhibits':{ ru: 'Выставки строительной техники', he: 'תערוכות כלי בנייה ומכונות כבדות' },
-      'Train Museums & Railway Rides':     { ru: 'Музеи поездов и железные дороги', he: 'מוזיאוני רכבות ונסיעות' },
-      'Dinosaur Parks & Fossil Exhibits':  { ru: 'Парки динозавров и палеонтология', he: 'פארקי דינוזאורים ומאובנים' },
-      'LEGO & Building Workshops':         { ru: 'LEGO и конструирование', he: 'סדנאות לגו ובנייה' },
-      'Space & Rocket Exhibitions':        { ru: 'Космические выставки', he: 'תערוכות חלל וטילים' },
-      'Pirate-Themed Attractions':         { ru: 'Пиратские аттракционы', he: 'אטרקציות בנושא פיראטים' },
-      // ---- INTEREST: GIRL-KID ----
-      'Art & Painting Studios':            { ru: 'Студии рисования', he: 'סטודיו לאמנות וציור' },
-      'Horse Riding & Pony Farms':         { ru: 'Верховая езда и пони-ферма', he: 'רכיבה על סוסים וחוות פוני' },
-      'Bead & Bracelet Making Workshops':  { ru: 'Мастер-классы: бисер и браслеты', he: 'סדנאות חרוזים וצמידים' },
-      'Ice Cream & Dessert Workshops':     { ru: 'Мастер-классы: мороженое и десерты', he: 'סדנאות גלידה וקינוחים' },
-      'Dance & Ballet Studios':            { ru: 'Студии танцев и балета', he: 'סטודיו לריקוד ובלט' },
-      // ---- INTEREST: SENIOR ----
-      'Gentle River Cruises':              { ru: 'Спокойные речные круизы', he: 'שייט נהרות רגוע' },
-      'Tea Houses & Traditional Cafes':    { ru: 'Чайные дома и кафе', he: 'בתי תה ובתי קפה מסורתיים' },
-      'Easy-Access Historical Tours':      { ru: 'Доступные исторические экскурсии', he: 'סיורים היסטוריים נגישים' },
-      'Gentle Countryside Drives':         { ru: 'Поездки по сельской местности', he: 'נסיעות נוף בכפר' },
-      // ---- INTEREST: ALWAYS AVAILABLE ----
-      'Grocery Stores & Supermarkets':     { ru: 'Продуктовые магазины', he: 'מכולות וסופרמרקטים' },
-      'City Walking Tours (Self-Guided)':  { ru: 'Пешие прогулки по городу', he: 'סיורי הליכה עצמאיים בעיר' },
-      // ---- AVOID ----
-      'Tourist-trap chains':                              { ru: 'Туристические ловушки', he: 'מלכודות תיירים' },
-      'Overly crowded attractions during peak hours':     { ru: 'Переполненные места в часы пик', he: 'אטרקציות צפופות בשעות שיא' },
-      'Scam-prone areas':                                 { ru: 'Районы с мошенничеством', he: 'אזורים עם סיכון להונאות' },
-      'Kid-oriented attractions & play areas':            { ru: 'Детские аттракционы', he: 'אטרקציות ומתקני משחק לילדים' },
-      'Noisy family restaurants':                         { ru: 'Шумные семейные рестораны', he: 'מסעדות משפחתיות רועשות' },
-      'Long guided tours':                                { ru: 'Длинные экскурсии с гидом', he: 'סיורים מודרכים ארוכים' },
-      'Traditional museums without interactive elements':  { ru: 'Музеи без интерактива', he: 'מוזיאונים ללא אינטראקציה' },
-      'Long periods of sitting still':                    { ru: 'Долгое сидение на месте', he: 'ישיבה ממושכת במקום' },
-      'Churches & religious sites (not engaging for kids)':{ ru: 'Церкви и религиозные объекты (не для детей)', he: 'כנסיות ואתרים דתיים (לא לילדים)' },
-      'Spicy food for kids':                              { ru: 'Острая еда для детей', he: 'אוכל חריף לילדים' },
-      'Venues without bathrooms / changing areas':        { ru: 'Места без туалетов / пеленальных', he: 'מקומות ללא שירותים / החתלה' },
-      'Activities requiring walking over 1km':            { ru: 'Прогулки более 1 км', he: 'פעילויות הדורשות הליכה מעל 1 ק״מ' },
-      'Loud fireworks or explosive shows':                { ru: 'Громкие салюты и взрывы', he: 'זיקוקים רועשים ומופעי פיצוצים' },
-      'Venues with no high chairs or stroller access':    { ru: 'Места без стульчиков / доступа для колясок', he: 'מקומות ללא כיסאות גבוהים או גישה לעגלות' },
-      'Attractions designed for small children':          { ru: 'Аттракционы для малышей', he: 'אטרקציות לילדים קטנים' },
-      'Activities requiring heavy physical effort':       { ru: 'Серьёзная физическая нагрузка', he: 'פעילויות הדורשות מאמץ גופני כבד' },
-      'Steep stairs without elevator access':             { ru: 'Крутые лестницы без лифта', he: 'מדרגות תלולות ללא מעלית' },
-      'Very loud clubs or concerts':                      { ru: 'Очень громкие клубы / концерты', he: 'מועדונים או קונצרטים רועשים מאוד' },
-      'Slow-paced guided tours':                          { ru: 'Медленные экскурсии', he: 'סיורים מודרכים בקצב איטי' },
-      'Crowded family attractions':                       { ru: 'Переполненные семейные аттракционы', he: 'אטרקציות משפחתיות צפופות' },
-      'Group tour buses':                                 { ru: 'Групповые автобусные туры', he: 'אוטובוסי סיורים קבוצתיים' },
-      'Extremely spicy cuisine':                          { ru: 'Очень острая кухня', he: 'מטבח חריף מאוד' },
-      'Exotic or unfamiliar foods':                       { ru: 'Экзотические или непривычные блюда', he: 'מאכלים אקזוטיים או לא מוכרים' },
-      'Street food with questionable hygiene':            { ru: 'Уличная еда с сомнительной гигиеной', he: 'אוכל רחוב עם היגיינה מפוקפקת' },
-      'Overly formal fine dining':                        { ru: 'Слишком формальные рестораны', he: 'מסעדות רשמיות מדי' },
-      'Hilly terrain & steep inclines':                   { ru: 'Холмистая местность и крутые подъёмы', he: 'שטח הררי ומעלות תלולים' },
-      'Activities without rest areas nearby':             { ru: 'Активности без мест для отдыха', he: 'פעילויות ללא מקומות מנוחה' },
-      'Nightlife areas after 10pm':                       { ru: 'Районы ночной жизни после 22:00', he: 'אזורי חיי לילה אחרי 22:00' },
-      'Large open-air concerts & festivals':              { ru: 'Большие концерты и фестивали', he: 'קונצרטים ופסטיבלים באוויר הפתוח' },
-      'Expensive skip-the-line tickets':                  { ru: 'Дорогие билеты без очереди', he: 'כרטיסים יקרים לדילוג על התור' },
-      'Overpriced tourist restaurants':                   { ru: 'Переоценённые туристические рестораны', he: 'מסעדות תיירים יקרות מדי' },
-      'Premium-only experiences':                         { ru: 'Только премиум-развлечения', he: 'חוויות פרימיום בלבד' },
-      'Unstructured free time blocks':                    { ru: 'Неструктурированное свободное время', he: 'זמן חופשי לא מתוכנן' },
-      'Last-minute itinerary changes':                    { ru: 'Изменения маршрута в последнюю минуту', he: 'שינויים ברגע האחרון בתוכנית' },
-      // ---- FOOD ----
-      'Traditional Local Cuisine':                        { ru: 'Традиционная местная кухня', he: 'מטבח מקומי מסורתי' },
-      'Cooking Classes (Local Dishes)':                   { ru: 'Кулинарные мастер-классы (местные блюда)', he: 'שיעורי בישול (מנות מקומיות)' },
-      'BBQ & Smokehouse Experiences':                     { ru: 'Барбекю и коптильни', he: 'ברביקיו ומעשנות' },
-      'Steakhouse & Grill Restaurants':                   { ru: 'Стейкхаус и грили', he: 'מסעדות סטייק וגריל' },
-      'Local Bakeries & Pastry Shops':                    { ru: 'Местные пекарни и кондитерские', he: 'מאפיות וקונדיטוריות מקומיות' },
-      'Ice Cream & Dessert Spots':                        { ru: 'Мороженое и десерты', he: 'גלידריות וקינוחים' },
-      'Kid-Friendly Restaurants with Play Areas':         { ru: 'Рестораны с детскими зонами', he: 'מסעדות לילדים עם פינות משחק' },
-      'Street Food Stalls & Hawker Markets':              { ru: 'Уличные ларьки и рынки', he: 'דוכני אוכל רחוב ושווקים' },
-      'Exotic & Unusual Local Delicacies':                { ru: 'Экзотические и необычные деликатесы', he: 'מעדנים אקזוטיים יוצאי דופן' },
-      'Spicy Food Challenges':                            { ru: 'Испытания острой едой', he: 'אתגרי אוכל חריף' },
-      'Vegan & Plant-Based Restaurants':                  { ru: 'Веганские рестораны', he: 'מסעדות טבעוניות' },
-      'Vegetarian & Health-Conscious Cafes':              { ru: 'Вегетарианские и ЗОЖ-кафе', he: 'בתי קפה צמחוניים ובריאותיים' },
-      'Fresh Juice & Smoothie Bars':                      { ru: 'Фреш-бары и смузи', he: 'בארי מיצים טבעיים וסמוזי' },
-      'Seafood & Fish Restaurants':                       { ru: 'Рестораны морепродуктов', he: 'מסעדות דגים ופירות ים' },
-      'Rooftop Dining with a View':                       { ru: 'Рестораны на крыше с видом', he: 'מסעדות על גג עם נוף' },
-      'Brunch & Breakfast Spots':                         { ru: 'Бранчи и завтраки', he: 'בראנצ׳ ומקומות ארוחת בוקר' },
-      'Whiskey & Spirits Tasting':                        { ru: 'Дегустация виски и крепких напитков', he: 'טעימות וויסקי ומשקאות חריפים' },
-      'Chocolate & Confectionery Tours':                  { ru: 'Шоколадные и кондитерские туры', he: 'סיורי שוקולד וממתקים' },
-      'Coffee Culture & Specialty Cafes':                 { ru: 'Культура кофе и спешелти-кафе', he: 'תרבות קפה ובתי קפה מיוחדים' },
-      'Pizza & Casual Family Dining':                     { ru: 'Пицца и семейные рестораны', he: 'פיצה וארוחות משפחתיות' },
-      // ---- VIBE ----
-      'Casual & authentic':                { ru: 'Непринуждённо и аутентично', he: 'קז׳ואל ואותנטי' },
-      'Outdoor seating preferred':         { ru: 'Предпочтительно на свежем воздухе', he: 'ישיבה בחוץ מועדפת' },
-      'Local hidden gems':                 { ru: 'Местные скрытые жемчужины', he: 'פנינים מקומיות נסתרות' },
-      'Waterfront / scenic views':         { ru: 'Набережная / живописные виды', he: 'חזית מים / נוף מרהיב' },
-      'Budget-friendly':                   { ru: 'Бюджетно', he: 'ידידותי לכיס' },
-      'Loud/forgiving environments':       { ru: 'Громкие / снисходительные места', he: 'סביבות רועשות / סלחניות' },
-      'Playgrounds for kids':              { ru: 'Площадки для детей', he: 'מגרשי משחקים לילדים' },
-      'Quick service / street food':       { ru: 'Быстрое обслуживание / стрит-фуд', he: 'שירות מהיר / אוכל רחוב' },
-      'Romantic & intimate':               { ru: 'Романтично и уютно', he: 'רומנטי ואינטימי' },
-      'Trendy & Instagram-worthy':         { ru: 'Модно и инстаграмно', he: 'טרנדי ואינסטגרמי' },
-      'Fine dining experience':            { ru: 'Опыт высокой кухни', he: 'חוויית מסעדת שף' },
-      'Lively bar atmosphere':             { ru: 'Живая барная атмосфера', he: 'אווירת בר תוססת' },
-      'Live music venues':                 { ru: 'Живая музыка', he: 'מקומות עם מוזיקה חיה' },
-      'Farm-to-table concept':             { ru: 'Концепция «с фермы на стол»', he: 'מהחווה לצלחת' },
-      'Late-night eats & diners':          { ru: 'Поздний ужин и закусочные', he: 'אוכל לשעות לילה מאוחרות' },
-      'Brunch spots':                      { ru: 'Бранчи', he: 'מקומות בראנצ׳' },
-      'Candlelit & cozy':                  { ru: 'При свечах и уютно', he: 'לאור נרות ונעים' },
-      'Quiet & comfortable':               { ru: 'Тихо и комфортно', he: 'שקט ונוח' },
-      'Traditional / heritage venues':     { ru: 'Традиционные / исторические места', he: 'מקומות מסורתיים / מורשתיים' },
-      'Accessible seating':                { ru: 'Доступные места для сидения', he: 'ישיבה נגישה' },
-    };
+    // Fetch and cache a UI translation catalog.
+    // Returns the cached catalog object, or null on failure.
+    async function fetchUiCatalog(lang) {
+      if (_uiCache[lang]) return _uiCache[lang];
+      try {
+        const resp = await fetch(`locales/ui_${lang}.json`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        _uiCache[lang] = data;
+        return data;
+      } catch (e) {
+        console.warn(`[i18n] Failed to load ui_${lang}.json:`, e.message);
+        return null;
+      }
+    }
 
-    // Translate an item name (from any DB) using ITEM_I18N; falls back to English name
+    // Translate an item name (from any DB) using external catalog _items; falls back to English name
     function tItem(name) {
       if (currentLang === 'en') return name;
-      const entry = ITEM_I18N[name];
-      return (entry && entry[currentLang]) ? entry[currentLang] : name;
+      // Item translations are merged into ui_{lang}.json under the _items key
+      const items = _uiCache[currentLang] && _uiCache[currentLang]._items;
+      if (items && items[name]) return items[name];
+      // Fallback: try English items catalog
+      const enItems = _uiCache.en && _uiCache.en._items;
+      return (enItems && enItems[name]) ? enItems[name] : name;
     }
 
     // ================================================================
@@ -4530,31 +3124,48 @@
 
     // Translation helper — returns translated string or falls back to English / key
     function t(key) {
-      const tr = TRANSLATIONS[currentLang];
-      return (tr && tr[key] !== undefined) ? tr[key] : (TRANSLATIONS.en[key] || key);
+      const tr = _uiCache[currentLang];
+      return (tr && tr[key] !== undefined) ? tr[key] : (_uiCache.en && _uiCache.en[key] !== undefined ? _uiCache.en[key] : key);
     }
 
-    function setLanguage(lang) {
+    async function setLanguage(lang) {
       const meta = LANG_META[lang] || LANG_META['en'];
-      const originalLang = lang;
-      if (!TRANSLATIONS[lang]) lang = 'en';
-      currentLang = originalLang; // preserve selected lang code for t() fallback
-      const tr = TRANSLATIONS[lang];
+      currentLang = lang;
+
+      // Race condition guard: increment sequence counter (SA FB-2).
+      // If user switches language again before this fetch completes,
+      // the stale result is discarded.
+      const requestId = ++_langRequestId;
+
+      // Fast path: catalog already cached — apply synchronously
+      let tr = _uiCache[lang];
+      if (!tr) {
+        // Fetch the catalog
+        tr = await fetchUiCatalog(lang);
+        // Check if this request was superseded by a newer setLanguage() call
+        if (requestId !== _langRequestId) return; // superseded — abort
+        if (!tr) {
+          // Fallback to English
+          tr = _uiCache.en || _EMERGENCY_CATALOG;
+        }
+      }
 
       // Set direction
       document.documentElement.dir = meta.dir;
-      document.documentElement.lang = originalLang;
+      document.documentElement.lang = lang;
 
       // Translate all data-i18n elements
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (tr[key] !== undefined) el.textContent = tr[key];
+        else if (_uiCache.en && _uiCache.en[key] !== undefined) el.textContent = _uiCache.en[key];
       });
 
       // Translate placeholders
       document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
         if (tr[key] !== undefined) el.placeholder = tr[key];
+        else if (_uiCache.en && _uiCache.en[key] !== undefined) el.placeholder = _uiCache.en[key];
       });
 
       // Update language selector display
@@ -4563,23 +3174,42 @@
 
       // Update active state in dropdown
       document.querySelectorAll('.lang-selector__item').forEach(item => {
-        item.classList.toggle('is-active', item.dataset.lang === originalLang);
+        item.classList.toggle('is-active', item.dataset.lang === lang);
       });
 
       // Sync report language dropdown to match UI language
       const langToReport = { en:'English', ru:'Russian', he:'Hebrew', es:'Spanish', fr:'French', de:'German', it:'Italian', pt:'Portuguese', zh:'Chinese', ja:'Japanese', ko:'Korean', ar:'Arabic' };
       const reportSelect = document.getElementById('reportLang');
-      if (reportSelect && langToReport[originalLang]) reportSelect.value = langToReport[originalLang];
+      if (reportSelect && langToReport[lang]) reportSelect.value = langToReport[lang];
 
       // Persist
-      try { localStorage.setItem('tripIntakeLang', originalLang); } catch(e) {}
+      try { localStorage.setItem('tripIntakeLang', lang); } catch(e) {}
 
       // Dispatch event for dynamic content that needs to react
-      window.dispatchEvent(new CustomEvent('languagechange', { detail: { lang: originalLang, translations: tr } }));
+      window.dispatchEvent(new CustomEvent('languagechange', { detail: { lang, translations: tr } }));
     }
 
     // Language selector toggle & selection
-    (function initLangSelector() {
+    (async function initLangSelector() {
+      // SA FB-3: file:// detection MUST be the very first statement in this function,
+      // before any DOM manipulation or fetch calls, to guarantee clean UX on file://.
+      if (window.location.protocol === 'file:') {
+        document.body.classList.remove('i18n-loading');
+        const msg = document.createElement('div');
+        msg.className = 'file-protocol-overlay';
+        msg.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#F8F7F4;z-index:9999;padding:2rem;text-align:center;font-family:Inter,system-ui,sans-serif;';
+        msg.innerHTML = `
+          <div style="max-width:480px">
+            <h2 style="color:#1A3C5E;margin-bottom:1rem">Local Server Required</h2>
+            <p style="color:#555;line-height:1.6">This page needs to be served via HTTP to load translation files.<br><br>
+            Run one of these commands in the project folder:</p>
+            <code style="display:block;background:#1a1a2e;color:#c8cdd6;padding:1rem;border-radius:8px;margin:1rem 0;font-size:0.9rem">node trip_bridge.js</code>
+            <p style="color:#888;font-size:0.85rem">Then open <strong>http://localhost:3456/trip_intake.html</strong></p>
+          </div>`;
+        document.body.appendChild(msg);
+        return; // Stop initialization entirely
+      }
+
       const btn = document.getElementById('langBtn');
       const dropdown = document.getElementById('langDropdown');
       if (!btn || !dropdown) return;
@@ -4590,13 +3220,13 @@
         btn.setAttribute('aria-expanded', String(isOpen));
       });
 
-      dropdown.addEventListener('click', (e) => {
+      dropdown.addEventListener('click', async (e) => {
         e.stopPropagation();
         const item = e.target.closest('.lang-selector__item');
         if (!item) return;
         dropdown.classList.remove('is-open');
         btn.setAttribute('aria-expanded', 'false');
-        setLanguage(item.dataset.lang);
+        await setLanguage(item.dataset.lang);
       });
 
       document.addEventListener('click', () => {
@@ -4604,14 +3234,27 @@
         btn.setAttribute('aria-expanded', 'false');
       });
 
-      // Auto-detect language from browser or localStorage
+      // Phase 1: Eagerly load English catalog (includes _items for item translations)
+      await fetchUiCatalog('en');
+
+      // Phase 2: Detect and load user's preferred language
       const saved = (() => { try { return localStorage.getItem('tripIntakeLang'); } catch(e) { return null; } })();
-      if (saved && TRANSLATIONS[saved]) {
-        setLanguage(saved);
+      let targetLang = 'en';
+      if (saved && LANG_META[saved]) {
+        targetLang = saved;
       } else {
         const browserLang = (navigator.language || '').slice(0, 2).toLowerCase();
-        if (TRANSLATIONS[browserLang]) setLanguage(browserLang);
+        if (LANG_META[browserLang]) targetLang = browserLang;
       }
+
+      // Pre-fetch target language catalog if not English (so first render is translated)
+      if (targetLang !== 'en') {
+        await fetchUiCatalog(targetLang);
+      }
+
+      // Apply language and show page
+      await setLanguage(targetLang);
+      document.body.classList.remove('i18n-loading');
     })();
 
     // Re-translate non-data-i18n dynamic content when language changes
@@ -4632,6 +3275,16 @@
           });
           if (prev) monthSel.value = prev;
         }
+        // Re-render year dropdown placeholder
+        const yearSel = card.querySelector('.dob-year');
+        if (yearSel && yearSel.options.length > 0) {
+          yearSel.options[0].textContent = t('s1_dob_year');
+        }
+        // Re-render day dropdown placeholder
+        const daySel = card.querySelector('.dob-day');
+        if (daySel && daySel.options.length > 0) {
+          daySel.options[0].textContent = t('s1_dob_day');
+        }
       });
     });
 
@@ -4644,8 +3297,8 @@
         'January','February','March','April','May','June',
         'July','August','September','October','November','December'
       ];
-      const getDaysShort = () => (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].days_short) || DAYS_SHORT_EN;
-      const getMonthNames = () => (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].months) || MONTH_NAMES_EN;
+      const getDaysShort = () => (_uiCache[currentLang] && _uiCache[currentLang].days_short) || DAYS_SHORT_EN;
+      const getMonthNames = () => (_uiCache[currentLang] && _uiCache[currentLang].months) || MONTH_NAMES_EN;
       const container = $('#dpMonths');
       const summaryEl = $('#dpSummary');
       const errorEl = $('#dpError');
@@ -4995,7 +3648,7 @@
     const currentYear = new Date().getFullYear();
 
     function getTranslatedMonths() {
-      return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].months) || MONTHS_EN;
+      return (_uiCache[currentLang] && _uiCache[currentLang].months) || MONTHS_EN;
     }
 
     function initDobSelects(container, minYear = 1940, maxYear = currentYear) {
@@ -5110,8 +3763,72 @@
       { code:'ZA', en:'South Africa', ru:'Южная Африка', he:'דרום אפריקה' },
     ];
 
+    // Popular islands & regions for instant matching (not found via city search)
+    const REGIONS = [
+      // Greek Islands
+      { en:'Crete', ru:'Крит', he:'כרתים', country_en:'Greece', country_ru:'Греция', country_he:'יוון' },
+      { en:'Santorini', ru:'Санторини', he:'סנטוריני', country_en:'Greece', country_ru:'Греция', country_he:'יוון' },
+      { en:'Mykonos', ru:'Миконос', he:'מיקונוס', country_en:'Greece', country_ru:'Греция', country_he:'יוון' },
+      { en:'Rhodes', ru:'Родос', he:'רודוס', country_en:'Greece', country_ru:'Греция', country_he:'יוון' },
+      { en:'Corfu', ru:'Корфу', he:'קורפו', country_en:'Greece', country_ru:'Греция', country_he:'יוון' },
+      { en:'Zakynthos', ru:'Закинф', he:'זקינתוס', country_en:'Greece', country_ru:'Греция', country_he:'יוון' },
+      { en:'Kos', ru:'Кос', he:'קוס', country_en:'Greece', country_ru:'Греция', country_he:'יוון' },
+      // Spanish Islands
+      { en:'Mallorca', ru:'Майорка', he:'מיורקה', country_en:'Spain', country_ru:'Испания', country_he:'ספרד' },
+      { en:'Tenerife', ru:'Тенерифе', he:'טנריף', country_en:'Spain', country_ru:'Испания', country_he:'ספרד' },
+      { en:'Ibiza', ru:'Ибица', he:'איביזה', country_en:'Spain', country_ru:'Испания', country_he:'ספרד' },
+      { en:'Gran Canaria', ru:'Гран-Канария', he:'גראן קנריה', country_en:'Spain', country_ru:'Испания', country_he:'ספרד' },
+      { en:'Lanzarote', ru:'Лансароте', he:'לנזרוטה', country_en:'Spain', country_ru:'Испания', country_he:'ספרד' },
+      { en:'Fuerteventura', ru:'Фуэртевентура', he:'פוארטוונטורה', country_en:'Spain', country_ru:'Испания', country_he:'ספרד' },
+      // Italian Islands & Regions
+      { en:'Sardinia', ru:'Сардиния', he:'סרדיניה', country_en:'Italy', country_ru:'Италия', country_he:'איטליה' },
+      { en:'Sicily', ru:'Сицилия', he:'סיציליה', country_en:'Italy', country_ru:'Италия', country_he:'איטליה' },
+      { en:'Tuscany', ru:'Тоскана', he:'טוסקנה', country_en:'Italy', country_ru:'Италия', country_he:'איטליה' },
+      { en:'Amalfi Coast', ru:'Амальфитанское побережье', he:'חוף אמלפי', country_en:'Italy', country_ru:'Италия', country_he:'איטליה' },
+      // Thai Islands
+      { en:'Phuket', ru:'Пхукет', he:'פוקט', country_en:'Thailand', country_ru:'Таиланд', country_he:'תאילנד' },
+      { en:'Koh Samui', ru:'Ко Самуи', he:'קו סמוי', country_en:'Thailand', country_ru:'Таиланд', country_he:'תאילנד' },
+      { en:'Krabi', ru:'Краби', he:'קראבי', country_en:'Thailand', country_ru:'Таиланд', country_he:'תאילנד' },
+      // Indonesian Islands
+      { en:'Bali', ru:'Бали', he:'באלי', country_en:'Indonesia', country_ru:'Индонезия', country_he:'אינדונזיה' },
+      { en:'Lombok', ru:'Ломбок', he:'לומבוק', country_en:'Indonesia', country_ru:'Индонезия', country_he:'אינדונזיה' },
+      // Portuguese Regions
+      { en:'Madeira', ru:'Мадейра', he:'מדיירה', country_en:'Portugal', country_ru:'Португалия', country_he:'פורטוגל' },
+      { en:'Azores', ru:'Азорские острова', he:'האיים האזוריים', country_en:'Portugal', country_ru:'Португалия', country_he:'פורטוגל' },
+      { en:'Algarve', ru:'Алгарве', he:'אלגרבה', country_en:'Portugal', country_ru:'Португалия', country_he:'פורטוגל' },
+      // Croatian Islands
+      { en:'Hvar', ru:'Хвар', he:'חוואר', country_en:'Croatia', country_ru:'Хорватия', country_he:'קרואטיה' },
+      { en:'Dubrovnik Riviera', ru:'Ривьера Дубровника', he:'ריביירת דוברובניק', country_en:'Croatia', country_ru:'Хорватия', country_he:'קרואטיה' },
+      // French Regions
+      { en:'Corsica', ru:'Корсика', he:'קורסיקה', country_en:'France', country_ru:'Франция', country_he:'צרפת' },
+      { en:'Provence', ru:'Прованс', he:'פרובנס', country_en:'France', country_ru:'Франция', country_he:'צרפת' },
+      { en:'French Riviera', ru:'Лазурный берег', he:'הריביירה הצרפתית', country_en:'France', country_ru:'Франция', country_he:'צרפת' },
+      // Turkish Regions
+      { en:'Antalya Coast', ru:'Побережье Антальи', he:'חוף אנטליה', country_en:'Turkey', country_ru:'Турция', country_he:'טורקיה' },
+      { en:'Cappadocia', ru:'Каппадокия', he:'קפדוקיה', country_en:'Turkey', country_ru:'Турция', country_he:'טורקיה' },
+      // Caribbean
+      { en:'Zanzibar', ru:'Занзибар', he:'זנזיבר', country_en:'Tanzania', country_ru:'Танзания', country_he:'טנזניה' },
+      { en:'Maldives', ru:'Мальдивы', he:'מלדיביים', country_en:'Maldives', country_ru:'Мальдивы', country_he:'מלדיביים' },
+      { en:'Mauritius', ru:'Маврикий', he:'מאוריציוס', country_en:'Mauritius', country_ru:'Маврикий', country_he:'מאוריציוס' },
+      { en:'Seychelles', ru:'Сейшелы', he:'סיישל', country_en:'Seychelles', country_ru:'Сейшелы', country_he:'סיישל' },
+      // Other popular islands
+      { en:'Malta', ru:'Мальта', he:'מלטה', country_en:'Malta', country_ru:'Мальта', country_he:'מלטה' },
+      { en:'Hawaii', ru:'Гавайи', he:'הוואי', country_en:'United States', country_ru:'США', country_he:'ארצות הברית' },
+      { en:'Canary Islands', ru:'Канарские острова', he:'האיים הקנריים', country_en:'Spain', country_ru:'Испания', country_he:'ספרד' },
+      { en:'Balearic Islands', ru:'Балеарские острова', he:'האיים הבלאריים', country_en:'Spain', country_ru:'Испания', country_he:'ספרד' },
+    ];
+
     function getCountryName(c) {
       return c[currentLang] || c.en;
+    }
+
+    function getRegionName(r) {
+      return r[currentLang] || r.en;
+    }
+
+    function getRegionCountry(r) {
+      const key = 'country_' + currentLang;
+      return r[key] || r.country_en;
     }
 
     function matchCountries(query) {
@@ -5124,34 +3841,46 @@
       ).slice(0, 4);
     }
 
+    function matchRegions(query) {
+      const q = query.toLowerCase();
+      return REGIONS.filter(r =>
+        r.en.toLowerCase().includes(q) ||
+        r.ru.toLowerCase().includes(q) ||
+        r.he.includes(q)
+      ).slice(0, 4);
+    }
+
     destInput.addEventListener('input', () => {
       clearTimeout(acTimer);
       const q = destInput.value.trim();
       if (q.length < 2) { destDropdown.classList.remove('is-open'); return; }
-      // Show local country matches immediately
-      const localMatches = matchCountries(q);
-      if (localMatches.length) renderMixed(localMatches, []);
-      // Then fetch cities from Nominatim
-      acTimer = setTimeout(() => fetchPlaces(q, localMatches), 300);
+      // Show local matches immediately (countries + regions)
+      const countryMatches = matchCountries(q);
+      const regionMatches = matchRegions(q);
+      if (countryMatches.length || regionMatches.length) renderMixed(countryMatches, regionMatches, []);
+      // Then fetch cities from GeoNames
+      acTimer = setTimeout(() => fetchPlaces(q, countryMatches, regionMatches), 300);
     });
 
-    async function fetchPlaces(query, localMatches) {
+    async function fetchPlaces(query, countryMatches, regionMatches) {
       try {
         const lang = (typeof currentLang !== 'undefined' && currentLang) ? currentLang : 'en';
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=6&accept-language=${lang}&featuretype=city`;
-        const res = await fetch(url, { headers: { 'User-Agent': 'TripIntakeForm/1.0' } });
+        const url = `https://secure.geonames.org/searchJSON?name_startsWith=${encodeURIComponent(query)}&featureClass=P&maxRows=6&lang=${lang}&username=robertp`;
+        const res = await fetch(url);
         const data = await res.json();
-        renderMixed(localMatches || [], data);
+        renderMixed(countryMatches || [], regionMatches || [], data.geonames || []);
       } catch {
-        if (!localMatches || !localMatches.length) destDropdown.classList.remove('is-open');
+        if ((!countryMatches || !countryMatches.length) && (!regionMatches || !regionMatches.length)) {
+          destDropdown.classList.remove('is-open');
+        }
       }
     }
 
-    function renderMixed(countries, nominatimItems) {
+    function renderMixed(countries, regions, geonamesItems) {
       acHighlight = -1;
       let html = '';
 
-      // Local country results first
+      // 1. Local country results
       countries.forEach((c, i) => {
         const name = getCountryName(c);
         html += `<div class="autocomplete-item" data-index="${i}" data-city="${name}" data-country="${name}">
@@ -5160,27 +3889,41 @@
         </div>`;
       });
 
-      // Nominatim city results (deduplicated against country list)
-      const countryNames = new Set(countries.flatMap(c => [c.en.toLowerCase(), c.ru.toLowerCase(), c.he]));
+      // 2. Local island/region results
+      regions.forEach((r, i) => {
+        const name = getRegionName(r);
+        const country = getRegionCountry(r);
+        const idx = countries.length + i;
+        const subParts = [country];
+        if (r.en !== name) subParts.push(r.en);
+        html += `<div class="autocomplete-item" data-index="${idx}" data-city="${name}" data-country="${country}">
+          <div class="autocomplete-item__main">🏝️ ${name}</div>
+          <div class="autocomplete-item__sub">${subParts.join(' · ')}</div>
+        </div>`;
+      });
+
+      // 3. GeoNames city results (deduplicated against local lists)
+      const localNames = new Set([
+        ...countries.flatMap(c => [c.en.toLowerCase(), c.ru.toLowerCase(), c.he]),
+        ...regions.flatMap(r => [r.en.toLowerCase(), r.ru.toLowerCase(), r.he])
+      ]);
       const seen = new Set();
-      const cities = (nominatimItems || []).filter(it => {
-        const addr = it.address || {};
-        const city = addr.city || addr.town || addr.village || '';
-        if (!city) return false;
-        const key = `${city.toLowerCase()}|${(addr.country || '').toLowerCase()}`;
+      const cities = (geonamesItems || []).filter(it => {
+        const name = it.name || '';
+        if (!name) return false;
+        const key = `${name.toLowerCase()}|${(it.countryName || '').toLowerCase()}`;
         if (seen.has(key)) return false;
-        if (countryNames.has(city.toLowerCase())) return false;
+        if (localNames.has(name.toLowerCase())) return false;
         seen.add(key);
         return true;
       });
 
       cities.forEach((it, i) => {
-        const addr = it.address || {};
-        const city = addr.city || addr.town || addr.village || '';
-        const region = addr.state || addr.county || '';
-        const country = addr.country || '';
+        const city = it.name || '';
+        const region = it.adminName1 || '';
+        const country = it.countryName || '';
         const sub = [region, country].filter(Boolean).join(', ');
-        const idx = countries.length + i;
+        const idx = countries.length + regions.length + i;
         html += `<div class="autocomplete-item" data-index="${idx}" data-city="${city}" data-country="${country}">
           <div class="autocomplete-item__main">🏙️ ${city}</div>
           ${sub ? `<div class="autocomplete-item__sub">${sub}</div>` : ''}
@@ -6005,7 +4748,7 @@
         card.dataset.gradient = String(gradientCounter % 8);
         card.dataset.hlKey = item.key;
         gradientCounter++;
-        const enName = TRANSLATIONS.en[item.key] || item.key;
+        const enName = (_uiCache.en && _uiCache.en[item.key]) || item.key;
         const displayName = t(item.key);
         const emoji = getEmojiForInterest(enName);
         if (previousSelections.size > 0) {
@@ -6174,7 +4917,7 @@
       if (selectedCards.length > 0) {
         return Array.from(selectedCards).map(c => {
           const hlKey = c.dataset.hlKey;
-          if (hlKey) return TRANSLATIONS.en[hlKey] || hlKey;
+          if (hlKey) return (_uiCache.en && _uiCache.en[hlKey]) || hlKey;
           return c.dataset.enName || c.querySelector('.interest-card__name').textContent;
         });
       }

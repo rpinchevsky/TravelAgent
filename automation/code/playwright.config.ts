@@ -58,13 +58,15 @@ const reportDir = path.resolve(__dirname, '..', 'Reports', `automation_report_${
 const projects: Array<{
   name: string;
   use: Record<string, unknown>;
-  testIgnore?: RegExp;
+  testIgnore?: RegExp | RegExp[];
   testMatch?: RegExp;
 }> = [
   {
     name: tripConfig.direction === 'ltr' ? 'desktop-chromium' : 'desktop-chromium-rtl',
     use: { ...devices['Desktop Chrome'], baseURL: MAIN_HTML },
-    testIgnore: tripConfig.direction === 'ltr' ? /rtl-/ : undefined,
+    testIgnore: tripConfig.direction === 'ltr'
+      ? [/rtl-/, /intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/]
+      : [/intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/],
     testMatch: tripConfig.direction === 'rtl' ? /rtl-/ : undefined,
   },
 ];
@@ -75,9 +77,19 @@ if (secondaryHtml) {
     name: tripConfig.direction === 'ltr' ? 'desktop-chromium-rtl' : 'desktop-chromium',
     use: { ...devices['Desktop Chrome'], baseURL: secondaryHtml },
     testMatch: tripConfig.direction === 'ltr' ? /rtl-/ : undefined,
-    testIgnore: tripConfig.direction === 'rtl' ? /rtl-/ : undefined,
+    testIgnore: tripConfig.direction === 'rtl'
+      ? [/rtl-/, /intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/]
+      : [/intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/],
   });
 }
+
+// Intake page project — served via trip_bridge.js on HTTP (not file://)
+// Matches intake i18n catalog tests, key leak scanner, and alignment tests that require HTTP transport
+projects.push({
+  name: 'intake-i18n',
+  use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:3456/trip_intake.html' },
+  testMatch: /intake-i18n-catalog|intake-i18n-key-leak|intake-step1-alignment/,
+});
 
 // Mobile-specific tests (responsive.spec.ts, visual.spec.ts) set their own
 // viewport via test.use(). No need for a separate mobile project — it would
@@ -99,4 +111,12 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects,
+
+  /* Auto-start trip_bridge.js for intake tests that require HTTP transport */
+  webServer: {
+    command: `node ${path.join(projectRoot, 'trip_bridge.js')}`,
+    url: 'http://localhost:3456/trip_intake.html',
+    reuseExistingServer: true,
+    timeout: 10000,
+  },
 });
