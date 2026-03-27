@@ -1,0 +1,188 @@
+@startuml Team Development Workflow
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam sequenceGroupBorderThickness 2
+skinparam sequenceLifeLineBorderColor #555555
+skinparam noteBorderColor #888888
+
+title Dynamic Travel Architect — Development Cycle\n(Feature / Rule Change Pipeline — Scoped Task Decomposition)
+
+actor "User" as User #LightBlue
+participant "Orchestrator\n(Main Context)" as Orch #LightGoldenRodYellow
+participant "PM\n(PM-Req)" as PM #LightGreen
+participant "Dev\n(Dev-Design / Dev-Impl)" as Dev #LightSkyBlue
+participant "SA\n(SA-Review)" as SA #Plum
+participant "AE\n(AE-Plan / AE-Impl)" as AE #LightSalmon
+participant "QA-A\n(QA-Review)" as QA #Khaki
+participant "Render\n(/render skill)" as Render #PeachPuff
+participant "Regression\n(/regression skill)" as Regr #MistyRose
+
+== Phase 0: Setup ==
+
+User -> Orch : Feature request / Rule change
+activate Orch
+Orch -> Orch : Create folder\ntechnical_documents/\nYYYY-MM-DD_change-name/
+
+== Phase 1: Requirements (PM-Req) ==
+
+Orch -> PM : Spawn subagent with\nuser request + relevant rule files
+activate PM
+PM -> PM : Task 1: Read user request,\nidentify distinct requirements
+PM -> PM : Task 2: Write business_requirements.md\n(IDs, descriptions, acceptance criteria)
+PM -> PM : Task 3: Identify affected rule files/sections,\nset priority and scope
+PM --> Orch : Return summary
+deactivate PM
+Orch -> Orch : Verify BRD exists on disk
+
+== Phase 2: Design (Dev-Design) ==
+
+Orch -> Dev : Spawn subagent with\nBRD + affected rule files
+activate Dev
+Dev -> Dev : Task 1: Read BRD + affected rule files
+Dev -> Dev : Task 2: Write high_level_design.md\n(components, data flow, dependencies)
+Dev -> Dev : Task 3: Write detailed_design.md\n(exact file edits, sections, code changes)
+Dev --> Orch : Return summary
+deactivate Dev
+Orch -> Orch : Verify HLD + DD exist on disk
+
+== Phase 3: Architecture Review (SA-Review) ==
+
+Orch -> SA : Spawn subagent with\nBRD + HLD + DD + architecture rules
+activate SA
+SA -> SA : Task 1: Review for content/presentation separation
+SA -> SA : Task 2: Review for extensibility
+SA -> SA : Task 3: Review for pattern consistency
+SA -> SA : Task 4: Write architecture_review.md\n(Approved / Approved with changes / Rejected)
+
+alt #FFE0E0 SA Rejects (max 2 retries)
+    SA --> Orch : Rejected + feedback
+    deactivate SA
+
+    loop retry ≤ 2
+        Orch -> Dev : Re-spawn Dev-Design with DD +\narchitecture_review.md feedback
+        activate Dev
+        Dev -> Dev : Task 4: Address SA feedback,\nrevise HLD + DD
+        Dev --> Orch : Updated design
+        deactivate Dev
+
+        Orch -> SA : Re-spawn SA review
+        activate SA
+        SA -> SA : Re-review revised design
+        alt SA Approves
+            SA --> Orch : Approved
+            deactivate SA
+        else SA Still Rejects
+            SA --> Orch : Rejected again
+            deactivate SA
+        end
+    end
+
+    note over Orch : If still rejected after\n2 retries → escalate to User
+else #E0FFE0 SA Approves
+    SA --> Orch : Approved
+    deactivate SA
+end
+
+== Phase 4a: Test Planning (AE-Plan) ==
+
+Orch -> AE : Spawn subagent with\nBRD + DD + automation rules
+activate AE
+AE -> AE : Task 1: Map each BRD acceptance\ncriterion to test cases
+AE -> AE : Task 2: Write test_plan.md
+AE --> Orch : Return summary
+deactivate AE
+Orch -> Orch : Verify test_plan.md exists
+
+== Phase 4b: QA Architecture Review (QA-Review) ==
+
+Orch -> QA : Spawn subagent with\nBRD + test_plan + automation rules
+activate QA
+QA -> QA : Task 1: Review for BRD coverage completeness
+QA -> QA : Task 2: Review for duplicate tests
+QA -> QA : Task 3: Review correct fixtures, assertions, POM
+QA -> QA : Task 4: Write qa_architecture_review.md\n(Approved / Rejected + feedback)
+
+alt #FFE0E0 QA-A Rejects (max 2 retries)
+    QA --> Orch : Rejected + feedback
+    deactivate QA
+
+    loop retry ≤ 2
+        Orch -> AE : Re-spawn AE-Plan with test_plan +\nqa_architecture_review.md feedback
+        activate AE
+        AE -> AE : Task 3: Address QA-A feedback,\nrevise test_plan.md
+        AE --> Orch : Updated plan
+        deactivate AE
+
+        Orch -> QA : Re-spawn QA-A review
+        activate QA
+        QA -> QA : Re-review revised plan
+        alt QA-A Approves
+            QA --> Orch : Approved
+            deactivate QA
+        else QA-A Still Rejects
+            QA --> Orch : Rejected again
+            deactivate QA
+        end
+    end
+
+    note over Orch : If still rejected after\n2 retries → escalate to User
+else #E0FFE0 QA-A Approves
+    QA --> Orch : Approved
+    deactivate QA
+end
+
+== Phase 5: Implementation (Dev-Impl + AE-Impl in Parallel) ==
+
+note over Dev, AE #LightYellow
+    Dev-Impl and AE-Impl run in parallel.
+    **File ownership enforced:**
+    Dev-Impl → rule files, content, rendering code
+    AE-Impl → test specs, TripPage.ts, release_notes.md
+end note
+
+Orch -> Dev : Spawn Dev-Impl subagent with\nDD + relevant source files
+activate Dev
+Orch -> AE : Spawn AE-Impl subagent with\ntest_plan + TripPage.ts + automation rules
+activate AE
+
+Dev -> Dev : Task 1: Implement code changes\nper approved DD
+AE -> AE : Tasks 1-6: Implement tests\nper approved test_plan
+AE -> AE : Task 7: Update release_notes.md
+
+Dev --> Orch : Code changes complete
+deactivate Dev
+AE --> Orch : Test implementation complete
+deactivate AE
+
+== Phase 6: Validation (AE-Exec) ==
+
+Orch -> Render : Spawn as subagent\n(generate HTML fragments → assemble)
+activate Render
+Render -> Render : Per-day fragment generation
+Render -> Render : Assemble into\ntrip_full_LANG.html
+Render -> Render : Pre-regression validation
+Render --> Orch : HTML generation complete
+deactivate Render
+
+Orch -> Regr : Spawn as subagent\n(run full regression suite)
+activate Regr
+Regr -> Regr : AE-Exec Task 1: Run progression tests\n(new/changed features)
+Regr -> Regr : AE-Exec Task 2: Run full regression suite
+Regr -> Regr : AE-Exec Task 3: Generate Playwright HTML report\n(with traces & screenshots)
+Regr --> Orch : Test results + report
+deactivate Regr
+
+== PM Acceptance (PM-Accept) ==
+
+Orch -> Orch : Report BRD acceptance\ncriteria coverage based\non regression results
+
+alt #FFE0E0 Tests Fail
+    Orch -> Orch : Loop back to Phase 5\n(fix code or tests)
+else #E0FFE0 All Tests Pass
+    Orch --> User : Delivery complete\n(BRD criteria met ✓)
+    deactivate Orch
+end
+
+@enduml

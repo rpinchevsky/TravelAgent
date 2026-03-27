@@ -1,0 +1,149 @@
+@startuml Abbreviated Workflows
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam noteBorderColor #888888
+
+title Dynamic Travel Architect — Abbreviated & Specialized Pipelines
+
+actor "User" as User #LightBlue
+participant "Orchestrator" as Orch #LightGoldenRodYellow
+participant "PM" as PM #LightGreen
+participant "Dev" as Dev #LightSkyBlue
+participant "AE" as AE #LightSalmon
+participant "Render" as Render #PeachPuff
+participant "Regression" as Regr #MistyRose
+
+== Bug Fix Pipeline (PM-Req + Dev-Impl + AE-Exec) ==
+
+User -> Orch : Bug report
+activate Orch
+Orch -> PM : PM-Req: Write BRD\n(bug description + fix criteria)
+activate PM
+PM --> Orch : BRD ready
+deactivate PM
+
+Orch -> Dev : Dev-Impl: Implement fix\nper BRD
+activate Dev
+Dev --> Orch : Fix applied
+deactivate Dev
+
+Orch -> Render : Phase 6: Render HTML
+activate Render
+Render --> Orch : HTML ready
+deactivate Render
+
+Orch -> Regr : Phase 6: Run regression
+activate Regr
+Regr --> Orch : Results
+deactivate Regr
+
+Orch --> User : Bug fix validated
+deactivate Orch
+
+|||
+== Test-Only Update Pipeline (AE-Plan + QA-Review + AE-Impl + AE-Exec) ==
+
+User -> Orch : Test update request
+activate Orch
+Orch -> AE : AE-Plan: Write/update test_plan.md
+activate AE
+AE --> Orch : Plan ready
+deactivate AE
+
+note over Orch : QA-Review (Phase 4b)\napplies here too
+
+Orch -> AE : AE-Impl: Implement tests
+activate AE
+AE --> Orch : Tests written
+deactivate AE
+
+Orch -> Regr : Phase 6: Run regression
+activate Regr
+Regr --> Orch : Results
+deactivate Regr
+
+Orch --> User : Tests validated
+deactivate Orch
+
+|||
+== Trip Generation Pipeline (Dev-TripPlanning + Dev-Content — No Dev Cycle) ==
+
+User -> Orch : "Generate trip from trip_details.md"
+activate Orch
+
+Orch -> Dev : Dev-TripPlanning: Read trip details,\ncalculate ages, research destination
+activate Dev
+Dev --> Orch : Research complete
+deactivate Dev
+
+Orch -> Dev : Dev-Content: Phase A — Write overview.md\n+ manifest.json
+activate Dev
+Dev --> Orch : Overview ready
+deactivate Dev
+
+note over Orch : No Phase A approval gate\n(auto-proceed to Phase B)
+
+Orch -> Dev : Dev-Content: Phase B — Parallel day generation\n(day_00.md … day_NN.md)
+activate Dev
+note right of Dev
+    Subagents generate
+    days in parallel
+end note
+Dev --> Orch : All days written
+deactivate Dev
+
+Orch -> Dev : Dev-Content: Budget — Aggregate costs\ninto budget.md
+activate Dev
+Dev --> Orch : Budget ready
+deactivate Dev
+
+Orch -> Dev : Dev-Content: Assemble — Concat all parts\ninto trip_full.md
+activate Dev
+Dev --> Orch : Assembly done
+deactivate Dev
+
+Orch -> Render : 6. Generate HTML\n(per-day fragments → trip_full_LANG.html)
+activate Render
+Render --> Orch : HTML generated
+deactivate Render
+
+Orch -> Regr : 7. Validate: Run regression suite
+activate Regr
+Regr --> Orch : All tests pass
+deactivate Regr
+
+Orch --> User : Trip delivered
+deactivate Orch
+
+|||
+== Incremental Edit Pipeline (Dev-Content + Dev-HTML) ==
+
+User -> Orch : "Change day 3"
+activate Orch
+
+Orch -> Dev : Dev-Content: Regenerate day_03.md only
+activate Dev
+Dev --> Orch : Day updated
+deactivate Dev
+
+Orch -> Dev : Dev-Content: Re-assemble trip_full.md
+activate Dev
+Dev --> Orch : Reassembled
+deactivate Dev
+
+Orch -> Render : Dev-HTML: Incremental HTML rebuild\n(only changed day fragment)
+activate Render
+Render --> Orch : HTML updated
+deactivate Render
+
+Orch -> Regr : AE-Exec: Targeted validation\n(changed day only)
+activate Regr
+Regr --> Orch : Validated
+deactivate Regr
+
+Orch --> User : Edit complete
+deactivate Orch
+
+@enduml

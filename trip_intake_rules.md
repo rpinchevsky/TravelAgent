@@ -172,6 +172,7 @@ Three parts:
 | Additional Notes | — | textarea (supplementary) | Free-form |
 | Photography | T4 | 3-option card | Not a Priority / Nice Bonus (default) / Major Activity |
 | Accessibility | T5 | 3-option card | No Special Needs (default) / Prefer Flat Routes / Wheelchair Accessible |
+| Wheelchair Accessible | — | 2-option card (supplementary) | Always visible. "No Requirement" (default) / "Wheelchair Accessible Required" |
 
 ### Step 7 — Review & Download
 - **Preview:** Rendered markdown in preview box. The preview tab label shows the dynamic filename (`{name}_trip_details_{date}.md`) and refreshes each time Step 7 is entered.
@@ -248,6 +249,7 @@ These fields are always visible within their step and do not count toward the qu
 | reportLang | Dropdown | Step 6 |
 | poiLangs | Text input | Step 6 |
 | extraNotes | Textarea | Step 6 |
+| wheelchairAccessible | 2-option card | Step 6 |
 
 ### Depth Defaults
 
@@ -392,8 +394,8 @@ The generated markdown must match the structure of `trip_details.md` so it can b
 
 - **Dietary style:** {style}
 - **Food adventure level:** {conservative|moderate|adventurous}
-- **Dining style:** {street food|casual|upscale}
-- **Meal priority:** {breakfast|lunch|dinner focus}
+- **Dining style:** {street food|casual|upscale|mix of all styles}
+- **Meal priority:** {breakfast|lunch|dinner focus|every meal matters equally}
 - **Local food preference:** {familiar|mix|full local immersion}
 - **Budget style:** {budget-conscious|balanced|premium}
 - **Schedule style:** {structured|flexible|spontaneous}
@@ -426,13 +428,14 @@ The generated markdown must match the structure of `trip_details.md` so it can b
 
 ## Additional Preferences
 
-- **Transport preference:** {walking|public transit|taxi & rideshare}
+- **Transport preference:** {walking|public transit|taxi & rideshare|mix — whatever fits best}
 - **Morning preference:** {morning person|no preference|afternoon starter}
 - **Snacking importance:** {skip|occasional|serious}
 - **Photography importance:** {not a priority|nice bonus|major activity}
 - **Visit duration style:** {quick highlights|moderate exploration|deep immersion}
 - **Shopping importance:** {skip|browse if convenient|dedicated time}
 - **Accessibility needs:** {none|prefer flat routes|wheelchair accessible}
+- **Wheelchair accessible:** {yes|no}
 - **Walking tolerance:** {light (~2km/day)|moderate (~5km/day)|marathon (~10km+/day)}
 - **Weather sensitivity:** {indoor backup needed|flexible|rain or shine}
 - **Crowd tolerance:** {prefer off-peak|some crowds OK|don't mind queuing}

@@ -72,6 +72,7 @@ export class IntakePage {
   // --- Step 6 (extras) ---
   readonly depthExtraQuestions: Locator;
   readonly reportLang: Locator;
+  readonly wheelchairQuestion: Locator;
 
   // --- Step 7 (review) ---
   readonly reviewStep: Locator;
@@ -155,6 +156,7 @@ export class IntakePage {
     // Step 6
     this.depthExtraQuestions = page.locator('.depth-extra-question');
     this.reportLang = page.locator('#reportLang');
+    this.wheelchairQuestion = page.locator('.depth-extra-question[data-question-key="wheelchairAccessible"]');
 
     // Step 7
     this.reviewStep = page.locator('section.step[data-step="7"]');
@@ -427,7 +429,7 @@ export class IntakePage {
   async getCardStyles(selector: string): Promise<Record<string, string>> {
     return await this.page.evaluate((sel) => {
       const el = document.querySelector(sel);
-      if (!el) return {};
+      if (!el) return {} as Record<string, string>;
       const cs = window.getComputedStyle(el);
       return {
         padding: cs.padding,

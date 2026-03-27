@@ -34,8 +34,9 @@ test.describe('POI Cards — Content & Links', () => {
     expect(proTipCount).toBeGreaterThanOrEqual(Math.floor(count * 0.75));
   });
 
-  test('non-exempt POI cards should have all 3 link types (Maps, Site, Photo)', async ({ tripPage }) => {
+  test('TC-154: non-exempt POI cards should have 3 or 4 link types (Maps, Site, Photo, optional Phone)', async ({ tripPage }) => {
     // Uses data-link-exempt attribute — language-independent, no name-based exclusion list.
+    // TC-154: Relaxed from exactly 3 to 3 or 4 links. The 4th link, if present, must be a phone (tel:) link.
     const nonExemptCards = tripPage.page.locator('.poi-card:not([data-link-exempt])');
     const count = await nonExemptCards.count();
     expect(count).toBeGreaterThan(0);
@@ -58,6 +59,21 @@ test.describe('POI Cards — Content & Links', () => {
       if (!hasMap) missing.push(`${name.trim()}: missing Maps link`);
       if (!hasSite) missing.push(`${name.trim()}: missing Site link`);
       if (!hasPhoto) missing.push(`${name.trim()}: missing Photo link`);
+
+      // Link count must be 3 (Maps, Site, Photo) or 4 (Maps, Site, Photo, Phone)
+      expect.soft(
+        linkCount === 3 || linkCount === 4,
+        `${name.trim()}: expected 3 or 4 links, got ${linkCount}`
+      ).toBe(true);
+
+      // If a 4th link exists, it must be a phone link
+      if (linkCount === 4) {
+        const fourthHref = linkHrefs[3];
+        expect.soft(
+          fourthHref.startsWith('tel:'),
+          `${name.trim()}: 4th link should be tel:, got "${fourthHref}"`
+        ).toBe(true);
+      }
     }
     expect(missing, `Non-exempt POI cards with missing links:\n${missing.join('\n')}`).toHaveLength(0);
   });
@@ -112,5 +128,102 @@ test.describe('POI Cards — Content & Links', () => {
     }
     // At least 70% of POI cards should have Maps links
     expect(mapsCount).toBeGreaterThanOrEqual(Math.floor(count * 0.70));
+  });
+
+  test('TC-142: POI cards with phone numbers use valid tel: links', async ({ tripPage }) => {
+    // REQ-009 -> AC-1, AC-3; REQ-003 -> AC-2, AC-3, AC-4
+    // Phone links are optional ("when available"). Zero is acceptable.
+    const phoneLinks = tripPage.page.locator('.poi-card .poi-card__link[href^="tel:"]');
+    const count = await phoneLinks.count();
+    for (let i = 0; i < count; i++) {
+      const href = await phoneLinks.nth(i).getAttribute('href') ?? '';
+      expect.soft(
+        /^tel:\+?[\d\s\-()]+$/.test(href),
+        `Phone link ${i}: valid tel: href ("${href}")`
+      ).toBe(true);
+    }
+  });
+
+  test('TC-143: Phone links appear as the last link in the POI card link row', async ({ tripPage }) => {
+    // REQ-003 -> AC-2; REQ-009 -> AC-1
+    // Order: Maps, Site, Photo, Phone. Phone (if present) must be last.
+    const results = await tripPage.page.evaluate(() => {
+      const cards = document.querySelectorAll('.poi-card:not([data-link-exempt])');
+      const violations: string[] = [];
+      cards.forEach((card) => {
+        const links = card.querySelectorAll('.poi-card__link');
+        const linkArray = Array.from(links);
+        const phoneIndex = linkArray.findIndex(l => {
+          const href = l.getAttribute('href') || '';
+          return href.startsWith('tel:');
+        });
+        if (phoneIndex >= 0 && phoneIndex !== linkArray.length - 1) {
+          const name = card.querySelector('.poi-card__name')?.textContent?.trim() || 'unknown';
+          violations.push(`${name}: phone link at index ${phoneIndex}, expected last (${linkArray.length - 1})`);
+        }
+      });
+      return violations;
+    });
+    for (const v of results) {
+      expect.soft(false, v).toBe(true);
+    }
+  });
+
+  test('TC-144: Rating elements have correct class and contain numeric value', async ({ tripPage }) => {
+    // REQ-009 -> AC-2, AC-3; REQ-005 -> AC-1, AC-2, AC-3, AC-5
+    // Ratings are optional ("when available"). Zero is acceptable.
+    const count = await tripPage.poiCardRatings.count();
+    for (let i = 0; i < count; i++) {
+      const text = await tripPage.poiCardRatings.nth(i).textContent() ?? '';
+      expect.soft(
+        /\d/.test(text),
+        `Rating ${i}: should contain a numeric value ("${text.trim()}")`
+      ).toBe(true);
+    }
+  });
+
+  test('TC-145: Rating elements are positioned in card body, not in link row', async ({ tripPage }) => {
+    // REQ-005 -> AC-2
+    const results = await tripPage.page.evaluate(() => {
+      const ratings = document.querySelectorAll('.poi-card__rating');
+      const violations: string[] = [];
+      ratings.forEach((rating, i) => {
+        const inLinks = rating.closest('.poi-card__links');
+        const inBody = rating.closest('.poi-card__body');
+        if (inLinks) {
+          violations.push(`Rating ${i}: should not be inside .poi-card__links`);
+        }
+        if (!inBody) {
+          violations.push(`Rating ${i}: should be inside .poi-card__body`);
+        }
+      });
+      return violations;
+    });
+    for (const v of results) {
+      expect.soft(false, v).toBe(true);
+    }
+  });
+
+  test('TC-146: Accessibility badge elements are positioned in card body', async ({ tripPage }) => {
+    // REQ-005 -> AC-4; REQ-007 -> AC-2
+    // Accessibility badges are optional — zero is acceptable.
+    const results = await tripPage.page.evaluate(() => {
+      const badges = document.querySelectorAll('.poi-card__accessible');
+      const violations: string[] = [];
+      badges.forEach((badge, i) => {
+        const inLinks = badge.closest('.poi-card__links');
+        const inBody = badge.closest('.poi-card__body');
+        if (inLinks) {
+          violations.push(`Accessible badge ${i}: should not be inside .poi-card__links`);
+        }
+        if (!inBody) {
+          violations.push(`Accessible badge ${i}: should be inside .poi-card__body`);
+        }
+      });
+      return violations;
+    });
+    for (const v of results) {
+      expect.soft(false, v).toBe(true);
+    }
   });
 });

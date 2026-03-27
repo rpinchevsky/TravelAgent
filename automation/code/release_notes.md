@@ -1,5 +1,118 @@
 # Release Notes
 
+## 2026-03-23 — Google Places MCP: POI Phone/Rating + Wheelchair Accessibility (13 TCs)
+
+### Changes
+
+#### Modified Spec File: `tests/regression/poi-cards.spec.ts` (5 new tests + 1 modified)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-142 | Phone links have valid tel: href structure | REQ-009 -> AC-1, AC-3; REQ-003 -> AC-2, AC-3, AC-4 |
+| TC-143 | Phone links appear as last link in POI card link row | REQ-003 -> AC-2; REQ-009 -> AC-1 |
+| TC-144 | Rating elements have correct class and contain numeric value | REQ-009 -> AC-2, AC-3; REQ-005 -> AC-1, AC-2, AC-3, AC-5 |
+| TC-145 | Rating elements positioned in card body, not link row | REQ-005 -> AC-2 |
+| TC-146 | Accessibility badge elements positioned in card body | REQ-005 -> AC-4; REQ-007 -> AC-2 |
+| TC-154 | Non-exempt POI cards have 3 or 4 links (modified existing test) | REQ-003 -> AC-2, AC-4; REQ-009 -> AC-3 |
+
+#### Modified Spec File: `tests/regression/progression.spec.ts` (3 new tests)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-153 | At least one POI card has a phone link | REQ-009 -> AC-1 |
+| TC-154 | At least one POI card has a rating element | REQ-009 -> AC-2 |
+| TC-152 | Accessible badges, if present, have correct class | REQ-007 -> AC-2 |
+
+#### New Spec File: `tests/intake/intake-wheelchair.spec.ts` (7 tests)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-147 | Wheelchair question visible on Step 6 at all depths (3 iterations) | REQ-010 -> AC-1; REQ-006 -> AC-1, AC-2 |
+| TC-148 | Wheelchair question defaults to "No Requirement" selected | REQ-006 -> AC-3; REQ-010 -> AC-3 |
+| TC-149 | Selecting wheelchair option toggles correctly | REQ-006 -> AC-3; REQ-010 -> AC-3 |
+| TC-150 | Wheelchair "yes" produces field in markdown output | REQ-010 -> AC-2; REQ-006 -> AC-4 |
+| TC-151 | Wheelchair "no" (default) produces field in markdown output | REQ-010 -> AC-2; REQ-006 -> AC-4 |
+| TC-152 | Wheelchair i18n keys present in all 12 locale files | REQ-006 -> AC-5 |
+| TC-153 | Wheelchair question has correct data-i18n DOM attributes | REQ-006 -> AC-5 |
+
+**Implementation notes:**
+- TC-142/TC-143/TC-144/TC-145/TC-146 use shared-page fixture (read-only DOM assertions)
+- TC-150/TC-151 markdown assertions use English labels — intentional exception (QF-1 confirmed: `generateMarkdown()` uses hard-coded English keys)
+- TC-147 iterates over depths [10, 20, 30] with separate page loads per depth
+- TC-152 is static file analysis (no browser needed), placed in intake spec for organizational consistency
+
+#### Playwright Config Changes
+- Added `/intake-wheelchair/` to `testIgnore` arrays in both `desktop-chromium` and `desktop-chromium-rtl` projects
+- Updated `intake-i18n` project `testMatch` to include `intake-wheelchair`
+
+#### Files Modified
+- `tests/pages/TripPage.ts` — added `poiCardRatings` property and 3 new methods
+- `tests/pages/IntakePage.ts` — added `wheelchairQuestion` property
+- `tests/regression/poi-cards.spec.ts` — 5 new tests + 1 modified test (TC-154: 3-or-4 links)
+- `tests/regression/progression.spec.ts` — 3 new tests in new describe block
+- `playwright.config.ts` — updated testMatch/testIgnore for new intake spec file routing
+
+#### Files Added
+- `tests/intake/intake-wheelchair.spec.ts` — 7 progression tests covering wheelchair accessibility question
+
+#### New POM Locators (TripPage.ts)
+- `poiCardRatings` — all `.poi-card__rating` elements
+- `getPoiCardPhoneLink(poiCard)` — phone link within specific POI card
+- `getPoiCardRating(poiCard)` — rating within specific POI card
+- `getPoiCardAccessibleBadge(poiCard)` — accessible badge within specific POI card
+
+#### New POM Locators (IntakePage.ts)
+- `wheelchairQuestion` — `.depth-extra-question[data-question-key="wheelchairAccessible"]`
+
+### Affected Sections
+- POI card tests target generated trip HTML (`trip_full_{LANG}.html`)
+- Intake tests target `trip_intake.html` via bridge server (`http://localhost:3456`)
+- BRD coverage: REQ-003 (AC-2, AC-3, AC-4), REQ-005 (AC-2, AC-3, AC-4, AC-5), REQ-006 (AC-1 through AC-5), REQ-007 (AC-2), REQ-009 (AC-1 through AC-4), REQ-010 (AC-1 through AC-3)
+
+---
+
+## 2026-03-22 — Mix/All Option Cards: Progression Tests (8 TCs)
+
+### Changes
+
+#### New Spec File: `tests/intake/intake-mix-options.spec.ts` (1 file, 8 test cases)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-134 | diningstyle question has 4 cards with correct data attributes | REQ-001 -> AC-1..AC-5 |
+| TC-135 | mealpriority question has 4 cards with correct data attributes | REQ-002 -> AC-1..AC-5 |
+| TC-136 | transport question has 4 cards with correct data attributes | REQ-003 -> AC-1..AC-5 |
+| TC-137 | Selecting mix/all card applies is-selected and deselects siblings | REQ-001/002/003 -> AC-6 |
+| TC-138 | New i18n keys present in all 12 locale files | REQ-004 -> AC-1..AC-3 |
+| TC-139 | Markdown label maps include new option values | REQ-005 -> AC-1..AC-4 |
+| TC-140 | scoreFoodItem handles diningstyle mix correctly | REQ-006 -> AC-1..AC-3 |
+| TC-141 | Rule documentation lists new allowed values | REQ-007 -> AC-1..AC-3 |
+
+**Implementation notes:**
+- TC-134/135/136 consolidated into 1 data-driven test with batched `page.evaluate()` (3 iterations)
+- TC-137 uses standard `@playwright/test` import with `beforeEach` (mutates page state via clicks)
+- TC-138/139/140/141 are filesystem-only tests (source analysis via `fs.readFileSync` and regex)
+
+#### Playwright Config Changes
+- Updated `intake-i18n` project `testMatch` to include `intake-mix-options`
+- Added `/intake-mix-options/` to `testIgnore` arrays in both `desktop-chromium` and `desktop-chromium-rtl` projects
+
+#### Files Modified
+- `playwright.config.ts` — updated `testMatch` and `testIgnore` patterns for new spec file routing
+
+#### Files Added
+- `tests/intake/intake-mix-options.spec.ts` — 8 progression tests covering mix/all option cards
+
+#### New POM Locators
+- None — all tests use existing `IntakePage.questionByKey()` plus inline sub-locators and `page.evaluate()`
+
+### Affected Sections
+- No HTML or content changes — test-only update
+- Tests target `trip_intake.html` (intake page, not generated trip HTML)
+- BRD coverage: all 7 requirements (REQ-001 through REQ-007) and all 27 acceptance criteria
+
+---
+
 ## 2026-03-22 — i18n Alignment Regression: Key Leak Scanner & Field Alignment Tests (2 TCs)
 
 ### Changes

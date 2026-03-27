@@ -133,7 +133,7 @@ test.describe('Catalog Fetching & Caching', () => {
     expect(cacheControl, 'Cache-Control header present').toBeTruthy();
     if (cacheControl) {
       expect(
-        cacheControl.includes('max-age'),
+        (cacheControl as string).includes('max-age'),
         'Cache-Control contains max-age'
       ).toBe(true);
     }

@@ -13,7 +13,14 @@
       "WebSearch",
       "Grep",
       "LS",
-      "Glob"
+      "Glob",
+      "mcp__google-places__maps_search_places",
+      "mcp__google-places__maps_place_details",
+      "mcp__google-places__maps_geocode",
+      "mcp__google-places__maps_reverse_geocode",
+      "mcp__google-places__maps_directions",
+      "mcp__google-places__maps_distance_matrix",
+      "mcp__google-places__maps_elevation"
     ]
 },
   "sandbox": {

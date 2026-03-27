@@ -198,3 +198,31 @@ test.describe('Progression — Manifest Integrity (TC-005/TC-006)', () => {
     ).toBe(true);
   });
 });
+
+test.describe('Progression — POI Phone, Rating & Accessibility (Google Places)', () => {
+  test('TC-153: at least one POI card has a phone link', async ({ tripPage }) => {
+    // Structural presence check — at least one tel: link should exist across all POI cards
+    const phoneLinks = tripPage.page.locator('.poi-card .poi-card__link[href^="tel:"]');
+    const count = await phoneLinks.count();
+    expect.soft(count, 'at least one POI card should have a phone link').toBeGreaterThanOrEqual(1);
+  });
+
+  test('TC-154: at least one POI card has a rating element', async ({ tripPage }) => {
+    // Structural presence check — at least one .poi-card__rating should exist
+    const count = await tripPage.poiCardRatings.count();
+    expect.soft(count, 'at least one POI card should have a rating element').toBeGreaterThanOrEqual(1);
+  });
+
+  test('TC-152: accessible badges, if present, have correct class', async ({ tripPage }) => {
+    // If the trip uses wheelchair accessibility, badges should be in card body
+    const badges = tripPage.page.locator('.poi-card__accessible');
+    const count = await badges.count();
+    if (count === 0) return; // No badges — wheelchair may not be active for this trip
+    for (let i = 0; i < count; i++) {
+      const inBody = await badges.nth(i).evaluate(
+        (el) => !!el.closest('.poi-card__body')
+      );
+      expect.soft(inBody, `Accessible badge ${i}: should be inside .poi-card__body`).toBe(true);
+    }
+  });
+});

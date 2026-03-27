@@ -125,6 +125,14 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 ---
 
 ### {POI Name 1}
+
+📍 [Google Maps](https://maps.google.com/...)
+🌐 [Сайт](https://...)
+📸 [Фото](https://...)
+📞 Телефон: +36 1 234 5678
+⭐ 4.5/5 (2,340 отзывов)
+♿ Доступно для колясок
+
 {Full POI content per Content Guidelines below}
 
 ### {POI Name 2}
@@ -233,6 +241,8 @@ For **EVERY** location mentioned (attractions, landmarks, parks, and restaurants
 - **Google Maps**: A direct link to the specific entrance or pin.
 - **Official Website**: A link to the official site (or a reliable primary source like TripAdvisor if no site exists).
 - **Photo Gallery**: A link to visual galleries to help the family identify the spot.
+- **Phone number**: When available (sourced from Google Places or web fetch). Format: `📞 {localized_label}: {phone_number}` — the label is language-dependent (e.g., "Телефон" in Russian, "Phone" in English).
+- **Rating**: When available (sourced from Google Places). Format: `⭐ {rating}/5 ({review_count} {localized_reviews_label})` — e.g., `⭐ 4.5/5 (2,340 отзывов)`.
 
 #### 4. Logistics & Accessibility
 - Avoid advising public transport when start point is unknown.
@@ -284,17 +294,19 @@ After all days are complete for a given language:
 
 ---
 
-## Trip Assembly (Mechanical Step)
+## Trip Assembly (Bash Command — No Subagent)
 
-After all days + budget are complete for a given language, assemble `trip_full_LANG.md`:
+After all days + budget are complete for a given language, assemble `trip_full_LANG.md` using a single Bash command:
 
-1. Start with the contents of `overview_LANG.md`.
-2. Append `day_00_LANG.md` through `day_NN_LANG.md` in order, with `---` separators.
-3. Append `budget_LANG.md` at the end.
-4. Write the result to `trip_full_LANG.md` in the trip folder.
-5. Update `manifest.json`: under `languages.LANG.assembly`, set `trip_full_md_built` timestamp, clear `stale_days`.
+```bash
+cd <trip_folder> && { cat overview_LANG.md; for f in day_[0-9][0-9]_LANG.md; do printf '\n---\n\n'; cat "$f"; done; printf '\n---\n\n'; cat budget_LANG.md; } > trip_full_LANG.md
+```
 
-**This is a mechanical concatenation** — no LLM generation needed. Use file read + write operations.
+Replace `<trip_folder>` with the actual path and `LANG` with the language code (e.g., `ru`, `en`).
+
+After the file is written, update `manifest.json`: under `languages.LANG.assembly`, set `trip_full_md_built` timestamp, clear `stale_days`.
+
+**This is a mechanical concatenation** — no LLM generation needed. Execute via Bash tool directly, never as a subagent.
 
 ---
 

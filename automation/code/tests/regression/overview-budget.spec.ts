@@ -64,7 +64,7 @@ test.describe('Budget Section', () => {
 });
 
 test.describe('Assembly Order', () => {
-  test('overview should precede first day card and budget should follow last day card', async ({ page }) => {
+  test('overview should precede first day card and budget should follow last day card', async ({ sharedPage: page }) => {
     const lastDayIndex = tripConfig.dayCount - 1;
     const result = await page.evaluate((lastDay: number) => {
       const overview = document.querySelector('#overview');

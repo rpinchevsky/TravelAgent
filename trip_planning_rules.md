@@ -12,6 +12,25 @@ Before any planning or answering, perform these steps:
 
 ---
 
+## Data Source Hierarchy
+
+The trip generation pipeline uses a two-layer data source approach for POI details:
+
+### Layer 1: Web Search & Fetch (Primary)
+- Web search discovers POIs, gets narrative descriptions, pro-tips, and family-specific context.
+- Web fetch retrieves official websites, photo galleries, and pricing.
+- This layer provides the creative and contextual content that makes each POI description unique.
+
+### Layer 2: Google Places API (Enrichment & Validation)
+- After web fetch, query Google Places for each POI using `search_places(name, location)` → `get_place_details(place_id)`.
+- Google Places provides structured fields: **phone number**, **rating** (with review count), **wheelchair accessibility**, verified hours, verified website URL.
+- **Precedence rule:** For structured fields (hours, website URL, phone, rating), Google Places data takes precedence over web fetch when both are available.
+- **Scope limitation:** Google Places does NOT replace web fetch for narrative content (descriptions, pro-tips, family-specific notes, photo gallery links) — only for structured fields.
+- **Graceful degradation:** If Google Places MCP is not configured or a place is not found, the pipeline continues with web fetch data only. Phone and rating fields are omitted (not rendered as empty).
+- **Default wheelchair behavior:** If the trip details file does not contain a `Wheelchair accessible` field, treat as `wheelchair accessible: no`.
+
+---
+
 ## Strategic Planning Logic
 
 ### 1. The Interest Hierarchy
@@ -78,6 +97,11 @@ Always include a "Holiday Advisory" note explaining:
 ### Live Verification
 - Use `Google Search` to confirm opening hours, prices, and special events for the specific `trip_context.timing`.
 - Search for "local secrets" (hidden playgrounds, non-tourist stalls) in the specific neighborhood being planned.
+- **Google Places Enrichment (Mandatory per POI):** After web-fetching a POI, query Google Places to collect:
+  - **Phone number:** Include in the POI card when available (see content_format_rules.md for format).
+  - **Rating:** Numeric rating out of 5 with review count. Include in the POI card when available.
+  - **Wheelchair accessibility:** When `wheelchair accessible: yes` is set in trip details, verify each POI's accessibility via Google Places. Accessible POIs receive a `♿` indicator. Inaccessible POIs must be replaced with accessible alternatives or explicitly flagged with a warning note.
+- **Permanently Closed POI Gate (Blocking):** During Phase B research, if a POI is discovered to be permanently closed (via Google Places `business_status`, web search, or official website), it must **not** appear in the report. Replace it with an alternative POI in the same area that serves the same interest category. This check applies to all POI types: attractions, restaurants, stores, and along-the-way stops.
 
 ### CEO Audit (Mandatory)
 Before presenting any "Day" to the user, you must pass this self-check:
@@ -87,6 +111,7 @@ Before presenting any "Day" to the user, you must pass this self-check:
 - [ ] Provide additional options in area if we won't like some of advised POI.
 - [ ] Is the logistics/transportation plan efficient?
 - [ ] Does the number of POI cards in the HTML match the number of `###` POI sections in the markdown for this day? (POI Parity Check)
+- [ ] If `wheelchair accessible: yes` is set in trip details: are all POIs verified for wheelchair accessibility? Are inaccessible POIs flagged or replaced?
 
 For Plan B provide what might be the reason to use that plan. Output of Plan B shall follow same rules and format as planned points of interest.
 - This part is for travel agent validation, no need to share results of the review.

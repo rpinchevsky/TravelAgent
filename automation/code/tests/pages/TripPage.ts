@@ -40,6 +40,7 @@ export class TripPage {
 
   // --- POI cards ---
   readonly poiCards: Locator;
+  readonly poiCardRatings: Locator;
 
   // --- Activity labels (itinerary tables) ---
   readonly activityLabels: Locator;
@@ -85,6 +86,7 @@ export class TripPage {
 
     // POI
     this.poiCards = page.locator('.poi-card');
+    this.poiCardRatings = page.locator('.poi-card__rating');
 
     // Activity labels
     this.activityLabels = page.locator('.activity-label');
@@ -165,5 +167,17 @@ export class TripPage {
 
   getAllSvgs(): Locator {
     return this.page.locator('svg');
+  }
+
+  getPoiCardPhoneLink(poiCard: Locator): Locator {
+    return poiCard.locator('.poi-card__link[href^="tel:"]');
+  }
+
+  getPoiCardRating(poiCard: Locator): Locator {
+    return poiCard.locator('.poi-card__rating');
+  }
+
+  getPoiCardAccessibleBadge(poiCard: Locator): Locator {
+    return poiCard.locator('.poi-card__accessible');
   }
 }

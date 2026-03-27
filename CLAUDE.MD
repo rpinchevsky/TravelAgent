@@ -28,14 +28,14 @@ When adding features, changing rules, or fixing gaps between requirements and im
 
 **Phase sequence — all phases auto-proceed, no user approval gates:**
 
-| # | Role | Subagent Prompt | Reads from disk | Writes to disk |
+| # | Role (Scope) | Subagent Prompt | Reads from disk | Writes to disk |
 |---|---|---|---|---|
-| 1 | PM | `.claude/skills/dev-cycle/prompts/pm.md` | Rule files relevant to request | `business_requirements.md` |
-| 2 | Dev | `.claude/skills/dev-cycle/prompts/dev-design.md` | BRD + affected rule files | `high_level_design.md`, `detailed_design.md` |
-| 3 | SA | `.claude/skills/dev-cycle/prompts/sa-review.md` | BRD + HLD + DD + architecture rule files | `architecture_review.md` |
-| 4a | AE | `.claude/skills/dev-cycle/prompts/ae-test-plan.md` | BRD + DD + automation rules | `test_plan.md` |
-| 4b | QA-A | `.claude/skills/dev-cycle/prompts/qa-review.md` | BRD + test plan + automation rules | `qa_architecture_review.md` |
-| 5 | Dev + AE | `.claude/skills/dev-cycle/prompts/dev-impl.md` + `ae-impl.md` | DD + test plan + relevant files | Code & test changes |
+| 1 | PM (PM-Req) | `.claude/skills/dev-cycle/prompts/pm.md` | Rule files relevant to request | `business_requirements.md` |
+| 2 | Dev (Dev-Design) | `.claude/skills/dev-cycle/prompts/dev-design.md` | BRD + affected rule files | `high_level_design.md`, `detailed_design.md` |
+| 3 | SA (SA-Review) | `.claude/skills/dev-cycle/prompts/sa-review.md` | BRD + HLD + DD + architecture rule files | `architecture_review.md` |
+| 4a | AE (AE-Plan) | `.claude/skills/dev-cycle/prompts/ae-test-plan.md` | BRD + DD + automation rules | `test_plan.md` |
+| 4b | QA-A (QA-Review) | `.claude/skills/dev-cycle/prompts/qa-review.md` | BRD + test plan + automation rules | `qa_architecture_review.md` |
+| 5 | Dev (Dev-Impl) + AE (AE-Impl) | `.claude/skills/dev-cycle/prompts/dev-impl.md` + `ae-impl.md` | DD + test plan + relevant files | Code & test changes |
 | 6 | — | `/render` → `/regression` (as subagents, not skills) | Generated trip files | HTML + test reports |
 
 **Orchestration rules:**
@@ -51,7 +51,7 @@ When adding features, changing rules, or fixing gaps between requirements and im
 2. **Phase A** — High-level summary table → create trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`, write `overview.md` + `manifest.json` (`content_format_rules.md`)
 3. **Phase B** — Parallel day generation: spawn subagents to write `day_00.md` through `day_NN.md`, verify all files, update manifest once (`content_format_rules.md`)
 4. **Budget** — Aggregate per-day costs into `budget.md` (`content_format_rules.md`)
-5. **Assemble** — Mechanical concat of all parts into `trip_full.md` (`content_format_rules.md`)
+5. **Assemble** — Bash command concat of all parts into `trip_full.md` (no subagent — see `content_format_rules.md`)
 6. **Generate HTML** — Invoke `/render` skill for per-day fragment generation, assembly into `trip_full_LANG.html`, and pre-regression validation
 7. **Validate & Test** — Invoke `/regression` skill for test execution and reporting
 

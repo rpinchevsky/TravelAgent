@@ -2377,7 +2377,7 @@
           <!-- Q9: Dining Style (T1) -->
           <div class="question-slide" data-question="diningstyle" data-qindex="9" data-question-key="diningstyle" data-tier="1">
             <div class="question-slide__label" data-i18n="q_dine">Where do you love eating?</div>
-            <div class="question-options">
+            <div class="question-options question-options--4">
               <div class="q-card" tabindex="0" role="button" data-value="street">
                 <div class="q-card__icon">&#127838;</div>
                 <div class="q-card__title" data-i18n="q_dine_street">Street Food & Markets</div>
@@ -2392,6 +2392,11 @@
                 <div class="q-card__icon">&#127864;</div>
                 <div class="q-card__title" data-i18n="q_dine_upscale">Upscale Dining</div>
                 <div class="q-card__desc" data-i18n="q_dine_upscale_desc">Fine dining, tasting menus, wine pairings</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="mix">
+                <div class="q-card__icon">&#127860;</div>
+                <div class="q-card__title" data-i18n="q_dine_mix">Mix of All</div>
+                <div class="q-card__desc" data-i18n="q_dine_mix_desc">Street food one day, fine dining the next</div>
               </div>
             </div>
           </div>
@@ -2423,7 +2428,7 @@
           <!-- Q11: Meal Priority (T2) -->
           <div class="question-slide" data-question="mealpriority" data-qindex="11" data-question-key="mealpriority" data-tier="2">
             <div class="question-slide__label" data-i18n="q_meal">Which meal matters most to you?</div>
-            <div class="question-options">
+            <div class="question-options question-options--4">
               <div class="q-card" tabindex="0" role="button" data-value="breakfast">
                 <div class="q-card__icon">&#129370;</div>
                 <div class="q-card__title" data-i18n="q_meal_breakfast">Breakfast & Brunch</div>
@@ -2438,6 +2443,11 @@
                 <div class="q-card__icon">&#127863;</div>
                 <div class="q-card__title" data-i18n="q_meal_dinner">Dinner is the Event</div>
                 <div class="q-card__desc" data-i18n="q_meal_dinner_desc">Evening dining is the highlight of the day</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="all">
+                <div class="q-card__icon">&#11088;</div>
+                <div class="q-card__title" data-i18n="q_meal_all">Every Meal Counts</div>
+                <div class="q-card__desc" data-i18n="q_meal_all_desc">Every meal is an experience — no skipping allowed</div>
               </div>
             </div>
           </div>
@@ -2557,7 +2567,7 @@
           <!-- Q17: Transport (T3) -->
           <div class="question-slide" data-question="transport" data-qindex="17" data-question-key="transport" data-tier="3">
             <div class="question-slide__label" data-i18n="q_transport">Preferred way of getting around?</div>
-            <div class="question-options">
+            <div class="question-options question-options--4">
               <div class="q-card" tabindex="0" role="button" data-value="walking">
                 <div class="q-card__icon">&#128694;</div>
                 <div class="q-card__title" data-i18n="q_transport_walking">Walking</div>
@@ -2572,6 +2582,11 @@
                 <div class="q-card__icon">&#128661;</div>
                 <div class="q-card__title" data-i18n="q_transport_taxi">Taxi & Rideshare</div>
                 <div class="q-card__desc" data-i18n="q_transport_taxi_desc">Door-to-door comfort, skip the wait</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="mix">
+                <div class="q-card__icon">&#128256;</div>
+                <div class="q-card__title" data-i18n="q_transport_mix">Mix It Up</div>
+                <div class="q-card__desc" data-i18n="q_transport_mix_desc">Walk, ride, or taxi — whatever fits the moment</div>
               </div>
             </div>
           </div>
@@ -2960,6 +2975,23 @@
         <div class="field">
           <label class="field__label" for="extraNotes" data-i18n="s6_extra">Anything else we should know?</label>
           <textarea class="textarea" id="extraNotes" placeholder="e.g. One child has a stroller, we want outlet shopping on one day, we need nearby supermarkets..." data-i18n-placeholder="s6_extra_placeholder" rows="4" data-question-key="extraNotes"></textarea>
+        </div>
+
+        <!-- Wheelchair Accessibility (always visible, not depth-gated) -->
+        <div class="depth-extra-question" data-question-key="wheelchairAccessible">
+          <label class="field__label" data-i18n="s6_wheelchair">Does anyone in your group need wheelchair-accessible places?</label>
+          <div class="question-options">
+            <div class="q-card is-selected" tabindex="0" role="button" data-value="no">
+              <div class="q-card__icon">&#9989;</div>
+              <div class="q-card__title" data-i18n="s6_wheelchair_no">No Requirement</div>
+              <div class="q-card__desc" data-i18n="s6_wheelchair_no_desc">No wheelchair accessibility needed</div>
+            </div>
+            <div class="q-card" tabindex="0" role="button" data-value="yes">
+              <div class="q-card__icon">&#9855;</div>
+              <div class="q-card__title" data-i18n="s6_wheelchair_yes">Wheelchair Accessible</div>
+              <div class="q-card__desc" data-i18n="s6_wheelchair_yes_desc">All places must be wheelchair accessible</div>
+            </div>
+          </div>
         </div>
 
         <div class="btn-bar">
@@ -4369,7 +4401,8 @@
     document.addEventListener('click', (e) => {
       const card = e.target.closest('.q-card');
       if (!card) return;
-      const slide = card.closest('.question-slide');
+      // Support both .question-slide (Step 2) and .depth-extra-question (Step 6) containers
+      const slide = card.closest('.question-slide') || card.closest('.depth-extra-question');
       if (!slide) return;
       slide.querySelectorAll('.q-card').forEach(c => c.classList.remove('is-selected'));
       card.classList.add('is-selected');
@@ -4449,7 +4482,8 @@
       else s -= 5; // Wrong diet = exclude
 
       // Dining style match
-      if (item.style === style) s += 3;
+      if (style === 'mix') s += 2; // mix: moderate boost for all styles
+      else if (item.style === style) s += 3;
       else s += 1; // partial match
 
       // Adventure match
@@ -5454,10 +5488,10 @@
       const aqFlex = getAvoidQuizAnswers().flexibility || 'loose';
       const aqFlexLabel = { strict: 'Structured — prefer a firm schedule', loose: 'Flexible — key highlights planned, room to wander', spontaneous: 'Spontaneous — minimal planning, go with the flow' };
       md += `- **Schedule style:** ${aqFlexLabel[aqFlex] || 'Flexible'}\n`;
-      const diningStyleLabels = { street: 'Street food & markets', casual: 'Casual restaurants', upscale: 'Upscale dining' };
+      const diningStyleLabels = { street: 'Street food & markets', casual: 'Casual restaurants', upscale: 'Upscale dining', mix: 'Mix of all styles' };
       md += `- **Dining style:** ${diningStyleLabels[fq.diningstyle] || 'Casual restaurants'}\n`;
       const mealPriority = getFoodQuizAnswers().mealpriority || 'dinner';
-      const mealLabels = { breakfast: 'Breakfast & brunch focused', lunch: 'Lunch as the main meal', dinner: 'Dinner is the highlight' };
+      const mealLabels = { breakfast: 'Breakfast & brunch focused', lunch: 'Lunch as the main meal', dinner: 'Dinner is the highlight', all: 'Every meal matters equally' };
       md += `- **Meal priority:** ${mealLabels[mealPriority] || 'Dinner'}\n`;
       const localFood = getFoodQuizAnswers().localfood || 'mix';
       const localLabels = { familiar: 'Prefer familiar/international food', mix: 'Mix of local and familiar', fulllocal: 'Full local food immersion' };
@@ -6626,7 +6660,7 @@
 
           // Transport
           const transportVal = getDepthQuizAnswer('transport', 'aq') || defs.transport;
-          const transportLabels = { walking: 'Walking', transit: 'Public Transit', taxi: 'Taxi & Rideshare' };
+          const transportLabels = { walking: 'Walking', transit: 'Public Transit', taxi: 'Taxi & Rideshare', mix: 'Mix — whatever fits best' };
           prefs.push(`- **Transport preference:** ${transportLabels[transportVal] || transportVal}`);
 
           // Morning preference
@@ -6658,6 +6692,11 @@
           const accessVal = getDepthCardAnswer('accessibility') || defs.accessibility;
           const accessLabels = { none: 'None', flat: 'Prefer Flat Routes', wheelchair: 'Wheelchair Accessible' };
           prefs.push(`- **Accessibility needs:** ${accessLabels[accessVal] || accessVal}`);
+
+          // Wheelchair accessible (always-visible Step 6 field, not depth-gated)
+          const wheelchairEl = document.querySelector('.depth-extra-question[data-question-key="wheelchairAccessible"] .q-card.is-selected');
+          const wheelchairVal = wheelchairEl ? wheelchairEl.dataset.value : 'no';
+          prefs.push(`- **Wheelchair accessible:** ${wheelchairVal === 'yes' ? 'yes' : 'no'}`);
 
           // Walking tolerance (new T2)
           const walkVal = getDepthQuizAnswer('walkingTolerance', 'aq') || defs.walkingTolerance;

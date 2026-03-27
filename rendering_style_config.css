@@ -727,6 +727,22 @@ a.activity-label:focus-visible {
   height: 13px;
 }
 
+.poi-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-accent);
+  margin-top: var(--space-1);
+}
+
+.poi-card__accessible {
+  display: inline-block;
+  font-size: var(--text-sm);
+  margin-top: var(--space-1);
+}
+
 .poi-card__name {
   font-size: var(--text-lg);
   font-weight: var(--font-weight-semibold);

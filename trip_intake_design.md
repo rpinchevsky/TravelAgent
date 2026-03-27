@@ -342,11 +342,21 @@ A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choos
 - Step emojis and labels are preserved for visible steps
 
 ### Depth Extra Questions (`.depth-extra-question`)
-- Used in Step 6 for Photography (T4) and Accessibility (T5)
+- Used in Step 6 for supplementary card-based questions
 - Container: `margin-top: var(--space-4)`, no background/border
 - Label: `.field__label` restyled via `.depth-extra-question .field__label` — uppercase, xs text, semibold, accent-alt (matches `.chip-section__title` visual)
 - Cards: `.q-card` with reduced `min-height: 140px` (vs 200px standard) and compact padding, for proportionate fit within a form-based step
-- 3-column grid same as Step 2's `.question-options`
+- Grid uses `.question-options` same as Step 2
+
+### Wheelchair Accessibility Question (Step 6)
+- Always visible (not depth-gated), placed after Extra Notes textarea
+- Uses `.depth-extra-question` container (first actual DOM usage of this CSS pattern)
+- 2-option `.q-card` grid: "No Requirement" (default, checkmark icon) and "Wheelchair Accessible" (wheelchair icon)
+- Cards use compact sizing (`min-height: 140px`) consistent with other `.depth-extra-question` styling
+- Default: first option pre-selected with `is-selected` class
+- Radio behavior: clicking one deselects the other (handled by click delegation)
+- RTL: grid and text direction flip automatically via existing RTL rules
+- i18n keys: `s6_wheelchair`, `s6_wheelchair_no`, `s6_wheelchair_no_desc`, `s6_wheelchair_yes`, `s6_wheelchair_yes_desc`
 
 ### Preview Box (Code Editor Style)
 - Dark theme container (`#1a1a2e` bg)

@@ -65,8 +65,8 @@ const projects: Array<{
     name: tripConfig.direction === 'ltr' ? 'desktop-chromium' : 'desktop-chromium-rtl',
     use: { ...devices['Desktop Chrome'], baseURL: MAIN_HTML },
     testIgnore: tripConfig.direction === 'ltr'
-      ? [/rtl-/, /intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/]
-      : [/intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/],
+      ? [/rtl-/, /intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/, /intake-mix-options/, /intake-wheelchair/]
+      : [/intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/, /intake-mix-options/, /intake-wheelchair/],
     testMatch: tripConfig.direction === 'rtl' ? /rtl-/ : undefined,
   },
 ];
@@ -78,8 +78,8 @@ if (secondaryHtml) {
     use: { ...devices['Desktop Chrome'], baseURL: secondaryHtml },
     testMatch: tripConfig.direction === 'ltr' ? /rtl-/ : undefined,
     testIgnore: tripConfig.direction === 'rtl'
-      ? [/rtl-/, /intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/]
-      : [/intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/],
+      ? [/rtl-/, /intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/, /intake-mix-options/, /intake-wheelchair/]
+      : [/intake-i18n-catalog/, /intake-i18n-key-leak/, /intake-step1-alignment/, /intake-mix-options/, /intake-wheelchair/],
   });
 }
 
@@ -88,7 +88,7 @@ if (secondaryHtml) {
 projects.push({
   name: 'intake-i18n',
   use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:3456/trip_intake.html' },
-  testMatch: /intake-i18n-catalog|intake-i18n-key-leak|intake-step1-alignment/,
+  testMatch: /intake-i18n-catalog|intake-i18n-key-leak|intake-step1-alignment|intake-mix-options|intake-wheelchair/,
 });
 
 // Mobile-specific tests (responsive.spec.ts, visual.spec.ts) set their own

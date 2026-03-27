@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>מסמך דרישות טכניות — מערכת תכנון טיולים</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm 20mm 18mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: #1a1a1a;
+    direction: rtl;
+    padding: 0 10px;
+  }
+  .cover {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    text-align: center;
+  }
+  .cover h1 { font-size: 28pt; color: #1A3C5E; margin-bottom: 16px; }
+  .cover .subtitle { font-size: 16pt; color: #555; margin-bottom: 40px; }
+  .cover .meta { font-size: 11pt; color: #777; line-height: 2; }
+  h1 { font-size: 20pt; color: #1A3C5E; margin: 30px 0 12px; border-bottom: 3px solid #C9972B; padding-bottom: 6px; page-break-after: avoid; }
+  h2 { font-size: 15pt; color: #1A3C5E; margin: 24px 0 10px; border-bottom: 1px solid #ddd; padding-bottom: 4px; page-break-after: avoid; }
+  h3 { font-size: 12pt; color: #2E7D9A; margin: 16px 0 8px; page-break-after: avoid; }
+  h4 { font-size: 11pt; color: #444; margin: 12px 0 6px; font-weight: 600; }
+  p { margin: 6px 0; text-align: justify; }
+  ul, ol { margin: 6px 20px 6px 0; padding-right: 16px; }
+  li { margin: 3px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10pt; }
+  th { background: #1A3C5E; color: white; padding: 8px 10px; text-align: right; font-weight: 600; }
+  td { padding: 6px 10px; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8f7f4; }
+  code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-family: Consolas, monospace; font-size: 9.5pt; direction: ltr; unicode-bidi: embed; }
+  .note { background: #e8f4f8; border-right: 4px solid #2E7D9A; padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 10pt; }
+  .important { background: #fff3cd; border-right: 4px solid #C9972B; padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 10pt; }
+  .section-num { color: #C9972B; font-weight: 700; margin-left: 6px; }
+  .toc { page-break-after: always; }
+  .toc h1 { text-align: center; }
+  .toc ul { list-style: none; padding: 0; margin: 20px 0; }
+  .toc li { padding: 6px 0; border-bottom: 1px dotted #ccc; font-size: 11pt; }
+  .toc li span { float: left; color: #999; }
+  .page-break { page-break-before: always; }
+  .diagram { background: #f8f7f4; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin: 12px 0; text-align: center; font-family: Consolas, monospace; font-size: 9.5pt; direction: ltr; white-space: pre-line; line-height: 1.5; }
+  .flow-arrow { color: #C9972B; font-size: 16pt; }
+  .badge { display: inline-block; background: #1A3C5E; color: white; padding: 2px 8px; border-radius: 4px; font-size: 9pt; font-weight: 600; }
+  footer { text-align: center; font-size: 9pt; color: #999; margin-top: 40px; padding-top: 10px; border-top: 1px solid #ddd; }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <h1>מסמך דרישות טכניות</h1>
+  <div class="subtitle">מערכת קליטת נתוני טיול ויצירת מסלול משפחתי</div>
+  <div class="subtitle" style="font-size:13pt; color:#C9972B;">Dynamic Travel Architect — Trip Intake & Generation Pipeline</div>
+  <div class="meta">
+    <strong>גרסה:</strong> 1.0<br>
+    <strong>תאריך:</strong> 24 במרץ 2026<br>
+    <strong>סיווג:</strong> מסמך טכני לסקירה חיצונית<br>
+    <strong>פרויקט:</strong> Budapest Trip Planning System
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+  <h1>תוכן עניינים</h1>
+  <ul>
+    <li>1. סקירה כללית של המערכת <span>3</span></li>
+    <li>2. ארכיטקטורת המערכת <span>4</span></li>
+    <li>3. מודול קליטת נתוני טיול (Trip Intake) <span>5</span></li>
+    <li>&nbsp;&nbsp;3.1 זרימת אשף הקליטה — 8 שלבים <span>5</span></li>
+    <li>&nbsp;&nbsp;3.2 שלב 0 — יעד ותאריכים <span>6</span></li>
+    <li>&nbsp;&nbsp;3.3 שלב 1 — נוסעים <span>7</span></li>
+    <li>&nbsp;&nbsp;3.4 בורר עומק שאלות <span>8</span></li>
+    <li>&nbsp;&nbsp;3.5 שלב 2 — שאלון העדפות <span>9</span></li>
+    <li>&nbsp;&nbsp;3.6 שלבים 3-5 — בחירת כרטיסים <span>11</span></li>
+    <li>&nbsp;&nbsp;3.7 שלב 6 — שפה ותוספות <span>13</span></li>
+    <li>&nbsp;&nbsp;3.8 שלב 7 — סקירה והורדה <span>14</span></li>
+    <li>4. מנוע האינטרסים הדינמי <span>15</span></li>
+    <li>5. בינלאומיות (i18n) <span>17</span></li>
+    <li>6. פורמט הפלט (Markdown) <span>19</span></li>
+    <li>7. צינור יצירת הטיול (Trip Generation Pipeline) <span>21</span></li>
+    <li>&nbsp;&nbsp;7.1 שלב מקדים — הכנה ומחקר <span>21</span></li>
+    <li>&nbsp;&nbsp;7.2 Phase A — סיכום עילי <span>22</span></li>
+    <li>&nbsp;&nbsp;7.3 Phase B — תכנון יומי מפורט <span>23</span></li>
+    <li>&nbsp;&nbsp;7.4 תקציב, הרכבה, HTML <span>26</span></li>
+    <li>8. לוגיקת תכנון אסטרטגית <span>27</span></li>
+    <li>9. מקורות נתונים ואימות <span>29</span></li>
+    <li>10. עיצוב ו-UX <span>30</span></li>
+    <li>11. דרישות טכניות ותשתית <span>33</span></li>
+    <li>12. נספחים <span>34</span></li>
+  </ul>
+</div>
+
+<!-- SECTION 1 -->
+<h1><span class="section-num">1.</span> סקירה כללית של המערכת</h1>
+
+<h2>1.1 מטרת המערכת</h2>
+<p>המערכת מתוכננת כ-<strong>אדריכל טיולים דינמי</strong> (Dynamic Travel Architect) המתמחה בתכנון טיולים משפחתיים. המערכת מאזנת בין אינטרסים אוניברסליים של כלל הקבוצה לבין צרכים אישיים של כל נוסע, תוך התחשבות בגילאים, העדפות תזונתיות, רמת נגישות, ותנאים סביבתיים.</p>
+
+<h2>1.2 רכיבים עיקריים</h2>
+<p>המערכת מורכבת משני רכיבים מרכזיים:</p>
+
+<table>
+  <tr><th>רכיב</th><th>תיאור</th><th>טכנולוגיה</th></tr>
+  <tr>
+    <td><strong>קליטת נתונים</strong><br>(Trip Intake)</td>
+    <td>אשף אינטראקטיבי באינטרנט שאוסף מידע על הנוסעים, העדפותיהם, ומפיק קובץ פרופיל טיול בפורמט Markdown</td>
+    <td>HTML/CSS/JS עצמאי, ללא frameworks חיצוניים</td>
+  </tr>
+  <tr>
+    <td><strong>יצירת מסלול</strong><br>(Trip Generation Pipeline)</td>
+    <td>צינור עיבוד רב-שלבי שקולט את קובץ הפרופיל ומייצר מסלול טיול מפורט כולל מידע על נקודות עניין, מסעדות, תקציב, מפות, ופלט HTML</td>
+    <td>Claude AI + Web Search + Google Places API + Playwright</td>
+  </tr>
+</table>
+
+<h2>1.3 זרימה כללית</h2>
+<div class="diagram">
+משתמש מזין נתונים ← אשף Intake (8 שלבים) ← קובץ Markdown ← צינור יצירה (7 שלבים) ← קובץ HTML סופי
+</div>
+
+<p>הקובץ שנוצר מאשף הקליטה משמש כקלט לצינור היצירה. מבנה הקובץ סטנדרטי ומתועד, כך שניתן גם לערוך אותו ידנית.</p>
+
+<!-- SECTION 2 -->
+<h1 class="page-break"><span class="section-num">2.</span> ארכיטקטורת המערכת</h1>
+
+<h2>2.1 רכיבי תשתית</h2>
+<table>
+  <tr><th>רכיב</th><th>תפקיד</th><th>פרטים</th></tr>
+  <tr><td><code>trip_intake.html</code></td><td>עמוד אשף הקליטה</td><td>קובץ HTML יחיד, עצמאי, ללא תלויות חיצוניות. כולל CSS ו-JavaScript מוטמעים</td></tr>
+  <tr><td><code>trip_bridge.js</code></td><td>שרת גשר (אופציונלי)</td><td>שרת Node.js על פורט 3456. מאפשר שמירה ישירה והפעלת יצירת טיול בלחיצה אחת</td></tr>
+  <tr><td><code>locales/ui_{lang}.json</code></td><td>קטלוגי תרגום</td><td>12 קבצי JSON, אחד לכל שפה נתמכת. כולל תרגומי UI ותרגומי פריטים</td></tr>
+  <tr><td><code>trip_planning_rules.md</code></td><td>כללי תכנון</td><td>היררכיית אינטרסים, פילטרים גילאיים, אשכולות גיאוגרפיים, קולינריה</td></tr>
+  <tr><td><code>content_format_rules.md</code></td><td>פורמט תוכן</td><td>מבנה תיקיות, Phase A/B, פורמט יומי, הרכבה</td></tr>
+  <tr><td><code>rendering-config.md</code></td><td>תצורת עיצוב HTML</td><td>Design tokens, כללי רכיבים, נגישות</td></tr>
+</table>
+
+<h2>2.2 נקודות קצה של שרת הגשר</h2>
+<table>
+  <tr><th>נתיב</th><th>שיטה</th><th>תיאור</th></tr>
+  <tr><td><code>GET /</code></td><td>GET</td><td>הגשת עמוד הקליטה</td></tr>
+  <tr><td><code>POST /generate</code></td><td>POST</td><td>שמירת קובץ פרופיל והפעלת יצירת טיול</td></tr>
+  <tr><td><code>GET /progress/:id</code></td><td>GET</td><td>זרם SSE למעקב התקדמות</td></tr>
+  <tr><td><code>POST /cancel/:id</code></td><td>POST</td><td>ביטול יצירת טיול פעילה</td></tr>
+  <tr><td><code>GET /latest-trip</code></td><td>GET</td><td>איתור תיקיית טיול אחרונה שנוצרה</td></tr>
+  <tr><td><code>GET /file/*</code></td><td>GET</td><td>הגשת קבצים מתוך generated_trips</td></tr>
+  <tr><td><code>GET /locales/*</code></td><td>GET</td><td>הגשת קטלוגי תרגום JSON</td></tr>
+</table>
+
+<div class="note">
+  <strong>הערה:</strong> שרת הגשר הוא אופציונלי. ללא שרת, העמוד עובר להורדה ידנית של הקובץ + העתקת פקודה. טעינת קטלוגי תרגום דורשת שרת HTTP (לא ניתן לטעון מ-<code>file://</code>).
+</div>
+
+<!-- SECTION 3 -->
+<h1 class="page-break"><span class="section-num">3.</span> מודול קליטת נתוני טיול (Trip Intake)</h1>
+
+<h2>3.1 זרימת אשף הקליטה — 8 שלבים</h2>
+<p>האשף עוקב אחר עיצוב <strong>דו-שלבי</strong> קפדני:</p>
+
+<h3>פאזה 1 — נתונים ושאלות (שלבים 0-2)</h3>
+<p>איסוף פרטי טיול, מידע על נוסעים, ושאלות העדפה אחת-אחת.</p>
+
+<h3>פאזה 2 — בחירת כרטיסים (שלבים 3-5)</h3>
+<p>הצגת רשתות כרטיסים מדורגים מראש לבחירה/ביטול בחירה של נקודות עניין, דברים להימנע מהם, וחוויות אוכל.</p>
+
+<h3>סיום (שלבים 6-7)</h3>
+<p>שפה, הערות נוספות, סקירה והורדה.</p>
+
+<table>
+  <tr><th>שלב</th><th>שם</th><th>פאזה</th><th>תיאור</th></tr>
+  <tr><td>0</td><td>יעד ותאריכים</td><td>נתונים</td><td>שורת חיפוש בסגנון Booking.com — יעד + הגעה + עזיבה</td></tr>
+  <tr><td>1</td><td>נוסעים</td><td>נתונים</td><td>הוספת הורים/מבוגרים וילדים עם פרטים אישיים</td></tr>
+  <tr><td>—</td><td>בורר עומק</td><td>—</td><td>overlay לבחירת מספר שאלות (10-30)</td></tr>
+  <tr><td>2</td><td>העדפות</td><td>נתונים</td><td>שאלון אחד-אחד עם מעבר אוטומטי ונקודות מצב</td></tr>
+  <tr><td>3</td><td>אינטרסים</td><td>כרטיסים</td><td>רשת כרטיסי multi-select מדורגים מראש</td></tr>
+  <tr><td>4</td><td>דברים להימנע</td><td>כרטיסים</td><td>רשת כרטיסי avoid מדורגים מראש</td></tr>
+  <tr><td>5</td><td>אוכל ומסעדנות</td><td>כרטיסים</td><td>כרטיסי חוויות אוכל + ויבים של מסעדנות</td></tr>
+  <tr><td>6</td><td>שפה ותוספות</td><td>סיום</td><td>שפת דוח, נגישות, צילום, הערות</td></tr>
+  <tr><td>7</td><td>סקירה והורדה</td><td>סיום</td><td>תצוגה מקדימה, הורדה, הפעלת יצירה</td></tr>
+</table>
+
+<div class="important">
+  <strong>כלל עיצוב:</strong> אין שאלות בשלבי בחירת כרטיסים (3-5), ואין רשתות כרטיסים בשלבי שאלות (0-2). ההפרדה שומרת על זרימה פשוטה ואינטואיטיבית.
+</div>
+
+<h2 class="page-break">3.2 שלב 0 — יעד ותאריכים (Where & When)</h2>
+
+<h3>שדות שורת החיפוש</h3>
+<table>
+  <tr><th>שדה</th><th>סוג</th><th>חובה</th><th>ברירת מחדל</th><th>הערות</th></tr>
+  <tr><td>יעד</td><td>טקסט + השלמה אוטומטית</td><td>כן</td><td>—</td><td>חיפוש היברידי תלת-שכבתי</td></tr>
+  <tr><td>תאריך הגעה</td><td>בוחר תאריכים</td><td>כן</td><td>—</td><td>לוח שנה דו-חודשי בסגנון Booking.com</td></tr>
+  <tr><td>תאריך עזיבה</td><td>בוחר תאריכים</td><td>כן</td><td>—</td><td>חייב להיות אחרי ההגעה</td></tr>
+</table>
+
+<h3>השלמה אוטומטית ליעד — גישה היברידית תלת-שכבתית</h3>
+<table>
+  <tr><th>שכבה</th><th>מקור</th><th>תיאור</th><th>אייקון</th></tr>
+  <tr><td>1. מדינות</td><td>רשימה מקומית (50 ערכים)</td><td>התאמה מיידית רב-לשונית (en/ru/he)</td><td>🌍</td></tr>
+  <tr><td>2. איים ואזורים</td><td>רשימה מקומית (~40 ערכים)</td><td>יעדי תיירות פופולריים עם שמות ב-3 שפות</td><td>🏝️</td></tr>
+  <tr><td>3. ערים</td><td>GeoNames API</td><td>שליפה אחרי 2+ תווים עם debounce של 300ms, מקסימום 6 תוצאות</td><td>🏙️</td></tr>
+</table>
+
+<p><strong>סדר תצוגה:</strong> מדינות ← איים/אזורים ← ערים. כפילויות מוסרות אוטומטית.</p>
+
+<p><strong>קריאת API:</strong></p>
+<div class="diagram">GET https://secure.geonames.org/searchJSON
+  ?name_startsWith={query}&featureClass=P&maxRows=6
+  &lang={currentLang}&username=robertp</div>
+
+<h3>בוחר טווח תאריכים</h3>
+<ul>
+  <li>שני לוחות חודשיים זה-לצד-זה (נערמים במובייל)</li>
+  <li>לחיצה ראשונה = תאריך התחלה, לחיצה שנייה = תאריך סיום</li>
+  <li>אם סיום לפני התחלה — מתחלפים אוטומטית</li>
+  <li>בר "תאריכים גמישים": ± 1/2/3/7 ימים</li>
+  <li>תאריכי עבר מושבתים (opacity 0.3)</li>
+  <li>טווח מסומן ברקע צבעוני רציף</li>
+</ul>
+
+<h2 class="page-break">3.3 שלב 1 — נוסעים (Who's Traveling)</h2>
+<p>שני חלקים: <strong>הורים/מבוגרים</strong> ו<strong>ילדים</strong>. שניהם רשימות דינמיות עם הוספה/הסרה באמצעות מונה +/−.</p>
+
+<h3>שדות כרטיס הורה</h3>
+<table>
+  <tr><th>שדה</th><th>סוג</th><th>חובה</th><th>הערות</th></tr>
+  <tr><td>שם</td><td>טקסט</td><td>כן</td><td>לדוגמה: "רוברט", "אנה"</td></tr>
+  <tr><td>מגדר</td><td>בחירה</td><td>לא</td><td>זכר / נקבה</td></tr>
+  <tr><td>שנת לידה</td><td>dropdown</td><td>כן</td><td>טווח: 1940 עד השנה הנוכחית</td></tr>
+  <tr><td>חודש לידה</td><td>dropdown</td><td>לא</td><td>ינואר–דצמבר</td></tr>
+  <tr><td>יום לידה</td><td>dropdown</td><td>לא</td><td>1–31, מתעדכן אוטומטית לפי שנה+חודש</td></tr>
+</table>
+
+<h3>שדות כרטיס ילד</h3>
+<table>
+  <tr><th>שדה</th><th>סוג</th><th>חובה</th><th>הערות</th></tr>
+  <tr><td>שם</td><td>טקסט</td><td>כן</td><td>—</td></tr>
+  <tr><td>מגדר</td><td>בחירה</td><td>לא</td><td>בן / בת</td></tr>
+  <tr><td>שנת לידה</td><td>dropdown</td><td>כן</td><td>טווח: 18 השנים האחרונות</td></tr>
+  <tr><td>חודש לידה</td><td>dropdown</td><td>לא</td><td>—</td></tr>
+  <tr><td>יום לידה</td><td>dropdown</td><td>לא</td><td>—</td></tr>
+  <tr><td>הערות</td><td>טקסט</td><td>לא</td><td>לדוגמה: "ללא עגלה", "אוכל הכול"</td></tr>
+</table>
+
+<h3>פורמט תאריך לידה בפלט</h3>
+<table>
+  <tr><th>מצב</th><th>פורמט</th><th>דוגמה</th></tr>
+  <tr><td>שלושת השדות מלאים</td><td>YYYY-MM-DD</td><td>1981-03-15</td></tr>
+  <tr><td>שנה + חודש</td><td>YYYY-MM</td><td>1981-03</td></tr>
+  <tr><td>שנה בלבד</td><td>YYYY</td><td>1981</td></tr>
+  <tr><td>ריק</td><td>TBD</td><td>TBD</td></tr>
+</table>
+
+<p><strong>ולידציה:</strong> שם ושנת לידה חובה לכל נוסע. לא ניתן להתקדם לשלב 2 ללא מילוי מלא.</p>
+
+<h2 class="page-break">3.4 בורר עומק שאלות (Depth Selector)</h2>
+<p>overlay שמופיע לאחר השלמת שלב 1. מציג 5 אפשרויות עומק:</p>
+
+<table>
+  <tr><th>ערך</th><th>תווית</th><th>מספר שאלות</th><th>ברירת מחדל</th></tr>
+  <tr><td>10</td><td>מהיר (Quick)</td><td>10 שאלות</td><td>—</td></tr>
+  <tr><td>15</td><td>קל (Light)</td><td>15 שאלות</td><td>—</td></tr>
+  <tr><td>20</td><td>סטנדרטי (Standard)</td><td>20 שאלות</td><td>✓ מומלץ</td></tr>
+  <tr><td>25</td><td>מפורט (Detailed)</td><td>25 שאלות</td><td>—</td></tr>
+  <tr><td>30</td><td>צלילה עמוקה (Deep Dive)</td><td>30 שאלות</td><td>—</td></tr>
+</table>
+
+<p>העומק הנבחר קובע אילו שאלות מוצגות בשלב 2. שלבים 0, 1, 3-7 תמיד מלאים ללא קשר לעומק.</p>
+
+<h3>מערכת שכבות (Tiers)</h3>
+<table>
+  <tr><th>שכבה</th><th>שאלות</th><th>מספר</th><th>מצטבר</th><th>רמות עומק</th></tr>
+  <tr><td>T1</td><td>rhythm, setting, culture, noise, foodadventure, pace, diet, budget, flexibility, diningstyle</td><td>10</td><td>10</td><td>10, 15, 20, 25, 30</td></tr>
+  <tr><td>T2</td><td>kidsfood, mealpriority, localfood, walkingTolerance, weatherSensitivity</td><td>5</td><td>15</td><td>15, 20, 25, 30</td></tr>
+  <tr><td>T3</td><td>crowdTolerance, culturalImmersion, nightlife, transport, morningPreference</td><td>5</td><td>20</td><td>20, 25, 30</td></tr>
+  <tr><td>T4</td><td>groupSplitting, souvenirShopping, relaxationTime, snacking, photography</td><td>5</td><td>25</td><td>25, 30</td></tr>
+  <tr><td>T5</td><td>socialInteraction, surpriseOpenness, visitDuration, shopping, accessibility</td><td>5</td><td>30</td><td>30</td></tr>
+</table>
+
+<p>כאשר שאלה מוסתרת בגלל בחירת עומק, ערך ברירת המחדל שלה (האפשרות "האמצעית") משמש ב-Markdown שנוצר.</p>
+
+<h2 class="page-break">3.5 שלב 2 — שאלון העדפות (All Preferences)</h2>
+<p>כל שאלות ההעדפה מוצגות כאן בשאלון אחד-אחד עם נקודות מצב (sub-step dots) ומעבר אוטומטי. לכל שאלה 3-4 אפשרויות (התנהגות רדיו — אחת נבחרת לכל שאלה).</p>
+
+<h3>ערכים נגזרים (לא נשאלים כשאלות)</h3>
+<table>
+  <tr><th>ערך נגזר</th><th>מקור</th><th>מיפוי</th></tr>
+  <tr><td>energy</td><td>תשובת pace</td><td>relaxed→chill, balanced→mixed, packed→active</td></tr>
+  <tr><td>food</td><td>תשובת foodadventure</td><td>fearless→highlight, open→nice, safe→fuel</td></tr>
+  <tr><td>evening</td><td>תשובת rhythm</td><td>early→early, balanced→stroll, latenight→latenight</td></tr>
+</table>
+
+<h3>מיפוי תשובות → בחירה מוקדמת של כרטיסים</h3>
+<p>פונקציית הדירוג משתמשת בערכים הנגזרים לדירוג רב-ממדי מול תגיות פריטים במאגר INTEREST_DB:</p>
+
+<table>
+  <tr><th>תשובה</th><th>פריטים שנבחרים מראש</th></tr>
+  <tr><td>setting=city</td><td>Historical Landmarks & Architecture, Shopping (Outlet / Local Brands), Art Galleries & Exhibitions</td></tr>
+  <tr><td>setting=both</td><td>Parks & Gardens, Outdoor Markets & Craft Stalls</td></tr>
+  <tr><td>setting=nature</td><td>National Parks & Nature Reserves, Waterfalls & Gorges, Lake & Beach Relaxation</td></tr>
+  <tr><td>culture=culture</td><td>Historical Landmarks & Architecture, Guided Walking & History Tours, Theater Opera & Ballet</td></tr>
+  <tr><td>culture=fun</td><td>Arcade Games & Entertainment Centers, Escape Rooms & Puzzle Experiences, Amusement & Theme Parks</td></tr>
+  <tr><td>evening=latenight</td><td>Rooftop Bars & Cocktail Lounges, Live Music & Jazz Clubs, Nightclubs & Dance Venues</td></tr>
+  <tr><td>evening=stroll</td><td>Photography Spots & Scenic Lookouts</td></tr>
+  <tr><td>evening=early</td><td>Scenic Walking & Viewpoints</td></tr>
+</table>
+
+<p><strong>יעד בחירה מוקדמת:</strong> ~8-15 כרטיסים. פריטים מאומתים מול מאגר הפריטים — רק פריטים שקיימים בפועל נבחרים מראש. כפילויות מוסרות אוטומטית.</p>
+
+<div class="important">
+  <strong>כלל איפוס:</strong> כאשר המשתמש עוזב את שלב 2, כל בחירות האינטרסים/הימנעות השמורות מתאפסות, כך שתשובות שונו תמיד מייצרות בחירות מוקדמות חדשות. בחירות ידניות נשמרות רק בניווט בין שלבים 3↔4↔5.
+</div>
+
+<h2 class="page-break">3.6 שלבים 3-5 — בחירת כרטיסים (Card Selection Phase)</h2>
+
+<h3>שלב 3 — אינטרסים</h3>
+<p>הצעות כרטיסי אינטרסים <strong>נוצרות דינמית</strong> על בסיס הרכב הנוסעים (שלב 1) + תשובות השאלון (שלב 2). באנר "סיכום קבוצה" מציג את הניתוח.</p>
+<ul>
+  <li>כרטיסים מאורגנים בחלקים מתויגים (sections)</li>
+  <li>רק חלקים שתואמים לדגלי פרופיל פעילים מוצגים</li>
+  <li>כרטיסים שתואמים לתשובות השאלון נבחרים מראש</li>
+  <li>שדה טקסט חופשי בתחתית לאינטרסים מותאמים אישית</li>
+  <li>חלק "Local Tourist Highlights" — תמיד מוצג, לא מותנה בדגל</li>
+</ul>
+
+<h3>שלב 4 — דברים להימנע מהם</h3>
+<p>כרטיסי הימנעות דינמיים מסוננים לפי דגלי קהל ומדורגים באמצעות תשובות שלב 2 (noise, foodadventure, budget, flexibility, pace). כרטיסים עם ציון ≥ 3 נבחרים מראש.</p>
+
+<h3>שלב 5 — אוכל ומסעדנות</h3>
+<p>שלושה חלקים:</p>
+<ol>
+  <li><strong>כרטיסי חוויות אוכל</strong> — כרטיסים דינמיים מדורגים לפי diet, diningstyle, foodadventure</li>
+  <li><strong>כרטיסי ויב מסעדנות</strong> — גרסת accent-gold, מסוננים לפי דגלי קהל</li>
+  <li><strong>הערות אוכל</strong> — שדה טקסט חופשי לאלרגיות, חובות, העדפות</li>
+</ol>
+
+<h3>כלל עיצוב אחיד לשלבים 3-5</h3>
+<p>שלושת השלבים עוקבים אחר אותו דפוס ויזואלי: כותרת שלב, תיאור, ורשת כרטיסים ניתנים לבחירה. כל הכרטיסים חולקים ממדים, ריפוד, פריסה וגדלי גופנים זהים — ונבדלים רק בצבע בחירה.</p>
+
+<h2>3.7 שלב 6 — שפה ותוספות</h2>
+<table>
+  <tr><th>שדה</th><th>סוג</th><th>הערות</th></tr>
+  <tr><td>שפת דוח</td><td>בחירה (12 שפות)</td><td>ברירת מחדל: שפת ה-UI. קובעת את שפת הפלט</td></tr>
+  <tr><td>שפות POI</td><td>רמז אוטומטי (קריאה בלבד)</td><td>נקבע אוטומטית: "שפה מקומית, {שפת דוח}"</td></tr>
+  <tr><td>הערות נוספות</td><td>שדה טקסט</td><td>חופשי</td></tr>
+  <tr><td>צילום</td><td>3 אפשרויות</td><td>לא בעדיפות / בונוס נחמד (בר"מ) / פעילות מרכזית</td></tr>
+  <tr><td>נגישות</td><td>3 אפשרויות</td><td>ללא צרכים מיוחדים (בר"מ) / מעדיף מסלולים שטוחים / נגיש לכיסא גלגלים</td></tr>
+  <tr><td>כיסא גלגלים</td><td>2 אפשרויות</td><td>ללא דרישה (בר"מ) / נדרשת נגישות לכיסא גלגלים. תמיד גלוי</td></tr>
+</table>
+
+<h2 class="page-break">3.8 שלב 7 — סקירה והורדה</h2>
+<h3>תצוגה מקדימה</h3>
+<ul>
+  <li>Markdown מרונדר בתיבת תצוגה בסגנון עורך קוד (רקע כהה)</li>
+  <li>תווית טאב מציגה שם קובץ דינמי: <code>{name}_trip_details_{date}.md</code></li>
+  <li>צביעת תחביר: כותרות כחולות, מודגש זהב, נקודות ירוקות, טבלאות סגולות</li>
+</ul>
+
+<h3>פעולות</h3>
+<ul>
+  <li><strong>"העתק ללוח"</strong> — מעתיק טקסט Markdown גולמי</li>
+  <li><strong>"הורד"</strong> — מפעיל הורדת דפדפן עם שם קובץ דינמי</li>
+  <li>כפתור ההורדה מנסה תחילה להתחבר לשרת הגשר (localhost:3456). אם זמין — שומר ישירות ומתחיל יצירת טיול. אם לא — חוזר להורדה ידנית.</li>
+</ul>
+
+<h3>אינטגרציית שרת הגשר</h3>
+<ul>
+  <li><strong>מצב יצירה:</strong> בזמן יצירת טיול, הגיבור, שורת החיפוש, התצוגה המקדימה ושלבי האשף מוסתרים. רק מפת הצינור ויומן הפעולות גלויים.</li>
+  <li><strong>כפתור עצירה:</strong> מאפשר ביטול יצירה פעילה דרך <code>POST /cancel/:id</code></li>
+  <li><strong>כפתור פתיחת טיול:</strong> לאחר יצירה מוצלחת, מאפשר פתיחת קובץ ה-HTML שנוצר</li>
+</ul>
+
+<h3>מפת צינור (Pipeline Roadmap)</h3>
+<p>ציר זמן ויזואלי בתוך אזור ה-post-download שמציג 6 שלבי יצירת טיול:</p>
+<table>
+  <tr><th>#</th><th>שלב</th><th>זמן משוער</th><th>אחוז</th></tr>
+  <tr><td>1</td><td>סקירה כללית ומניפסט</td><td>~2 דקות</td><td>6%</td></tr>
+  <tr><td>2</td><td>יצירת ימים</td><td>~12 דקות</td><td>34%</td></tr>
+  <tr><td>3</td><td>תקציב</td><td>~1 דקה</td><td>3%</td></tr>
+  <tr><td>4</td><td>הרכבה</td><td>~1 דקה</td><td>3%</td></tr>
+  <tr><td>5</td><td>עיבוד HTML</td><td>~11 דקות</td><td>31%</td></tr>
+  <tr><td>6</td><td>בדיקות איכות</td><td>~1 דקה</td><td>3%</td></tr>
+</table>
+<p><strong>סה"כ משוער: ~28 דקות</strong></p>
+
+<!-- SECTION 4 -->
+<h1 class="page-break"><span class="section-num">4.</span> מנוע האינטרסים הדינמי (Dynamic Interest Engine)</h1>
+
+<h2>4.1 דגלי פרופיל</h2>
+<p>הפונקציה <code>analyzeGroup()</code> מחשבת דגלים בוליאניים על ידי ניתוח כל כרטיסי הנוסעים. גילאים מחושבים ביחס ל<strong>תאריך ההגעה</strong>.</p>
+
+<table>
+  <tr><th>דגל</th><th>תנאי</th></tr>
+  <tr><td><code>adultsOnly</code></td><td>אין ילדים</td></tr>
+  <tr><td><code>withKids</code></td><td>לפחות כרטיס ילד אחד</td></tr>
+  <tr><td><code>toddler</code></td><td>ילד בגיל 0-3</td></tr>
+  <tr><td><code>preschool</code></td><td>ילד בגיל 4-7</td></tr>
+  <tr><td><code>schoolAge</code></td><td>ילד בגיל 8-12</td></tr>
+  <tr><td><code>teen</code></td><td>ילד בגיל 13-17</td></tr>
+  <tr><td><code>senior</code></td><td>מבוגר בגיל 65+</td></tr>
+  <tr><td><code>youngAdult</code></td><td>מבוגר בגיל 18-30</td></tr>
+  <tr><td><code>couple</code></td><td>בדיוק 2 מבוגרים, ללא ילדים</td></tr>
+  <tr><td><code>maleAdult</code></td><td>מבוגר זכר</td></tr>
+  <tr><td><code>femaleAdult</code></td><td>מבוגר נקבה</td></tr>
+  <tr><td><code>boyKid</code></td><td>ילד זכר בגיל 3-12</td></tr>
+  <tr><td><code>girlKid</code></td><td>ילד נקבה בגיל 3-12</td></tr>
+  <tr><td><code>nature</code></td><td>תמיד true</td></tr>
+</table>
+
+<h2>4.2 מאגרי כרטיסים (Pools)</h2>
+<p>קיימים שלושה מאגרים: <code>INTEREST_POOLS</code>, <code>AVOID_POOLS</code>, <code>VIBE_POOLS</code>. כל אחד הוא אובייקט JS שמפתחותיו הם שמות דגלים, עם מערך אפשרויות כערך.</p>
+
+<h3>לוגיקת הצגת חלקים</h3>
+<ul>
+  <li>מפתח <code>core</code> → תמיד מוצג</li>
+  <li>מפתח <code>localHighlights</code> → תמיד מוצג (לא מותנה בדגל)</li>
+  <li>אם <code>flags[key]</code> הוא <code>true</code> → מוצג</li>
+  <li>אחרת → מדולג</li>
+</ul>
+
+<h3>מאגר אינטרסים — סיכום</h3>
+<table>
+  <tr><th>מפתח מאגר</th><th>תווית חלק</th><th>מספר פריטים</th><th>דוגמאות</th></tr>
+  <tr><td>localHighlights</td><td>🏛️ אטרקציות מקומיות מובילות</td><td>8</td><td>אתרים מדורגים, נקודות תצפית, מוזיאונים</td></tr>
+  <tr><td>core</td><td>פופולרי לכולם</td><td>12</td><td>שוקי אוכל, פארקים, שייט, צילום</td></tr>
+  <tr><td>adultsOnly</td><td>מעולה למבוגרים</td><td>20</td><td>טעימות יין, fine dining, בתי קפה על גג</td></tr>
+  <tr><td>withKids</td><td>משפחה עם ילדים</td><td>12</td><td>גני משחקים, מוזיאונים, אקווריום, גן חיות</td></tr>
+  <tr><td>toddler</td><td>ידידותי לפעוטות (0-3)</td><td>8</td><td>משחקייה רכה, גן חיות מלטף, בריכות שכשוך</td></tr>
+  <tr><td>preschool</td><td>מתאים לגילאי 4-7</td><td>12</td><td>קרקס, הצגות בובות, נסיעות ברכבת</td></tr>
+  <tr><td>schoolAge</td><td>כיף לגילאי 8-12</td><td>15</td><td>ארקייד, גו-קארט, טרמפולינות, חדרי בריחה</td></tr>
+  <tr><td>teen</td><td>מאושר לנוער (13+)</td><td>16</td><td>פארקי שעשועים, VR, ספורט ימי</td></tr>
+  <tr><td>nature</td><td>טבע וחוצות</td><td>12</td><td>שמורות טבע, מפלים, מערות, קמפינג</td></tr>
+  <tr><td>senior</td><td>נוח לגיל השלישי</td><td>10</td><td>בתי מרחץ תרמיים, רכבות נוף, מוזיקה קלאסית</td></tr>
+  <tr><td>couple</td><td>רומנטי וזוגי</td><td>10</td><td>שייט שקיעה, ספא זוגי, ארוחות לאור נרות</td></tr>
+  <tr><td>youngAdult</td><td>צעירים ואנרגטיים (18-30)</td><td>15</td><td>מועדונים, סיורי פאבים, פסטיבלי מוזיקה</td></tr>
+  <tr><td>maleAdult</td><td>פופולרי אצל גברים</td><td>10</td><td>בארים ספורטיביים, סיורי וויסקי, מוטורספורט</td></tr>
+  <tr><td>femaleAdult</td><td>פופולרי אצל נשים</td><td>10</td><td>קניות בוטיק, תה אחר הצהריים, סדנאות בושם</td></tr>
+  <tr><td>boyKid</td><td>פופולרי אצל בנים</td><td>8</td><td>כלי בנייה, פארקי דינוזאורים, LEGO</td></tr>
+  <tr><td>girlKid</td><td>פופולרי אצל בנות</td><td>8</td><td>בתי קפה נסיכות, רכיבה על סוסים, סדנאות ריקוד</td></tr>
+</table>
+
+<!-- SECTION 5 -->
+<h1 class="page-break"><span class="section-num">5.</span> בינלאומיות (i18n)</h1>
+
+<h2>5.1 שפות נתמכות</h2>
+<table>
+  <tr><th>קוד</th><th>שפה</th><th>כיוון</th><th>רמת תרגום</th></tr>
+  <tr><td>en</td><td>אנגלית</td><td>LTR</td><td>מלא</td></tr>
+  <tr><td>ru</td><td>רוסית</td><td>LTR</td><td>מלא</td></tr>
+  <tr><td>he</td><td>עברית</td><td>RTL</td><td>מלא</td></tr>
+  <tr><td>es</td><td>ספרדית</td><td>LTR</td><td>fallback לאנגלית</td></tr>
+  <tr><td>fr</td><td>צרפתית</td><td>LTR</td><td>fallback לאנגלית</td></tr>
+  <tr><td>de</td><td>גרמנית</td><td>LTR</td><td>fallback לאנגלית</td></tr>
+  <tr><td>it</td><td>איטלקית</td><td>LTR</td><td>fallback לאנגלית</td></tr>
+  <tr><td>pt</td><td>פורטוגזית</td><td>LTR</td><td>fallback לאנגלית</td></tr>
+  <tr><td>zh</td><td>סינית</td><td>LTR</td><td>fallback לאנגלית</td></tr>
+  <tr><td>ja</td><td>יפנית</td><td>LTR</td><td>fallback לאנגלית</td></tr>
+  <tr><td>ko</td><td>קוריאנית</td><td>LTR</td><td>fallback לאנגלית</td></tr>
+  <tr><td>ar</td><td>ערבית</td><td>RTL</td><td>fallback לאנגלית</td></tr>
+</table>
+
+<h2>5.2 ארכיטקטורת תרגום</h2>
+<ul>
+  <li>קטלוגי תרגום חיצוניים בתיקיית <code>locales/</code>: קובץ <code>ui_{lang}.json</code> אחד לכל שפה</li>
+  <li>כל טקסט סטטי ב-UI משתמש באטריביוט <code>data-i18n="key"</code></li>
+  <li>Placeholders משתמשים ב-<code>data-i18n-placeholder="key"</code></li>
+  <li>כל קובץ כולל מפתח <code>_items</code> עם תרגומי שמות פריטים (אינטרסים, הימנעות, אוכל, ויבים)</li>
+</ul>
+
+<h2>5.3 תהליך החלפת שפה</h2>
+<p>הפונקציה <code>setLanguage(code)</code> (אסינכרונית):</p>
+<ol>
+  <li>מגדילה מונה רצף להגנה מפני race conditions בהחלפות מהירות</li>
+  <li>בודקת מטמון בזיכרון לקטלוג המבוקש</li>
+  <li>בהחמצה: שולפת <code>locales/ui_{lang}.json</code> באמצעות <code>fetch()</code></li>
+  <li>לאחר שליפה: בודקת מונה רצף — מבטלת אם הוחלפה בקריאה חדשה</li>
+  <li>בכישלון: חוזרת לקטלוג אנגלית, ואז לקטלוג חירום מוטמע</li>
+  <li>עוברת על כל אלמנטי <code>[data-i18n]</code> ומעדכנת <code>textContent</code></li>
+  <li>מגדירה <code>dir="rtl"</code> ב-<code>&lt;html&gt;</code> לעברית/ערבית</li>
+  <li>שומרת ב-<code>localStorage</code></li>
+</ol>
+
+<h2>5.4 כללי שפה חשובים</h2>
+<div class="important">
+  <ul>
+    <li><strong>עקביות שפתית:</strong> כל מסך חייב להיות בשפה אחת. שפות מעורבות הן באג.</li>
+    <li><strong>פלט Markdown תמיד באנגלית:</strong> שמות פריטים פנימיים תמיד אנגליים, ללא קשר לשפת UI.</li>
+    <li><strong>שפת דוח ≠ שפת UI:</strong> הפלט (שלב 7) משתמש בשפת הדוח (שלב 6), לא בשפת ה-UI.</li>
+    <li><strong>תמיכת RTL:</strong> עברית וערבית הופכות כיוון פריסה, גבולות, ריפודים, יישור טקסט וחצי כפתורים.</li>
+  </ul>
+</div>
+
+<!-- SECTION 6 -->
+<h1 class="page-break"><span class="section-num">6.</span> פורמט הפלט (Markdown Output)</h1>
+
+<h2>6.1 שם קובץ דינמי</h2>
+<p>דפוס: <code>{name}_trip_details_{date}.md</code></p>
+<ul>
+  <li><strong>{name}:</strong> שם ההורה הראשון, אותיות קטנות, רווחים → קו תחתון, תווים לא-<code>[a-z0-9_]</code> מוסרים. ברירת מחדל: <code>traveler</code></li>
+  <li><strong>{date}:</strong> תאריך הגעה בפורמט <code>YYYY-MM-DD</code>. ברירת מחדל: <code>undated</code></li>
+</ul>
+
+<h2>6.2 מבנה הפלט</h2>
+<p>הקובץ שנוצר חייב להתאים למבנה שהצינור צורך. המבנה המלא:</p>
+
+<table>
+  <tr><th>סעיף</th><th>שדות</th></tr>
+  <tr><td><strong>Trip Context</strong></td><td>Destination, Arrival, Departure</td></tr>
+  <tr><td><strong>Daily Schedule</strong></td><td>Preferred start/finish, Buffer time</td></tr>
+  <tr><td><strong>Universal Interests</strong></td><td>רשימת אינטרסים שנבחרו + אינטרסים מותאמים</td></tr>
+  <tr><td><strong>Places to Avoid</strong></td><td>רשימת הימנעויות + הימנעויות מותאמות</td></tr>
+  <tr><td><strong>Pace Preference</strong></td><td>תיאור קצב</td></tr>
+  <tr><td><strong>Culinary Profile</strong></td><td>Dietary style, Food adventure level, Dining style, Meal priority, Local food pref, Budget style, Schedule style, Must-haves, Notes, Vibe preference</td></tr>
+  <tr><td><strong>Travelers — Parents</strong></td><td>טבלה: Role, Gender, Date of Birth</td></tr>
+  <tr><td><strong>Travelers — Children</strong></td><td>טבלה: Name, Gender, Date of Birth, Notes</td></tr>
+  <tr><td><strong>Language Preference</strong></td><td>Reporting language, POI languages</td></tr>
+  <tr><td><strong>Additional Notes</strong></td><td>טקסט חופשי (רק אם סופק)</td></tr>
+  <tr><td><strong>Additional Preferences</strong></td><td>Transport, Morning, Snacking, Photography, Visit duration, Shopping, Accessibility, Wheelchair, Walking tolerance, Weather sensitivity, Crowd tolerance, Cultural immersion, Nightlife, Group splitting, Souvenir shopping, Relaxation, Social interaction, Spontaneity</td></tr>
+</table>
+
+<h3>כללי פלט</h3>
+<ul>
+  <li>סעיפים ללא נתונים מושמטים (למשל, אין טבלת ילדים אם לא הוספו ילדים)</li>
+  <li>אינטרסים מותאמים (מ-textarea) מצורפים לרשימת Universal Interests</li>
+  <li>הימנעויות מותאמות מצורפות לרשימת Places to Avoid</li>
+  <li>עמודת מגדר מציגה ערך או <code>-</code> אם לא נבחר</li>
+  <li>תאריך לידה מוצג לפי רמת הפירוט שהוזנה; <code>TBD</code> אם ריק</li>
+</ul>
+
+<!-- SECTION 7 -->
+<h1 class="page-break"><span class="section-num">7.</span> צינור יצירת הטיול (Trip Generation Pipeline)</h1>
+
+<h2>7.1 שלב מקדים — הכנה ומחקר (Pre-Flight Setup)</h2>
+<p>לפני כל תכנון, המערכת מבצעת:</p>
+<ol>
+  <li><strong>קריאת נתונים:</strong> קריאת קובץ פרטי הטיול הפעיל</li>
+  <li><strong>חישוב גילאים:</strong> חישוב גיל מדויק של כל נוסע בזמן ההגעה. גילאים אלה משמשים לכל הפילטרים והתאמות הגיל</li>
+  <li><strong>קביעת שפה:</strong> שימוש בשפות מ-<code>language_preference</code></li>
+  <li><strong>שפות POI:</strong> כל נקודות העניין משתמשות בשפות מ-<code>poi_languages</code> — חל <strong>בכל מקום</strong> ששם ה-POI מופיע</li>
+</ol>
+
+<h2>7.2 Phase A — סיכום עילי</h2>
+<p>Phase A מפיק טבלת סיכום עם:</p>
+<ul>
+  <li>תאריך / יום בשבוע / אזור</li>
+  <li>סיכום בוקר / צהריים / אחר הצהריים</li>
+  <li>סטטוס ביקורת CEO (עובר/נכשל)</li>
+  <li><strong>ללא עמודת מספר יום</strong> — התאריך הוא המזהה הראשי</li>
+</ul>
+
+<h3>פלט Phase A</h3>
+<ol>
+  <li>יצירת תיקיית טיול: <code>generated_trips/trip_YYYY-MM-DD_HHmm/</code></li>
+  <li>כתיבת <code>overview_LANG.md</code> — כותרת, כתובית, ייעוץ חגים (אם רלוונטי), טבלת סיכום</li>
+  <li>כתיבת <code>manifest.json</code> — מטאדאטה של הטיול, אינדקס ימים, מצב לכל שפה</li>
+  <li>המשך ישיר ל-Phase B (ללא המתנה לאישור משתמש)</li>
+</ol>
+
+<h2 class="page-break">7.3 Phase B — תכנון יומי מפורט</h2>
+<p>Phase B מייצר <strong>כל יום לקובץ משלו</strong>, תוך שימוש ב-subagents מקבילים לביצוע מהיר.</p>
+
+<h3>פרוטוקול יצירת ימים</h3>
+
+<h4>שלב 1: הקצאת אצוות</h4>
+<table>
+  <tr><th>סה"כ ימים (N)</th><th>מספר אצוות</th><th>גודל אצווה</th></tr>
+  <tr><td>0</td><td>0</td><td>— (דילוג, המשך לתקציב)</td></tr>
+  <tr><td>1</td><td>1</td><td>1</td></tr>
+  <tr><td>2-3</td><td>2</td><td>ceil(N/2)</td></tr>
+  <tr><td>4-11</td><td>3</td><td>ceil(N/3)</td></tr>
+  <tr><td>12+</td><td>4</td><td>ceil(N/4)</td></tr>
+</table>
+
+<h4>שלב 2: ביצוע מקבילי</h4>
+<p>subagent אחד לכל אצווה, כולם מופעלים במקביל. כל subagent מקבל:</p>
+<ul>
+  <li>קובץ פרטי הטיול — נוסעים, אינטרסים, העדפות</li>
+  <li><code>overview_LANG.md</code> — תוכנית Phase A (להקשר בין-יומי)</li>
+  <li>שורות הימים המוקצים מטבלת Phase A</li>
+  <li>נתיב תיקיית הטיול וקוד שפה</li>
+</ul>
+
+<h4>שלב 3: אימות</h4>
+<p>לאחר שכל ה-subagents מסתיימים, אימות שכל קבצי הימים קיימים. במקרה של חוסר — ניסיון חוזר יחיד לאצווה שנכשלה.</p>
+
+<h4>שלב 4: עדכון מניפסט</h4>
+<p>כתיבת <code>manifest.json</code> פעם אחת עם כל הימים במצב "complete".</p>
+
+<h3>פורמט קובץ יומי</h3>
+<p>כל קובץ <code>day_XX_LANG.md</code> עצמאי וכולל:</p>
+
+<table>
+  <tr><th>#</th><th>רכיב</th><th>תיאור</th><th>חובה</th></tr>
+  <tr><td>1</td><td>קישור מפת מסלול</td><td>קישור Google Maps עם כל ה-POIs בסדר ביקור</td><td>✓</td></tr>
+  <tr><td>2</td><td>טבלת לוח זמנים</td><td>זמני הגעה/עזיבה, זמני נסיעה, תיאורים</td><td>✓</td></tr>
+  <tr><td>3</td><td>כרטיסי POI</td><td>תיאור מפורט לכל נקודת עניין (ראה פירוט)</td><td>✓ (מינימום 3 ליום מלא)</td></tr>
+  <tr><td>4</td><td>טבלת תקציב יומי</td><td>פירוט עלויות לכל POI/פעילות</td><td>✓</td></tr>
+  <tr><td>5</td><td>מכולת קרובה</td><td>סופרמרקט קרוב למסלול — שם, מרחק, קישור Maps</td><td>✓</td></tr>
+  <tr><td>6</td><td>עצירות אופציונליות</td><td>1-2 מקומות מאינטרסי ילדים בסטייה של 5-10 דקות</td><td>✓ (ימים מלאים)</td></tr>
+  <tr><td>7</td><td>תוכנית B</td><td>פעילות חלופית למזג אוויר/סגירות</td><td>✓</td></tr>
+</table>
+
+<h3>דרישות תוכן לכל POI</h3>
+<p>לכל מיקום (אטרקציות, מסעדות, פארקים) חייבים להיכלל:</p>
+<ul>
+  <li><strong>Google Maps:</strong> קישור ישיר לכניסה/נקודה ספציפית</li>
+  <li><strong>אתר רשמי:</strong> קישור לאתר הרשמי או TripAdvisor</li>
+  <li><strong>גלריית תמונות:</strong> קישור לגלריה ויזואלית</li>
+  <li><strong>מספר טלפון:</strong> כשזמין (מ-Google Places או חיפוש אינטרנט)</li>
+  <li><strong>דירוג:</strong> ציון מ-5 עם מספר ביקורות (מ-Google Places)</li>
+  <li><strong>שעות מאומתות:</strong> לתאריכי הביקור הספציפיים</li>
+  <li><strong>מחירון:</strong> פירוט מבוגרים/ילדים/משפחה במטבע מקומי ואירו</li>
+  <li><strong>הערות מומחה:</strong> הזמנה מראש, רמות קהל, טיפים לילד הצעיר</li>
+</ul>
+
+<h3>מבנה תיאור POI (4 פסקאות)</h3>
+<ol>
+  <li><strong>האווירה:</strong> פתיח מרתק שלוכד את תחושת המקום</li>
+  <li><strong>חובה לראות:</strong> פרט ספציפי או פינה נסתרת שאסור לפספס</li>
+  <li><strong>הגורם המשפחתי:</strong> למה המקום מתאים ספציפית לנוסעים</li>
+  <li><strong>טיפ מקצועי:</strong> מידע לוגיסטי פרקטי</li>
+</ol>
+
+<h2 class="page-break">7.4 תקציב, הרכבה ו-HTML</h2>
+
+<h3>הרכבת תקציב</h3>
+<p>לאחר השלמת כל הימים:</p>
+<ol>
+  <li>קריאת סעיף העלויות מכל קובץ יומי</li>
+  <li>כתיבת <code>budget_LANG.md</code>: סיכום ליום, סה"כ כולל, פירוט לפי קטגוריה</li>
+</ol>
+
+<h3>הרכבת טיול מלא</h3>
+<p>שרשור מכני (ללא LLM) באמצעות פקודת Bash:</p>
+<div class="diagram">cat overview_LANG.md + day_00_LANG.md + ... + day_NN_LANG.md + budget_LANG.md → trip_full_LANG.md</div>
+
+<h3>יצירת HTML</h3>
+<p>המערכת קוראת ל-skill <code>/render</code> שמבצע:</p>
+<ul>
+  <li>יצירת פרגמנטים ליום</li>
+  <li>הרכבה לקובץ <code>trip_full_LANG.html</code></li>
+  <li>ולידציה לפני regression</li>
+</ul>
+
+<h3>בדיקות איכות</h3>
+<p>המערכת קוראת ל-skill <code>/regression</code> שמריץ בדיקות Playwright אוטומטיות לאימות:</p>
+<ul>
+  <li>שלמות מבנית (כל הימים, POIs, טבלאות)</li>
+  <li>נכונות קישורים</li>
+  <li>שוויון POI (מספר כרטיסי POI ב-HTML = מספר סעיפי ### ב-Markdown)</li>
+  <li>נגישות</li>
+</ul>
+
+<h3>מבנה תיקיות טיול</h3>
+<div class="diagram">generated_trips/
+  trip_YYYY-MM-DD_HHmm/
+    manifest.json
+    overview_LANG.md
+    day_00_LANG.md ... day_NN_LANG.md
+    budget_LANG.md
+    trip_full_LANG.md
+    trip_full_LANG.html</div>
+
+<!-- SECTION 8 -->
+<h1 class="page-break"><span class="section-num">8.</span> לוגיקת תכנון אסטרטגית</h1>
+
+<h2>8.1 היררכיית אינטרסים</h2>
+<table>
+  <tr><th>עדיפות</th><th>מקור</th><th>תיאור</th></tr>
+  <tr><td>ראשונית</td><td>Universal Interests</td><td>אינטרסים אוניברסליים — חובה לכל הקבוצה</td></tr>
+  <tr><td>משנית</td><td>Children Specific Interests</td><td>אינטרסים ספציפיים של ילדים — מוטמעים כשקרובים גיאוגרפית</td></tr>
+  <tr><td>הימנעות</td><td>Places to Avoid</td><td>מקומות שיש להימנע מהם בכל מקרה</td></tr>
+</table>
+
+<p><strong>פתרון קונפליקטים:</strong> אם אינטרס אוניברסלי ואינטרס ספציפי מתנגשים, עדיפות לאוניברסלי עם אזכור הספציפי כאלטרנטיבה.</p>
+
+<h2>8.2 כלל "רק כאן" (Only Here Rule)</h2>
+<p>חיפוש אטרקציות שקיימות רק ביעד הזה. לאחר טיוטה ראשונית, מבוצע מעבר מחקר ייעודי:</p>
+<ol>
+  <li>חיפוש: "[יעד] אטרקציות ייחודיות + [אינטרסים ספציפיים]"</li>
+  <li>חיפוש: "[יעד] חוויות אנדמיות למשפחות"</li>
+  <li>הצלבה עם אינטרסים ספציפיים של כל נוסע</li>
+  <li>החלפת POIs גנריים בחלופות "רק כאן"</li>
+</ol>
+<p><strong>סדר עדיפויות:</strong> POI "רק כאן" > התאמת אינטרס אוניברסלי > אטרקציה גנרית</p>
+
+<h2>8.3 פילטר "מותאם גיל"</h2>
+<ul>
+  <li><strong>בטיחות:</strong> כל פעילות חייבת להיות בטוחה לגיל המחושב של הילד הצעיר</li>
+  <li><strong>קצב:</strong> עמידה ב-<code>pace_preference</code> (שולט על הטמפו, לא על מספר ה-POIs)</li>
+  <li><strong>יעד POIs:</strong> כל יום מלא צריך לכלול 4-5 כרטיסי POI (אטרקציות + מסעדות + עצירות משניות)</li>
+</ul>
+
+<h2>8.4 אשכול גיאוגרפי (Zero Waste Time)</h2>
+<ul>
+  <li>שמירה על פעילויות בוקר, צהריים ואחר הצהריים ברדיוס 15-35 דקות</li>
+  <li>קיבוץ ימי "השכרת רכב" רצופים לאופטימיזציה</li>
+</ul>
+
+<h2>8.5 בינת סביבה ואירועים</h2>
+<p>אם מזוהה חג מקומי, פסטיבל, או "יום גשר" בתקופת הטיול:</p>
+<ul>
+  <li><strong>תכנות משפחתי:</strong> חיפוש פעילויות ילדים + סדנאות אינטראקטיביות</li>
+  <li><strong>התראת תשתיות:</strong> זיהוי סגירות גשרים, כיכרות, צמתי תחבורה</li>
+  <li><strong>ניהול קהל:</strong> תזמון אתרים אייקוניים לימי חול; אזורי פסטיבל לשעות שיא</li>
+  <li><strong>סיכום השפעה:</strong> הערת "יעוץ חגים" עם סגירות ואווירה</li>
+</ul>
+
+<h2>8.6 ביקורת CEO (חובה לכל יום)</h2>
+<ul>
+  <li>☐ מותאם גיל לילד הצעיר?</li>
+  <li>☐ פוגע לפחות באינטרס אוניברסלי אחד?</li>
+  <li>☐ מינימום 3 כרטיסי POI ליום מלא? (בלוקר — לא לכתוב קובץ עד שעובר)</li>
+  <li>☐ אפשרויות חלופיות באזור?</li>
+  <li>☐ תוכנית לוגיסטיקה/תחבורה יעילה?</li>
+  <li>☐ שוויון POI בין Markdown ו-HTML?</li>
+  <li>☐ אימות נגישות כיסא גלגלים (אם נדרש)?</li>
+</ul>
+
+<!-- SECTION 9 -->
+<h1 class="page-break"><span class="section-num">9.</span> מקורות נתונים ואימות</h1>
+
+<h2>9.1 ארכיטקטורת שתי שכבות</h2>
+
+<h3>שכבה 1: חיפוש אינטרנט ושליפה (ראשוני)</h3>
+<ul>
+  <li>חיפוש אינטרנט מגלה POIs, מספק תיאורים נרטיביים, טיפים, הקשר משפחתי</li>
+  <li>שליפת אתרים מביאה אתרים רשמיים, גלריות תמונות, מחירים</li>
+  <li>שכבה זו מספקת תוכן יצירתי והקשרי שמבדל כל תיאור POI</li>
+</ul>
+
+<h3>שכבה 2: Google Places API (העשרה ואימות)</h3>
+<ul>
+  <li>לאחר חיפוש, שאילתת Google Places לכל POI: <code>search_places(name, location)</code> → <code>get_place_details(place_id)</code></li>
+  <li>Google Places מספק: מספר טלפון, דירוג (עם מספר ביקורות), נגישות כיסא גלגלים, שעות מאומתות, URL מאומת</li>
+  <li><strong>כלל עדיפות:</strong> לשדות מובנים (שעות, URL, טלפון, דירוג), נתוני Google Places גוברים על חיפוש אינטרנט</li>
+  <li><strong>דגרדציה חינניות:</strong> אם Google Places לא מוגדר או מקום לא נמצא, הצינור ממשיך עם נתוני חיפוש בלבד</li>
+</ul>
+
+<h2>9.2 שער POI סגור לצמיתות (בלוקר)</h2>
+<p>אם POI מתגלה כסגור לצמיתות (דרך Google Places <code>business_status</code>, חיפוש אינטרנט, או אתר רשמי), הוא <strong>לא</strong> יופיע בדוח. יוחלף בחלופה באותו אזור ובאותה קטגוריית אינטרס.</p>
+
+<h2>9.3 מדיניות רשת</h2>
+<ul>
+  <li><strong>מדיניות ניסיון חוזר:</strong> כלי הדורש גישה לאינטרנט שנכשל — ניסיון חוזר אחד בלבד</li>
+  <li><strong>מדיניות סיום:</strong> ניסיון שני נכשל → עצירת כל הביצוע מיידית. ללא ניחושים או המשך אופליין</li>
+  <li><strong>דיווח:</strong> "חיבור רשת נכשל לאחר ניסיון חוזר. עוצר משימה למניעת הזיות או מצב לא עקבי"</li>
+</ul>
+
+<!-- SECTION 10 -->
+<h1 class="page-break"><span class="section-num">10.</span> עיצוב ו-UX</h1>
+
+<h2>10.1 מערכת עיצוב (Design System)</h2>
+<table>
+  <tr><th>טוקן</th><th>ערך</th></tr>
+  <tr><td>סולם ריווח</td><td>8px בסיס (4, 8, 16, 24, 32, 48, 64px)</td></tr>
+  <tr><td>רדיוס גבול</td><td>12px למכלים, 6px לאלמנטים אינטראקטיביים</td></tr>
+  <tr><td>טיפוגרפיה</td><td>Inter, משקלים 400/500/600/700, גובה שורה 1.5 גוף / 1.2 כותרות</td></tr>
+  <tr><td>צבע ראשי</td><td><code>#1A3C5E</code> (Brand Primary)</td></tr>
+  <tr><td>צבע הדגשה</td><td><code>#C9972B</code> (Accent Gold)</td></tr>
+  <tr><td>צבע משני</td><td><code>#2E7D9A</code> (Accent Alt)</td></tr>
+  <tr><td>רקע</td><td><code>#F8F7F4</code></td></tr>
+  <tr><td>משטח</td><td><code>#FFFFFF</code></td></tr>
+  <tr><td>מצב כהה</td><td>נתמך דרך <code>prefers-color-scheme: dark</code></td></tr>
+</table>
+
+<h2>10.2 דפוסי UX בסגנון Booking.com</h2>
+
+<table>
+  <tr><th>#</th><th>דפוס</th><th>תיאור</th></tr>
+  <tr><td>1</td><td>שורת חיפוש דביקה</td><td>מתגבשת ונדבקת לראש הדף בגלילה. במובייל: שורת סיכום קומפקטית</td></tr>
+  <tr><td>2</td><td>גיליונות תחתון למובייל</td><td>דרופדאונים הופכים ל-bottom sheets במובייל (≤640px)</td></tr>
+  <tr><td>3</td><td>סרגל התקדמות עליון</td><td>פס 3px צבעוני בראש הדף — אחוז השלמת אשף</td></tr>
+  <tr><td>4</td><td>ולידציה inline</td><td>סימני ✓ ירוקים ו-✕ אדומים בזמן אמת בשדות קלט</td></tr>
+  <tr><td>5</td><td>רצועת סיכום בחירות</td><td>בר קומפקטי מתמשך עם pills של יעד, תאריכים, נוסעים, עומק</td></tr>
+  <tr><td>6</td><td>הודעות Toast</td><td>הודעות אישור זמניות — הצלחה, מידע, אזהרה</td></tr>
+  <tr><td>7</td><td>אנימציית פולס CTA</td><td>כפתור "המשך" זוהר כאשר כל שדות השלב תקינים</td></tr>
+  <tr><td>8</td><td>תוויות צפות</td><td>תוויות Material Design שעולות מתוך השדה בעת מיקוד</td></tr>
+  <tr><td>9</td><td>Tooltips מידע</td><td>אייקוני (i) לצד תוויות מורכבות עם הסבר ב-hover/tap</td></tr>
+  <tr><td>10</td><td>נגישות ומקלדת</td><td>WCAG 2.1 AA, טבעות מיקוד, ARIA, ניווט מקלדת מלא</td></tr>
+</table>
+
+<h2>10.3 תמיכת פלטפורמות</h2>
+<table>
+  <tr><th>פלטפורמה</th><th>דפדפנים</th></tr>
+  <tr><td>Desktop</td><td>Windows (Chrome, Edge, Firefox), macOS (Safari, Chrome)</td></tr>
+  <tr><td>Mobile</td><td>iOS (Safari, Chrome), Android (Chrome, Samsung Internet)</td></tr>
+</table>
+
+<h3>כללי רספונסיביות</h3>
+<ul>
+  <li>בדיקה ויזואלית ב-desktop (≥1024px), tablet (768px), mobile (≤480px)</li>
+  <li>Touch targets: מינימום 44×44px לכל אלמנט אינטראקטיבי</li>
+  <li>אין אינטראקציות hover-only — כל hover חייב להיות זמין גם בלחיצה/מגע</li>
+  <li>גופן מינימלי 16px על inputs למניעת זום ב-iOS</li>
+  <li><code>100dvh</code> במקום <code>100vh</code> לגובה viewport מלא (התאמה ל-mobile browser chrome)</li>
+</ul>
+
+<h2>10.4 אנימציות עיקריות</h2>
+<table>
+  <tr><th>אלמנט</th><th>אנימציה</th><th>משך</th></tr>
+  <tr><td>Hero</td><td>fade-in + translateY(12px)</td><td>0.8s</td></tr>
+  <tr><td>מעברי שלבים</td><td>slideInRight / slideInLeft</td><td>0.35s</td></tr>
+  <tr><td>כרטיסי שאלון</td><td>max-height + opacity</td><td>0.3-0.4s</td></tr>
+  <tr><td>שורת חיפוש דביקה</td><td>height + padding</td><td>0.25s</td></tr>
+  <tr><td>Bottom sheet</td><td>slideUp</td><td>0.3s</td></tr>
+  <tr><td>סרגל התקדמות</td><td>width transition</td><td>0.4s</td></tr>
+  <tr><td>Toasts</td><td>slideUp entry, fade exit</td><td>0.3s / 0.2s</td></tr>
+  <tr><td>CTA Pulse</td><td>box-shadow glow cycle</td><td>2s infinite</td></tr>
+  <tr><td>בתגי בחירה</td><td>scale spring easing</td><td>cubic-bezier</td></tr>
+</table>
+
+<!-- SECTION 11 -->
+<h1 class="page-break"><span class="section-num">11.</span> דרישות טכניות ותשתית</h1>
+
+<h2>11.1 תלויות</h2>
+<table>
+  <tr><th>רכיב</th><th>תלות</th><th>הערות</th></tr>
+  <tr><td>Trip Intake HTML</td><td>אין (self-contained)</td><td>ללא frameworks חיצוניים. CSS ו-JS מוטמעים</td></tr>
+  <tr><td>i18n catalogs</td><td>שרת HTTP</td><td>טעינת JSON דרך fetch(). file:// לא נתמך</td></tr>
+  <tr><td>Bridge Server</td><td>Node.js</td><td>אופציונלי. פורט 3456</td></tr>
+  <tr><td>Autocomplete</td><td>GeoNames API</td><td>משתמש: robertp. שכבה 3 בלבד</td></tr>
+  <tr><td>Trip Generation</td><td>Claude AI</td><td>מנוע AI לתכנון ויצירת תוכן</td></tr>
+  <tr><td>POI Enrichment</td><td>Google Places API</td><td>דרך MCP server. אופציונלי (degradation חינניות)</td></tr>
+  <tr><td>Quality Testing</td><td>Playwright</td><td>בדיקות regression אוטומטיות</td></tr>
+</table>
+
+<h2>11.2 מבנה מניפסט (manifest.json)</h2>
+<p>המניפסט עוקב אחר מצב הטיול לכל שפה בנפרד:</p>
+<ul>
+  <li><code>trip_details_file</code> — קובץ המקור ששימש ליצירה</li>
+  <li><code>destination</code>, <code>arrival</code>, <code>departure</code>, <code>total_days</code> — מטאדאטה בסיסית</li>
+  <li><code>languages</code> — מפתח לפי קוד ISO 639-1. כל שפה עם מצב עצמאי:</li>
+  <ul>
+    <li><code>phase_a_complete</code> — האם Phase A הושלם</li>
+    <li><code>days</code> — מצב כל יום (pending/complete, כותרת, תאריך עדכון)</li>
+    <li><code>budget_complete</code> — האם התקציב הושלם</li>
+    <li><code>assembly</code> — חותמות זמן הרכבה, ימים שהשתנו</li>
+  </ul>
+</ul>
+
+<h2>11.3 עריכה מצטברת (Incremental Edit)</h2>
+<ol>
+  <li>יצירה מחדש רק של <code>day_XX_LANG.md</code> המושפע</li>
+  <li>עדכון מניפסט: <code>last_modified</code>, הוספה ל-<code>stale_days</code></li>
+  <li>הרכבה מחדש של <code>trip_full_LANG.md</code></li>
+  <li>בניית HTML מחדש (מצב מצטבר — רק פרגמנט יום שהשתנה)</li>
+  <li>הפעלת ולידציה ממוקדת ביום שהשתנה</li>
+</ol>
+
+<h2>11.4 תמיכה רב-לשונית בטיולים</h2>
+<p>ניתן ליצור את אותו טיול במספר שפות. כל שפה נוספת:</p>
+<ul>
+  <li>כותבת קבצי <code>_LANG</code> חדשים <strong>באותה תיקיית טיול</strong></li>
+  <li>המניפסט עוקב אחר מצב כל שפה בנפרד</li>
+  <li>קבצים בשפות שונות דרות בשלום זו לצד זו</li>
+</ul>
+
+<!-- SECTION 12 -->
+<h1 class="page-break"><span class="section-num">12.</span> נספחים</h1>
+
+<h2>נספח א': זרימת מערכת מלאה</h2>
+<div class="diagram">
+┌─────────────────────────────────────────────────────────┐
+│                    TRIP INTAKE WIZARD                     │
+│                                                           │
+│  Step 0: Where & When ──→ Step 1: Travelers               │
+│       │                        │                          │
+│       ▼                        ▼                          │
+│  Depth Selector ──→ Step 2: Questionnaire (10-30 Q's)    │
+│       │                        │                          │
+│       ▼                        ▼                          │
+│  Step 3: Interests ──→ Step 4: Avoids ──→ Step 5: Food   │
+│       │                                        │          │
+│       ▼                                        ▼          │
+│  Step 6: Language & Extras ──→ Step 7: Review & Download │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                    {name}_trip_details_{date}.md
+                           │
+┌──────────────────────────▼──────────────────────────────┐
+│               TRIP GENERATION PIPELINE                    │
+│                                                           │
+│  Pre-Flight ──→ Phase A (Overview) ──→ Phase B (Days)    │
+│       │              │                      │             │
+│       ▼              ▼                      ▼             │
+│  Age Calc      manifest.json         Parallel Batches     │
+│  Research      overview_LANG.md      day_XX_LANG.md       │
+│                                           │               │
+│       ┌───────────────────────────────────┘               │
+│       ▼                                                   │
+│  Budget ──→ Assembly ──→ HTML Render ──→ Regression Test │
+│  budget_LANG.md  trip_full_LANG.md  trip_full_LANG.html  │
+└──────────────────────────────────────────────────────────┘
+</div>
+
+<h2>נספח ב': רשימת שאלות מלאה (30 שאלות)</h2>
+<table>
+  <tr><th>#</th><th>מפתח</th><th>שכבה</th><th>נושא</th></tr>
+  <tr><td>1</td><td>rhythm</td><td>T1</td><td>קצב יום — סיום מוקדם / מאוזן / לילה מאוחר / מפוצל</td></tr>
+  <tr><td>2</td><td>setting</td><td>T1</td><td>סביבה — עיר / שניהם / טבע</td></tr>
+  <tr><td>3</td><td>culture</td><td>T1</td><td>תרבות — תרבות / שניהם / כיף</td></tr>
+  <tr><td>4</td><td>noise</td><td>T1</td><td>רעש — שקט / גמיש / רועש</td></tr>
+  <tr><td>5</td><td>foodadventure</td><td>T1</td><td>הרפתקת אוכל — בטוח / פתוח / אמיץ</td></tr>
+  <tr><td>6</td><td>pace</td><td>T1</td><td>קצב — רגוע / מאוזן / עמוס</td></tr>
+  <tr><td>7</td><td>diet</td><td>T1</td><td>תזונה — אומניבור / צמחוני / טבעוני / כשר</td></tr>
+  <tr><td>8</td><td>budget</td><td>T1</td><td>תקציב — חסכוני / מאוזן / פרימיום</td></tr>
+  <tr><td>9</td><td>flexibility</td><td>T1</td><td>גמישות — מובנה / גמיש / ספונטני</td></tr>
+  <tr><td>10</td><td>diningstyle</td><td>T1</td><td>סגנון אכילה — אוכל רחוב / מזדמן / יוקרתי</td></tr>
+  <tr><td>11</td><td>kidsfood</td><td>T2</td><td>אוכל ילדים</td></tr>
+  <tr><td>12</td><td>mealpriority</td><td>T2</td><td>עדיפות ארוחה</td></tr>
+  <tr><td>13</td><td>localfood</td><td>T2</td><td>העדפת אוכל מקומי</td></tr>
+  <tr><td>14</td><td>walkingTolerance</td><td>T2</td><td>סבילות הליכה — קלה / בינונית / מרתון</td></tr>
+  <tr><td>15</td><td>weatherSensitivity</td><td>T2</td><td>רגישות למזג אוויר</td></tr>
+  <tr><td>16</td><td>crowdTolerance</td><td>T3</td><td>סבילות קהל</td></tr>
+  <tr><td>17</td><td>culturalImmersion</td><td>T3</td><td>טבילה תרבותית</td></tr>
+  <tr><td>18</td><td>nightlife</td><td>T3</td><td>חיי לילה</td></tr>
+  <tr><td>19</td><td>transport</td><td>T3</td><td>העדפת תחבורה</td></tr>
+  <tr><td>20</td><td>morningPreference</td><td>T3</td><td>העדפת בוקר</td></tr>
+  <tr><td>21</td><td>groupSplitting</td><td>T4</td><td>פיצול קבוצה</td></tr>
+  <tr><td>22</td><td>souvenirShopping</td><td>T4</td><td>קניית מזכרות</td></tr>
+  <tr><td>23</td><td>relaxationTime</td><td>T4</td><td>זמן מנוחה</td></tr>
+  <tr><td>24</td><td>snacking</td><td>T4</td><td>חטיפים</td></tr>
+  <tr><td>25</td><td>photography</td><td>T4</td><td>צילום</td></tr>
+  <tr><td>26</td><td>socialInteraction</td><td>T5</td><td>אינטראקציה חברתית</td></tr>
+  <tr><td>27</td><td>surpriseOpenness</td><td>T5</td><td>פתיחות להפתעות</td></tr>
+  <tr><td>28</td><td>visitDuration</td><td>T5</td><td>סגנון משך ביקור</td></tr>
+  <tr><td>29</td><td>shopping</td><td>T5</td><td>קניות</td></tr>
+  <tr><td>30</td><td>accessibility</td><td>T5</td><td>נגישות</td></tr>
+</table>
+
+<h2>נספח ג': פורמט כרטיס POI ב-HTML</h2>
+<p>כל כרטיס POI ב-HTML הסופי כולל:</p>
+<ul>
+  <li><strong>Anchor ID:</strong> <code>id="poi-day-{D}-{N}"</code> (מספר יום + אינדקס POI)</li>
+  <li><strong>Tag:</strong> אימוג'י + סוג (למשל, 🏊 בריכה, 🍽️ ארוחת ערב)</li>
+  <li><strong>דירוג:</strong> ⭐ + ציון + מספר ביקורות (אם קיים)</li>
+  <li><strong>נגישות:</strong> ♿ badge (אם קיים)</li>
+  <li><strong>שם:</strong> <code>&lt;h3 class="poi-card__name"&gt;</code></li>
+  <li><strong>קישורים (סדר קבוע):</strong> 📍 Maps → 🌐 אתר → 📸 תמונות → 📞 טלפון</li>
+  <li><strong>תוכן:</strong> 4 פסקאות (אווירה, חובה לראות, גורם משפחתי, טיפ)</li>
+  <li><strong>Pro-tip:</strong> <code>&lt;div class="pro-tip"&gt;</code></li>
+</ul>
+
+<div class="important">
+  <strong>כלל שוויון POI:</strong> מספר אלמנטי <code>.poi-card</code> בכל <code>#day-N</code> ב-HTML חייב להיות שווה למספר כותרות <code>###</code> POI באותו יום ב-Markdown.
+</div>
+
+<footer>
+  <p>מסמך דרישות טכניות — מערכת תכנון טיולים Dynamic Travel Architect | גרסה 1.0 | מרץ 2026</p>
+  <p>נוצר לסקירה חיצונית. כל הזכויות שמורות.</p>
+</footer>
+
+</body>
+</html>

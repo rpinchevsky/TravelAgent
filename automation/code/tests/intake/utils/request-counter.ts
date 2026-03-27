@@ -4,7 +4,7 @@ import type { Page, Request } from '@playwright/test';
  * Creates a network request counter that monitors requests matching a URL pattern.
  *
  * Usage:
- *   const counter = await createRequestCounter(page, '**/locales/**');
+ *   const counter = await createRequestCounter(page, GLOB_LOCALES);
  *   // ... perform actions ...
  *   expect(counter.count).toBe(1);
  *   expect(counter.requests[0].url()).toContain('ui_en.json');
@@ -48,8 +48,8 @@ export async function createRequestCounter(
 }
 
 /**
- * Simple glob matcher supporting ** and * wildcards.
- * Used to filter request URLs against patterns like '**/locales/*.json'.
+ * Simple glob matcher supporting double-star and single-star wildcards.
+ * Used to filter request URLs against glob patterns for locale JSON files.
  */
 function matchesGlob(url: string, pattern: string): boolean {
   // Escape regex special chars except * and ?
