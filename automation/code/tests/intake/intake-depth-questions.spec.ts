@@ -11,16 +11,16 @@ import { IntakePage } from '../pages/IntakePage';
 
 const DEPTH_LEVELS = [10, 15, 20, 25, 30] as const;
 
-/** Question keys by tier */
+/** Question keys by tier (matching data-tier in HTML question-slides) */
 const T1_KEYS = [
-  'rhythm', 'setting', 'culture', 'interests',
-  'noise', 'foodadventure', 'pace', 'diet',
-  'reportLang', 'extraNotes',
+  'rhythm', 'setting', 'culture', 'pace',
+  'noise', 'foodadventure', 'budget', 'flexibility',
+  'diet', 'diningstyle',
 ];
-const T2_KEYS = ['budget', 'flexibility', 'customInterests', 'avoidChips', 'customAvoid'];
-const T3_KEYS = ['diningstyle', 'kidsfood', 'mealpriority', 'localfood', 'poiLangs'];
-const T4_KEYS = ['foodExperience', 'diningVibe', 'foodNotes', 'transport', 'morningPreference'];
-const T5_KEYS = ['snacking', 'photography', 'visitDuration', 'shopping', 'accessibility'];
+const T2_KEYS = ['kidsfood', 'mealpriority', 'localfood', 'walkingTolerance', 'weatherSensitivity'];
+const T3_KEYS = ['culturalImmersion', 'nightlife', 'transport', 'morningPreference', 'crowdTolerance'];
+const T4_KEYS = ['groupSplitting', 'souvenirShopping', 'relaxationTime', 'snacking', 'photography'];
+const T5_KEYS = ['socialInteraction', 'surpriseOpenness', 'visitDuration', 'shopping', 'accessibility'];
 
 /** Expected visible keys and count per depth */
 const DEPTH_EXPECTATIONS: Record<number, { count: number; visible: string[]; hidden: string[] }> = {
@@ -97,37 +97,23 @@ test.describe('Question Visibility per Depth Level', () => {
 });
 
 test.describe('Quiz Auto-Advance with Reduced Question Set', () => {
-  // TC-033: Quiz auto-advance works correctly with reduced question set
-  test('TC-033: at depth 10, quiz step auto-advances past last visible sub-question', async ({ page }) => {
+  // TC-033: Quiz auto-advance works correctly — at depth 10, all T1 slides visible
+  test('TC-033: at depth 10, quiz step auto-advances to Step 4 after last T1 question', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(10);
 
-    // After depth selection, we land on Step 2 (hotel/car). Navigate to Step 3 (quiz).
-    await intake.navigateToStep(3);
+    // After depth selection, we land on Step 3 (quiz).
     const currentStep = await intake.getCurrentStepNumber();
     expect.soft(currentStep, 'should be on Step 3 (quiz step)').toBe(3);
 
-    // Step 3 has quiz sub-questions. At depth 10, only setting and culture are visible.
-    // Answer the first quiz question (setting) — click any option
-    const settingQuestion = intake.questionByKey('setting');
-    const settingOptions = settingQuestion.locator('[data-value]');
-    if (await settingOptions.count() > 0) {
-      await settingOptions.first().click();
-    }
+    // At depth 10, Step 3 has 10 T1 quiz questions.
+    // Use skipStep3SubSteps to auto-advance through all of them.
+    await intake.skipStep3SubSteps();
 
-    // After answering setting, should auto-advance to culture (not to a hidden question)
-    // Answer culture
-    const cultureQuestion = intake.questionByKey('culture');
-    const cultureOptions = cultureQuestion.locator('[data-value]');
-    if (await cultureOptions.count() > 0) {
-      await cultureOptions.first().click();
-    }
-
-    // After answering the last visible sub-question (culture), the wizard should
-    // advance to the next step (Step 4), not show a hidden third question
-    await page.waitForTimeout(500); // Allow auto-advance animation
+    // After answering the last visible sub-question, the wizard should
+    // advance to Step 4 (interests)
     const nextStep = await intake.getCurrentStepNumber();
-    expect(nextStep, 'should advance to next step after last visible quiz question').toBeGreaterThan(3);
+    expect(nextStep, 'should advance to Step 4 after last visible quiz question').toBe(4);
   });
 });
 
@@ -176,13 +162,13 @@ test.describe('Step 3 Quiz Navigation (TC-337, TC-338, TC-339)', () => {
     const dotCount = await dots.count();
     expect(dotCount, 'Step 3 has sub-step dots').toBeGreaterThan(0);
 
-    // Dot count should match visible question count in Step 3
-    const visibleQCount = await page.evaluate(() => {
+    // Dot count should match depth-active question slide count in Step 3
+    const activeSlideCount = await page.evaluate(() => {
       const step3 = document.querySelector('section.step[data-step="3"]');
       if (!step3) return 0;
-      return step3.querySelectorAll('.question-slide').length;
+      return step3.querySelectorAll('.question-slide:not([data-depth-hidden])').length;
     });
-    expect.soft(dotCount, 'dot count matches visible question slides').toBe(visibleQCount);
+    expect.soft(dotCount, 'dot count matches depth-active question slides').toBe(activeSlideCount);
   });
 
   test('TC-338: auto-advance after last Step 3 question goes to Step 4', async ({ page }) => {

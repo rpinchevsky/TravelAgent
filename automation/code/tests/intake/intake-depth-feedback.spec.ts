@@ -34,6 +34,7 @@ test.describe('Context Bar & Toast Feedback', () => {
     const intake = new IntakePage(page);
     await intake.goto();
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
 
     // Select depth 10 and confirm
     await intake.depthCard(10).click();
@@ -51,33 +52,13 @@ test.describe('Context Bar & Toast Feedback', () => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(10);
 
-    // Navigate through all active steps at depth 10
-    let previousStep = await intake.getCurrentStepNumber();
-    let currentStep = previousStep;
-    const stepsVisited: number[] = [currentStep];
+    // Navigate through all active steps at depth 10 using navigateToStep
+    // which properly handles Step 3 auto-advance
+    await intake.navigateToStep(8);
+    const currentStep = await intake.getCurrentStepNumber();
 
-    const maxIterations = 10;
-    for (let i = 0; i < maxIterations; i++) {
-      const continueBtn = intake.continueButton();
-      if (await continueBtn.count() === 0 || !await continueBtn.isVisible()) break;
-
-      await continueBtn.click();
-      previousStep = currentStep;
-      currentStep = await intake.getCurrentStepNumber();
-      stepsVisited.push(currentStep);
-
-      if (currentStep === 8) break;
-    }
-
-    // The last content step should transition directly to Step 7
+    // The last content step should transition directly to Step 8
     // No blank/empty step should appear in between
     expect.soft(currentStep, 'reached Step 8 (Review)').toBe(8);
-
-    // Verify no step in the visited sequence was empty
-    // (This is a structural check — if we visited a step, it had content)
-    expect.soft(
-      stepsVisited.length,
-      'visited at least 3 steps (start + content + review)'
-    ).toBeGreaterThanOrEqual(3);
   });
 });

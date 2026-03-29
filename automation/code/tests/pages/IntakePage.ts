@@ -71,6 +71,10 @@ export class IntakePage {
   readonly carExtrasChips: Locator;
   readonly carBudgetSlider: Locator;
 
+  // --- Step 2: Multi-select grids & hints ---
+  readonly multiSelectGrids: Locator;
+  readonly multiSelectHints: Locator;
+
   // --- Step 4 (interests) ---
   readonly interestCards: Locator;
   readonly interestSections: Locator;
@@ -171,6 +175,10 @@ export class IntakePage {
     this.carExtrasChips = page.locator('#carExtrasChips');
     this.carBudgetSlider = page.locator('#carBudgetSlider');
 
+    // Step 2: Multi-select grids & hints
+    this.multiSelectGrids = page.locator('.option-grid[data-multi-select]');
+    this.multiSelectHints = page.locator('.option-grid__hint');
+
     // Step 4
     this.interestCards = page.locator('#interestsSections .interest-card');
     this.interestSections = page.locator('#interestsSections .chip-section');
@@ -235,7 +243,7 @@ export class IntakePage {
   }
 
   subStepDots(step: number): Locator {
-    return this.stepSection(step).locator('.quiz-dots__dot');
+    return this.stepSection(step).locator('.sub-dot');
   }
 
   /** All visible stepper steps (not hidden) */
@@ -290,12 +298,21 @@ export class IntakePage {
   }
 
   /**
-   * Complete prerequisite steps (Step 0 and Step 1) to reach the depth selector overlay.
-   * After calling this, the depth selector overlay should be visible.
+   * Complete prerequisite steps (Step 0 and Step 1) to reach Step 2.
+   * After calling this, the wizard is on Step 2 (hotel/car assistance).
+   * Note: depth overlay no longer fires after Step 1 — it fires after Step 2.
    */
   async completePrerequisiteSteps() {
     await this.completeStep0();
     await this.completeStep1();
+  }
+
+  /**
+   * Complete Step 2 by clicking Continue to trigger the depth overlay.
+   * After calling this, the depth selector overlay should be visible.
+   */
+  async completeStep2() {
+    await this.continueButton().click();
   }
 
   /**
@@ -308,12 +325,13 @@ export class IntakePage {
   }
 
   /**
-   * Full setup: navigate, complete Step 0 and Step 1, select depth, confirm.
-   * After calling this, the wizard is on Step 2 (or first active content step).
+   * Full setup: navigate, complete Steps 0, 1, and 2, select depth, confirm.
+   * After calling this, the wizard is on Step 3 (questionnaire).
    */
   async setupWithDepth(depth: number) {
     await this.goto();
     await this.completePrerequisiteSteps();
+    await this.completeStep2();
     await this.selectDepthAndConfirm(depth);
   }
 
@@ -339,7 +357,10 @@ export class IntakePage {
    */
   async getCurrentStepNumber(): Promise<number> {
     const step = this.visibleStep;
-    const dataStep = await step.getAttribute('data-step');
+    // During animations, the visible step may temporarily not be found
+    const count = await step.count();
+    if (count === 0) return -1;
+    const dataStep = await step.first().getAttribute('data-step');
     return parseInt(dataStep ?? '-1', 10);
   }
 
@@ -369,19 +390,22 @@ export class IntakePage {
   }
 
   /**
-   * Get all visible question keys across all steps.
+   * Get all depth-active question keys (tiered questions not hidden by the depth system).
+   * Only counts elements with data-tier attribute that are not hidden by applyDepth.
+   * Non-tiered questions (interests, avoidChips, hotel/car, etc.) are excluded
+   * because they are not depth-gated.
    */
   async getVisibleQuestionKeys(): Promise<string[]> {
     return await this.page.evaluate(() => {
-      const questions = document.querySelectorAll('[data-question-key]');
+      const questions = document.querySelectorAll('[data-question-key][data-tier]');
       const keys: string[] = [];
       for (const q of questions) {
         const el = q as HTMLElement;
-        const style = window.getComputedStyle(el);
-        if (style.display !== 'none' && style.visibility !== 'hidden') {
-          const key = el.getAttribute('data-question-key');
-          if (key) keys.push(key);
-        }
+        const key = el.getAttribute('data-question-key');
+        if (!key) continue;
+        // Check if hidden by depth system (data-depth-hidden attribute set by applyDepth)
+        if (el.hasAttribute('data-depth-hidden')) continue;
+        keys.push(key);
       }
       return keys;
     });
@@ -429,16 +453,37 @@ export class IntakePage {
           continue;
         }
         const btn = this.continueButton();
-        if (await btn.count() > 0) await btn.click();
+        // Use force click to bypass stability check during step transition animations
+        if (await btn.count() > 0) await btn.click({ force: true });
       } else {
         // Step 3 (questionnaire) has animating slides that make the back button unstable.
         // Use force click to bypass the stability check.
         const btn = this.backButton();
         if (await btn.count() > 0) await btn.click({ force: true });
       }
-      // Handle depth overlay if it appears
-      if (await this.depthOverlay.isVisible().catch(() => false)) {
+      // Handle depth overlay if it appears (Step 2 Continue triggers it)
+      try {
+        await this.depthOverlay.waitFor({ state: 'visible', timeout: 1500 });
+        // Overlay appeared — select depth 20 if not already selected, then confirm
+        const hasSelected = await this.page.locator('.depth-card.is-selected').count();
+        if (hasSelected === 0) {
+          await this.depthCard(20).click();
+        }
         await this.depthConfirmBtn.click();
+        await this.depthOverlay.waitFor({ state: 'hidden', timeout: 5000 });
+        // Wait for step transition to complete after overlay closes
+        const prevStep = current;
+        await this.page.waitForFunction(
+          (prev) => {
+            const active = document.querySelector('section.step.is-active');
+            const stepNum = active ? parseInt(active.getAttribute('data-step') || '0', 10) : -1;
+            return stepNum !== prev;
+          },
+          prevStep,
+          { timeout: 5000 }
+        );
+      } catch {
+        // Overlay didn't appear — normal step transition
       }
       current = await this.getCurrentStepNumber();
     }
@@ -455,21 +500,19 @@ export class IntakePage {
       const currentStepNum = await this.getCurrentStepNumber();
       if (currentStepNum !== 3) break;
 
-      // Find the currently visible question slide and click its selected card
-      const visibleSlide = this.page.locator('.question-slide.is-visible');
-      if (await visibleSlide.count() === 0) break;
+      // Click the selected or first card on the visible question slide via JS
+      const clicked = await this.page.evaluate(() => {
+        const slide = document.querySelector('.question-slide.is-visible');
+        if (!slide) return false;
+        const card = slide.querySelector('.q-card.is-selected') || slide.querySelector('.q-card');
+        if (!card) return false;
+        (card as HTMLElement).click();
+        return true;
+      });
+      if (!clicked) break;
 
-      const selectedCard = visibleSlide.locator('.q-card.is-selected').first();
-      if (await selectedCard.count() > 0) {
-        await selectedCard.click();
-      } else {
-        // No pre-selected card — click the first card
-        const firstCard = visibleSlide.locator('.q-card').first();
-        if (await firstCard.count() > 0) await firstCard.click();
-        else break;
-      }
       // Wait for auto-advance animation (400ms delay + transition)
-      await this.page.waitForTimeout(500);
+      await this.page.waitForTimeout(450);
     }
   }
 

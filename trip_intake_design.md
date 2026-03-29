@@ -181,7 +181,7 @@ Simple step below the search bar. Just a hint message ("Fill in your destination
 - Validation error: `.card-error` adds red border, `.select-error` on DOB year dropdown
 
 ### Step 2 — Plan Your Stay & Travel
-Hotel and car rental assistance toggles with optional sub-questions. Both toggles default to "No" (collapsed). No validation gate. Uses the standard `.step__title` + `.step__desc` + `.btn-bar` pattern. Hotel section appears first, car section below. Both use the `.assistance-section` component pattern (see below).
+Hotel and car rental assistance toggles with optional sub-questions. Both toggles default to "No" (collapsed). No validation gate. Uses the standard `.step__title` + `.step__desc` + `.btn-bar` pattern. Hotel section appears first, car section below. Both use the `.assistance-section` component pattern (see below). The hotelType and carCategory option grids use multi-select toggle behavior (see Option Grid component below).
 
 ### Step 3 — All Preferences (One-at-a-Time Questionnaire)
 The single, unified questionnaire for ALL 30 preference questions (10-30 shown based on depth).
@@ -283,7 +283,7 @@ Dual-month calendar for selecting check-in / check-out date range. Lives inside 
 
 ### Depth Selector Overlay
 
-A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choose how many questions they want to answer. 5 depth cards (10, 15, 20, 25, 30) with labels and estimated completion times.
+A modal overlay shown after Step 2 (Plan Your Stay & Travel), allowing the user to choose how many questions they want to answer. 5 depth cards (10, 15, 20, 25, 30) with labels and estimated completion times.
 
 **Layout:**
 - Fixed overlay with `rgba(0,0,0,0.5)` backdrop, z-index 500
@@ -301,12 +301,12 @@ A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choos
 - Arrow Left/Right: move between cards
 - Enter/Space: confirm selection
 - Tab: move to confirm button
-- Escape: dismiss overlay, return to Step 1
+- Escape: dismiss overlay, return to Step 2
 
 **Focus Management:**
 - On open: focus moves to pre-selected card
-- On confirm: overlay closes, focus to Step 2 title (logistics step)
-- On escape: focus to Step 1 Continue button
+- On confirm: overlay closes, focus to Step 3 title (or next active step after Step 2)
+- On escape: focus to Step 2 Continue button
 
 **Re-entry (from context bar pill):**
 - Same animation, current depth pre-selected
@@ -369,7 +369,7 @@ A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choos
 - Body: `.assistance-section__body` — collapsed by default (`max-height: 0; opacity: 0; overflow: hidden`)
 - Expanded state: `.is-expanded` class sets `max-height: 4000px; opacity: 1`
 - Transition: `max-height 0.4s ease, opacity 0.3s ease` (per animation spec)
-- Collapse resets all child selections (cards, chips, sliders) to defaults
+- Collapse resets all child selections (cards, chips, sliders) to defaults. For multi-select cards, `aria-pressed` is also reset to `"false"`.
 - Two instances: `#hotelAssistanceSection` (7 sub-questions) and `#carAssistanceSection` (6 sub-questions)
 - i18n: header and all child elements use `data-i18n`
 
@@ -379,7 +379,8 @@ A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choos
 - Grid: `repeat(4, 1fr)` desktop, `repeat(3, 1fr)` at <= 768px, `repeat(2, 1fr)` at <= 480px
 - Cards: `.q-card` with compact sizing — `min-height: 100px`, smaller padding and font
 - No description text (`.q-card__desc { display: none }`) — icon + title only
-- Radio behavior: same as standard q-card (one selected per container)
+- **Multi-select behavior** (grids with `data-multi-select` attribute): clicking a card toggles its `.is-selected` class independently (no sibling clear). Each card has `aria-pressed` toggled on click. Container has `role="group"` with `aria-labelledby` pointing to the translated field label. A `.option-grid__hint` element displays "Select one or more" (i18n key `s6_multiselect_hint`) between the label and the grid. A CSS `::after` pseudo-element on each card shows a 20px checkmark badge (brand-primary bg, white checkmark) that scales in on selection (0.25s spring) and out on deselection (0.15s ease-out). Uses CSS logical properties (`inset-inline-end`) for automatic RTL support.
+- **Radio behavior** (grids WITHOUT `data-multi-select`): same as standard q-card (one selected per container)
 - Touch target: min 44x44px via card size
 - i18n: each card title has `data-i18n`, each card has `data-en-name` for markdown output
 

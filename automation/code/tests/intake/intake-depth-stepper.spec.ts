@@ -11,11 +11,11 @@ import { IntakePage } from '../pages/IntakePage';
 const DEPTH_LEVELS = [10, 15, 20, 25, 30] as const;
 
 test.describe('Stepper Adaptation', () => {
-  // TC-010: Progress stepper hides skipped steps
-  test('TC-010: stepper hides skipped steps at depth 10 vs depth 20', async ({ page }) => {
+  // TC-010: Progress stepper shows all 9 steps at every depth level
+  test('TC-010: stepper shows all 9 steps at depth 10 and depth 20', async ({ page }) => {
     const intake = new IntakePage(page);
 
-    // Test at depth 10 (has fewer active steps)
+    // Test at depth 10
     await intake.setupWithDepth(10);
 
     const visibleStepsAt10 = await page.evaluate(() => {
@@ -29,12 +29,13 @@ test.describe('Stepper Adaptation', () => {
       return count;
     });
 
-    // At depth 10, some steps should be hidden (fewer than 8 total steps)
-    expect.soft(visibleStepsAt10, 'depth 10: fewer visible stepper steps than total 9').toBeLessThan(9);
+    // All 9 steps are always visible in the stepper (Steps 0-8)
+    expect.soft(visibleStepsAt10, 'depth 10: all 9 stepper steps visible').toBe(9);
 
-    // Now test at depth 20 (baseline — all quiz steps visible)
+    // Test at depth 20
     await intake.goto();
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     await intake.selectDepthAndConfirm(20);
 
     const visibleStepsAt20 = await page.evaluate(() => {
@@ -48,70 +49,56 @@ test.describe('Stepper Adaptation', () => {
       return count;
     });
 
-    // Depth 20 should have more visible steps than depth 10
-    expect(visibleStepsAt20, 'depth 20 has more visible stepper steps than depth 10')
-      .toBeGreaterThanOrEqual(visibleStepsAt10);
+    expect(visibleStepsAt20, 'depth 20: all 9 stepper steps visible').toBe(9);
   });
 
-  // TC-011: Quiz sub-step dots reflect visible questions only
+  // TC-011: Quiz sub-step dots reflect visible questions per depth
   test('TC-011: sub-step dots match visible question count per quiz step', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(10);
 
-    // At depth 10, Step 3 should have 2 quiz dots (setting, culture)
-    // Navigate to Step 3 to check dots
+    // At depth 10, Step 3 should have 10 T1 quiz dots
     const step3Dots = intake.subStepDots(3);
     const dotCount = await step3Dots.count();
-    expect.soft(dotCount, 'Step 3 at depth 10: should have 2 sub-step dots').toBe(2);
+    expect.soft(dotCount, 'Step 3 at depth 10: should have 10 sub-step dots').toBe(10);
 
-    // Verify at depth 20 for comparison — Step 3 still has 2 (setting, culture; evening removed)
+    // At depth 20, Step 3 has 20 quiz dots (T1+T2+T3)
     await intake.goto();
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     await intake.selectDepthAndConfirm(20);
 
     const step3DotsAt20 = intake.subStepDots(3);
     const dotCountAt20 = await step3DotsAt20.count();
-    expect.soft(dotCountAt20, 'Step 3 at depth 20: sub-step dots').toBe(2);
+    expect.soft(dotCountAt20, 'Step 3 at depth 20: sub-step dots').toBe(20);
   });
 
-  // TC-012: Progress bar percentage adapts to depth
-  test('TC-012: progress bar percentage reflects active steps, not total 8', async ({ page }) => {
+  // TC-012: Progress bar percentage advances with each step
+  test('TC-012: progress bar percentage advances when navigating steps', async ({ page }) => {
     const intake = new IntakePage(page);
-    await intake.setupWithDepth(10);
+    await intake.setupWithDepth(20);
 
-    // Read initial progress bar value
+    // Read initial progress bar value on Step 3
     const initialValue = await intake.progressBar.getAttribute('aria-valuenow');
     expect.soft(initialValue, 'progress bar has aria-valuenow').not.toBeNull();
 
-    // Navigate one step forward
-    await intake.continueButton().click();
+    // Navigate to Step 4
+    await intake.navigateToStep(4);
 
     // Progress bar should advance
-    const afterOneStep = await intake.progressBar.getAttribute('aria-valuenow');
+    const afterStep4 = await intake.progressBar.getAttribute('aria-valuenow');
     expect.soft(
-      parseInt(afterOneStep ?? '0', 10),
-      'progress bar advances after navigating one step'
+      parseInt(afterStep4 ?? '0', 10),
+      'progress bar advances after navigating to Step 4'
     ).toBeGreaterThan(parseInt(initialValue ?? '0', 10));
 
-    // At depth 10 with fewer active steps, each step should represent a larger
-    // percentage increment than at depth 20
-    const incrementAt10 = parseInt(afterOneStep ?? '0', 10) - parseInt(initialValue ?? '0', 10);
-
-    // Repeat for depth 20
-    await intake.goto();
-    await intake.completePrerequisiteSteps();
-    await intake.selectDepthAndConfirm(20);
-
-    const initialAt20 = await intake.progressBar.getAttribute('aria-valuenow');
-    await intake.continueButton().click();
-    const afterOneStepAt20 = await intake.progressBar.getAttribute('aria-valuenow');
-    const incrementAt20 = parseInt(afterOneStepAt20 ?? '0', 10) - parseInt(initialAt20 ?? '0', 10);
-
-    // Depth 10 increment should be >= depth 20 increment (fewer steps = bigger jumps)
-    expect.soft(
-      incrementAt10,
-      'depth 10 progress increment >= depth 20 increment'
-    ).toBeGreaterThanOrEqual(incrementAt20);
+    // Navigate to Step 5
+    await intake.navigateToStep(5);
+    const afterStep5 = await intake.progressBar.getAttribute('aria-valuenow');
+    expect(
+      parseInt(afterStep5 ?? '0', 10),
+      'progress bar continues to advance'
+    ).toBeGreaterThan(parseInt(afterStep4 ?? '0', 10));
   });
 
   // TC-013: No empty steps or visual glitches at any depth
@@ -121,103 +108,69 @@ test.describe('Stepper Adaptation', () => {
       await intake.setupWithDepth(depth);
 
       // Navigate through every active step and verify at least 1 visible question or form element
-      const maxSteps = 10;
-      for (let i = 0; i < maxSteps; i++) {
+      // Use navigateToStep to handle Step 3 auto-advance properly
+      for (let stepNum = 3; stepNum <= 7; stepNum++) {
+        await intake.navigateToStep(stepNum);
         const currentStep = await intake.getCurrentStepNumber();
 
-        // Step 8 is the review step — it has the preview, not questions
-        if (currentStep === 8) break;
+        // If the step was skipped (e.g., merged at low depth), skip the check
+        if (currentStep !== stepNum) continue;
 
-        // Steps 0 and 1 have their own form elements (not data-question-key)
-        if (currentStep >= 2 && currentStep <= 7) {
-          const visibleInStep = await page.evaluate((stepNum) => {
-            const step = document.querySelector(`section.step[data-step="${stepNum}"]`);
-            if (!step) return 0;
-            const questions = step.querySelectorAll('[data-question-key]');
-            let count = 0;
-            for (const q of questions) {
-              const el = q as HTMLElement;
-              const style = window.getComputedStyle(el);
-              if (style.display !== 'none' && style.visibility !== 'hidden') count++;
-            }
-            return count;
-          }, currentStep);
+        const visibleInStep = await page.evaluate((sn) => {
+          const step = document.querySelector(`section.step[data-step="${sn}"]`);
+          if (!step) return 0;
+          const questions = step.querySelectorAll('[data-question-key]');
+          let count = 0;
+          for (const q of questions) {
+            const el = q as HTMLElement;
+            const style = window.getComputedStyle(el);
+            if (style.display !== 'none' && style.visibility !== 'hidden') count++;
+          }
+          return count;
+        }, stepNum);
 
-          expect.soft(
-            visibleInStep,
-            `depth ${depth}, step ${currentStep}: has at least 1 visible question`
-          ).toBeGreaterThanOrEqual(1);
-        }
-
-        // Try to navigate forward
-        const continueBtn = intake.continueButton();
-        if (await continueBtn.count() === 0 || !await continueBtn.isVisible()) break;
-        await continueBtn.click();
+        expect.soft(
+          visibleInStep,
+          `depth ${depth}, step ${stepNum}: has at least 1 visible question`
+        ).toBeGreaterThanOrEqual(1);
       }
     });
   }
 
-  // TC-014: Step merging at depth 10 — Step 6 (diet) merges into Step 5
-  test('TC-014: step 6 merges into step 5 at depth 10', async ({ page }) => {
+  // TC-014: Diet question is in Step 3 questionnaire at depth 10
+  test('TC-014: diet question is a question-slide in Step 3 at depth 10', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(10);
 
-    // Navigate to Step 5
-    let currentStep = await intake.getCurrentStepNumber();
-    while (currentStep < 5) {
-      await intake.continueButton().click();
-      currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 8) break; // safety
-    }
-
-    // Diet question (originally Step 6) should be present within Step 5's DOM
-    const dietInStep5 = await page.evaluate(() => {
-      const step5 = document.querySelector('section.step[data-step="5"]');
-      if (!step5) return false;
-      const dietQ = step5.querySelector('[data-question-key="diet"]');
+    // Diet question should be in Step 3 as a question-slide
+    const dietInStep3 = await page.evaluate(() => {
+      const step3 = document.querySelector('section.step[data-step="3"]');
+      if (!step3) return false;
+      const dietQ = step3.querySelector('[data-question-key="diet"]');
       return dietQ !== null;
     });
-    expect.soft(dietInStep5, 'diet question is relocated into Step 5 at depth 10').toBe(true);
+    expect.soft(dietInStep3, 'diet question is in Step 3 questionnaire at depth 10').toBe(true);
 
-    // A step divider should precede the merged question
-    const dividerInStep5 = await page.evaluate(() => {
-      const step5 = document.querySelector('section.step[data-step="5"]');
-      if (!step5) return false;
-      return step5.querySelector('.step-divider') !== null;
+    // Diet is T1, should be visible (not depth-hidden) at depth 10
+    const dietVisible = await page.evaluate(() => {
+      const dietQ = document.querySelector('[data-question-key="diet"]');
+      return dietQ !== null && !dietQ.hasAttribute('data-depth-hidden');
     });
-    expect.soft(dividerInStep5, 'step divider present in Step 5 at depth 10').toBe(true);
-
-    // Step 6 should not be in the stepper (hidden)
-    const step6Stepper = intake.stepperStep(6);
-    const step6Visible = await page.evaluate(() => {
-      const s = document.querySelector('.stepper__step[data-step="6"]');
-      if (!s) return false;
-      const style = window.getComputedStyle(s as HTMLElement);
-      return style.display !== 'none' && !(s as HTMLElement).hidden;
-    });
-    expect.soft(step6Visible, 'Step 6 stepper circle is hidden at depth 10').toBe(false);
+    expect.soft(dietVisible, 'diet question is depth-active at depth 10').toBe(true);
   });
 
-  // TC-015: Step merging at depth 15 — Step 6 (diet) merges into Step 5
-  test('TC-015: step 6 merges into step 5 at depth 15', async ({ page }) => {
+  // TC-015: Diet question is in Step 3 questionnaire at depth 15
+  test('TC-015: diet question is a question-slide in Step 3 at depth 15', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(15);
 
-    // Navigate to Step 5
-    let currentStep = await intake.getCurrentStepNumber();
-    while (currentStep < 5) {
-      await intake.continueButton().click();
-      currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 8) break;
-    }
-
-    // Diet question should be merged into Step 5
-    const dietInStep5 = await page.evaluate(() => {
-      const step5 = document.querySelector('section.step[data-step="5"]');
-      if (!step5) return false;
-      return step5.querySelector('[data-question-key="diet"]') !== null;
+    // Diet question should be in Step 3 as a question-slide
+    const dietInStep3 = await page.evaluate(() => {
+      const step3 = document.querySelector('section.step[data-step="3"]');
+      if (!step3) return false;
+      return step3.querySelector('[data-question-key="diet"]') !== null;
     });
-    expect.soft(dietInStep5, 'diet question is merged into Step 5 at depth 15').toBe(true);
+    expect.soft(dietInStep3, 'diet question is in Step 3 questionnaire at depth 15').toBe(true);
   });
 
   // TC-319: Stepper renders 9 circles
@@ -260,16 +213,21 @@ test.describe('Stepper Adaptation', () => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(20);
 
-    // On Step 2 after depth selection
-    const step2Active = await page.locator('.stepper__step[data-step="2"]').evaluate(
+    // On Step 3 after depth selection (depth overlay fires after Step 2)
+    const step3Active = await page.locator('.stepper__step[data-step="3"]').evaluate(
       el => el.classList.contains('is-active')
     );
-    expect.soft(step2Active, 'Step 2 is active after depth selection').toBe(true);
+    expect.soft(step3Active, 'Step 3 is active after depth selection').toBe(true);
 
     const step0Done = await page.locator('.stepper__step[data-step="0"]').evaluate(
       el => el.classList.contains('is-done')
     );
     expect.soft(step0Done, 'Step 0 is done').toBe(true);
+
+    const step2Done = await page.locator('.stepper__step[data-step="2"]').evaluate(
+      el => el.classList.contains('is-done')
+    );
+    expect.soft(step2Done, 'Step 2 is done after depth selection').toBe(true);
 
     // Navigate to Step 4
     await intake.navigateToStep(4);

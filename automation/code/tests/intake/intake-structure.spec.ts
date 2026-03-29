@@ -52,6 +52,7 @@ test.describe('HTML Structure & Syntax', () => {
 
   test('TC-053: all interactive card elements have role="button" or are <button>', async () => {
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     await intake.selectDepthAndConfirm(20);
     const issues = await intake.page.evaluate(() => {
       const problems: string[] = [];

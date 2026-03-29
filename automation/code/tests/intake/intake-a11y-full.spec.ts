@@ -39,9 +39,11 @@ test.describe('Accessibility', () => {
 
   test('TC-080: aria-selected updates when navigating steps', async ({ page }) => {
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     await intake.selectDepthAndConfirm(20);
 
-    // On Step 2 now
+    // On Step 3 now; navigate to Step 2 to check
+    await intake.navigateToStep(2);
     const step2 = intake.stepperStep(2);
     await expect.soft(step2, 'Step 2 aria-selected').toHaveAttribute('aria-selected', 'true');
 
@@ -95,6 +97,7 @@ test.describe('Accessibility', () => {
 
   test('TC-087: depth selector overlay has role="dialog" and aria-modal', async () => {
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     await expect.soft(intake.depthOverlay).toHaveAttribute('role', 'dialog');
     await expect.soft(intake.depthOverlay).toHaveAttribute('aria-modal', 'true');
   });

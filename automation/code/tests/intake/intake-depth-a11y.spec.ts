@@ -15,12 +15,16 @@ test.describe('Depth Selector Accessibility', () => {
     intake = new IntakePage(page);
     await intake.goto();
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     // Overlay should now be visible
   });
 
   // TC-027: Keyboard navigation — arrow keys move between depth cards
-  test('TC-027: arrow keys navigate between depth cards, Enter selects', async ({ page }) => {
+  test('TC-027: arrow keys navigate between depth cards, Enter confirms', async ({ page }) => {
     await expect(intake.depthOverlay).toBeVisible();
+
+    // Wait for focus to land on the pre-selected card (20)
+    await expect(page.locator('.depth-card:focus')).toBeVisible();
 
     // Focus should be on the pre-selected card (20) — press ArrowRight to move
     await page.keyboard.press('ArrowRight');
@@ -48,10 +52,9 @@ test.describe('Depth Selector Accessibility', () => {
       'ArrowLeft moves focus back'
     ).toBe('25');
 
-    // Press Enter to select the focused card
-    await page.keyboard.press('Enter');
+    // Arrow keys both focus and select (click) the card — verify card 25 is selected
     const card25 = intake.depthCard(25);
-    await expect.soft(card25, 'Enter selects the focused card').toHaveClass(/is-selected/);
+    await expect.soft(card25, 'ArrowLeft selects the focused card').toHaveClass(/is-selected/);
     expect.soft(
       await card25.getAttribute('aria-checked'),
       'selected card has aria-checked=true'
@@ -62,11 +65,18 @@ test.describe('Depth Selector Accessibility', () => {
     const focusedElement = page.locator(':focus');
     const focusedId = await focusedElement.getAttribute('id');
     expect.soft(focusedId, 'Tab moves focus to confirm button').toBe('depthConfirmBtn');
+
+    // Press Enter on confirm button — overlay closes and wizard advances
+    await page.keyboard.press('Enter');
+    await expect(intake.depthOverlay).not.toBeVisible();
   });
 
   // TC-028: Escape key dismisses overlay without selecting
   test('TC-028: Escape closes overlay without advancing wizard', async ({ page }) => {
     await expect(intake.depthOverlay).toBeVisible();
+
+    // Wait for focus to land on a depth card inside the overlay
+    await expect(page.locator('.depth-card:focus')).toBeVisible();
 
     // Press Escape
     await page.keyboard.press('Escape');
@@ -74,9 +84,9 @@ test.describe('Depth Selector Accessibility', () => {
     // Overlay should close
     await expect(intake.depthOverlay).not.toBeVisible();
 
-    // User should remain on Step 1 (not advanced)
+    // User should remain on Step 2 (not advanced)
     const currentStep = await intake.getCurrentStepNumber();
-    expect(currentStep, 'user remains on Step 1 after Escape').toBe(1);
+    expect(currentStep, 'user remains on Step 2 after Escape').toBe(2);
   });
 
   // TC-029: ARIA roles and attributes on depth selector
@@ -117,6 +127,9 @@ test.describe('Depth Selector Accessibility', () => {
   // TC-030: Focus management — initial open focuses pre-selected card
   test('TC-030: overlay open focuses the pre-selected depth card (20)', async ({ page }) => {
     await expect(intake.depthOverlay).toBeVisible();
+
+    // Wait for focus to land on the pre-selected card
+    await expect(page.locator('.depth-card:focus')).toBeVisible();
 
     // The focused element should be the card with data-depth="20"
     const focusedElement = page.locator(':focus');

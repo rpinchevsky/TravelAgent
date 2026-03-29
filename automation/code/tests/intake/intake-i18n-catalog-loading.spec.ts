@@ -594,6 +594,7 @@ test.describe('Item Card Rendering & Markdown', () => {
 
     // Setup with depth and navigate to interests
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     await intake.selectDepthAndConfirm(20);
     await intake.navigateToStep(4);
 

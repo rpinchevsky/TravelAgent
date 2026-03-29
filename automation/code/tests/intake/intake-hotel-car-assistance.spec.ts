@@ -11,11 +11,16 @@ import { IntakePage } from '../pages/IntakePage';
  * section ordering, CSS transitions, and section independence.
  *
  * Test cases: TC-201 through TC-222, TC-227 through TC-229, TC-301 through TC-325, TC-342, TC-345-349
+ *             TC-351 through TC-384 (multi-select and step reorder progression tests)
  * Spec file: intake-hotel-car-assistance.spec.ts
  *
  * QF-2 applied: TC-201+TC-211 merged (hotel+car visibility in one page load),
  *               TC-202+TC-212 merged (hotel+car default state in one page load).
+ *               TC-354+TC-379 consolidated (per-card .is-selected + aria-pressed in one test).
  * QF-3 applied: Markdown section ordering assertion added in TC-218/TC-220 combined test.
+ *               TC-385 removed (POM navigation tested implicitly via TC-365–TC-369).
+ * QF-1 applied: TC-383 uses web-first assertion instead of page.waitForTimeout(600).
+ * QF-4 applied: Reuse existing hotelTypeGrid/carCategoryGrid POM locators.
  *
  * Markdown assertions use English field labels — intentional exception.
  * generateMarkdown() uses hard-coded English labels for all field keys,
@@ -425,9 +430,11 @@ test.describe('Hotel Sub-Questions — Option Counts (TC-205, TC-208)', () => {
 });
 
 // ============================================================================
-// TC-206: Hotel card grid single-select (radio) behavior
+// TC-351+352: hotelType multi-select — select multiple cards + toggle off
+// Replaces TC-206 (was single-select radio; now multi-select toggle per BRD REQ-001)
+// TC-207: Hotel amenities chip behavior (unchanged)
 // ============================================================================
-test.describe('Hotel Section — Selection Behavior (TC-206, TC-207)', () => {
+test.describe('Hotel Section — Selection Behavior (TC-351, TC-352, TC-207)', () => {
   let intake: IntakePage;
 
   test.beforeEach(async ({ page }) => {
@@ -439,19 +446,47 @@ test.describe('Hotel Section — Selection Behavior (TC-206, TC-207)', () => {
     await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
   });
 
-  test('TC-206: hotel type card grid single-select (radio) behavior', async () => {
-    const firstCard = intake.hotelTypeGrid.locator('.q-card').nth(0);
-    const secondCard = intake.hotelTypeGrid.locator('.q-card').nth(1);
+  test('TC-351+352: hotelType multi-select — select multiple + toggle off individual', async () => {
+    const card0 = intake.hotelTypeGrid.locator('.q-card').nth(0);
+    const card1 = intake.hotelTypeGrid.locator('.q-card').nth(1);
+    const card2 = intake.hotelTypeGrid.locator('.q-card').nth(2);
 
-    await firstCard.click();
-    await expect(firstCard).toHaveClass(/is-selected/);
+    // TC-351: Select multiple cards simultaneously
+    await card0.click();
+    await expect(card0).toHaveClass(/is-selected/);
 
-    await secondCard.click();
-    await expect(secondCard).toHaveClass(/is-selected/);
+    await card1.click();
+    await expect(card1).toHaveClass(/is-selected/);
+    // card0 should STILL be selected (multi-select, not radio)
     expect.soft(
-      await firstCard.evaluate(el => el.classList.contains('is-selected')),
-      'first card deselected after selecting second'
+      await card0.evaluate(el => el.classList.contains('is-selected')),
+      'card 0 still selected after selecting card 1'
+    ).toBe(true);
+
+    await card2.click();
+    expect.soft(
+      await card0.evaluate(el => el.classList.contains('is-selected')),
+      'card 0 selected after selecting card 2'
+    ).toBe(true);
+    expect.soft(
+      await card1.evaluate(el => el.classList.contains('is-selected')),
+      'card 1 selected after selecting card 2'
+    ).toBe(true);
+    expect.soft(
+      await card2.evaluate(el => el.classList.contains('is-selected')),
+      'card 2 selected'
+    ).toBe(true);
+
+    // TC-352: Toggle off deselects individual card
+    await card0.click();
+    expect.soft(
+      await card0.evaluate(el => el.classList.contains('is-selected')),
+      'card 0 deselected after toggle off'
     ).toBe(false);
+    expect.soft(
+      await card1.evaluate(el => el.classList.contains('is-selected')),
+      'card 1 still selected after card 0 toggle off'
+    ).toBe(true);
   });
 
   test('TC-207: hotel amenities multi-select chip behavior', async () => {
@@ -691,10 +726,11 @@ test.describe('Car Sub-Questions — Option Counts (TC-215)', () => {
 });
 
 // ============================================================================
-// TC-216: Car card grid single-select behavior
-// TC-217: Car extras multi-select chip behavior
+// TC-355+356: carCategory multi-select — select multiple + toggle off
+// Replaces TC-216 (was single-select radio; now multi-select toggle per BRD REQ-002)
+// TC-217: Car extras chip behavior (unchanged)
 // ============================================================================
-test.describe('Car Section — Selection Behavior (TC-216, TC-217)', () => {
+test.describe('Car Section — Selection Behavior (TC-355, TC-356, TC-217)', () => {
   let intake: IntakePage;
 
   test.beforeEach(async ({ page }) => {
@@ -706,19 +742,46 @@ test.describe('Car Section — Selection Behavior (TC-216, TC-217)', () => {
     await expect(intake.carSubQuestions).toHaveClass(/is-expanded/);
   });
 
-  test('TC-216: car category card grid single-select (radio) behavior', async () => {
-    const firstCard = intake.carCategoryGrid.locator('.q-card').nth(0);
-    const secondCard = intake.carCategoryGrid.locator('.q-card').nth(1);
+  test('TC-355+356: carCategory multi-select — select multiple + toggle off individual', async () => {
+    const card0 = intake.carCategoryGrid.locator('.q-card').nth(0);
+    const card1 = intake.carCategoryGrid.locator('.q-card').nth(1);
+    const card2 = intake.carCategoryGrid.locator('.q-card').nth(2);
 
-    await firstCard.click();
-    await expect(firstCard).toHaveClass(/is-selected/);
+    // TC-355: Select multiple cards simultaneously
+    await card0.click();
+    await expect(card0).toHaveClass(/is-selected/);
 
-    await secondCard.click();
-    await expect(secondCard).toHaveClass(/is-selected/);
+    await card1.click();
+    await expect(card1).toHaveClass(/is-selected/);
     expect.soft(
-      await firstCard.evaluate(el => el.classList.contains('is-selected')),
-      'first card deselected after selecting second'
+      await card0.evaluate(el => el.classList.contains('is-selected')),
+      'card 0 still selected after selecting card 1'
+    ).toBe(true);
+
+    await card2.click();
+    expect.soft(
+      await card0.evaluate(el => el.classList.contains('is-selected')),
+      'card 0 selected'
+    ).toBe(true);
+    expect.soft(
+      await card1.evaluate(el => el.classList.contains('is-selected')),
+      'card 1 selected'
+    ).toBe(true);
+    expect.soft(
+      await card2.evaluate(el => el.classList.contains('is-selected')),
+      'card 2 selected'
+    ).toBe(true);
+
+    // TC-356: Toggle off deselects individual card
+    await card0.click();
+    expect.soft(
+      await card0.evaluate(el => el.classList.contains('is-selected')),
+      'card 0 deselected after toggle off'
     ).toBe(false);
+    expect.soft(
+      await card1.evaluate(el => el.classList.contains('is-selected')),
+      'card 1 still selected after card 0 toggle off'
+    ).toBe(true);
   });
 
   test('TC-217: car extras multi-select chip behavior', async () => {
@@ -970,5 +1033,543 @@ test.describe('Section Independence (TC-229)', () => {
       await intake.carSubQuestions.evaluate(el => el.classList.contains('is-expanded')),
       'car collapsed after toggling "No"'
     ).toBe(false);
+  });
+});
+
+// ============================================================================
+// TC-353: hotelType multi-select — all 12 cards selectable
+// TC-354+379 (consolidated per QF-2): hotelType per-card .is-selected + aria-pressed state
+// ============================================================================
+test.describe('Hotel Multi-Select — Full Selection & Per-Card State (TC-353, TC-354+379)', () => {
+  let intake: IntakePage;
+
+  test.beforeEach(async ({ page }) => {
+    intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+  });
+
+  test('TC-353: hotelType — all 12 cards selectable simultaneously', async ({ page }) => {
+    const selectedCount = await page.evaluate(() => {
+      const grid = document.querySelector('[data-question-key="hotelType"] .option-grid[data-multi-select]');
+      if (!grid) return -1;
+      const cards = grid.querySelectorAll('.q-card');
+      cards.forEach(c => (c as HTMLElement).click());
+      return grid.querySelectorAll('.q-card.is-selected').length;
+    });
+    expect(selectedCount, 'all 12 hotelType cards selected').toBe(12);
+  });
+
+  test('TC-354+379: hotelType per-card .is-selected and aria-pressed state (QF-2 consolidated)', async ({ page }) => {
+    // Select cards at index 0 and 2 only
+    const card0 = intake.hotelTypeGrid.locator('.q-card').nth(0);
+    const card2 = intake.hotelTypeGrid.locator('.q-card').nth(2);
+    await card0.click();
+    await card2.click();
+
+    const states = await page.evaluate(() => {
+      const grid = document.querySelector('[data-question-key="hotelType"] .option-grid[data-multi-select]');
+      if (!grid) return null;
+      const cards = grid.querySelectorAll('.q-card');
+      return Array.from(cards).map((c, i) => ({
+        index: i,
+        isSelected: c.classList.contains('is-selected'),
+        ariaPressed: c.getAttribute('aria-pressed'),
+      }));
+    });
+
+    expect(states, 'hotelType grid cards found').not.toBeNull();
+    if (!states) return;
+
+    for (const s of states) {
+      const expected = s.index === 0 || s.index === 2;
+      expect.soft(s.isSelected, `card ${s.index}: .is-selected = ${expected}`).toBe(expected);
+      expect.soft(s.ariaPressed, `card ${s.index}: aria-pressed = "${expected}"`).toBe(String(expected));
+    }
+
+    // Verify toggle off updates both attributes
+    await card0.click();
+    const card0State = await page.evaluate(() => {
+      const grid = document.querySelector('[data-question-key="hotelType"] .option-grid[data-multi-select]');
+      const card = grid?.querySelectorAll('.q-card')[0];
+      if (!card) return null;
+      return {
+        isSelected: card.classList.contains('is-selected'),
+        ariaPressed: card.getAttribute('aria-pressed'),
+      };
+    });
+    expect.soft(card0State?.isSelected, 'card 0 deselected after toggle off').toBe(false);
+    expect.soft(card0State?.ariaPressed, 'card 0 aria-pressed false after toggle off').toBe('false');
+  });
+});
+
+// ============================================================================
+// TC-357: carCategory multi-select — all 14 cards selectable
+// TC-358: carCategory per-card independent .is-selected state
+// ============================================================================
+test.describe('Car Multi-Select — Full Selection & Per-Card State (TC-357, TC-358)', () => {
+  let intake: IntakePage;
+
+  test.beforeEach(async ({ page }) => {
+    intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+    await intake.carToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.carSubQuestions).toHaveClass(/is-expanded/);
+  });
+
+  test('TC-357: carCategory — all 14 cards selectable simultaneously', async ({ page }) => {
+    const selectedCount = await page.evaluate(() => {
+      const grid = document.querySelector('[data-question-key="carCategory"] .option-grid[data-multi-select]');
+      if (!grid) return -1;
+      const cards = grid.querySelectorAll('.q-card');
+      cards.forEach(c => (c as HTMLElement).click());
+      return grid.querySelectorAll('.q-card.is-selected').length;
+    });
+    expect(selectedCount, 'all 14 carCategory cards selected').toBe(14);
+  });
+
+  test('TC-358: carCategory per-card independent .is-selected state', async ({ page }) => {
+    // Select cards at index 0, 3, 5
+    const card0 = intake.carCategoryGrid.locator('.q-card').nth(0);
+    const card3 = intake.carCategoryGrid.locator('.q-card').nth(3);
+    const card5 = intake.carCategoryGrid.locator('.q-card').nth(5);
+    await card0.click();
+    await card3.click();
+    await card5.click();
+
+    const states = await page.evaluate(() => {
+      const grid = document.querySelector('[data-question-key="carCategory"] .option-grid[data-multi-select]');
+      if (!grid) return null;
+      const cards = grid.querySelectorAll('.q-card');
+      return Array.from(cards).map((c, i) => ({
+        index: i,
+        isSelected: c.classList.contains('is-selected'),
+      }));
+    });
+
+    expect(states, 'carCategory grid cards found').not.toBeNull();
+    if (!states) return;
+
+    for (const s of states) {
+      const expected = [0, 3, 5].includes(s.index);
+      expect.soft(s.isSelected, `card ${s.index}: .is-selected = ${expected}`).toBe(expected);
+    }
+  });
+});
+
+// ============================================================================
+// TC-359: Markdown output — single hotel type selected
+// TC-360: Markdown output — multiple hotel types (comma-separated, DOM order)
+// TC-361: Markdown output — zero hotel types ("Not specified")
+// TC-362: Markdown output — multiple car categories (comma-separated)
+// TC-363: Markdown output — zero car categories ("Not specified")
+// TC-364: Markdown output — uses data-en-name regardless of UI language
+// ============================================================================
+test.describe('Multi-Select Markdown Output (TC-359, TC-360, TC-361, TC-362, TC-363, TC-364)', () => {
+  test('TC-359: single hotel type — no comma in output', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(10);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+
+    // Expand hotel, select first card
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+    const expectedName = await intake.hotelTypeGrid.locator('.q-card').first().getAttribute('data-en-name');
+    await intake.hotelTypeGrid.locator('.q-card').first().click();
+
+    await intake.navigateToStep(8);
+    const rawMd = await intake.getRawMarkdown();
+
+    const match = rawMd.match(/- \*\*Accommodation type:\*\* (.+)/);
+    expect(match, 'Accommodation type line found').not.toBeNull();
+    expect(match?.[1], 'single value matches data-en-name').toBe(expectedName);
+    expect(match?.[1], 'no comma in single selection').not.toContain(',');
+  });
+
+  test('TC-360: multiple hotel types — comma-separated in DOM order', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(10);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+
+    // Capture data-en-name values before clicking
+    const expectedNames: string[] = [];
+    for (const idx of [0, 1, 2]) {
+      const name = await intake.hotelTypeGrid.locator('.q-card').nth(idx).getAttribute('data-en-name');
+      expectedNames.push(name ?? '');
+      await intake.hotelTypeGrid.locator('.q-card').nth(idx).click();
+    }
+
+    await intake.navigateToStep(8);
+    const rawMd = await intake.getRawMarkdown();
+
+    const match = rawMd.match(/- \*\*Accommodation type:\*\* (.+)/);
+    expect(match, 'Accommodation type line found').not.toBeNull();
+    expect(match?.[1], 'comma-separated values in DOM order').toBe(expectedNames.join(', '));
+  });
+
+  test('TC-361: zero hotel types — "Not specified"', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(10);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+
+    // Expand hotel but do NOT select any type card
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+
+    await intake.navigateToStep(8);
+    const rawMd = await intake.getRawMarkdown();
+
+    expect(rawMd, 'hotel type "Not specified" when none selected').toMatch(
+      /- \*\*Accommodation type:\*\* Not specified/
+    );
+  });
+
+  test('TC-362: multiple car categories — comma-separated in DOM order', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(10);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+
+    await intake.carToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.carSubQuestions).toHaveClass(/is-expanded/);
+
+    const expectedNames: string[] = [];
+    for (const idx of [0, 1]) {
+      const name = await intake.carCategoryGrid.locator('.q-card').nth(idx).getAttribute('data-en-name');
+      expectedNames.push(name ?? '');
+      await intake.carCategoryGrid.locator('.q-card').nth(idx).click();
+    }
+
+    await intake.navigateToStep(8);
+    const rawMd = await intake.getRawMarkdown();
+
+    const match = rawMd.match(/- \*\*Car category:\*\* (.+)/);
+    expect(match, 'Car category line found').not.toBeNull();
+    expect(match?.[1], 'comma-separated car categories in DOM order').toBe(expectedNames.join(', '));
+  });
+
+  test('TC-363: zero car categories — "Not specified"', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(10);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+
+    // Expand car but do NOT select any category card
+    await intake.carToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.carSubQuestions).toHaveClass(/is-expanded/);
+
+    await intake.navigateToStep(8);
+    const rawMd = await intake.getRawMarkdown();
+
+    expect(rawMd, 'car category "Not specified" when none selected').toMatch(
+      /- \*\*Car category:\*\* Not specified/
+    );
+  });
+
+  test('TC-364: markdown uses data-en-name regardless of UI language', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.goto();
+    await intake.waitForI18nReady();
+
+    // Switch to Russian before starting the flow
+    await intake.switchLanguage('ru');
+    await intake.waitForI18nReady();
+
+    await intake.completeStep0();
+    await intake.completeStep1();
+    // Now on Step 2
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+
+    // Capture data-en-name (should be English regardless of UI language)
+    const enName = await intake.hotelTypeGrid.locator('.q-card').first().getAttribute('data-en-name');
+    await intake.hotelTypeGrid.locator('.q-card').first().click();
+
+    // Navigate through depth overlay then to review
+    await intake.completeStep2();
+    await intake.selectDepthAndConfirm(10);
+    await intake.navigateToStep(8);
+    const rawMd = await intake.getRawMarkdown();
+
+    const match = rawMd.match(/- \*\*Accommodation type:\*\* (.+)/);
+    expect(match, 'Accommodation type line found in markdown').not.toBeNull();
+    expect(match?.[1], 'value is English data-en-name, not translated text').toBe(enName);
+  });
+});
+
+// ============================================================================
+// TC-373: Reset — hotel toggle "No" clears all multi-select types + aria-pressed
+// TC-374: Reset — car toggle "No" clears all multi-select categories + aria-pressed
+// ============================================================================
+test.describe('Multi-Select Reset Behavior (TC-373, TC-374)', () => {
+  let intake: IntakePage;
+
+  test.beforeEach(async ({ page }) => {
+    intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+  });
+
+  test('TC-373: hotel toggle "No" clears all multi-select types and resets aria-pressed', async ({ page }) => {
+    // Expand hotel and select 3 types
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+    await intake.hotelTypeGrid.locator('.q-card').nth(0).click();
+    await intake.hotelTypeGrid.locator('.q-card').nth(1).click();
+    await intake.hotelTypeGrid.locator('.q-card').nth(2).click();
+
+    // Collapse then re-expand
+    await intake.hotelToggle.locator('.q-card[data-value="no"]').click();
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+
+    const state = await page.evaluate(() => {
+      const grid = document.querySelector('[data-question-key="hotelType"] .option-grid[data-multi-select]');
+      if (!grid) return null;
+      const cards = grid.querySelectorAll('.q-card');
+      const selectedCount = grid.querySelectorAll('.q-card.is-selected').length;
+      const ariaStates = Array.from(cards).map(c => c.getAttribute('aria-pressed'));
+      return { selectedCount, ariaStates };
+    });
+
+    expect(state, 'hotelType grid found').not.toBeNull();
+    expect.soft(state?.selectedCount, 'zero selected cards after hotel reset').toBe(0);
+    for (let i = 0; i < (state?.ariaStates.length ?? 0); i++) {
+      expect.soft(state?.ariaStates[i], `card ${i}: aria-pressed is "false" after reset`).toBe('false');
+    }
+  });
+
+  test('TC-374: car toggle "No" clears all multi-select categories and resets aria-pressed', async ({ page }) => {
+    // Expand car and select 3 categories
+    await intake.carToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.carSubQuestions).toHaveClass(/is-expanded/);
+    await intake.carCategoryGrid.locator('.q-card').nth(0).click();
+    await intake.carCategoryGrid.locator('.q-card').nth(1).click();
+    await intake.carCategoryGrid.locator('.q-card').nth(2).click();
+
+    // Collapse then re-expand
+    await intake.carToggle.locator('.q-card[data-value="no"]').click();
+    await intake.carToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.carSubQuestions).toHaveClass(/is-expanded/);
+
+    const state = await page.evaluate(() => {
+      const grid = document.querySelector('[data-question-key="carCategory"] .option-grid[data-multi-select]');
+      if (!grid) return null;
+      const cards = grid.querySelectorAll('.q-card');
+      const selectedCount = grid.querySelectorAll('.q-card.is-selected').length;
+      const ariaStates = Array.from(cards).map(c => c.getAttribute('aria-pressed'));
+      return { selectedCount, ariaStates };
+    });
+
+    expect(state, 'carCategory grid found').not.toBeNull();
+    expect.soft(state?.selectedCount, 'zero selected cards after car reset').toBe(0);
+    for (let i = 0; i < (state?.ariaStates.length ?? 0); i++) {
+      expect.soft(state?.ariaStates[i], `card ${i}: aria-pressed is "false" after reset`).toBe('false');
+    }
+  });
+});
+
+// ============================================================================
+// TC-375: Multi-select hint label — hotelType grid
+// TC-376: Multi-select hint label — carCategory grid
+// TC-377: data-multi-select attribute present on hotelType and carCategory ONLY
+// TC-378: Multi-select ARIA — role="group" and aria-label on grids
+// ============================================================================
+test.describe('Multi-Select Structural & ARIA (TC-375, TC-376, TC-377, TC-378)', () => {
+  let intake: IntakePage;
+
+  test.beforeEach(async ({ page }) => {
+    intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+    // Expand both sections
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+    await intake.carToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.carSubQuestions).toHaveClass(/is-expanded/);
+  });
+
+  test('TC-375: hotelType grid has visible hint with correct i18n key', async ({ page }) => {
+    const hint = page.locator('[data-question-key="hotelType"] .option-grid__hint');
+    await expect(hint).toBeVisible();
+    expect(await hint.getAttribute('data-i18n'), 'hint has s6_multiselect_hint key').toBe('s6_multiselect_hint');
+    const text = await hint.textContent();
+    expect(text?.trim().length, 'hint has non-empty text').toBeGreaterThan(0);
+  });
+
+  test('TC-376: carCategory grid has visible hint with correct i18n key', async ({ page }) => {
+    const hint = page.locator('[data-question-key="carCategory"] .option-grid__hint');
+    await expect(hint).toBeVisible();
+    expect(await hint.getAttribute('data-i18n'), 'hint has s6_multiselect_hint key').toBe('s6_multiselect_hint');
+    const text = await hint.textContent();
+    expect(text?.trim().length, 'hint has non-empty text').toBeGreaterThan(0);
+  });
+
+  test('TC-377: data-multi-select present on exactly 2 grids — hotelType and carCategory', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const grids = document.querySelectorAll('.option-grid[data-multi-select]');
+      const parentKeys = Array.from(grids).map(g => {
+        return g.closest('[data-question-key]')?.getAttribute('data-question-key') ?? 'unknown';
+      });
+      return { count: grids.length, parentKeys };
+    });
+
+    expect(result.count, 'exactly 2 multi-select grids in DOM').toBe(2);
+    expect.soft(result.parentKeys, 'multi-select grids are in hotelType and carCategory').toEqual(
+      expect.arrayContaining(['hotelType', 'carCategory'])
+    );
+  });
+
+  test('TC-378: multi-select grids have role="group" and aria-labelledby', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const grids = document.querySelectorAll('.option-grid[data-multi-select]');
+      return Array.from(grids).map(g => {
+        const labelledBy = g.getAttribute('aria-labelledby');
+        const labelEl = labelledBy ? document.getElementById(labelledBy) : null;
+        return {
+          parentKey: g.closest('[data-question-key]')?.getAttribute('data-question-key'),
+          role: g.getAttribute('role'),
+          ariaLabelledBy: labelledBy,
+          labelExists: !!labelEl,
+        };
+      });
+    });
+
+    for (const g of result) {
+      expect.soft(g.role, `${g.parentKey}: role="group"`).toBe('group');
+      expect.soft(g.ariaLabelledBy, `${g.parentKey}: has aria-labelledby`).toBeTruthy();
+      expect.soft(g.labelExists, `${g.parentKey}: aria-labelledby points to existing element`).toBe(true);
+    }
+  });
+});
+
+// ============================================================================
+// TC-380: Multi-select checkmark badge — CSS pseudo-element
+// ============================================================================
+test.describe('Multi-Select Checkmark Badge (TC-380)', () => {
+  test('TC-380: checkmark badge CSS rules exist for multi-select cards', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+
+    // Select card 0
+    const card0 = intake.hotelTypeGrid.locator('.q-card').nth(0);
+    const card1 = intake.hotelTypeGrid.locator('.q-card').nth(1);
+    await card0.click();
+
+    // Verify card 0 is selected and card 1 is not
+    await expect(card0).toHaveClass(/is-selected/);
+    expect(await card1.evaluate(el => el.classList.contains('is-selected')), 'card 1 not selected').toBe(false);
+
+    // Verify the checkmark badge CSS rules exist in the stylesheet
+    const hasBadgeRules = await page.evaluate(() => {
+      for (const sheet of document.styleSheets) {
+        try {
+          for (const rule of sheet.cssRules) {
+            const text = rule instanceof CSSStyleRule ? rule.selectorText : '';
+            if (text.includes('data-multi-select') && text.includes('::after') && text.includes('is-selected')) {
+              return true;
+            }
+          }
+        } catch { /* cross-origin */ }
+      }
+      return false;
+    });
+    expect(hasBadgeRules, 'CSS rule for .is-selected::after badge exists').toBe(true);
+
+    // Verify selected card has position:relative (required for absolute ::after)
+    const position = await card0.evaluate(el => window.getComputedStyle(el).position);
+    expect(position, 'selected card has position:relative for badge').toBe('relative');
+  });
+});
+
+// ============================================================================
+// TC-381: Single-select preserved — hotelLocation still uses radio behavior
+// TC-382: Single-select preserved — carTransmission still uses radio behavior
+// ============================================================================
+test.describe('Single-Select Regression Guard (TC-381, TC-382)', () => {
+  test('TC-381: hotelLocation still uses radio (single-select) behavior', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+
+    const locGrid = page.locator('[data-question-key="hotelLocation"] .question-options');
+    const card0 = locGrid.locator('.q-card').nth(0);
+    const card1 = locGrid.locator('.q-card').nth(1);
+
+    await card0.click();
+    await expect(card0).toHaveClass(/is-selected/);
+    await card1.click();
+    await expect(card1).toHaveClass(/is-selected/);
+    expect(
+      await card0.evaluate(el => el.classList.contains('is-selected')),
+      'hotelLocation card 0 deselected (radio behavior)'
+    ).toBe(false);
+  });
+
+  test('TC-382: carTransmission still uses radio (single-select) behavior', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+    await intake.carToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.carSubQuestions).toHaveClass(/is-expanded/);
+
+    const transGrid = page.locator('[data-question-key="carTransmission"] .question-options');
+    const card0 = transGrid.locator('.q-card').nth(0);
+    const card1 = transGrid.locator('.q-card').nth(1);
+
+    await card0.click();
+    await expect(card0).toHaveClass(/is-selected/);
+    await card1.click();
+    await expect(card1).toHaveClass(/is-selected/);
+    expect(
+      await card0.evaluate(el => el.classList.contains('is-selected')),
+      'carTransmission card 0 deselected (radio behavior)'
+    ).toBe(false);
+  });
+});
+
+// ============================================================================
+// TC-383: No auto-advance on multi-select card click
+// QF-1 applied: Uses web-first assertion instead of page.waitForTimeout(600)
+// ============================================================================
+test.describe('Multi-Select — No Auto-Advance (TC-383)', () => {
+  test('TC-383: clicking multi-select card does NOT auto-advance step', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.waitForI18nReady();
+    await intake.navigateToStep(2);
+    await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
+    await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
+
+    // Current step should be 2
+    await expect(intake.visibleStep).toHaveAttribute('data-step', '2');
+
+    // Click a hotelType card
+    await intake.hotelTypeGrid.locator('.q-card').first().click();
+
+    // QF-1: Use web-first assertion with custom timeout exceeding auto-advance window (400ms + buffer)
+    // instead of prohibited page.waitForTimeout(600)
+    await expect(intake.visibleStep).toHaveAttribute('data-step', '2', { timeout: 1000 });
   });
 });

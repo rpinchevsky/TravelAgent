@@ -469,6 +469,7 @@
   "s6_car_cat_van": "Van (7-9 seats)",
   "s6_car_cat_convertible": "Convertible",
   "s6_car_cat_oversize": "Oversize",
+  "s6_multiselect_hint": "Seleziona uno o più",
   "s6_car_transmission": "Transmission",
   "s6_car_trans_auto": "Automatic",
   "s6_car_trans_manual": "Manual",

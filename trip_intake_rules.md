@@ -43,8 +43,8 @@ Steps are numbered 0-8. The two phases are kept strictly separate — **no quest
 **Phase 1 — Data & Questions:**
 - **Step 0**: Define country and dates (search bar)
 - **Step 1**: Define people in trip (traveler form)
-- **Depth selector overlay**: Choose how many questions (10-30)
 - **Step 2**: Plan your stay & travel (hotel + car assistance toggles, optional)
+- **Depth selector overlay**: Choose how many questions (10-30)
 - **Step 3**: ALL preference questions, asked one-by-one with auto-advance and sub-step dots. The number of questions matches the selected depth. No card selection grids on this step.
 
 **Phase 2 — Card Selection:**
@@ -118,9 +118,9 @@ Hotel and car rental assistance toggles with optional sub-questions. Both toggle
 | Field | Type | Notes |
 |-------|------|-------|
 | Hotel Assistance (toggle) | 2-option card (supplementary) | Yes = show hotel sub-questions, No = hide (default). Clearing resets all hotel selections. |
-| Hotel sub-questions (7) | Various (supplementary) | hotelType (card grid 12), hotelLocation (q-card 5), hotelStars (q-card 4), hotelAmenities (chips 12), hotelPets (toggle 2), hotelCancellation (q-card 3), hotelBudget (range slider $30-$1000) |
+| Hotel sub-questions (7) | Various (supplementary) | hotelType (card grid 12, multi-select), hotelLocation (q-card 5), hotelStars (q-card 4), hotelAmenities (chips 12), hotelPets (toggle 2), hotelCancellation (q-card 3), hotelBudget (range slider $30-$1000) |
 | Car Rental Assistance (toggle) | 2-option card (supplementary) | Yes = show car sub-questions, No = hide (default). Clearing resets all car selections. |
-| Car sub-questions (6) | Various (supplementary) | carCategory (card grid 14), carTransmission (q-card 3), carFuel (q-card 5), carPickup (q-card 4), carExtras (chips 7), carBudget (range slider $0-$1000) |
+| Car sub-questions (6) | Various (supplementary) | carCategory (card grid 14, multi-select), carTransmission (q-card 3), carFuel (q-card 5), carPickup (q-card 4), carExtras (chips 7), carBudget (range slider $0-$1000) |
 
 ### Step 3 — All Preferences (One-by-One Questionnaire)
 
@@ -259,7 +259,7 @@ These fields are always visible within their step and do not count toward the qu
 | diningVibe | Chip group | Step 6 |
 | foodNotes | Textarea | Step 6 |
 | hotelAssistToggle | 2-option card | Step 2 |
-| hotelType | Card grid (12 options) | Step 2 |
+| hotelType | Multi-select card grid (12 options) | Step 2 |
 | hotelLocation | q-card (5 options) | Step 2 |
 | hotelStars | q-card (4 options) | Step 2 |
 | hotelAmenities | Multi-select chips (12 options) | Step 2 |
@@ -267,7 +267,7 @@ These fields are always visible within their step and do not count toward the qu
 | hotelCancellation | q-card (3 options) | Step 2 |
 | hotelBudget | Dual-handle range slider | Step 2 |
 | carAssistToggle | 2-option card | Step 2 |
-| carCategory | Card grid (14 options) | Step 2 |
+| carCategory | Multi-select card grid (14 options) | Step 2 |
 | carTransmission | q-card (3 options) | Step 2 |
 | carFuel | q-card (5 options) | Step 2 |
 | carPickup | q-card (4 options) | Step 2 |
@@ -476,7 +476,7 @@ The generated markdown must match the structure of `trip_details.md` so it can b
 
 ## Hotel Assistance
 
-- **Accommodation type:** {value}
+- **Accommodation type:** {comma-separated values or "Not specified"}
 - **Location priority:** {value}
 - **Quality level:** {value}
 - **Must-have amenities:** {comma-separated list or "None"}
@@ -486,7 +486,7 @@ The generated markdown must match the structure of `trip_details.md` so it can b
 
 ## Car Rental Assistance
 
-- **Car category:** {value}
+- **Car category:** {comma-separated values or "Not specified"}
 - **Transmission:** {value}
 - **Fuel type:** {value}
 - **Pickup & return:** {value}

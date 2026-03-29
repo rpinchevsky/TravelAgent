@@ -18,6 +18,8 @@ test.describe('Cross-Step Visual Consistency', () => {
   test.beforeEach(async ({ page }) => {
     intake = new IntakePage(page);
     await intake.setupWithDepth(20);
+    // Navigate to Step 5 to ensure interest (Step 4) and avoid (Step 5) cards are rendered
+    await intake.navigateToStep(5);
   });
 
   test('TC-038: interest cards (Step 4) use centered vertical layout', async () => {

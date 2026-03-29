@@ -469,6 +469,7 @@
   "s6_car_cat_van": "Вэн (7-9 мест)",
   "s6_car_cat_convertible": "Кабриолет",
   "s6_car_cat_oversize": "Большой",
+  "s6_multiselect_hint": "Выберите один или несколько",
   "s6_car_transmission": "Коробка передач",
   "s6_car_trans_auto": "Автомат",
   "s6_car_trans_manual": "Механика",

@@ -227,6 +227,36 @@ test.describe('Step 2 i18n Keys — New Keys (TC-305)', () => {
   });
 });
 
+// Multi-select hint i18n key (TC-384)
+const MULTISELECT_HINT_KEY = 's6_multiselect_hint' as const;
+
+test.describe('Multi-Select Hint i18n Key (TC-384)', () => {
+  test('TC-384: s6_multiselect_hint key present in all 12 locale files', async () => {
+    // Static file analysis — no browser interaction
+    for (const lang of SUPPORTED_LANGUAGES) {
+      const filePath = path.join(localesDir, `ui_${lang}.json`);
+
+      let catalog: Record<string, unknown> | null = null;
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        catalog = JSON.parse(content);
+      } catch {
+        expect.soft(false, `ui_${lang}.json: valid JSON parse`).toBe(true);
+        continue;
+      }
+
+      expect.soft(catalog, `ui_${lang}.json: parsed successfully`).not.toBeNull();
+      if (!catalog) continue;
+
+      const value = catalog[MULTISELECT_HINT_KEY];
+      expect.soft(
+        typeof value === 'string' && value.length > 0,
+        `ui_${lang}.json: ${MULTISELECT_HINT_KEY} exists and non-empty`
+      ).toBe(true);
+    }
+  });
+});
+
 test.describe('Renumbered Step i18n Keys (TC-343)', () => {
   test('TC-343: renumbered step keys present in all 12 locale files; hotel/car keys unchanged', async () => {
     // Static file analysis — no browser interaction

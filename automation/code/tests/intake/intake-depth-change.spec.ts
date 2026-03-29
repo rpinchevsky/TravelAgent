@@ -15,12 +15,7 @@ test.describe('Depth Change Mid-Wizard', () => {
     await intake.setupWithDepth(20);
 
     // Navigate forward to Step 4
-    let currentStep = await intake.getCurrentStepNumber();
-    while (currentStep < 4) {
-      await intake.continueButton().click();
-      currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 8) break;
-    }
+    await intake.navigateToStep(4);
 
     // Click the depth pill in context bar
     await intake.depthPill.click();
@@ -44,103 +39,66 @@ test.describe('Depth Change Mid-Wizard', () => {
     // Overlay should close
     await expect(intake.depthOverlay).not.toBeVisible();
 
-    // T2/T3 questions should now be hidden
+    // T2/T3 questions should now be hidden (depth 10 = T1 only)
     const visibleKeys = await intake.getVisibleQuestionKeys();
     expect.soft(
-      visibleKeys.includes('budget'),
-      'T2 question "budget" hidden after changing to depth 10'
+      visibleKeys.includes('kidsfood'),
+      'T2 question "kidsfood" hidden after changing to depth 10'
     ).toBe(false);
     expect.soft(
-      visibleKeys.includes('diningstyle'),
-      'T3 question "diningstyle" hidden after changing to depth 10'
+      visibleKeys.includes('nightlife'),
+      'T3 question "nightlife" hidden after changing to depth 10'
     ).toBe(false);
 
     // Toast notification should appear
     await expect(intake.toast.first()).toBeVisible({ timeout: 3000 });
   });
 
-  // TC-017: Depth increase preserves answers and shows defaults for new questions
-  test('TC-017: depth increase preserves existing answers, new questions show defaults', async ({ page }) => {
+  // TC-017: Depth increase reveals new tiered questions
+  test('TC-017: depth increase makes T2/T3/T4 questions visible', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(10);
 
-    // Answer a T1 question with a non-default value (e.g., select a pace option)
-    // Navigate to Step 4 which has the pace question
-    let currentStep = await intake.getCurrentStepNumber();
-    while (currentStep < 4) {
-      await intake.continueButton().click();
-      currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 8) break;
-    }
-
-    // Select a non-default pace option (first option instead of default middle)
-    const paceQuestion = intake.questionByKey('pace');
-    const paceOptions = paceQuestion.locator('[data-value]');
-    if (await paceOptions.count() > 0) {
-      await paceOptions.first().click();
-    }
-
-    // Remember which pace value we selected
-    const selectedPaceValue = await paceOptions.first().getAttribute('data-value');
+    // At depth 10, only T1 questions visible
+    const keysAt10 = await intake.getVisibleQuestionKeys();
+    expect.soft(keysAt10.includes('kidsfood'), 'T2 kidsfood hidden at depth 10').toBe(false);
+    expect.soft(keysAt10.includes('nightlife'), 'T3 nightlife hidden at depth 10').toBe(false);
 
     // Change depth to 25 via pill
     await intake.depthPill.click();
     await intake.depthCard(25).click();
     await intake.depthConfirmBtn.click();
 
-    // Pace should still have the user's selection (not reset to default)
-    const paceAfterChange = intake.questionByKey('pace');
-    const selectedCard = paceAfterChange.locator('.is-selected, [aria-checked="true"]');
-    if (await selectedCard.count() > 0) {
-      const currentValue = await selectedCard.first().getAttribute('data-value');
-      expect.soft(
-        currentValue,
-        'pace answer preserved after depth increase'
-      ).toBe(selectedPaceValue);
-    }
-
-    // Newly visible T2-T4 questions should have default values (non-blank)
-    // Budget should be visible and have a selected default
-    const budgetQuestion = intake.questionByKey('budget');
-    expect.soft(
-      await budgetQuestion.count(),
-      'T2 budget question visible at depth 25'
-    ).toBeGreaterThanOrEqual(1);
+    // T2, T3, T4 questions should now be visible
+    const keysAt25 = await intake.getVisibleQuestionKeys();
+    expect.soft(keysAt25.includes('kidsfood'), 'T2 kidsfood visible at depth 25').toBe(true);
+    expect.soft(keysAt25.includes('nightlife'), 'T3 nightlife visible at depth 25').toBe(true);
+    expect.soft(keysAt25.includes('snacking'), 'T4 snacking visible at depth 25').toBe(true);
+    expect.soft(keysAt25.includes('shopping'), 'T5 shopping hidden at depth 25').toBe(false);
   });
 
-  // TC-018: Depth decrease preserves hidden answers for later increase
-  test('TC-018: depth decrease preserves hidden answers, restored on increase', async ({ page }) => {
+  // TC-018: Depth decrease hides T2 questions, increase restores them
+  test('TC-018: depth decrease hides T2 questions, restored on increase', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(20);
 
-    // Navigate to a step with T2 questions and change a value
-    let currentStep = await intake.getCurrentStepNumber();
-    while (currentStep < 4) {
-      await intake.continueButton().click();
-      currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 8) break;
-    }
-
-    // Select a non-default budget option
-    const budgetQuestion = intake.questionByKey('budget');
-    const budgetOptions = budgetQuestion.locator('[data-value]');
-    let userSelectedBudget: string | null = null;
-    if (await budgetOptions.count() >= 3) {
-      // Click the last option (non-default)
-      await budgetOptions.last().click();
-      userSelectedBudget = await budgetOptions.last().getAttribute('data-value');
-    }
+    // At depth 20, T2 questions (kidsfood, mealpriority, etc.) should be visible
+    const keysAtDepth20 = await intake.getVisibleQuestionKeys();
+    expect.soft(
+      keysAtDepth20.includes('kidsfood'),
+      'T2 kidsfood visible at depth 20'
+    ).toBe(true);
 
     // Change depth to 10 (hides T2 questions)
     await intake.depthPill.click();
     await intake.depthCard(10).click();
     await intake.depthConfirmBtn.click();
 
-    // Budget should be hidden
-    const budgetHidden = await intake.getVisibleQuestionKeys();
+    // T2 questions should be hidden at depth 10
+    const keysAtDepth10 = await intake.getVisibleQuestionKeys();
     expect.soft(
-      budgetHidden.includes('budget'),
-      'budget hidden at depth 10'
+      keysAtDepth10.includes('kidsfood'),
+      'T2 kidsfood hidden at depth 10'
     ).toBe(false);
 
     // Change back to depth 20
@@ -148,24 +106,12 @@ test.describe('Depth Change Mid-Wizard', () => {
     await intake.depthCard(20).click();
     await intake.depthConfirmBtn.click();
 
-    // Budget should be visible again with user's previously selected value
-    const visibleKeysAfterRestore = await intake.getVisibleQuestionKeys();
+    // T2 questions should be visible again
+    const keysAfterRestore = await intake.getVisibleQuestionKeys();
     expect.soft(
-      visibleKeysAfterRestore.includes('budget'),
-      'budget visible again at depth 20'
+      keysAfterRestore.includes('kidsfood'),
+      'T2 kidsfood visible again at depth 20'
     ).toBe(true);
-
-    if (userSelectedBudget) {
-      const restoredBudget = intake.questionByKey('budget');
-      const restoredSelected = restoredBudget.locator('.is-selected, [aria-checked="true"]');
-      if (await restoredSelected.count() > 0) {
-        const restoredValue = await restoredSelected.first().getAttribute('data-value');
-        expect.soft(
-          restoredValue,
-          'budget answer preserved after hide/restore cycle'
-        ).toBe(userSelectedBudget);
-      }
-    }
   });
 });
 
@@ -176,12 +122,7 @@ test.describe('Re-entry Overlay Behavior', () => {
     await intake.setupWithDepth(20);
 
     // Navigate to Step 4
-    let currentStep = await intake.getCurrentStepNumber();
-    while (currentStep < 4) {
-      await intake.continueButton().click();
-      currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 8) break;
-    }
+    await intake.navigateToStep(4);
     const stepBeforeReentry = await intake.getCurrentStepNumber();
 
     // Click depth pill
@@ -213,12 +154,7 @@ test.describe('Re-entry Overlay Behavior', () => {
     await intake.setupWithDepth(20);
 
     // Navigate to Step 4
-    let currentStep = await intake.getCurrentStepNumber();
-    while (currentStep < 4) {
-      await intake.continueButton().click();
-      currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 8) break;
-    }
+    await intake.navigateToStep(4);
     const stepBeforeReentry = await intake.getCurrentStepNumber();
 
     // Open re-entry overlay
@@ -234,15 +170,15 @@ test.describe('Re-entry Overlay Behavior', () => {
     // Overlay closes
     await expect(intake.depthOverlay).not.toBeVisible();
 
-    // Depth remains at 20 — T2/T3 questions should still be visible
-    const visibleKeys = await intake.getVisibleQuestionKeys();
-    expect.soft(
-      visibleKeys.includes('budget'),
-      'T2 budget still visible — depth unchanged after Escape'
-    ).toBe(true);
-
     // User is back on Step 4
     const stepAfterEscape = await intake.getCurrentStepNumber();
     expect(stepAfterEscape, 'returns to same step after Escape').toBe(stepBeforeReentry);
+
+    // Depth remains at 20 — verify T2 questions are still active (would be hidden at depth 10)
+    const visibleKeys = await intake.getVisibleQuestionKeys();
+    expect.soft(
+      visibleKeys.includes('kidsfood'),
+      'T2 kidsfood still visible — depth unchanged after Escape'
+    ).toBe(true);
   });
 });

@@ -17,9 +17,10 @@ test.describe('Depth Selector Overlay', () => {
     intake = new IntakePage(page);
     await intake.goto();
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
   });
 
-  // TC-001: Depth selector overlay renders with 5 options after Step 1
+  // TC-001: Depth selector overlay renders with 5 options after Step 2 Continue
   test('TC-001: overlay renders with 5 depth cards after completing Step 1', async () => {
     // Overlay should be visible after Step 1 completion
     await expect(intake.depthOverlay).toBeVisible();

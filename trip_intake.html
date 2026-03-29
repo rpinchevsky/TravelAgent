@@ -1174,6 +1174,45 @@
     .option-grid .q-card__icon { font-size: 1.5rem; }
     .option-grid .q-card__title { font-size: var(--text-xs); }
     .option-grid .q-card__desc { display: none; }
+
+    /* Multi-select hint text */
+    .option-grid__hint {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-normal);
+      color: var(--color-text-muted);
+      margin-top: calc(-1 * var(--space-1));
+      margin-bottom: var(--space-2);
+    }
+
+    /* Multi-select checkmark badge (CSS-only via pseudo-element) */
+    .option-grid[data-multi-select] .q-card {
+      position: relative;
+    }
+    .option-grid[data-multi-select] .q-card::after {
+      content: "\2713";
+      position: absolute;
+      inset-block-start: 6px;
+      inset-inline-end: 6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-brand-primary);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      transform: scale(0);
+      transition: transform 0.15s ease-out;
+      pointer-events: none;
+    }
+    .option-grid[data-multi-select] .q-card.is-selected::after {
+      transform: scale(1);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
     @media (max-width: 768px) {
       .option-grid { grid-template-columns: repeat(3, 1fr); }
     }
@@ -2329,55 +2368,56 @@
           <!-- Hotel sub-questions (collapsed by default) -->
           <div class="assistance-section__body" id="hotelSubQuestions">
 
-            <!-- H1: Accommodation Type (single-select card grid, 12 options) -->
+            <!-- H1: Accommodation Type (multi-select card grid, 12 options) -->
             <div class="depth-extra-question" data-question-key="hotelType">
-              <label class="field__label" data-i18n="s6_hotel_type">Accommodation Type</label>
-              <div class="option-grid">
-                <div class="q-card" tabindex="0" role="button" data-value="hotel" data-en-name="Hotel">
+              <label class="field__label" id="label-hotelType" data-i18n="s6_hotel_type">Accommodation Type</label>
+              <div class="option-grid__hint" data-i18n="s6_multiselect_hint">Select one or more</div>
+              <div class="option-grid" data-multi-select role="group" aria-labelledby="label-hotelType">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="hotel" data-en-name="Hotel">
                   <div class="q-card__icon">&#127976;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_hotel">Hotel</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="boutique" data-en-name="Boutique Hotel">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="boutique" data-en-name="Boutique Hotel">
                   <div class="q-card__icon">&#127970;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_boutique">Boutique Hotel</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="resort" data-en-name="Resort &amp; Spa">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="resort" data-en-name="Resort &amp; Spa">
                   <div class="q-card__icon">&#127965;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_resort">Resort &amp; Spa</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="apartment" data-en-name="Apartment / Condo">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="apartment" data-en-name="Apartment / Condo">
                   <div class="q-card__icon">&#127960;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_apartment">Apartment / Condo</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="aparthotel" data-en-name="Apart-Hotel">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="aparthotel" data-en-name="Apart-Hotel">
                   <div class="q-card__icon">&#127983;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_aparthotel">Apart-Hotel</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="villa" data-en-name="Villa / House">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="villa" data-en-name="Villa / House">
                   <div class="q-card__icon">&#127969;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_villa">Villa / House</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="bnb" data-en-name="B&amp;B / Guesthouse">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="bnb" data-en-name="B&amp;B / Guesthouse">
                   <div class="q-card__icon">&#9749;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_bnb">B&amp;B / Guesthouse</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="hostel" data-en-name="Hostel">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="hostel" data-en-name="Hostel">
                   <div class="q-card__icon">&#128716;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_hostel">Hostel</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="farmhouse" data-en-name="Farmhouse / Agriturismo">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="farmhouse" data-en-name="Farmhouse / Agriturismo">
                   <div class="q-card__icon">&#127806;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_farmhouse">Farmhouse / Agriturismo</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="cabin" data-en-name="Cabin / Cottage">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="cabin" data-en-name="Cabin / Cottage">
                   <div class="q-card__icon">&#127956;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_cabin">Cabin / Cottage</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="glamping" data-en-name="Glamping">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="glamping" data-en-name="Glamping">
                   <div class="q-card__icon">&#9978;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_glamping">Glamping</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="houseboat" data-en-name="Houseboat">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="houseboat" data-en-name="Houseboat">
                   <div class="q-card__icon">&#128674;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_type_houseboat">Houseboat</div>
                 </div>
@@ -2532,63 +2572,64 @@
           <!-- Car sub-questions (collapsed by default) -->
           <div class="assistance-section__body" id="carSubQuestions">
 
-            <!-- C1: Car Category (single-select card grid, 14 options) -->
+            <!-- C1: Car Category (multi-select card grid, 14 options) -->
             <div class="depth-extra-question" data-question-key="carCategory">
-              <label class="field__label" data-i18n="s6_car_category">Car Category</label>
-              <div class="option-grid">
-                <div class="q-card" tabindex="0" role="button" data-value="mini" data-en-name="Mini">
+              <label class="field__label" id="label-carCategory" data-i18n="s6_car_category">Car Category</label>
+              <div class="option-grid__hint" data-i18n="s6_multiselect_hint">Select one or more</div>
+              <div class="option-grid" data-multi-select role="group" aria-labelledby="label-carCategory">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="mini" data-en-name="Mini">
                   <div class="q-card__icon">&#128663;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_mini">Mini</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="economy" data-en-name="Economy">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="economy" data-en-name="Economy">
                   <div class="q-card__icon">&#128664;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_economy">Economy</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="compact" data-en-name="Compact">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="compact" data-en-name="Compact">
                   <div class="q-card__icon">&#128665;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_compact">Compact</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="intermediate" data-en-name="Intermediate">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="intermediate" data-en-name="Intermediate">
                   <div class="q-card__icon">&#128665;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_intermediate">Intermediate</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="standard" data-en-name="Standard">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="standard" data-en-name="Standard">
                   <div class="q-card__icon">&#128665;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_standard">Standard</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="fullsize" data-en-name="Full-size">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="fullsize" data-en-name="Full-size">
                   <div class="q-card__icon">&#128665;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_fullsize">Full-size</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="premium" data-en-name="Premium">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="premium" data-en-name="Premium">
                   <div class="q-card__icon">&#128662;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_premium">Premium</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="luxury" data-en-name="Luxury">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="luxury" data-en-name="Luxury">
                   <div class="q-card__icon">&#128662;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_luxury">Luxury</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="suv-compact" data-en-name="SUV Compact">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="suv-compact" data-en-name="SUV Compact">
                   <div class="q-card__icon">&#128661;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_suv_compact">SUV Compact</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="suv-fullsize" data-en-name="SUV Full-size">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="suv-fullsize" data-en-name="SUV Full-size">
                   <div class="q-card__icon">&#128661;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_suv_full">SUV Full-size</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="minivan" data-en-name="Minivan / MPV">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="minivan" data-en-name="Minivan / MPV">
                   <div class="q-card__icon">&#128656;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_minivan">Minivan / MPV</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="van" data-en-name="Van (7-9 seats)">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="van" data-en-name="Van (7-9 seats)">
                   <div class="q-card__icon">&#128656;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_van">Van (7-9 seats)</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="convertible" data-en-name="Convertible">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="convertible" data-en-name="Convertible">
                   <div class="q-card__icon">&#127966;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_convertible">Convertible</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="oversize" data-en-name="Oversize">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="oversize" data-en-name="Oversize">
                   <div class="q-card__icon">&#128667;</div>
                   <div class="q-card__title" data-i18n="s6_car_cat_oversize">Oversize</div>
                 </div>
@@ -4948,12 +4989,24 @@
     }
 
     // Question card click — radio behavior per question block + auto-advance
+    // Multi-select toggle behavior for option grids with data-multi-select attribute
     document.addEventListener('click', (e) => {
       const card = e.target.closest('.q-card');
       if (!card) return;
       // Support both .question-slide (Step 3) and .depth-extra-question (Step 7) containers
       const slide = card.closest('.question-slide') || card.closest('.depth-extra-question');
       if (!slide) return;
+
+      // Check if this card is inside a multi-select option grid
+      const multiSelectGrid = card.closest('.option-grid[data-multi-select]');
+      if (multiSelectGrid) {
+        // Multi-select toggle: flip this card only, leave siblings untouched
+        card.classList.toggle('is-selected');
+        card.setAttribute('aria-pressed', card.classList.contains('is-selected'));
+        return; // No auto-advance for multi-select grids
+      }
+
+      // Standard radio behavior: clear siblings, select clicked card
       slide.querySelectorAll('.q-card').forEach(c => c.classList.remove('is-selected'));
       card.classList.add('is-selected');
 
@@ -5007,7 +5060,10 @@
           } else {
             body.classList.remove('is-expanded');
             // Reset all selections within the body
-            body.querySelectorAll('.q-card.is-selected').forEach(c => c.classList.remove('is-selected'));
+            body.querySelectorAll('.q-card.is-selected').forEach(c => {
+              c.classList.remove('is-selected');
+              if (c.hasAttribute('aria-pressed')) c.setAttribute('aria-pressed', 'false');
+            });
             body.querySelectorAll('.chip-toggle.is-selected').forEach(c => {
               c.classList.remove('is-selected');
               c.setAttribute('aria-pressed', 'false');
@@ -7110,9 +7166,9 @@
           if (isReentry) {
             // Return to current step
           } else {
-            // Return to Step 1 Continue button
-            const s1Next = document.querySelector('[data-step="1"] .btn-next');
-            if (s1Next) s1Next.focus();
+            // Return to Step 2 Continue button
+            const s2Next = document.querySelector('[data-step="2"] .btn-next');
+            if (s2Next) s2Next.focus();
           }
           return;
         }
@@ -7163,8 +7219,8 @@
           const target = findNearestActiveStep(stepBeforeOverlay);
           goToStep(target);
         } else {
-          // Initial: advance to first active step after Step 1
-          const firstActive = activeSteps.find(s => s > 1) || 2;
+          // Initial: advance to first active step after Step 2
+          const firstActive = activeSteps.find(s => s > 2) || 3;
           goToStep(firstActive);
         }
       });
@@ -7175,8 +7231,8 @@
           // Same as Escape: close without selecting
           closeDepthOverlay();
           if (!isReentry) {
-            const s1Next = document.querySelector('[data-step="1"] .btn-next');
-            if (s1Next) s1Next.focus();
+            const s2Next = document.querySelector('[data-step="2"] .btn-next');
+            if (s2Next) s2Next.focus();
           }
         }
       });
@@ -7312,9 +7368,14 @@
       // Patch the next/prev click handler
       // We need to intercept the btn-next and btn-prev clicks
       document.addEventListener('click', (e) => {
-        // Intercept Step 1 Continue to show depth overlay
+        // Intercept Step 1 Continue — validate then proceed to Step 2 (no overlay)
         if (e.target.closest('.btn-next') && currentStep === 1) {
           if (!validateStep1()) { e.stopImmediatePropagation(); return; }
+          // Step 1 validation passed — let normal navigation proceed to Step 2
+        }
+
+        // Intercept Step 2 Continue to show depth overlay
+        if (e.target.closest('.btn-next') && currentStep === 2) {
           if (window._depthState) {
             e.stopImmediatePropagation();
             window._depthState.openDepthOverlay(false);
@@ -7509,9 +7570,10 @@
         if (hotelToggleEl && hotelToggleEl.dataset.value === 'yes') {
           md += `\n## Hotel Assistance\n\n`;
 
-          // Accommodation type
-          const hotelTypeEl = document.querySelector('.depth-extra-question[data-question-key="hotelType"] .q-card.is-selected');
-          md += `- **Accommodation type:** ${hotelTypeEl ? hotelTypeEl.dataset.enName : 'Not specified'}\n`;
+          // Accommodation type (multi-select)
+          const hotelTypeEls = Array.from(document.querySelectorAll('.depth-extra-question[data-question-key="hotelType"] .q-card.is-selected'));
+          const hotelTypeNames = hotelTypeEls.map(c => c.dataset.enName);
+          md += `- **Accommodation type:** ${hotelTypeNames.length > 0 ? hotelTypeNames.join(', ') : 'Not specified'}\n`;
 
           // Location priority
           const hotelLocEl = document.querySelector('.depth-extra-question[data-question-key="hotelLocation"] .q-card.is-selected');
@@ -7546,9 +7608,10 @@
         if (carToggleEl && carToggleEl.dataset.value === 'yes') {
           md += `\n## Car Rental Assistance\n\n`;
 
-          // Car category
-          const carCatEl = document.querySelector('.depth-extra-question[data-question-key="carCategory"] .q-card.is-selected');
-          md += `- **Car category:** ${carCatEl ? carCatEl.dataset.enName : 'Not specified'}\n`;
+          // Car category (multi-select)
+          const carCatEls = Array.from(document.querySelectorAll('.depth-extra-question[data-question-key="carCategory"] .q-card.is-selected'));
+          const carCatNames = carCatEls.map(c => c.dataset.enName);
+          md += `- **Car category:** ${carCatNames.length > 0 ? carCatNames.join(', ') : 'Not specified'}\n`;
 
           // Transmission
           const carTransEl = document.querySelector('.depth-extra-question[data-question-key="carTransmission"] .q-card.is-selected');

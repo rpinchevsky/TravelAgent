@@ -15,7 +15,7 @@ test.describe('Markdown Output Completeness', () => {
     await intake.setupWithDepth(10);
 
     // Navigate through all steps accepting defaults
-    await intake.navigateForwardThroughAllSteps();
+    await intake.navigateToStep(8);
 
     // Should be on Step 8 (Review)
     const currentStep = await intake.getCurrentStepNumber();
@@ -49,7 +49,7 @@ test.describe('Markdown Output Completeness', () => {
     await intake.setupWithDepth(20);
 
     // Navigate through all steps
-    await intake.navigateForwardThroughAllSteps();
+    await intake.navigateToStep(8);
 
     const currentStep = await intake.getCurrentStepNumber();
     expect.soft(currentStep, 'reached Step 8').toBe(8);
@@ -64,7 +64,7 @@ test.describe('Markdown Output Completeness', () => {
     await intake.setupWithDepth(30);
 
     // Navigate through all steps
-    await intake.navigateForwardThroughAllSteps();
+    await intake.navigateToStep(8);
 
     const currentStep = await intake.getCurrentStepNumber();
     expect.soft(currentStep, 'reached Step 8').toBe(8);
@@ -81,8 +81,8 @@ test.describe('Markdown Output Completeness', () => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(10);
 
-    // Navigate to Step 7
-    await intake.navigateForwardThroughAllSteps();
+    // Navigate to Step 8
+    await intake.navigateToStep(8);
 
     const reviewStep = intake.stepSection(8);
     await expect(reviewStep).toBeVisible();
@@ -102,25 +102,14 @@ test.describe('Markdown Output Completeness', () => {
 
     // At depth 10, first navigate through quiz step (Step 3) accepting defaults
     // per QF-4: must pass through quiz step before checking chip pre-selections
-    let currentStep = await intake.getCurrentStepNumber();
-
-    // Navigate until we reach the interests step (Step 4)
-    while (currentStep < 4) {
-      // If on a quiz step, the auto-advance may handle it; click continue if available
-      const continueBtn = intake.continueButton();
-      if (await continueBtn.count() > 0 && await continueBtn.isVisible()) {
-        await continueBtn.click();
-      }
-      currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 8) break;
-    }
+    await intake.navigateToStep(4);
+    const currentStep = await intake.getCurrentStepNumber();
 
     if (currentStep === 4) {
-      // Verify interest chips have at least 1 pre-selected chip
-      const interestsQuestion = intake.questionByKey('interests');
-      const selectedChips = interestsQuestion.locator('.chip.is-selected, .chip-option.is-selected, [aria-pressed="true"]');
-      const chipCount = await selectedChips.count();
-      expect(chipCount, 'at least 1 interest chip is pre-selected at depth 10').toBeGreaterThanOrEqual(1);
+      // Verify interest cards have at least 1 pre-selected card
+      const selectedCards = intake.page.locator('#interestsSections .interest-card.is-selected');
+      const cardCount = await selectedCards.count();
+      expect(cardCount, 'at least 1 interest card is pre-selected at depth 10').toBeGreaterThanOrEqual(1);
     }
   });
 });

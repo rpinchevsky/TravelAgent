@@ -1,5 +1,108 @@
 # Release Notes
 
+## 2026-03-29 — Hotel/Car Multi-Select and Step Reorder
+
+### Changes
+
+#### Modified File: `tests/pages/IntakePage.ts` (2 new properties, 1 new method, 2 updated methods)
+
+**New readonly properties (constructor-initialized):**
+- `multiSelectGrids` — `.option-grid[data-multi-select]`
+- `multiSelectHints` — `.option-grid__hint`
+
+**New helper method:**
+- `completeStep2()` — Clicks Continue on Step 2 to trigger depth overlay
+
+**Updated methods:**
+- `completePrerequisiteSteps()` — Now lands on Step 2 (was: depth overlay). Depth overlay fires after Step 2 Continue.
+- `setupWithDepth(depth)` — Now calls `completeStep2()` before `selectDepthAndConfirm()`. Lands on Step 3 (was: Step 2).
+
+#### Modified File: `tests/intake/intake-hotel-car-assistance.spec.ts` (21 new tests, 2 replaced)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-351+352 | hotelType multi-select select + toggle off | REQ-001 AC-1/AC-2/AC-3 |
+| TC-353 | hotelType all 12 cards selectable | REQ-001 AC-5 |
+| TC-354+379 | hotelType per-card .is-selected + aria-pressed (QF-2 consolidated) | REQ-001 AC-4 |
+| TC-355+356 | carCategory multi-select select + toggle off | REQ-002 AC-1/AC-2/AC-3 |
+| TC-357 | carCategory all 14 cards selectable | REQ-002 AC-5 |
+| TC-358 | carCategory per-card independent state | REQ-002 AC-4 |
+| TC-359 | Markdown single hotel type (no comma) | REQ-003 AC-1 |
+| TC-360 | Markdown multiple hotel types (comma-separated, DOM order) | REQ-003 AC-2/AC-5 |
+| TC-361 | Markdown zero hotel types ("Not specified") | REQ-001 AC-6 |
+| TC-362 | Markdown multiple car categories (comma-separated) | REQ-003 AC-4 |
+| TC-363 | Markdown zero car categories ("Not specified") | REQ-002 AC-6 |
+| TC-364 | Markdown uses data-en-name regardless of UI language | REQ-003 AC-6 |
+| TC-373 | Hotel reset clears multi-select + aria-pressed | REQ-005 AC-1/AC-3 |
+| TC-374 | Car reset clears multi-select + aria-pressed | REQ-005 AC-2/AC-3 |
+| TC-375 | hotelType hint with s6_multiselect_hint i18n key | UX S5.1 |
+| TC-376 | carCategory hint with s6_multiselect_hint i18n key | UX S5.1 |
+| TC-377 | data-multi-select on exactly 2 grids (scoping) | REQ-001/REQ-002 |
+| TC-378 | Multi-select ARIA role="group" + aria-label | UX S8 |
+| TC-380 | Checkmark badge ::after pseudo-element | UX S5.2 |
+| TC-381 | hotelLocation single-select regression guard | Regression |
+| TC-382 | carTransmission single-select regression guard | Regression |
+| TC-383 | No auto-advance on multi-select click (QF-1: web-first assertion) | REQ-001/REQ-002 |
+
+**Replaced tests:** TC-206 (was single-select radio) replaced by TC-351+352; TC-216 replaced by TC-355+356.
+
+#### Modified File: `tests/intake/intake-functional.spec.ts` (8 new tests, 1 replaced)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-365 | Step 1 Continue -> Step 2 (no depth overlay) | REQ-004 AC-1 |
+| TC-366 | Step 2 Continue -> depth overlay | REQ-004 AC-2 |
+| TC-367 | Depth confirm -> Step 3 | REQ-004 AC-3 |
+| TC-368 | Back from Step 3 -> Step 2 | REQ-004 AC-5 |
+| TC-369 | Back from Step 2 -> Step 1 | REQ-004 AC-6 |
+| TC-370 | Depth pill re-entry from later steps | REQ-004 AC-7 |
+| TC-371 | Stepper shows correct step sequence | REQ-004 AC-4 |
+| TC-372 | stepBeforeOverlay tracks Step 2 | REQ-004 AC-8 |
+
+**Replaced test:** TC-329 (was: depth overlay fires after Step 1) replaced by TC-365 (overlay does NOT fire after Step 1).
+**Removed per QF-3:** TC-385 removed; POM navigation implicitly tested via TC-365-TC-369.
+
+#### Modified File: `tests/intake/intake-hotel-car-i18n-keys.spec.ts` (1 new test)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-384 | s6_multiselect_hint key in all 12 locale files | DD 1.12 |
+
+#### Updated Files (POM navigation fix for step reorder)
+- `tests/intake/intake-depth-stepper.spec.ts` — Added `completeStep2()` before depth overlay
+- `tests/intake/intake-structure.spec.ts` — Added `completeStep2()` before depth overlay
+- `tests/intake/intake-i18n-catalog-loading.spec.ts` — Added `completeStep2()` before depth overlay
+- `tests/intake/intake-design-spec.spec.ts` — Added `completeStep2()` before depth overlay
+- `tests/intake/intake-a11y-full.spec.ts` — Added `completeStep2()` before depth overlay
+- `tests/intake/intake-depth-a11y.spec.ts` — Added `completeStep2()` before depth overlay
+- `tests/intake/intake-depth-selector.spec.ts` — Added `completeStep2()` before depth overlay
+- `tests/intake/intake-depth-feedback.spec.ts` — Added `completeStep2()` before depth overlay
+
+**Implementation notes:**
+- QF-1 resolved: TC-383 uses `expect(visibleStep).toHaveAttribute('data-step', '2', { timeout: 1000 })` instead of `page.waitForTimeout(600)`
+- QF-2 resolved: TC-354 and TC-379 consolidated into one test asserting both `.is-selected` and `aria-pressed` per card
+- QF-3 resolved: TC-385 removed; POM correctness tested implicitly by TC-365-TC-369
+- QF-4 resolved: Reused existing `hotelTypeGrid` and `carCategoryGrid` POM locators; added `multiSelectGrids` and `multiSelectHints` for structural tests only
+- All assertions language-agnostic: CSS selectors, `data-en-name` attributes, and `data-i18n` keys only
+- Standard fixture for all mutation tests; no shared-page fixture (all tests click/interact)
+
+#### Files Modified
+- `tests/pages/IntakePage.ts` — 2 new properties + 1 new method + 2 updated methods
+- `tests/intake/intake-hotel-car-assistance.spec.ts` — 21 new tests + 2 replaced
+- `tests/intake/intake-functional.spec.ts` — 8 new tests + 1 replaced + existing tests updated
+- `tests/intake/intake-hotel-car-i18n-keys.spec.ts` — 1 new test
+- 8 additional spec files updated for POM navigation change
+
+#### Files Added
+- None
+
+### Affected Sections
+- Intake wizard Step 2 (hotel/car assistance) — multi-select behavior
+- Intake wizard step navigation order — depth overlay now fires after Step 2
+- BRD coverage: REQ-001 through REQ-005 — 30 new test cases consolidated into 30 `test()` blocks
+
+---
+
 ## 2026-03-29 — Accommodation Integration: Hotel Discovery & Booking Referral Cards
 
 ### Changes

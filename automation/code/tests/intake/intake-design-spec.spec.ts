@@ -69,10 +69,11 @@ test.describe('Design Spec Compliance', () => {
     await expect.soft(intake.contextBar, 'Hidden on Step 0').not.toBeVisible();
 
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     await intake.selectDepthAndConfirm(20);
 
-    // Step 2: visible
-    await expect.soft(intake.contextBar, 'Visible on Step 2').toBeVisible();
+    // Step 3 (after depth selection): visible
+    await expect.soft(intake.contextBar, 'Visible on Step 3').toBeVisible();
 
     // Navigate to Step 8 (Review)
     await intake.navigateToStep(8);
@@ -84,6 +85,7 @@ test.describe('Design Spec Compliance', () => {
 
   test('TC-096: preview tab label shows dynamic filename pattern', async () => {
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     await intake.selectDepthAndConfirm(20);
     await intake.navigateToStep(8);
 
@@ -94,6 +96,7 @@ test.describe('Design Spec Compliance', () => {
 
   test('TC-097: Step 7 depth-extra-question cards have reduced min-height', async () => {
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     await intake.selectDepthAndConfirm(25); // T4 questions visible at depth 25
     await intake.navigateToStep(7);
 
@@ -113,6 +116,7 @@ test.describe('Design Spec Compliance', () => {
 
   test('TC-098: Step 7 depth-extra-question labels styled like chip-section__title', async () => {
     await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
     await intake.selectDepthAndConfirm(25);
     await intake.navigateToStep(7);
 

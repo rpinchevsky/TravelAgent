@@ -469,6 +469,7 @@
   "s6_car_cat_van": "ואן (7-9 מושבים)",
   "s6_car_cat_convertible": "גג נפתח",
   "s6_car_cat_oversize": "גדול במיוחד",
+  "s6_multiselect_hint": "בחרו אחד או יותר",
   "s6_car_transmission": "תיבת הילוכים",
   "s6_car_trans_auto": "אוטומט",
   "s6_car_trans_manual": "ידני",

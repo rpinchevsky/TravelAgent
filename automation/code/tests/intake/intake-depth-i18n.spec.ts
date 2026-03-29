@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
 import { IntakePage } from '../pages/IntakePage';
 
 /**
@@ -10,6 +12,10 @@ import { IntakePage } from '../pages/IntakePage';
  */
 
 const SUPPORTED_LANGUAGES = ['en', 'ru', 'he', 'es', 'fr', 'de', 'it', 'pt', 'zh', 'ja', 'ko', 'ar'] as const;
+
+// Project root is four levels up from automation/code/tests/intake/
+const projectRoot = path.resolve(__dirname, '..', '..', '..', '..');
+const localesDir = path.join(projectRoot, 'locales');
 
 /** Depth selector i18n keys that must exist in all languages */
 const DEPTH_I18N_KEYS = [
@@ -28,87 +34,77 @@ const NEW_QUESTION_KEYS = [
 
 test.describe('i18n Key Verification', () => {
   // TC-031: i18n keys exist for depth selector in all 12 languages
-  test('TC-031: depth selector i18n keys present in all 12 languages', async ({ page }) => {
-    const intake = new IntakePage(page);
-    await intake.goto();
+  test('TC-031: depth selector i18n keys present in all 12 languages', async () => {
+    // Static file analysis — check locale JSON files on disk
+    for (const lang of SUPPORTED_LANGUAGES) {
+      const filePath = path.join(localesDir, `ui_${lang}.json`);
 
-    // Extract TRANSLATIONS object from the page
-    const missingKeys = await page.evaluate(
-      ({ languages, keys }) => {
-        const translations = (window as any).TRANSLATIONS;
-        if (!translations) return ['TRANSLATIONS object not found on window'];
+      let catalog: Record<string, unknown> | null = null;
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        catalog = JSON.parse(content);
+      } catch {
+        expect.soft(false, `ui_${lang}.json: valid JSON parse`).toBe(true);
+        continue;
+      }
 
-        const missing: string[] = [];
-        for (const lang of languages) {
-          if (!translations[lang]) {
-            missing.push(`Language "${lang}" missing entirely`);
-            continue;
-          }
-          for (const key of keys) {
-            if (translations[lang][key] === undefined) {
-              missing.push(`${lang}.${key}`);
-            }
-          }
-        }
-        return missing;
-      },
-      { languages: SUPPORTED_LANGUAGES as unknown as string[], keys: DEPTH_I18N_KEYS }
-    );
+      expect.soft(catalog, `ui_${lang}.json: parsed successfully`).not.toBeNull();
+      if (!catalog) continue;
 
-    // Assert no missing keys
-    for (const key of missingKeys) {
-      expect.soft(true, `Missing i18n key: ${key}`).toBe(key === '' ? true : false);
+      for (const key of DEPTH_I18N_KEYS) {
+        const value = catalog[key];
+        expect.soft(
+          typeof value === 'string' && value.length > 0,
+          `ui_${lang}.json: ${key} exists and non-empty`
+        ).toBe(true);
+      }
     }
-    expect(missingKeys.length, `${missingKeys.length} depth i18n keys missing`).toBe(0);
   });
 
   // TC-032: i18n keys exist for new T4/T5 questions in all 12 languages
-  test('TC-032: new question i18n keys present in all 12 languages', async ({ page }) => {
-    const intake = new IntakePage(page);
-    await intake.goto();
+  test('TC-032: new question i18n keys present in all 12 languages', async () => {
+    // Static file analysis — check locale JSON files on disk
+    for (const lang of SUPPORTED_LANGUAGES) {
+      const filePath = path.join(localesDir, `ui_${lang}.json`);
 
-    // For each new question, check label key and option keys exist
-    const missingKeys = await page.evaluate(
-      ({ languages, questionKeys }) => {
-        const translations = (window as any).TRANSLATIONS;
-        if (!translations) return ['TRANSLATIONS object not found on window'];
+      let catalog: Record<string, unknown> | null = null;
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        catalog = JSON.parse(content);
+      } catch {
+        expect.soft(false, `ui_${lang}.json: valid JSON parse`).toBe(true);
+        continue;
+      }
 
-        const missing: string[] = [];
-        for (const lang of languages) {
-          if (!translations[lang]) {
-            missing.push(`Language "${lang}" missing entirely`);
-            continue;
-          }
-          for (const qKey of questionKeys) {
-            // Check question label key (e.g., "q_transport", "s4_transport", etc.)
-            // The exact key format depends on implementation — check common patterns
-            const labelPatterns = [
-              `q_${qKey}`, `s_${qKey}`, qKey,
-              `q_${qKey}_label`, `${qKey}_label`,
-            ];
-            const hasLabel = labelPatterns.some(k => translations[lang][k] !== undefined);
-            if (!hasLabel) {
-              missing.push(`${lang}: label for "${qKey}" (tried: ${labelPatterns.join(', ')})`);
-            }
+      expect.soft(catalog, `ui_${lang}.json: parsed successfully`).not.toBeNull();
+      if (!catalog) continue;
 
-            // Check at least one option key exists for this question
-            // Options typically use patterns like "q_transport_walk", "q_transport_transit", etc.
-            const optionKeys = Object.keys(translations[lang]).filter(
-              k => k.includes(qKey.toLowerCase())
-            );
-            if (optionKeys.length < 2) {
-              missing.push(`${lang}: fewer than 2 option keys for "${qKey}" (found: ${optionKeys.length})`);
-            }
-          }
-        }
-        return missing;
-      },
-      { languages: SUPPORTED_LANGUAGES as unknown as string[], questionKeys: NEW_QUESTION_KEYS }
-    );
+      for (const qKey of NEW_QUESTION_KEYS) {
+        // Check question label key — common patterns
+        const labelPatterns = [
+          `q_${qKey}`, `s_${qKey}`, qKey,
+          `q_${qKey}_label`, `${qKey}_label`,
+        ];
+        const hasLabel = labelPatterns.some(k =>
+          typeof catalog![k] === 'string' && (catalog![k] as string).length > 0
+        );
+        expect.soft(
+          hasLabel,
+          `ui_${lang}.json: label for "${qKey}" (tried: ${labelPatterns.join(', ')})`
+        ).toBe(true);
 
-    for (const key of missingKeys) {
-      expect.soft(true, `Missing i18n key: ${key}`).toBe(key === '' ? true : false);
+        // Check at least one option key exists for this question
+        // Some questions use abbreviated prefixes (e.g., "accessibility" -> "access_")
+        const qKeyLower = qKey.toLowerCase();
+        const qKeyShort = qKeyLower.substring(0, Math.min(6, qKeyLower.length));
+        const optionKeys = Object.keys(catalog).filter(
+          k => k.includes(qKeyLower) || k.includes(`q_${qKeyShort}`)
+        );
+        expect.soft(
+          optionKeys.length >= 2,
+          `ui_${lang}.json: at least 2 option keys for "${qKey}" (found: ${optionKeys.length})`
+        ).toBe(true);
+      }
     }
-    expect(missingKeys.length, `${missingKeys.length} question i18n keys missing`).toBe(0);
   });
 });
