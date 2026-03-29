@@ -1,0 +1,33 @@
+{
+  "trip_details_file": "trip_details.md",
+  "destination": "Budapest, Hungary",
+  "arrival": "2026-08-20",
+  "departure": "2026-08-31",
+  "total_days": 12,
+  "created": "2026-03-28T22:51:00",
+  "languages": {
+    "ru": {
+      "phase_a_complete": true,
+      "days": {
+        "day_00": { "status": "complete", "title": "Прилёт", "last_modified": "2026-03-28T23:13:00" },
+        "day_01": { "status": "complete", "title": "Остров Маргит", "last_modified": "2026-03-28T23:14:00" },
+        "day_02": { "status": "complete", "title": "Варошлигет", "last_modified": "2026-03-28T23:16:00" },
+        "day_03": { "status": "complete", "title": "Рынки и Дунай", "last_modified": "2026-03-28T23:15:00" },
+        "day_04": { "status": "complete", "title": "Будайские холмы", "last_modified": "2026-03-28T23:16:00" },
+        "day_05": { "status": "complete", "title": "Крепость и рынок", "last_modified": "2026-03-28T23:18:00" },
+        "day_06": { "status": "complete", "title": "Гёдёллё и лошади", "last_modified": "2026-03-28T23:26:00" },
+        "day_07": { "status": "complete", "title": "Наука и аквариум", "last_modified": "2026-03-28T23:25:00" },
+        "day_08": { "status": "complete", "title": "Мир в миниатюре", "last_modified": "2026-03-28T23:26:00" },
+        "day_09": { "status": "complete", "title": "Природа и аутлет", "last_modified": "2026-03-28T23:24:00" },
+        "day_10": { "status": "complete", "title": "День рождения Итая", "last_modified": "2026-03-28T23:22:00" },
+        "day_11": { "status": "complete", "title": "Вылет", "last_modified": "2026-03-28T23:22:00" }
+      },
+      "budget_complete": true,
+      "assembly": {
+        "trip_full_md_built": "2026-03-28T23:30:00",
+        "trip_full_html_built": "2026-03-28T23:42:00",
+        "stale_days": []
+      }
+    }
+  }
+}

@@ -24,11 +24,12 @@ This prompt covers the **Dev-Design** sub-scope only. Your tasks:
 
 Read these files before writing:
 1. `{change_folder}/business_requirements.md` — the approved BRD
-2. `technical_documents/templates/high_level_design_template.md`
-3. `technical_documents/templates/detailed_design_template.md`
-4. **Affected rule files listed in the BRD** — read only those referenced in BRD §2 "Affected rule files"
-5. **Current implementations** — read existing files that will be modified (as identified from the BRD)
-6. **If retry after SA rejection:** Also read `{change_folder}/architecture_review.md` — address all feedback items marked as Blocking
+2. `{change_folder}/ux_design.md` — the approved UX design (if present — GUI changes only). This is your primary reference for visual layout, component specs, interactions, and placement decisions. Your detailed design must implement what the UX design specifies.
+3. `technical_documents/templates/high_level_design_template.md`
+4. `technical_documents/templates/detailed_design_template.md`
+5. **Affected rule files listed in the BRD** — read only those referenced in BRD §2 "Affected rule files"
+6. **Current implementations** — read existing files that will be modified (as identified from the BRD)
+7. **If retry after SA rejection:** Also read `{change_folder}/architecture_review.md` — address all feedback items marked as Blocking
 
 ## Instructions
 

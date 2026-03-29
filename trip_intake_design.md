@@ -68,7 +68,7 @@ The page supports **12 languages** with a language selector on the hero section.
 - Interest/avoid card names remain in English (they are data keys, not UI chrome)
 - Question card titles and descriptions are translated via `data-i18n`
 - Month names and day abbreviations come from the translation dictionary
-- The generated markdown output (Step 7) uses the **Report Language** (Step 6), not the UI language
+- The generated markdown output (Step 8) uses the **Report Language** (Step 7), not the UI language
 
 ## Platform & Device Requirements
 
@@ -180,7 +180,10 @@ Simple step below the search bar. Just a hint message ("Fill in your destination
 - Fields inside use row grid (`.row--3` for parents, `.row--2` for children)
 - Validation error: `.card-error` adds red border, `.select-error` on DOB year dropdown
 
-### Step 2 — All Preferences (One-at-a-Time Questionnaire)
+### Step 2 — Plan Your Stay & Travel
+Hotel and car rental assistance toggles with optional sub-questions. Both toggles default to "No" (collapsed). No validation gate. Uses the standard `.step__title` + `.step__desc` + `.btn-bar` pattern. Hotel section appears first, car section below. Both use the `.assistance-section` component pattern (see below).
+
+### Step 3 — All Preferences (One-at-a-Time Questionnaire)
 The single, unified questionnaire for ALL 30 preference questions (10-30 shown based on depth).
 
 - Sub-step dots (`.sub-dots`) — 10px circles, centered, active = brand-primary scaled 1.2x, done = accent gold. Dot count matches visible questions at selected depth.
@@ -194,9 +197,9 @@ The single, unified questionnaire for ALL 30 preference questions (10-30 shown b
 - Rhythm question uses 4-column layout (`.question-options--4`)
 - Diet question uses 4-column layout (4 options)
 - All other questions use 3-column layout
-- After the last visible question, auto-advances to Step 3 (card selection phase)
+- After the last visible question, auto-advances to Step 4 (card selection phase)
 
-**No mini-quizzes on Steps 3-5.** All preference questions are consolidated in Step 2. Steps 3-5 are pure card selection — no questions, no sub-dots, no hidden quiz DOM.
+**No mini-quizzes on Steps 4-6.** All preference questions are consolidated in Step 3. Steps 4-6 are pure card selection — no questions, no sub-dots, no hidden quiz DOM.
 
 ## UI Components
 
@@ -276,7 +279,7 @@ Dual-month calendar for selecting check-in / check-out date range. Lives inside 
 
 ### Chip Section Headers
 - `.chip-section__title`: uppercase, xs text, semibold, accent-alt color, 0.06em letter-spacing
-- `.chip-section__desc`: sm text, muted color, margin-bottom space-3 — used consistently for sub-section descriptions in Steps 3, 4, and 5
+- `.chip-section__desc`: sm text, muted color, margin-bottom space-3 — used consistently for sub-section descriptions in Steps 4, 5, and 6
 
 ### Depth Selector Overlay
 
@@ -302,7 +305,7 @@ A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choos
 
 **Focus Management:**
 - On open: focus moves to pre-selected card
-- On confirm: overlay closes, focus to Step 2 title
+- On confirm: overlay closes, focus to Step 2 title (logistics step)
 - On escape: focus to Step 1 Continue button
 
 **Re-entry (from context bar pill):**
@@ -342,13 +345,13 @@ A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choos
 - Step emojis and labels are preserved for visible steps
 
 ### Depth Extra Questions (`.depth-extra-question`)
-- Used in Step 6 for supplementary card-based questions
+- Used in Step 2 and Step 7 for supplementary card-based questions
 - Container: `margin-top: var(--space-4)`, no background/border
 - Label: `.field__label` restyled via `.depth-extra-question .field__label` — uppercase, xs text, semibold, accent-alt (matches `.chip-section__title` visual)
 - Cards: `.q-card` with reduced `min-height: 140px` (vs 200px standard) and compact padding, for proportionate fit within a form-based step
-- Grid uses `.question-options` same as Step 2
+- Grid uses `.question-options` same as Step 3
 
-### Wheelchair Accessibility Question (Step 6)
+### Wheelchair Accessibility Question (Step 7)
 - Always visible (not depth-gated), placed after Extra Notes textarea
 - Uses `.depth-extra-question` container (first actual DOM usage of this CSS pattern)
 - 2-option `.q-card` grid: "No Requirement" (default, checkmark icon) and "Wheelchair Accessible" (wheelchair icon)
@@ -358,10 +361,63 @@ A modal overlay shown after Step 1 (Who's Traveling), allowing the user to choos
 - RTL: grid and text direction flip automatically via existing RTL rules
 - i18n keys: `s6_wheelchair`, `s6_wheelchair_no`, `s6_wheelchair_no_desc`, `s6_wheelchair_yes`, `s6_wheelchair_yes_desc`
 
+### Assistance Section (`.assistance-section`)
+- Used for Hotel Assistance and Car Rental Assistance in Step 2
+- Container: `margin-top: var(--space-5)`, `border-top: 1px solid var(--color-border)`, `padding-top: var(--space-4)`
+- Header: `.assistance-section__header` — matches `.chip-section__title` styling (uppercase, xs text, semibold, accent-alt)
+- Toggle: Uses `.depth-extra-question` with 2-option `.q-card` grid (same as wheelchair pattern)
+- Body: `.assistance-section__body` — collapsed by default (`max-height: 0; opacity: 0; overflow: hidden`)
+- Expanded state: `.is-expanded` class sets `max-height: 4000px; opacity: 1`
+- Transition: `max-height 0.4s ease, opacity 0.3s ease` (per animation spec)
+- Collapse resets all child selections (cards, chips, sliders) to defaults
+- Two instances: `#hotelAssistanceSection` (7 sub-questions) and `#carAssistanceSection` (6 sub-questions)
+- i18n: header and all child elements use `data-i18n`
+
+### Option Grid (`.option-grid`)
+- Responsive card grid for large option sets (12+ options)
+- Used for `hotelType` (12 options) and `carCategory` (14 options)
+- Grid: `repeat(4, 1fr)` desktop, `repeat(3, 1fr)` at <= 768px, `repeat(2, 1fr)` at <= 480px
+- Cards: `.q-card` with compact sizing — `min-height: 100px`, smaller padding and font
+- No description text (`.q-card__desc { display: none }`) — icon + title only
+- Radio behavior: same as standard q-card (one selected per container)
+- Touch target: min 44x44px via card size
+- i18n: each card title has `data-i18n`, each card has `data-en-name` for markdown output
+
+### Chip Toggle (`.chip-toggle`)
+- Pill-shaped multi-select buttons for amenities and equipment lists
+- Container: `.chip-toggle-group` — flex wrap layout, gap `var(--space-2)`
+- Chip: `border-radius: 999px`, `border: 2px solid var(--color-border)`, `min-height: 44px`
+- States: default (border only), hover (brand-primary border + lift), selected (brand-primary bg, white text)
+- Click toggles `.is-selected` class (multi-select, not radio)
+- ARIA: `aria-pressed` attribute toggled on click for screen reader accessibility
+- Each chip has `data-en-name` for language-agnostic markdown output
+- i18n: each chip has `data-i18n` for translated display text
+- Keyboard: focusable via `<button>`, Enter/Space toggles selection
+
+### Dual-Handle Range Slider (`.range-slider`)
+- New component for budget questions (hotel $30-$1000, car $0-$1000)
+- Container: `.range-slider` with `data-min`, `data-max`, `data-step`, `data-prefix` attributes
+- Track: `.range-slider__track` — 6px height, border-radius 3px, border-strong bg
+- Fill: `.range-slider__fill` — brand-primary bg, positioned between handles
+- Handles: `.range-slider__handle` — 24px circle, surface bg, 3px brand-primary border, shadow-sm
+  - Touch target: 44x44px (padding: 10px around 24px handle)
+  - Cursor: grab (default), grabbing (active)
+  - Focus ring: brand-accent outline, 4px offset
+- Label: `.range-slider__label` — centered text showing "$min - $max", updates on drag
+- Behavior:
+  - Pointer events (mouse + touch) for drag
+  - Handles cannot cross (min handle <= max handle - step)
+  - Step increment: configurable (10 for both budget sliders)
+  - Click on track moves nearest handle
+  - Keyboard: Arrow Left/Right/Up/Down adjust value by step
+- RTL: Track direction reverses (low values on right, high on left)
+- ARIA: `role="slider"`, `aria-valuemin`, `aria-valuemax`, `aria-valuenow` on each handle
+- Dark mode: inherits design system colors via CSS variables
+
 ### Preview Box (Code Editor Style)
 - Dark theme container (`#1a1a2e` bg)
 - Tab-style header with `#252545` bg, active tab with accent underline
-- **Tab label:** Dynamic filename (`{name}_trip_details_{date}.md`) — refreshes on each Step 7 entry
+- **Tab label:** Dynamic filename (`{name}_trip_details_{date}.md`) — refreshes on each Step 8 entry
 - Copy button in header (ghost style, success state on copy)
 - Monospace body, syntax-colored: headings blue, bold gold, bullets green, tables purple
 - Max-height 500px with scroll
@@ -373,7 +429,7 @@ A contextual "next step" card that appears below the button bar after the user d
 - Surface card with `border-left: 4px solid var(--color-brand-primary)` accent
 - Border, radius-container, shadow-sm — consistent with standard surface cards
 - Hidden by default (`display: none`), revealed on download button click
-- Resets (hides) when navigating away from Step 7 and returning
+- Resets (hides) when navigating away from Step 8 and returning
 
 **Structure:**
 - `.post-download__header` (flex row: checkmark icon + title)
@@ -395,7 +451,7 @@ A contextual "next step" card that appears below the button bar after the user d
 
 **RTL:** Left accent border flips to right border
 **Mobile (<=480px):** Command row stacks vertically (command above, button below aligned right)
-**i18n:** All static text uses `data-i18n` attributes (keys: `s7_post_title`, `s7_post_instruction`, `s7_post_copy`, `s7_post_hint`)
+**i18n:** All static text uses `data-i18n` attributes (keys: `s8_post_title`, `s8_post_instruction`, `s8_post_copy`, `s8_post_hint`)
 
 ### Pipeline Roadmap (`.pipeline-roadmap`)
 A visual timeline inside the post-download section showing the 6 trip generation pipeline steps with proportional duration bars. Helps users understand what happens after they paste the command into Claude Code.
@@ -424,7 +480,7 @@ A visual timeline inside the post-download section showing the 6 trip generation
 
 **RTL:** Steps row and bar track reverse direction
 **Mobile (<=480px):** Steps stack vertically as rows (badge | label | time), bar track at bottom
-**i18n:** Step labels and header use `data-i18n` (keys: `s7_pipeline_title`, `s7_pipeline_total`, `s7_pipeline_step1`–`s7_pipeline_step6`)
+**i18n:** Step labels and header use `data-i18n` (keys: `s8_pipeline_title`, `s8_pipeline_total`, `s8_pipeline_step1`–`s8_pipeline_step6`)
 
 ### Buttons
 - Primary (`.btn--primary`): brand-primary bg, inverse text
@@ -496,13 +552,13 @@ A thin (3px) colored bar fixed to the very top of the viewport, showing overall 
 - When sticky search bar is active, progress bar sits above it
 
 **Calculation:**
-- Total steps: dynamic, based on depth selection (varies from 5 to 8 active steps)
+- Total steps: dynamic, based on depth selection (varies from 5 to 9 active steps)
 - Formula: `pct = currentActiveIndex === 0 ? 0 : Math.round((currentActiveIndex / (activeSteps.length - 1)) * 100)`
-- Reaches 100% on Step 7 (Review) — fill color changes to `var(--color-success)` green
+- Reaches 100% on Step 8 (Review) — fill color changes to `var(--color-success)` green
 
 **Dynamic Calculation:**
 - Denominator = number of active steps (varies by depth)
-- At depth 10: steps may be reduced (e.g., Step 5 merged into Step 4)
+- At depth 10: steps may be reduced (e.g., Step 6 merged into Step 5)
 
 ### 4. Inline Validation Indicators (`.field--valid`, `.field--error`)
 Real-time validation feedback with visual icons, matching Booking.com's pattern of showing green checkmarks and red crosses inside input fields as the user types.
@@ -544,13 +600,13 @@ A persistent, compact bar below the sticky search bar (or below the stepper on d
   - Dates: accent bg, dark text, calendar icon prefix
   - Travelers: accent-alt bg, inverse text, people icon prefix
   - **Depth: info bg (teal), inverse text, chart icon prefix — shown after depth selection, tapping re-opens depth overlay**
-  - Trip style (after Step 2): info bg, icon prefix
+  - Trip style (after Step 3): info bg, icon prefix
 - Only visible after Step 0 (once search bar data is confirmed)
 - Tapping any pill scrolls back to / opens the relevant section for editing
 
 **Responsive:**
 - On mobile, horizontally scrollable (overflow-x: auto, no-wrap)
-- Hide on Step 7 (Review) since the full preview is visible
+- Hide on Step 8 (Review) since the full preview is visible
 
 ### 6. Toast Notifications (`.toast`)
 Non-intrusive, ephemeral feedback messages that appear briefly to confirm actions — Booking.com uses these for "Saved!", "Added to wishlist", etc.

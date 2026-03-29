@@ -66,6 +66,38 @@ Created during Phase A, updated after all days are generated (see Day Generation
 - `stale_days` lists any days modified after the last full assembly — triggers incremental rebuild.
 - After editing a day, add it to `stale_days` and update its `last_modified`.
 
+**Accommodation metadata (written during Phase A, updated after Phase B):**
+
+```json
+{
+  "accommodation": {
+    "stays": [
+      {
+        "id": "stay_01",
+        "checkin": "2026-08-20",
+        "checkout": "2026-08-31",
+        "nights": 11,
+        "area": "Budapest, Hungary",
+        "anchor_day": "day_00",
+        "options_count": 3,
+        "discovery_source": "google_places"
+      }
+    ]
+  }
+}
+```
+
+- `accommodation` is a top-level key (sibling to `languages`).
+- `stays` is an ordered array of stay block objects.
+- `id`: Sequential identifier (`stay_01`, `stay_02`, ...).
+- `checkin` / `checkout`: ISO date strings (YYYY-MM-DD). Check-in = first night, check-out = morning after last night.
+- `nights`: Integer convenience field — number of nights in the stay block (`checkout_date - checkin_date` in days). Eliminates ambiguity and off-by-one risks for consumers (budget calculation, anchor day intro line, Booking.com link description).
+- `area`: Geographic area name matching the Phase A overview area column.
+- `anchor_day`: Reference to the day file key (e.g., `day_00`) containing the accommodation cards.
+- `options_count`: Set to `0` during Phase A, updated to actual count (2-3) after Phase B accommodation discovery.
+- `discovery_source`: Set to `"pending"` during Phase A, updated to `"google_places"` after successful discovery, `"skipped"` if MCP unavailable or zero results, `"manual"` if overridden by user.
+- For multi-stay trips, multiple entries with non-overlapping date ranges.
+
 ---
 
 ## Phase A: High-Level Summary
@@ -102,6 +134,8 @@ When generating `day_XX_LANG.md`, load only:
 3. The current day's row from the Phase A table.
 
 Do NOT load other day files — Phase A provides all cross-day coordination.
+
+> **Note:** The trip details file may contain optional `## Hotel Assistance` and `## Car Rental Assistance` sections at the end. These sections carry structured accommodation and vehicle preferences. The `## Hotel Assistance` section **is consumed** by the accommodation discovery logic: on anchor days (the first day of each stay block), the subagent parses this section to parameterize Google Places lodging queries and annotate accommodation cards. If the section is absent, sensible defaults are used (mid-range, city center, no pet requirement). The `## Car Rental Assistance` section is not currently consumed (future enhancement). Its presence does not affect existing generation behavior.
 
 ### Per-Day File Format
 
@@ -156,6 +190,75 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 ### 🅱️ Запасной план — {Name}
 {Backup plan content}
 ```
+
+### Accommodation Section (Anchor Day Only)
+
+On the first day of each stay block (the "anchor day"), include an accommodation section after the POI cards and before the daily budget table. This section is NOT present on non-anchor days.
+
+**Section placement order within anchor day files:**
+1. Day header + schedule table
+2. POI cards (### headings)
+3. **Accommodation section (## 🏨)** ← NEW (anchor days only)
+4. Daily budget table (### Стоимость дня)
+5. Grocery store (### 🛒)
+6. Along-the-way stops (### 🎯)
+7. Plan B (### 🅱️)
+8. *(end of file)*
+
+> **Rationale:** The accommodation section appears before the daily budget table so that the reader encounters accommodation options before seeing their cost in the budget. The `## 🏨` heading (h2 level) acts as a major section divider between POI content and the operational/logistics sections that follow.
+
+**Section format:**
+
+```
+## 🏨 {localized_accommodation_label}
+
+{Intro line: stay period (check-in → check-out), number of nights. Note that options are sorted by price level.}
+
+### 🏨 {Property Name in poi_languages}
+
+📍 [Google Maps]({google_maps_url})
+🌐 [{localized_website_label}]({website_url})
+📸 [{localized_photos_label}]({photos_url})
+📞 {localized_phone_label}: {phone}
+⭐ {rating}/5 ({review_count} {localized_reviews_label})
+💰 {localized_price_level_label}: {descriptive_price_level}
+
+{2-3 sentence description: property vibe, family-relevant features, proximity to day activities}
+
+🔗 [{localized_check_prices_label}]({booking_com_deep_link})
+
+> **{localized_tip_label}:** {One actionable tip}
+
+### 🏨 {Property Name 2 in poi_languages}
+{... same card structure ...}
+
+### 🏨 {Property Name 3 in poi_languages}
+{... same card structure ...}
+```
+
+**Rules:**
+- The section heading uses `##` (h2), not `###` (h3), to distinguish from POI cards.
+- Individual accommodation option cards use `### 🏨` (h3) with the hotel emoji prefix.
+- `### 🏨` headings are NOT POI headings. They are excluded from POI Parity Checks and do not generate `.poi-card` elements in HTML.
+- Property names follow `poi_languages` convention (e.g., "Hotel Parlament Budapest / Отель Парламент Будапешт").
+- 2-3 cards per section, ordered from lowest to highest price level.
+- When a property has no website or phone from Google Places, those lines are omitted (not rendered as empty).
+- All labels (website, photos, phone, rating, price level, check prices, tip) use the reporting language.
+- The `💰` price level maps `price_level` (0-4) to localized descriptors per `trip_planning_rules.md`.
+- The Booking.com link label must be distinct from the website label — clearly communicates "check prices / book" intent (e.g., "Проверить цены" in Russian, not "Сайт").
+
+**Booking.com Deep Link Format:**
+```
+https://www.booking.com/searchresults.html?ss={hotel_name}+{destination}&checkin={checkin_date}&checkout={checkout_date}&group_adults={adult_count}&group_children={child_count}&age={child1_age}&age={child2_age}&age={child3_age}
+```
+
+- `{hotel_name}`: URL-encoded property name using `application/x-www-form-urlencoded` encoding (spaces → `+`, non-ASCII characters and reserved characters like `&`, `=`, `+` are percent-encoded as `%XX`). Example: `K%2BK+Hotel+Opera` for the hotel name `K+K Hotel Opera`.
+- `{destination}`: URL-encoded destination city + country
+- `{checkin_date}` / `{checkout_date}`: Stay block dates in `YYYY-MM-DD` format
+- `{adult_count}`: Number of parents/adults from trip details travelers section
+- `{child_count}`: Number of children from trip details travelers section
+- `{age}`: Each child's age calculated at check-in date (same age calculation as pipeline Pre-Flight Setup)
+- Multiple `age=` parameters, one per child
 
 ### Day Generation Protocol
 
@@ -291,6 +394,22 @@ After all days are complete for a given language:
    - Per-day summary (day number, title, day total in HUF and EUR).
    - Grand total across all days.
    - Category breakdown if possible (attractions, food, transport).
+
+### Accommodation Budget Integration
+
+3. If the trip contains accommodation stay blocks (check `manifest.json → accommodation.stays`):
+   - Add an "Accommodation" category row to `budget_LANG.md` showing the total estimated accommodation cost range for the entire trip.
+   - The range is: (lowest option per-night cost * total nights) to (highest option per-night cost * total nights).
+   - Both local currency and EUR amounts are shown, consistent with existing format.
+   - Label the row as "{localized_accommodation_label} ({localized_estimate_label})" to indicate these are indicative estimates.
+
+**Anchor day budget table integration:**
+- On the anchor day's `### Стоимость дня` table, add an accommodation line item:
+  - Label: "{localized_accommodation_label} ({nights} {localized_nights_label})"
+  - HUF column: "{per_night_low}–{per_night_high} x {nights} = {total_low}–{total_high}"
+  - EUR column: same structure
+  - Mark as estimate: append "{localized_estimate_label}" or use italics
+- Subsequent days within the same stay block do NOT include accommodation in their budget table.
 
 ---
 

@@ -127,7 +127,7 @@ test.describe('i18n Completeness', () => {
 
     // Switch to Hebrew
     await intake.switchLanguage('he');
-    await intake.navigateToStep(3);
+    await intake.navigateToStep(4);
 
     const result = await page.evaluate(() => {
       const cards = document.querySelectorAll('#interestsSections .interest-card');

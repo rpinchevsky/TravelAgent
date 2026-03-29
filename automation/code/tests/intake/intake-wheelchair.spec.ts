@@ -6,7 +6,7 @@ import { IntakePage } from '../pages/IntakePage';
 /**
  * Wheelchair Accessibility Question — Progression Tests
  *
- * Validates the wheelchair accessibility question on Step 6 of the intake wizard:
+ * Validates the wheelchair accessibility question on Step 7 of the intake wizard:
  * visibility across depths, option card structure, default selection state,
  * toggle behavior, markdown output, i18n key presence, and DOM i18n attributes.
  *
@@ -37,15 +37,15 @@ const REQUIRED_I18N_KEYS = [
 ] as const;
 
 test.describe('Wheelchair Question — Visibility (TC-147)', () => {
-  // TC-147: Wheelchair question visible on Step 6 at all depth levels
+  // TC-147: Wheelchair question visible on Step 7 at all depth levels
   // REQ-010 -> AC-1; REQ-006 -> AC-1, AC-2
   // Data-driven loop over all three depth levels
   for (const depth of [10, 20, 30] as const) {
-    test(`TC-147: wheelchair question visible on Step 6 at depth ${depth}`, async ({ page }) => {
+    test(`TC-147: wheelchair question visible on Step 7 at depth ${depth}`, async ({ page }) => {
       const intake = new IntakePage(page);
       await intake.setupWithDepth(depth);
       await intake.waitForI18nReady();
-      await intake.navigateToStep(6);
+      await intake.navigateToStep(7);
 
       // Assert wheelchair question is visible
       await expect(intake.wheelchairQuestion).toBeVisible();
@@ -64,7 +64,7 @@ test.describe('Wheelchair Question — Default & Toggle (TC-148/TC-149)', () => 
     intake = new IntakePage(page);
     await intake.setupWithDepth(20);
     await intake.waitForI18nReady();
-    await intake.navigateToStep(6);
+    await intake.navigateToStep(7);
   });
 
   test('TC-148: wheelchair question defaults to "No Requirement" selected', async () => {
@@ -104,15 +104,15 @@ test.describe('Wheelchair Question — Markdown Output (TC-150/TC-151)', () => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(10);
     await intake.waitForI18nReady();
-    await intake.navigateToStep(6);
+    await intake.navigateToStep(7);
 
     // Select wheelchair "yes"
     const yesCard = intake.wheelchairQuestion.locator('.q-card[data-value="yes"]');
     await yesCard.click();
     await expect(yesCard).toHaveClass(/is-selected/);
 
-    // Navigate to Step 7 (Review)
-    await intake.navigateToStep(7);
+    // Navigate to Step 8 (Review)
+    await intake.navigateToStep(8);
 
     // Extract raw markdown
     const rawMd = await intake.getRawMarkdown();
@@ -127,8 +127,8 @@ test.describe('Wheelchair Question — Markdown Output (TC-150/TC-151)', () => {
     await intake.setupWithDepth(10);
     await intake.waitForI18nReady();
 
-    // Navigate directly to Step 7 without changing default wheelchair selection
-    await intake.navigateToStep(7);
+    // Navigate directly to Step 8 (Review) without changing default wheelchair selection
+    await intake.navigateToStep(8);
 
     // Extract raw markdown
     const rawMd = await intake.getRawMarkdown();
@@ -173,7 +173,7 @@ test.describe('Wheelchair Question — i18n DOM Attributes (TC-153)', () => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(20);
     await intake.waitForI18nReady();
-    await intake.navigateToStep(6);
+    await intake.navigateToStep(7);
 
     // Batch all DOM attribute queries in a single evaluate call
     const attrs = await page.evaluate(() => {

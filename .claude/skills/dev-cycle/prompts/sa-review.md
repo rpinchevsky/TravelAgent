@@ -23,10 +23,11 @@ Write `architecture_review.md` in the change folder using the template at `techn
 
 Read these files before writing:
 1. `{change_folder}/business_requirements.md` — the BRD (to verify designs address requirements)
-2. `{change_folder}/high_level_design.md` — HLD to review
-3. `{change_folder}/detailed_design.md` — DD to review
-4. `technical_documents/templates/architecture_review_template.md`
-5. **Architecture-relevant rule files** — load only those referenced in the BRD and design documents. Candidates (skip if irrelevant to this change):
+2. `{change_folder}/ux_design.md` — the UX design (if present — GUI changes only). Verify that the HLD/DD faithfully implements the UX spec: placement, component specs, interactions, responsive behavior, accessibility, RTL, and dark mode.
+3. `{change_folder}/high_level_design.md` — HLD to review
+4. `{change_folder}/detailed_design.md` — DD to review
+5. `technical_documents/templates/architecture_review_template.md`
+6. **Architecture-relevant rule files** — load only those referenced in the BRD and design documents. Candidates (skip if irrelevant to this change):
    - `content_format_rules.md` — if trip folder structure or manifest is affected
    - `rendering-config.md` — if HTML rendering or design system is affected
    - `development_rules.md` §1 — if HTML Generation Contract is affected
@@ -40,6 +41,7 @@ Read these files before writing:
    - **Pattern consistency**: Does it follow established conventions in rule files?
    - **Coupling**: Are components properly decoupled?
    - **Regeneration performance**: Content-only changes don't trigger full rebuild?
+   - **UX compliance** (if `ux_design.md` exists): Does the DD faithfully implement the UX spec — placement, layout, component specs, interactions, responsive breakpoints, accessibility, RTL, dark mode?
 2. Check that all BRD requirements are addressed in the design
 3. Identify any architectural concerns as feedback items (FB-N) with severity:
    - **Blocking**: Must fix before implementation

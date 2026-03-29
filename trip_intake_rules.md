@@ -25,41 +25,42 @@ The page supports 12 languages: English, Russian, Hebrew, Spanish, French, Germa
 - Default language: detected from `navigator.language` (browser locale), falling back to English.
 - **All UI text — including dynamically generated card names — must display in the selected UI language.** The `_items` key in each `ui_{lang}.json` provides translations for all INTEREST_DB, AVOID_DB, FOOD_DB, and VIBE_DB items. The `tItem(name)` helper returns the translated display name. Each card stores its English name in `data-en-name` for markdown output.
 - **The generated markdown output always uses English names** regardless of UI language. `getSelectedDynamic()` reads `data-en-name` attributes to ensure the trip planning pipeline receives consistent English identifiers.
-- The generated markdown output (Step 7 preview) always uses the **Report Language** selected in Step 6, not the UI language. The report language defaults to match the UI language.
+- The generated markdown output (Step 8 preview) always uses the **Report Language** selected in Step 7, not the UI language. The report language defaults to match the UI language.
 - When adding new UI text, always include a `data-i18n` attribute and add the key to all `locales/ui_{lang}.json` files for all 12 languages.
 - When adding new items to INTEREST_DB, AVOID_DB, FOOD_DB, or VIBE_DB, also add the item's translated name to the `_items` key in `locales/ui_ru.json` and `locales/ui_he.json`, and the English identity mapping to all other `ui_{lang}.json` files.
 - RTL languages (Hebrew, Arabic) flip layout direction: borders, paddings, text alignment, button arrows, and stepper direction all reverse.
 - **Language consistency rule:** Every screen the user sees during trip customization must display entirely in the selected UI language. Mixed-language screens (e.g., Hebrew labels with English card names) are a bug.
 
-## Wizard Flow (8 Steps)
+## Wizard Flow (9 Steps)
 
 The form follows a strict **two-phase** design:
 
-1. **Data & Questions Phase** (Steps 0-2): Collect trip details, traveler info, and all preference questions one-by-one.
-2. **Card Selection Phase** (Steps 3-5): Present pre-scored card grids for the user to select/deselect POIs, avoids, and food experiences.
+1. **Data & Questions Phase** (Steps 0-3): Collect trip details, traveler info, stay/travel logistics, and all preference questions one-by-one.
+2. **Card Selection Phase** (Steps 4-6): Present pre-scored card grids for the user to select/deselect POIs, avoids, and food experiences.
 
-Steps are numbered 0-7. The two phases are kept strictly separate — **no questions appear on card selection steps**, and **no card grids appear on question steps**. This keeps the flow simple and intuitive.
+Steps are numbered 0-8. The two phases are kept strictly separate — **no questions appear on card selection steps**, and **no card grids appear on question steps**. This keeps the flow simple and intuitive.
 
 **Phase 1 — Data & Questions:**
 - **Step 0**: Define country and dates (search bar)
 - **Step 1**: Define people in trip (traveler form)
 - **Depth selector overlay**: Choose how many questions (10-30)
-- **Step 2**: ALL preference questions, asked one-by-one with auto-advance and sub-step dots. The number of questions matches the selected depth. No card selection grids on this step.
+- **Step 2**: Plan your stay & travel (hotel + car assistance toggles, optional)
+- **Step 3**: ALL preference questions, asked one-by-one with auto-advance and sub-step dots. The number of questions matches the selected depth. No card selection grids on this step.
 
 **Phase 2 — Card Selection:**
-- **Step 3**: Interests — multi-select card grid (pre-scored based on Step 2 answers)
-- **Step 4**: Things to Avoid — multi-select card grid (pre-scored based on Step 2 answers)
-- **Step 5**: Food & Dining — multi-select card grid + dining vibes
+- **Step 4**: Interests — multi-select card grid (pre-scored based on Step 3 answers)
+- **Step 5**: Things to Avoid — multi-select card grid (pre-scored based on Step 3 answers)
+- **Step 6**: Food & Dining — multi-select card grid + dining vibes
 
 **Finalize:**
-- **Step 6**: Language & extras (simple form: report language + notes)
-- **Step 7**: Review & download
+- **Step 7**: Language & extras (simple form: report language + notes)
+- **Step 8**: Review & download
 
-**Design consistency rule:** Steps 3, 4, and 5 must follow the same visual pattern at both page-structure and card-component levels: step title, description, and a grid of selectable cards. All cards share the same dimensions, padding, layout (centered vertical), and font sizes — differing only in selection color. Sub-sections use `.chip-section__title` + `.chip-section__desc` consistently.
+**Design consistency rule:** Steps 4, 5, and 6 must follow the same visual pattern at both page-structure and card-component levels: step title, description, and a grid of selectable cards. All cards share the same dimensions, padding, layout (centered vertical), and font sizes — differing only in selection color. Sub-sections use `.chip-section__title` + `.chip-section__desc` consistently.
 
 **Search bar & hero visibility:** The search bar and value-prop badges are only visible on Step 0. Hidden on Steps 1+.
 
-**Question Depth Selector:** After completing Step 1, an overlay presents 5 depth options: 10 (Quick), 15 (Light), 20 (Standard — default), 25 (Detailed), 30 (Deep Dive). The selected depth determines which questions are shown in Step 2. Steps 0, 1, 3-7 are always fully present regardless of depth.
+**Question Depth Selector:** After completing Step 1, an overlay presents 5 depth options: 10 (Quick), 15 (Light), 20 (Standard — default), 25 (Detailed), 30 (Deep Dive). The selected depth determines which questions are shown in Step 3. Steps 0, 1, 2, 4-8 are always fully present regardless of depth.
 
 ### Step 0 — Where & When
 
@@ -73,7 +74,7 @@ Steps are numbered 0-7. The two phases are kept strictly separate — **no quest
 
 **Validation:** Destination, arrival, and departure are mandatory. Cannot proceed to Step 1 without all three filled. Departure must be after arrival.
 
-**Note:** Travel rhythm was previously on Step 0 as card selector. It is now a one-by-one question in Step 2 (question key: `rhythm`).
+**Note:** Travel rhythm was previously on Step 0 as card selector. It is now a one-by-one question in Step 3 (question key: `rhythm`).
 
 ### Step 1 — Who's Traveling
 Two sections: **Parents/Adults** and **Children**. Both are dynamic lists with add/remove via +/− counter.
@@ -110,11 +111,22 @@ Two sections: **Parents/Adults** and **Children**. Both are dynamic lists with a
 
 **Validation:** Name and birth year are mandatory for every traveler. Cannot proceed to Step 2 without all travelers having name + year filled.
 
-### Step 2 — All Preferences (One-by-One Questionnaire)
+### Step 2 — Plan Your Stay & Travel
+
+Hotel and car rental assistance toggles with optional sub-questions. Both toggles default to "No" (collapsed). No validation gate — the user can pass through without interaction.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Hotel Assistance (toggle) | 2-option card (supplementary) | Yes = show hotel sub-questions, No = hide (default). Clearing resets all hotel selections. |
+| Hotel sub-questions (7) | Various (supplementary) | hotelType (card grid 12), hotelLocation (q-card 5), hotelStars (q-card 4), hotelAmenities (chips 12), hotelPets (toggle 2), hotelCancellation (q-card 3), hotelBudget (range slider $30-$1000) |
+| Car Rental Assistance (toggle) | 2-option card (supplementary) | Yes = show car sub-questions, No = hide (default). Clearing resets all car selections. |
+| Car sub-questions (6) | Various (supplementary) | carCategory (card grid 14), carTransmission (q-card 3), carFuel (q-card 5), carPickup (q-card 4), carExtras (chips 7), carBudget (range slider $0-$1000) |
+
+### Step 3 — All Preferences (One-by-One Questionnaire)
 
 **ALL preference questions** are presented here in a single one-by-one questionnaire with sub-step dots and auto-advance. The number of visible questions depends on the selected depth (10-30). Each question has 3-4 options (radio behavior — one selected per question). Default is the middle/balanced option. Sub-step dots are dynamically rebuilt based on visible questions at the selected depth.
 
-This step contains questions that were previously spread across Steps 0 (rhythm), 4 (avoid-quiz), 5 (food-quiz), and 6 (photography/accessibility). They are now consolidated here for a clean sequential experience.
+This step contains questions that were previously spread across Steps 0 (rhythm), 5 (avoid-quiz), 6 (food-quiz), and 7 (photography/accessibility). They are now consolidated here for a clean sequential experience.
 
 **Derived values (not asked as questions):**
 - `energy`: derived from pace answer (relaxed→chill, balanced→mixed, packed→active)
@@ -139,10 +151,10 @@ The scoring function uses `energy` and `food` as derived values (see above). Pre
 
 **Pre-selection rules:** Each answer maps to 2-4 **exact item names** (not keyword substrings). Total pre-selection target: ~8-15 chips. Items are validated against the pool map — only items that exist in a rendered pool are pre-selected. Duplicates across questions are naturally deduplicated by the Set.
 
-**Reset rule:** When the user leaves the questionnaire step (Step 2), all saved interest/avoid selections are cleared, so changed answers always produce fresh pre-selections. Manual selections are only preserved when navigating between Steps 3↔4↔5 (not when returning through the questionnaire).
+**Reset rule:** When the user leaves the questionnaire step (Step 3), all saved interest/avoid selections are cleared, so changed answers always produce fresh pre-selections. Manual selections are only preserved when navigating between Steps 4↔5↔6 (not when returning through the questionnaire).
 
-### Step 3 — Interests (Card Selection)
-Interest card suggestions are **dynamically generated** based on traveler composition (Step 1) + questionnaire answers (Step 2). A "group summary" banner shows the analyzed group.
+### Step 4 — Interests (Card Selection)
+Interest card suggestions are **dynamically generated** based on traveler composition (Step 1) + questionnaire answers (Step 3). A "group summary" banner shows the analyzed group.
 
 Cards are organized into labeled sections. Only sections matching active profile flags are shown. Cards matching questionnaire answers are **pre-selected**. Free-text textarea at bottom for custom interests.
 
@@ -150,21 +162,21 @@ Cards are organized into labeled sections. Only sections matching active profile
 
 See §Dynamic Interest Engine below for pool definitions and flag logic.
 
-### Step 4 — Things to Avoid (Card Selection)
-Dynamic avoid cards filtered by audience flags and scored using Step 2 answers (noise, foodadventure, budget, flexibility, pace). Cards with score ≥ 3 are pre-selected. Free-text textarea for custom avoids.
+### Step 5 — Things to Avoid (Card Selection)
+Dynamic avoid cards filtered by audience flags and scored using Step 3 answers (noise, foodadventure, budget, flexibility, pace). Cards with score ≥ 3 are pre-selected. Free-text textarea for custom avoids.
 
-**No hidden quiz DOM.** All preference questions are now asked in Step 2. Scoring functions read answers directly from Step 2's question slides.
+**No hidden quiz DOM.** All preference questions are now asked in Step 3. Scoring functions read answers directly from Step 3's question slides.
 
-### Step 5 — Food & Dining (Card Selection)
+### Step 6 — Food & Dining (Card Selection)
 Three parts:
 
-1. **Food Experience Cards** — Dynamic cards scored using Step 2 answers (diet, diningstyle, foodadventure). Pre-selected based on scores.
+1. **Food Experience Cards** — Dynamic cards scored using Step 3 answers (diet, diningstyle, foodadventure). Pre-selected based on scores.
 2. **Dining Vibe Cards** — Accent-gold variant (`.avoid-card--vibe`). Filtered by audience flags.
 3. **Food Notes** — Free-text textarea for allergies, must-haves, dislikes.
 
-**No hidden quiz DOM.** All food preference questions are now asked in Step 2.
+**No hidden quiz DOM.** All food preference questions are now asked in Step 3.
 
-### Step 6 — Language & Extras
+### Step 7 — Language & Extras
 | Field | Tier | Type | Notes |
 |---|---|---|---|
 | Report Language | — | select (supplementary) | Options: English, Russian, Hebrew, Spanish, French, German, Italian, Portuguese, Chinese, Japanese, Korean, Arabic. Defaults to match UI language. |
@@ -174,8 +186,8 @@ Three parts:
 | Accessibility | T5 | 3-option card | No Special Needs (default) / Prefer Flat Routes / Wheelchair Accessible |
 | Wheelchair Accessible | — | 2-option card (supplementary) | Always visible. "No Requirement" (default) / "Wheelchair Accessible Required" |
 
-### Step 7 — Review & Download
-- **Preview:** Rendered markdown in preview box. The preview tab label shows the dynamic filename (`{name}_trip_details_{date}.md`) and refreshes each time Step 7 is entered.
+### Step 8 — Review & Download
+- **Preview:** Rendered markdown in preview box. The preview tab label shows the dynamic filename (`{name}_trip_details_{date}.md`) and refreshes each time Step 8 is entered.
 - **Actions:**
   - "Copy to Clipboard" — copies raw markdown text
   - "Download" — triggers browser download with the dynamic filename `{name}_trip_details_{date}.md` (see Output Format below for filename construction rules)
@@ -185,13 +197,13 @@ Three parts:
   - "Copy Command" button (copies to clipboard, shows toast)
   - Instructional text directing the user to paste into Claude Code
   - The section updates if the user downloads again after making edits
-  - The section resets (hides) when navigating away from Step 7 and back
+  - The section resets (hides) when navigating away from Step 8 and back
   - **Pipeline Roadmap:** A visual timeline showing the 6 generation pipeline steps (Overview, Day Generation, Budget, Assembly, HTML Render, Quality Testing) with proportional duration bars and estimated times (~28 min total). Steps 2 and 5 are visually emphasized as the two longest phases.
 - **Bridge Integration:** The download button first attempts to connect to the bridge server (`localhost:3456`). If available, it saves the file directly and starts trip generation in a new terminal — no copy-paste needed. If the bridge is not running, it falls back to browser download + copy command.
 - **Generating mode:** During trip generation, the hero, search bar, preview, and wizard steps are hidden (`body.is-generating` CSS class). Only the pipeline roadmap and log are visible.
 - **Stop button:** A "Stop Generation" button allows cancelling the running generation via `POST /cancel/:id`. Clicking it kills the claude process, resets the pipeline UI, and restores the wizard for editing.
 - **Open Trip button:** After successful generation, an "Open Trip" button appears. It fetches the latest generated trip folder via `GET /latest-trip` and opens the HTML file via `GET /file/*`.
-- **Edit:** "Back" button returns to Step 6
+- **Edit:** "Back" button returns to Step 7
 
 ## Destination Autocomplete
 
@@ -223,7 +235,7 @@ The wizard supports 5 depth levels: 10 (Quick), 15 (Light), 20 (Standard), 25 (D
 
 ### Tier Table (Quiz Questions Only)
 
-All 30 tiered questions are real visual quiz-card questions with 3 selectable options each. **Note:** Questions assigned to Steps 4 and 5 are present in the DOM with default values but their quiz UI is hidden. Only Step 2 questions are visually interactive. Steps 4-5 quiz defaults are used for scoring card relevance.
+All 30 tiered questions are real visual quiz-card questions with 3 selectable options each. **Note:** Questions assigned to Steps 5 and 6 are present in the DOM with default values but their quiz UI is hidden. Only Step 3 questions are visually interactive. Steps 5-6 quiz defaults are used for scoring card relevance.
 
 | Tier | Questions | Count | Cumulative | Depth Levels |
 |------|-----------|-------|------------|-------------|
@@ -239,29 +251,44 @@ These fields are always visible within their step and do not count toward the qu
 
 | Field | Type | Step |
 |-------|------|------|
-| interests | Chip selection grid | Step 3 |
-| customInterests | Textarea | Step 3 |
-| avoidChips | Chip selection grid | Step 4 |
-| customAvoid | Textarea | Step 4 |
-| foodExperience | Dynamic cards | Step 5 |
-| diningVibe | Chip group | Step 5 |
-| foodNotes | Textarea | Step 5 |
-| reportLang | Dropdown | Step 6 |
-| poiLangs | Text input | Step 6 |
-| extraNotes | Textarea | Step 6 |
-| wheelchairAccessible | 2-option card | Step 6 |
+| interests | Chip selection grid | Step 4 |
+| customInterests | Textarea | Step 4 |
+| avoidChips | Chip selection grid | Step 5 |
+| customAvoid | Textarea | Step 5 |
+| foodExperience | Dynamic cards | Step 6 |
+| diningVibe | Chip group | Step 6 |
+| foodNotes | Textarea | Step 6 |
+| hotelAssistToggle | 2-option card | Step 2 |
+| hotelType | Card grid (12 options) | Step 2 |
+| hotelLocation | q-card (5 options) | Step 2 |
+| hotelStars | q-card (4 options) | Step 2 |
+| hotelAmenities | Multi-select chips (12 options) | Step 2 |
+| hotelPets | 2-option card | Step 2 |
+| hotelCancellation | q-card (3 options) | Step 2 |
+| hotelBudget | Dual-handle range slider | Step 2 |
+| carAssistToggle | 2-option card | Step 2 |
+| carCategory | Card grid (14 options) | Step 2 |
+| carTransmission | q-card (3 options) | Step 2 |
+| carFuel | q-card (5 options) | Step 2 |
+| carPickup | q-card (4 options) | Step 2 |
+| carExtras | Multi-select chips (7 options) | Step 2 |
+| carBudget | Dual-handle range slider | Step 2 |
+| reportLang | Dropdown | Step 7 |
+| poiLangs | Text input | Step 7 |
+| extraNotes | Textarea | Step 7 |
+| wheelchairAccessible | 2-option card | Step 7 |
 
 ### Depth Defaults
 
-When a question is hidden due to depth selection, its default value is used in the generated markdown. Defaults are always the "middle" or "balanced" option. For Steps 4-5 quiz questions (which are always hidden from the UI), the DOM `is-selected` defaults are used: noise=flexible, foodadventure=open, budget=balanced, flexibility=loose, diet=omnivore, diningstyle=casual. See the `QUESTION_DEFAULTS` constant in `trip_intake.html` for the complete default values table.
+When a question is hidden due to depth selection, its default value is used in the generated markdown. Defaults are always the "middle" or "balanced" option. For Steps 5-6 quiz questions (which are always hidden from the UI), the DOM `is-selected` defaults are used: noise=flexible, foodadventure=open, budget=balanced, flexibility=loose, diet=omnivore, diningstyle=casual. See the `QUESTION_DEFAULTS` constant in `trip_intake.html` for the complete default values table.
 
 ### Step Visibility Rules
 
-- Steps 0, 1, 3, 4, 5, 6, 7 are **always visible** in the stepper regardless of depth level.
-- Step 2 (Travel Style) visibility depends on depth: if ALL style questions are hidden, step is auto-skipped.
-- Steps 3-5 always show their card-selection grids (supplementary content, not gated by depth).
-- Step merging is disabled — Step 5 is never merged into Step 4.
-- Quiz sub-step dots in Step 2 reflect only visible questions at the selected depth.
+- Steps 0, 1, 2, 4, 5, 6, 7, 8 are **always visible** in the stepper regardless of depth level.
+- Step 3 (Travel Style) visibility depends on depth: if ALL style questions are hidden, step is auto-skipped.
+- Steps 4-6 always show their card-selection grids (supplementary content, not gated by depth).
+- Step merging is disabled — Step 6 is never merged into Step 5.
+- Quiz sub-step dots in Step 3 reflect only visible questions at the selected depth.
 
 ## Dynamic Interest Engine
 
@@ -446,7 +473,28 @@ The generated markdown must match the structure of `trip_details.md` so it can b
 - **Relaxation time:** {keep going|short breaks|long leisurely breaks}
 - **Social interaction:** {private & intimate|small group OK|love meeting people}
 - **Spontaneity:** {prefer the plan|small detours OK|surprise me!}
+
+## Hotel Assistance
+
+- **Accommodation type:** {value}
+- **Location priority:** {value}
+- **Quality level:** {value}
+- **Must-have amenities:** {comma-separated list or "None"}
+- **Traveling with pets:** {Yes/No}
+- **Cancellation preference:** {value}
+- **Daily budget per room:** ${min} - ${max}
+
+## Car Rental Assistance
+
+- **Car category:** {value}
+- **Transmission:** {value}
+- **Fuel type:** {value}
+- **Pickup & return:** {value}
+- **Additional equipment:** {comma-separated list or "None"}
+- **Daily rental budget:** ${min} - ${max}
 ```
+
+_The `## Hotel Assistance` and `## Car Rental Assistance` sections are conditional — they appear only when the corresponding toggle is set to Yes in Step 2. If the toggle is No, the section is omitted entirely._
 
 ### Output Rules
 - Sections with no data are omitted (e.g., no Children table if no kids added)

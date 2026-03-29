@@ -1116,7 +1116,7 @@
       background: var(--color-brand-accent);
     }
 
-    /* === Depth Extra Questions (Step 6 inline q-cards) === */
+    /* === Depth Extra Questions (Step 2 & Step 7 inline q-cards) === */
     .depth-extra-question {
       margin-top: var(--space-4);
     }
@@ -1131,6 +1131,152 @@
       letter-spacing: 0.06em;
       color: var(--color-brand-accent-alt);
       margin-bottom: var(--space-2);
+    }
+
+    /* === Assistance Sections (Hotel / Car collapsible toggle sections) === */
+    .assistance-section {
+      margin-top: var(--space-5);
+      border-top: 1px solid var(--color-border);
+      padding-top: var(--space-4);
+    }
+    .assistance-section__header {
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-brand-accent-alt);
+      margin-bottom: var(--space-3);
+    }
+    .assistance-section__body {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+    }
+    .assistance-section__body.is-expanded {
+      max-height: 4000px;
+      opacity: 1;
+    }
+
+    /* === Option Grid (3-4 col grid for large card sets like hotelType/carCategory) === */
+    .option-grid {
+      display: grid;
+      gap: var(--space-2);
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .option-grid .q-card {
+      min-height: 100px;
+      padding: var(--space-2) var(--space-2);
+      font-size: var(--text-sm);
+    }
+    .option-grid .q-card__icon { font-size: 1.5rem; }
+    .option-grid .q-card__title { font-size: var(--text-xs); }
+    .option-grid .q-card__desc { display: none; }
+    @media (max-width: 768px) {
+      .option-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .option-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* === Chip Toggle (multi-select pills for amenities/extras) === */
+    .chip-toggle-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .chip-toggle {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 16px;
+      border: 2px solid var(--color-border);
+      border-radius: 999px;
+      background: var(--color-surface);
+      font-size: var(--text-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      min-height: 44px;
+      user-select: none;
+    }
+    .chip-toggle:hover {
+      border-color: var(--color-brand-primary);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    .chip-toggle.is-selected {
+      background: var(--color-brand-primary);
+      border-color: var(--color-brand-primary);
+      color: #fff;
+    }
+    .chip-toggle:focus-visible {
+      outline: 2px solid var(--color-brand-accent);
+      outline-offset: 2px;
+    }
+
+    /* === Dual-Handle Range Slider === */
+    .range-slider {
+      max-width: 600px;
+      margin: var(--space-3) auto;
+      padding: var(--space-2) var(--space-3);
+      user-select: none;
+    }
+    .range-slider__label {
+      text-align: center;
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-3);
+    }
+    .range-slider__track {
+      position: relative;
+      height: 6px;
+      background: var(--color-border);
+      border-radius: 3px;
+      margin: 20px 0;
+      touch-action: none;
+    }
+    .range-slider__fill {
+      position: absolute;
+      height: 100%;
+      background: var(--color-brand-primary);
+      border-radius: 3px;
+      pointer-events: none;
+    }
+    .range-slider__handle {
+      position: absolute;
+      top: 50%;
+      width: 24px;
+      height: 24px;
+      background: var(--color-surface);
+      border: 3px solid var(--color-brand-primary);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: grab;
+      touch-action: none;
+      z-index: 2;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition-fast);
+      padding: 10px;
+      margin: -10px;
+      box-sizing: content-box;
+    }
+    .range-slider__handle:hover,
+    .range-slider__handle:active {
+      box-shadow: var(--shadow-md);
+      cursor: grabbing;
+    }
+    .range-slider__handle:focus-visible {
+      outline: 2px solid var(--color-brand-accent);
+      outline-offset: 4px;
+    }
+    [dir="rtl"] .range-slider__handle {
+      transform: translate(50%, -50%);
     }
 
     /* === Section Divider === */
@@ -2040,26 +2186,30 @@
         <div class="stepper__label" data-i18n="step_travelers">Travelers</div>
       </div>
       <div class="stepper__step" data-step="2" role="tab" aria-selected="false">
+        <div class="stepper__circle"><span>&#127976;</span></div>
+        <div class="stepper__label" data-i18n="step_stay">Stay</div>
+      </div>
+      <div class="stepper__step" data-step="3" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#127919;</span></div>
         <div class="stepper__label" data-i18n="step_style">Style</div>
       </div>
-      <div class="stepper__step" data-step="3" role="tab" aria-selected="false">
+      <div class="stepper__step" data-step="4" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#10084;&#65039;</span></div>
         <div class="stepper__label" data-i18n="step_interests">Interests</div>
       </div>
-      <div class="stepper__step" data-step="4" role="tab" aria-selected="false">
+      <div class="stepper__step" data-step="5" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#128683;</span></div>
         <div class="stepper__label" data-i18n="step_avoid">Avoid</div>
       </div>
-      <div class="stepper__step" data-step="5" role="tab" aria-selected="false">
+      <div class="stepper__step" data-step="6" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#127869;</span></div>
         <div class="stepper__label" data-i18n="step_food">Food</div>
       </div>
-      <div class="stepper__step" data-step="6" role="tab" aria-selected="false">
+      <div class="stepper__step" data-step="7" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#127758;</span></div>
         <div class="stepper__label" data-i18n="step_details">Details</div>
       </div>
-      <div class="stepper__step" data-step="7" role="tab" aria-selected="false">
+      <div class="stepper__step" data-step="8" role="tab" aria-selected="false">
         <div class="stepper__circle"><span>&#9989;</span></div>
         <div class="stepper__label" data-i18n="step_review">Review</div>
       </div>
@@ -2150,13 +2300,413 @@
         </div>
       </section>
 
-      <!-- ============ DEPTH SELECTOR OVERLAY ============ -->
-      <!-- Shown after Step 1, before proceeding to Step 2 -->
-
-      <!-- ============ STEP 2: Trip Style Questionnaire (One Per View) ============ -->
+      <!-- ============ STEP 2: Plan Your Stay & Travel ============ -->
       <section class="step" data-step="2">
-        <h2 class="step__title" data-i18n="s2_title">What's Your Travel Style?</h2>
-        <p class="step__desc" data-i18n="s2_desc">Quick questions to understand your perfect trip.</p>
+        <h2 class="step__title" data-i18n="s2_title">Plan Your Stay & Travel</h2>
+        <p class="step__desc" data-i18n="s2_desc">Need help finding accommodation or a rental car? Toggle the options below — skip if you've got it covered.</p>
+
+        <!-- ===== Hotel Assistance Section ===== -->
+        <div class="assistance-section" id="hotelAssistanceSection">
+          <div class="assistance-section__header" data-i18n="s6_hotel_header">Hotel Assistance</div>
+
+          <!-- Hotel toggle (Yes/No) -->
+          <div class="depth-extra-question" data-question-key="hotelAssistToggle">
+            <label class="field__label" data-i18n="s6_hotel_toggle">Would you like help choosing accommodation?</label>
+            <div class="question-options">
+              <div class="q-card is-selected" tabindex="0" role="button" data-value="no" data-en-name="No">
+                <div class="q-card__icon">&#10060;</div>
+                <div class="q-card__title" data-i18n="s6_hotel_toggle_no">No, I'll Handle It</div>
+                <div class="q-card__desc" data-i18n="s6_hotel_toggle_no_desc">I'll arrange accommodation myself</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="yes" data-en-name="Yes">
+                <div class="q-card__icon">&#127960;</div>
+                <div class="q-card__title" data-i18n="s6_hotel_toggle_yes">Yes, Help Me Choose</div>
+                <div class="q-card__desc" data-i18n="s6_hotel_toggle_yes_desc">I'd like accommodation recommendations</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hotel sub-questions (collapsed by default) -->
+          <div class="assistance-section__body" id="hotelSubQuestions">
+
+            <!-- H1: Accommodation Type (single-select card grid, 12 options) -->
+            <div class="depth-extra-question" data-question-key="hotelType">
+              <label class="field__label" data-i18n="s6_hotel_type">Accommodation Type</label>
+              <div class="option-grid">
+                <div class="q-card" tabindex="0" role="button" data-value="hotel" data-en-name="Hotel">
+                  <div class="q-card__icon">&#127976;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_hotel">Hotel</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="boutique" data-en-name="Boutique Hotel">
+                  <div class="q-card__icon">&#127970;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_boutique">Boutique Hotel</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="resort" data-en-name="Resort &amp; Spa">
+                  <div class="q-card__icon">&#127965;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_resort">Resort &amp; Spa</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="apartment" data-en-name="Apartment / Condo">
+                  <div class="q-card__icon">&#127960;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_apartment">Apartment / Condo</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="aparthotel" data-en-name="Apart-Hotel">
+                  <div class="q-card__icon">&#127983;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_aparthotel">Apart-Hotel</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="villa" data-en-name="Villa / House">
+                  <div class="q-card__icon">&#127969;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_villa">Villa / House</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="bnb" data-en-name="B&amp;B / Guesthouse">
+                  <div class="q-card__icon">&#9749;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_bnb">B&amp;B / Guesthouse</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="hostel" data-en-name="Hostel">
+                  <div class="q-card__icon">&#128716;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_hostel">Hostel</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="farmhouse" data-en-name="Farmhouse / Agriturismo">
+                  <div class="q-card__icon">&#127806;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_farmhouse">Farmhouse / Agriturismo</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="cabin" data-en-name="Cabin / Cottage">
+                  <div class="q-card__icon">&#127956;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_cabin">Cabin / Cottage</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="glamping" data-en-name="Glamping">
+                  <div class="q-card__icon">&#9978;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_glamping">Glamping</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="houseboat" data-en-name="Houseboat">
+                  <div class="q-card__icon">&#128674;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_type_houseboat">Houseboat</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- H2: Location Priority (q-card single-select, 5 options) -->
+            <div class="depth-extra-question" data-question-key="hotelLocation">
+              <label class="field__label" data-i18n="s6_hotel_location">Location Priority</label>
+              <div class="question-options">
+                <div class="q-card" tabindex="0" role="button" data-value="center" data-en-name="City center &amp; walkable">
+                  <div class="q-card__icon">&#127963;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_loc_center">City Center &amp; Walkable</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="attractions" data-en-name="Near main attractions">
+                  <div class="q-card__icon">&#127984;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_loc_attractions">Near Main Attractions</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="quiet" data-en-name="Quiet &amp; residential">
+                  <div class="q-card__icon">&#127795;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_loc_quiet">Quiet &amp; Residential</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="beach" data-en-name="Beachfront or waterfront">
+                  <div class="q-card__icon">&#127754;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_loc_beach">Beachfront / Waterfront</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="transport" data-en-name="Near transport hub">
+                  <div class="q-card__icon">&#128646;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_loc_transport">Near Transport Hub</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- H3: Quality Level (q-card single-select, 4 options) -->
+            <div class="depth-extra-question" data-question-key="hotelStars">
+              <label class="field__label" data-i18n="s6_hotel_stars">Quality Level</label>
+              <div class="question-options">
+                <div class="q-card" tabindex="0" role="button" data-value="budget" data-en-name="Budget (1-2 stars)">
+                  <div class="q-card__icon">&#11088;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_stars_budget">Budget (1-2 stars)</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="midrange" data-en-name="Mid-range (3 stars)">
+                  <div class="q-card__icon">&#11088;&#11088;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_stars_mid">Mid-range (3 stars)</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="upscale" data-en-name="Upscale (4 stars)">
+                  <div class="q-card__icon">&#11088;&#11088;&#11088;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_stars_upscale">Upscale (4 stars)</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="luxury" data-en-name="Luxury (5 stars)">
+                  <div class="q-card__icon">&#11088;&#11088;&#11088;&#11088;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_stars_luxury">Luxury (5 stars)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- H4: Must-Have Amenities (multi-select chips, 12 options) -->
+            <div class="depth-extra-question" data-question-key="hotelAmenities">
+              <label class="field__label" data-i18n="s6_hotel_amenities">Must-Have Amenities</label>
+              <div class="chip-toggle-group" id="hotelAmenitiesChips">
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Pool" data-i18n="s6_hotel_amen_pool">&#127946; Pool</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Free Parking" data-i18n="s6_hotel_amen_parking">&#127359; Free Parking</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Kitchen" data-i18n="s6_hotel_amen_kitchen">&#127859; Kitchen</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Free WiFi" data-i18n="s6_hotel_amen_wifi">&#128246; Free WiFi</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Gym" data-i18n="s6_hotel_amen_gym">&#127947; Gym</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Spa &amp; Wellness" data-i18n="s6_hotel_amen_spa">&#128134; Spa &amp; Wellness</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Air Conditioning" data-i18n="s6_hotel_amen_ac">&#10052; Air Conditioning</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Laundry" data-i18n="s6_hotel_amen_laundry">&#128090; Laundry</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Kids Play Area" data-i18n="s6_hotel_amen_kids">&#127880; Kids Play Area</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Restaurant On-site" data-i18n="s6_hotel_amen_restaurant">&#127860; Restaurant On-site</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Non-smoking Rooms" data-i18n="s6_hotel_amen_nonsmoking">&#128683; Non-smoking Rooms</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Airport Shuttle" data-i18n="s6_hotel_amen_shuttle">&#128652; Airport Shuttle</button>
+              </div>
+            </div>
+
+            <!-- H5: Traveling with Pets (toggle Yes/No, default No) -->
+            <div class="depth-extra-question" data-question-key="hotelPets">
+              <label class="field__label" data-i18n="s6_hotel_pets">Traveling with Pets?</label>
+              <div class="question-options">
+                <div class="q-card is-selected" tabindex="0" role="button" data-value="no" data-en-name="No">
+                  <div class="q-card__icon">&#10060;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_pets_no">No</div>
+                  <div class="q-card__desc" data-i18n="s6_hotel_pets_no_desc">Not bringing pets</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="yes" data-en-name="Yes">
+                  <div class="q-card__icon">&#128054;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_pets_yes">Yes</div>
+                  <div class="q-card__desc" data-i18n="s6_hotel_pets_yes_desc">Need pet-friendly accommodation</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- H6: Cancellation Preference (q-card single-select, 3 options) -->
+            <div class="depth-extra-question" data-question-key="hotelCancellation">
+              <label class="field__label" data-i18n="s6_hotel_cancellation">Cancellation Flexibility</label>
+              <div class="question-options">
+                <div class="q-card" tabindex="0" role="button" data-value="free" data-en-name="Free cancellation (even if pricier)">
+                  <div class="q-card__icon">&#128275;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_cancel_free">Free Cancellation</div>
+                  <div class="q-card__desc" data-i18n="s6_hotel_cancel_free_desc">Even if it costs more</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="nonrefundable" data-en-name="Non-refundable is fine (cheaper)">
+                  <div class="q-card__icon">&#128176;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_cancel_cheap">Non-refundable OK</div>
+                  <div class="q-card__desc" data-i18n="s6_hotel_cancel_cheap_desc">Cheaper rates are fine</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="nopref" data-en-name="No preference">
+                  <div class="q-card__icon">&#129335;</div>
+                  <div class="q-card__title" data-i18n="s6_hotel_cancel_nopref">No Preference</div>
+                  <div class="q-card__desc" data-i18n="s6_hotel_cancel_nopref_desc">Either way is fine</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- H7: Daily Budget per Room (dual-handle range slider) -->
+            <div class="depth-extra-question" data-question-key="hotelBudget">
+              <label class="field__label" data-i18n="s6_hotel_budget">Daily Budget per Room</label>
+              <div class="range-slider" id="hotelBudgetSlider" data-min="30" data-max="1000" data-step="10" data-prefix="$" data-min-val="30" data-max-val="1000">
+                <div class="range-slider__label" id="hotelBudgetLabel">$30 &#8211; $1,000</div>
+                <div class="range-slider__track">
+                  <div class="range-slider__fill"></div>
+                  <div class="range-slider__handle" data-handle="min" tabindex="0" role="slider" aria-label="Minimum budget" aria-valuemin="30" aria-valuemax="1000" aria-valuenow="30"></div>
+                  <div class="range-slider__handle" data-handle="max" tabindex="0" role="slider" aria-label="Maximum budget" aria-valuemin="30" aria-valuemax="1000" aria-valuenow="1000"></div>
+                </div>
+              </div>
+            </div>
+
+          </div> <!-- end #hotelSubQuestions -->
+        </div> <!-- end #hotelAssistanceSection -->
+
+        <!-- ===== Car Rental Assistance Section ===== -->
+        <div class="assistance-section" id="carAssistanceSection">
+          <div class="assistance-section__header" data-i18n="s6_car_header">Car Rental Assistance</div>
+
+          <!-- Car toggle (Yes/No) -->
+          <div class="depth-extra-question" data-question-key="carAssistToggle">
+            <label class="field__label" data-i18n="s6_car_toggle">Would you like help choosing a rental car?</label>
+            <div class="question-options">
+              <div class="q-card is-selected" tabindex="0" role="button" data-value="no" data-en-name="No">
+                <div class="q-card__icon">&#10060;</div>
+                <div class="q-card__title" data-i18n="s6_car_toggle_no">No, I'll Handle It</div>
+                <div class="q-card__desc" data-i18n="s6_car_toggle_no_desc">I'll arrange transport myself</div>
+              </div>
+              <div class="q-card" tabindex="0" role="button" data-value="yes" data-en-name="Yes">
+                <div class="q-card__icon">&#128663;</div>
+                <div class="q-card__title" data-i18n="s6_car_toggle_yes">Yes, Help Me Choose</div>
+                <div class="q-card__desc" data-i18n="s6_car_toggle_yes_desc">I'd like car rental recommendations</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Car sub-questions (collapsed by default) -->
+          <div class="assistance-section__body" id="carSubQuestions">
+
+            <!-- C1: Car Category (single-select card grid, 14 options) -->
+            <div class="depth-extra-question" data-question-key="carCategory">
+              <label class="field__label" data-i18n="s6_car_category">Car Category</label>
+              <div class="option-grid">
+                <div class="q-card" tabindex="0" role="button" data-value="mini" data-en-name="Mini">
+                  <div class="q-card__icon">&#128663;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_mini">Mini</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="economy" data-en-name="Economy">
+                  <div class="q-card__icon">&#128664;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_economy">Economy</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="compact" data-en-name="Compact">
+                  <div class="q-card__icon">&#128665;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_compact">Compact</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="intermediate" data-en-name="Intermediate">
+                  <div class="q-card__icon">&#128665;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_intermediate">Intermediate</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="standard" data-en-name="Standard">
+                  <div class="q-card__icon">&#128665;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_standard">Standard</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="fullsize" data-en-name="Full-size">
+                  <div class="q-card__icon">&#128665;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_fullsize">Full-size</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="premium" data-en-name="Premium">
+                  <div class="q-card__icon">&#128662;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_premium">Premium</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="luxury" data-en-name="Luxury">
+                  <div class="q-card__icon">&#128662;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_luxury">Luxury</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="suv-compact" data-en-name="SUV Compact">
+                  <div class="q-card__icon">&#128661;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_suv_compact">SUV Compact</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="suv-fullsize" data-en-name="SUV Full-size">
+                  <div class="q-card__icon">&#128661;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_suv_full">SUV Full-size</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="minivan" data-en-name="Minivan / MPV">
+                  <div class="q-card__icon">&#128656;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_minivan">Minivan / MPV</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="van" data-en-name="Van (7-9 seats)">
+                  <div class="q-card__icon">&#128656;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_van">Van (7-9 seats)</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="convertible" data-en-name="Convertible">
+                  <div class="q-card__icon">&#127966;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_convertible">Convertible</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="oversize" data-en-name="Oversize">
+                  <div class="q-card__icon">&#128667;</div>
+                  <div class="q-card__title" data-i18n="s6_car_cat_oversize">Oversize</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- C2: Transmission (q-card single-select, 3 options) -->
+            <div class="depth-extra-question" data-question-key="carTransmission">
+              <label class="field__label" data-i18n="s6_car_transmission">Transmission</label>
+              <div class="question-options">
+                <div class="q-card" tabindex="0" role="button" data-value="automatic" data-en-name="Automatic">
+                  <div class="q-card__icon">&#129302;</div>
+                  <div class="q-card__title" data-i18n="s6_car_trans_auto">Automatic</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="manual" data-en-name="Manual">
+                  <div class="q-card__icon">&#128400;</div>
+                  <div class="q-card__title" data-i18n="s6_car_trans_manual">Manual</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="nopref" data-en-name="No preference">
+                  <div class="q-card__icon">&#129335;</div>
+                  <div class="q-card__title" data-i18n="s6_car_trans_nopref">No Preference</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- C3: Fuel Type (q-card single-select, 5 options) -->
+            <div class="depth-extra-question" data-question-key="carFuel">
+              <label class="field__label" data-i18n="s6_car_fuel">Fuel Type Preference</label>
+              <div class="question-options">
+                <div class="q-card" tabindex="0" role="button" data-value="petrol" data-en-name="Petrol">
+                  <div class="q-card__icon">&#9981;</div>
+                  <div class="q-card__title" data-i18n="s6_car_fuel_petrol">Petrol</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="diesel" data-en-name="Diesel">
+                  <div class="q-card__icon">&#9981;</div>
+                  <div class="q-card__title" data-i18n="s6_car_fuel_diesel">Diesel</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="hybrid" data-en-name="Hybrid">
+                  <div class="q-card__icon">&#127793;</div>
+                  <div class="q-card__title" data-i18n="s6_car_fuel_hybrid">Hybrid</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="electric" data-en-name="Electric">
+                  <div class="q-card__icon">&#9889;</div>
+                  <div class="q-card__title" data-i18n="s6_car_fuel_electric">Electric</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="nopref" data-en-name="No preference">
+                  <div class="q-card__icon">&#129335;</div>
+                  <div class="q-card__title" data-i18n="s6_car_fuel_nopref">No Preference</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- C4: Pickup & Return (q-card single-select, 4 options) -->
+            <div class="depth-extra-question" data-question-key="carPickup">
+              <label class="field__label" data-i18n="s6_car_pickup">Pickup &amp; Return</label>
+              <div class="question-options">
+                <div class="q-card" tabindex="0" role="button" data-value="airport" data-en-name="Airport">
+                  <div class="q-card__icon">&#9992;</div>
+                  <div class="q-card__title" data-i18n="s6_car_pickup_airport">Airport</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="city" data-en-name="City center office">
+                  <div class="q-card__icon">&#127963;</div>
+                  <div class="q-card__title" data-i18n="s6_car_pickup_city">City Center Office</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="hotel" data-en-name="Hotel or accommodation delivery">
+                  <div class="q-card__icon">&#127976;</div>
+                  <div class="q-card__title" data-i18n="s6_car_pickup_hotel">Hotel Delivery</div>
+                </div>
+                <div class="q-card" tabindex="0" role="button" data-value="train" data-en-name="Train station">
+                  <div class="q-card__icon">&#128646;</div>
+                  <div class="q-card__title" data-i18n="s6_car_pickup_train">Train Station</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- C5: Additional Equipment (multi-select chips, 7 options) -->
+            <div class="depth-extra-question" data-question-key="carExtras">
+              <label class="field__label" data-i18n="s6_car_extras">Additional Equipment Needed</label>
+              <div class="chip-toggle-group" id="carExtrasChips">
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Child seat (infant)" data-i18n="s6_car_extra_infant">&#128118; Child Seat (Infant)</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Child seat (toddler)" data-i18n="s6_car_extra_toddler">&#128103; Child Seat (Toddler)</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Booster seat" data-i18n="s6_car_extra_booster">&#128186; Booster Seat</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="GPS Navigation" data-i18n="s6_car_extra_gps">&#128225; GPS Navigation</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Roof rack" data-i18n="s6_car_extra_roof">&#127955; Roof Rack</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Snow chains" data-i18n="s6_car_extra_snow">&#10052; Snow Chains</button>
+                <button type="button" class="chip-toggle" aria-pressed="false" data-en-name="Additional driver" data-i18n="s6_car_extra_driver">&#128100; Additional Driver</button>
+              </div>
+            </div>
+
+            <!-- C6: Daily Rental Budget (dual-handle range slider) -->
+            <div class="depth-extra-question" data-question-key="carBudget">
+              <label class="field__label" data-i18n="s6_car_budget">Daily Rental Budget</label>
+              <div class="range-slider" id="carBudgetSlider" data-min="0" data-max="1000" data-step="10" data-prefix="$" data-min-val="0" data-max-val="1000">
+                <div class="range-slider__label" id="carBudgetLabel">$0 &#8211; $1,000</div>
+                <div class="range-slider__track">
+                  <div class="range-slider__fill"></div>
+                  <div class="range-slider__handle" data-handle="min" tabindex="0" role="slider" aria-label="Minimum budget" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="0"></div>
+                  <div class="range-slider__handle" data-handle="max" tabindex="0" role="slider" aria-label="Maximum budget" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="1000"></div>
+                </div>
+              </div>
+            </div>
+
+          </div> <!-- end #carSubQuestions -->
+        </div> <!-- end #carAssistanceSection -->
+
+        <div class="btn-bar">
+          <button type="button" class="btn btn--secondary btn-prev" data-i18n="btn_back">&larr; Back</button>
+          <button type="button" class="btn btn--primary btn-next" data-i18n="btn_continue">Continue &rarr;</button>
+        </div>
+      </section>
+
+      <!-- ============ DEPTH SELECTOR OVERLAY ============ -->
+      <!-- Shown after Step 1, before proceeding to Step 3 -->
+
+      <!-- ============ STEP 3: Trip Style Questionnaire (One Per View) ============ -->
+      <section class="step" data-step="3">
+        <h2 class="step__title" data-i18n="s3_title">What's Your Travel Style?</h2>
+        <p class="step__desc" data-i18n="s3_desc">Quick questions to understand your perfect trip.</p>
 
         <div class="sub-dots" id="styleSubDots">
           <div class="sub-dot is-active" data-q="0"></div>
@@ -2866,10 +3416,10 @@
         </div>
       </section>
 
-      <!-- ============ STEP 3: Interests (dynamic) ============ -->
-      <section class="step" data-step="3">
-        <h2 class="step__title" data-i18n="s3_title">What Do You Love?</h2>
-        <p class="step__desc" data-i18n="s3_desc">Based on your answers, we've pre-selected some suggestions. Adjust as you like.</p>
+      <!-- ============ STEP 4: Interests (dynamic) ============ -->
+      <section class="step" data-step="4">
+        <h2 class="step__title" data-i18n="s4_title">What Do You Love?</h2>
+        <p class="step__desc" data-i18n="s4_desc">Based on your answers, we've pre-selected some suggestions. Adjust as you like.</p>
 
         <div class="group-summary" id="groupSummary"></div>
 
@@ -2888,10 +3438,10 @@
         </div>
       </section>
 
-      <!-- ============ STEP 4: Avoid & Pace ============ -->
-      <section class="step" data-step="4">
-        <h2 class="step__title" data-i18n="s4_title">Set Your Boundaries</h2>
-        <p class="step__desc" data-i18n="s4_desc">Deselect anything you'd prefer to skip on this trip.</p>
+      <!-- ============ STEP 5: Avoid & Pace ============ -->
+      <section class="step" data-step="5">
+        <h2 class="step__title" data-i18n="s5_title">Set Your Boundaries</h2>
+        <p class="step__desc" data-i18n="s5_desc">Deselect anything you'd prefer to skip on this trip.</p>
 
         <div class="chip-section">
           <div class="chip-section__title" data-i18n="s4_avoid_title">&#128683; We'd Suggest Avoiding</div>
@@ -2912,10 +3462,10 @@
         </div>
       </section>
 
-      <!-- ============ STEP 5: Culinary ============ -->
-      <section class="step" data-step="5">
-        <h2 class="step__title" data-i18n="s5_title">Food & Dining</h2>
-        <p class="step__desc" data-i18n="s5_desc">Select food experiences and dining vibes that match your group.</p>
+      <!-- ============ STEP 6: Culinary ============ -->
+      <section class="step" data-step="6">
+        <h2 class="step__title" data-i18n="s6_title">Food & Dining</h2>
+        <p class="step__desc" data-i18n="s6_desc">Select food experiences and dining vibes that match your group.</p>
 
         <!-- Dynamic food experience cards -->
         <div class="chip-section">
@@ -2944,10 +3494,10 @@
         </div>
       </section>
 
-      <!-- ============ STEP 6: Language & Extras ============ -->
-      <section class="step" data-step="6">
-        <h2 class="step__title" data-i18n="s6_title">Language & Extras</h2>
-        <p class="step__desc" data-i18n="s6_desc">Final touches for your perfect trip plan.</p>
+      <!-- ============ STEP 7: Language & Extras ============ -->
+      <section class="step" data-step="7">
+        <h2 class="step__title" data-i18n="s7_title">Language & Extras</h2>
+        <p class="step__desc" data-i18n="s7_desc">Final touches for your perfect trip plan.</p>
 
         <div class="row row--2">
           <div class="field">
@@ -2996,44 +3546,44 @@
 
         <div class="btn-bar">
           <button type="button" class="btn btn--secondary btn-prev" data-i18n="btn_back">&larr; Back</button>
-          <button type="button" class="btn btn--primary btn-next" data-i18n="s6_next">Review My Trip &rarr;</button>
+          <button type="button" class="btn btn--primary btn-next" data-i18n="s7_next">Review My Trip &rarr;</button>
         </div>
       </section>
 
-      <!-- ============ STEP 7: Review & Download ============ -->
-      <section class="step" data-step="7">
-        <h2 class="step__title" data-i18n="s7_title">Review Your Trip Details</h2>
-        <p class="step__desc" data-i18n="s7_desc">Here's the generated file. Review and download when ready.</p>
+      <!-- ============ STEP 8: Review & Download ============ -->
+      <section class="step" data-step="8">
+        <h2 class="step__title" data-i18n="s8_title">Review Your Trip Details</h2>
+        <p class="step__desc" data-i18n="s8_desc">Here's the generated file. Review and download when ready.</p>
 
         <div class="preview-box">
           <div class="preview-box__header">
             <div class="preview-box__tab" id="previewTabLabel">trip_details.md</div>
             <div class="preview-box__actions">
-              <button type="button" class="preview-box__copy-btn" id="btnCopyInline" data-i18n="s7_copy">Copy</button>
+              <button type="button" class="preview-box__copy-btn" id="btnCopyInline" data-i18n="s8_copy">Copy</button>
             </div>
           </div>
           <div class="preview-box__body" id="previewContent"></div>
         </div>
 
         <div class="btn-bar">
-          <button type="button" class="btn btn--secondary btn-prev" data-i18n="s7_edit">&larr; Edit</button>
+          <button type="button" class="btn btn--secondary btn-prev" data-i18n="s8_edit">&larr; Edit</button>
           <div style="display:flex;gap:var(--space-2);">
-            <button type="button" class="btn btn--secondary" id="btnCopy" data-i18n="s7_copy_clip">Copy to Clipboard</button>
-            <button type="button" class="btn btn--accent" id="btnDownload" data-i18n="s7_download">Build My Dream Trip &#10024;</button>
+            <button type="button" class="btn btn--secondary" id="btnCopy" data-i18n="s8_copy_clip">Copy to Clipboard</button>
+            <button type="button" class="btn btn--accent" id="btnDownload" data-i18n="s8_download">Build My Dream Trip &#10024;</button>
           </div>
         </div>
 
         <div class="post-download" id="postDownload" style="display:none;">
           <div class="post-download__header">
             <span class="post-download__icon">&#9989;</span>
-            <span class="post-download__title" id="postDownloadTitle" data-i18n="s7_post_title">Profile saved! Ready to generate your trip.</span>
+            <span class="post-download__title" id="postDownloadTitle" data-i18n="s8_post_title">Profile saved! Ready to generate your trip.</span>
           </div>
-          <p class="post-download__instruction" id="postDownloadInstruction" data-i18n="s7_post_instruction">Paste this command into Claude Code to start generating your personalized trip:</p>
+          <p class="post-download__instruction" id="postDownloadInstruction" data-i18n="s8_post_instruction">Paste this command into Claude Code to start generating your personalized trip:</p>
           <div class="post-download__cmd-row" id="postDownloadCmdRow">
             <code class="post-download__cmd" id="postDownloadCmd"></code>
-            <button type="button" class="btn btn--secondary post-download__copy-btn" id="btnCopyCmd" data-i18n="s7_post_copy">Copy Command</button>
+            <button type="button" class="btn btn--secondary post-download__copy-btn" id="btnCopyCmd" data-i18n="s8_post_copy">Copy Command</button>
           </div>
-          <p class="post-download__hint" id="postDownloadHint" data-i18n="s7_post_hint">Make sure the downloaded file is in your project directory and Claude Code is open.</p>
+          <p class="post-download__hint" id="postDownloadHint" data-i18n="s8_post_hint">Make sure the downloaded file is in your project directory and Claude Code is open.</p>
 
           <div class="open-trip-bar" id="openTripBar" style="display:none;"></div>
           <div id="pipelineRoadmap"></div>
@@ -3043,9 +3593,9 @@
             </div>
             <div class="pipeline-progress__text" id="pipelineProgressText">0%</div>
           </div>
-          <div class="pipeline-roadmap__status pipeline-roadmap__status--running" id="pipelineStatus" style="display:none;" data-i18n="s7_bridge_running">Generating your trip...</div>
+          <div class="pipeline-roadmap__status pipeline-roadmap__status--running" id="pipelineStatus" style="display:none;" data-i18n="s8_bridge_running">Generating your trip...</div>
           <div style="text-align:center;margin-top:var(--space-3);">
-            <button type="button" class="btn btn--stop" id="btnStopGeneration" style="display:none;" data-i18n="s7_stop_generation">Stop & Edit Details</button>
+            <button type="button" class="btn btn--stop" id="btnStopGeneration" style="display:none;" data-i18n="s8_stop_generation">Stop & Edit Details</button>
           </div>
           <div class="pipeline-roadmap__log" id="pipelineLog" style="display:none;"></div>
         </div>
@@ -4401,14 +4951,14 @@
     document.addEventListener('click', (e) => {
       const card = e.target.closest('.q-card');
       if (!card) return;
-      // Support both .question-slide (Step 2) and .depth-extra-question (Step 6) containers
+      // Support both .question-slide (Step 3) and .depth-extra-question (Step 7) containers
       const slide = card.closest('.question-slide') || card.closest('.depth-extra-question');
       if (!slide) return;
       slide.querySelectorAll('.q-card').forEach(c => c.classList.remove('is-selected'));
       card.classList.add('is-selected');
 
-      // Auto-advance after 400ms when in Step 2 questionnaire
-      if (currentStep === 2) {
+      // Auto-advance after 400ms when in Step 3 questionnaire
+      if (currentStep === 3) {
         clearTimeout(questionAutoAdvanceTimer);
         questionAutoAdvanceTimer = setTimeout(() => {
           const visible = getVisibleStyleSlides();
@@ -4416,12 +4966,212 @@
           if (curIdx < visible.length - 1) {
             goToSubQuestion(curIdx + 1);
           } else {
-            // Last visible question — advance to step 3
-            goToStep(3);
+            // Last visible question — advance to step 4
+            goToStep(4);
           }
         }, 400);
       }
     });
+
+    // ================================================================
+    //  CHIP TOGGLE: Multi-select click handler for .chip-toggle buttons
+    // ================================================================
+    document.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip-toggle');
+      if (!chip) return;
+      chip.classList.toggle('is-selected');
+      chip.setAttribute('aria-pressed', chip.classList.contains('is-selected'));
+    });
+
+    // ================================================================
+    //  ASSISTANCE SECTIONS: Toggle show/hide + reset on collapse
+    // ================================================================
+    (function initAssistanceSections() {
+      const sections = [
+        { toggleKey: 'hotelAssistToggle', bodyId: 'hotelSubQuestions' },
+        { toggleKey: 'carAssistToggle',   bodyId: 'carSubQuestions' }
+      ];
+
+      sections.forEach(({ toggleKey, bodyId }) => {
+        const container = document.querySelector(`.depth-extra-question[data-question-key="${toggleKey}"]`);
+        const body = document.getElementById(bodyId);
+        if (!container || !body) return;
+
+        container.addEventListener('click', (e) => {
+          const card = e.target.closest('.q-card');
+          if (!card) return;
+          const val = card.dataset.value;
+
+          if (val === 'yes') {
+            body.classList.add('is-expanded');
+          } else {
+            body.classList.remove('is-expanded');
+            // Reset all selections within the body
+            body.querySelectorAll('.q-card.is-selected').forEach(c => c.classList.remove('is-selected'));
+            body.querySelectorAll('.chip-toggle.is-selected').forEach(c => {
+              c.classList.remove('is-selected');
+              c.setAttribute('aria-pressed', 'false');
+            });
+            // Reset range sliders to full range
+            body.querySelectorAll('.range-slider').forEach(slider => {
+              const min = parseInt(slider.dataset.min);
+              const max = parseInt(slider.dataset.max);
+              slider.dataset.minVal = min;
+              slider.dataset.maxVal = max;
+              updateSliderUI(slider);
+            });
+            // Re-select default "No" for pets toggle if inside hotel section
+            body.querySelectorAll('.depth-extra-question[data-question-key="hotelPets"] .q-card[data-value="no"]').forEach(c => c.classList.add('is-selected'));
+          }
+        });
+      });
+    })();
+
+    // ================================================================
+    //  DUAL-HANDLE RANGE SLIDER COMPONENT
+    // ================================================================
+    function updateSliderUI(sliderEl) {
+      const min = parseInt(sliderEl.dataset.min);
+      const max = parseInt(sliderEl.dataset.max);
+      const minVal = parseInt(sliderEl.dataset.minVal);
+      const maxVal = parseInt(sliderEl.dataset.maxVal);
+      const prefix = sliderEl.dataset.prefix || '';
+      const range = max - min;
+      const isRTL = document.documentElement.dir === 'rtl';
+
+      const fill = sliderEl.querySelector('.range-slider__fill');
+      const handleMin = sliderEl.querySelector('[data-handle="min"]');
+      const handleMax = sliderEl.querySelector('[data-handle="max"]');
+      const label = sliderEl.querySelector('.range-slider__label');
+
+      const minPct = ((minVal - min) / range) * 100;
+      const maxPct = ((maxVal - min) / range) * 100;
+
+      if (isRTL) {
+        fill.style.right = minPct + '%';
+        fill.style.left = (100 - maxPct) + '%';
+        fill.style.width = '';
+        handleMin.style.right = minPct + '%';
+        handleMin.style.left = '';
+        handleMax.style.right = maxPct + '%';
+        handleMax.style.left = '';
+      } else {
+        fill.style.left = minPct + '%';
+        fill.style.right = '';
+        fill.style.width = (maxPct - minPct) + '%';
+        handleMin.style.left = minPct + '%';
+        handleMin.style.right = '';
+        handleMax.style.left = maxPct + '%';
+        handleMax.style.right = '';
+      }
+
+      // Update ARIA
+      handleMin.setAttribute('aria-valuenow', minVal);
+      handleMax.setAttribute('aria-valuenow', maxVal);
+
+      // Update label
+      const fmtMin = prefix + minVal.toLocaleString();
+      const fmtMax = prefix + maxVal.toLocaleString();
+      if (label) label.textContent = fmtMin + ' \u2013 ' + fmtMax;
+    }
+
+    function initRangeSlider(sliderEl) {
+      const min = parseInt(sliderEl.dataset.min);
+      const max = parseInt(sliderEl.dataset.max);
+      const step = parseInt(sliderEl.dataset.step) || 1;
+      const track = sliderEl.querySelector('.range-slider__track');
+
+      updateSliderUI(sliderEl);
+
+      function getValueFromPosition(clientX) {
+        const rect = track.getBoundingClientRect();
+        const isRTL = document.documentElement.dir === 'rtl';
+        let pct = isRTL
+          ? (rect.right - clientX) / rect.width
+          : (clientX - rect.left) / rect.width;
+        pct = Math.max(0, Math.min(1, pct));
+        let val = min + pct * (max - min);
+        val = Math.round(val / step) * step;
+        return Math.max(min, Math.min(max, val));
+      }
+
+      function startDrag(handle, e) {
+        e.preventDefault();
+        const which = handle.dataset.handle; // 'min' or 'max'
+
+        function onMove(ev) {
+          const clientX = ev.clientX;
+          let val = getValueFromPosition(clientX);
+          let curMin = parseInt(sliderEl.dataset.minVal);
+          let curMax = parseInt(sliderEl.dataset.maxVal);
+
+          if (which === 'min') {
+            val = Math.min(val, curMax - step);
+            sliderEl.dataset.minVal = val;
+          } else {
+            val = Math.max(val, curMin + step);
+            sliderEl.dataset.maxVal = val;
+          }
+          updateSliderUI(sliderEl);
+        }
+
+        function onEnd() {
+          document.removeEventListener('pointermove', onMove);
+          document.removeEventListener('pointerup', onEnd);
+        }
+
+        document.addEventListener('pointermove', onMove);
+        document.addEventListener('pointerup', onEnd);
+      }
+
+      // Attach pointer events only to handles (SA FB-2: no redundant touch listeners)
+      sliderEl.querySelectorAll('.range-slider__handle').forEach(handle => {
+        handle.addEventListener('pointerdown', (e) => startDrag(handle, e));
+
+        // Keyboard support
+        handle.addEventListener('keydown', (e) => {
+          const which = handle.dataset.handle;
+          let curMin = parseInt(sliderEl.dataset.minVal);
+          let curMax = parseInt(sliderEl.dataset.maxVal);
+          const isRTL = document.documentElement.dir === 'rtl';
+
+          let delta = 0;
+          if (e.key === 'ArrowRight') delta = isRTL ? -step : step;
+          else if (e.key === 'ArrowLeft') delta = isRTL ? step : -step;
+          else if (e.key === 'ArrowUp') delta = step;
+          else if (e.key === 'ArrowDown') delta = -step;
+          else return;
+
+          e.preventDefault();
+          if (which === 'min') {
+            let newVal = Math.max(min, Math.min(curMax - step, curMin + delta));
+            sliderEl.dataset.minVal = newVal;
+          } else {
+            let newVal = Math.max(curMin + step, Math.min(max, curMax + delta));
+            sliderEl.dataset.maxVal = newVal;
+          }
+          updateSliderUI(sliderEl);
+        });
+      });
+
+      // Click on track to move nearest handle
+      track.addEventListener('pointerdown', (e) => {
+        if (e.target.classList.contains('range-slider__handle')) return;
+        const val = getValueFromPosition(e.clientX);
+        const curMin = parseInt(sliderEl.dataset.minVal);
+        const curMax = parseInt(sliderEl.dataset.maxVal);
+        // Move whichever handle is closer
+        if (Math.abs(val - curMin) <= Math.abs(val - curMax)) {
+          sliderEl.dataset.minVal = Math.min(val, curMax - step);
+        } else {
+          sliderEl.dataset.maxVal = Math.max(val, curMin + step);
+        }
+        updateSliderUI(sliderEl);
+      });
+    }
+
+    // Initialize both sliders
+    document.querySelectorAll('.range-slider').forEach(initRangeSlider);
 
     function goToSubQuestion(index) {
       const visible = getVisibleStyleSlides();
@@ -4435,7 +5185,7 @@
 
       visible[index].classList.add('is-visible', direction);
 
-      // Update Step 2's sub-dots only
+      // Update Step 3's sub-dots only
       document.querySelectorAll('#styleSubDots .sub-dot').forEach((dot, i) => {
         dot.classList.remove('is-active', 'is-done');
         if (i < index) dot.classList.add('is-done');
@@ -4445,7 +5195,7 @@
       currentSubQuestion = index;
     }
 
-    // (Avoid-quiz and food-quiz sub-step logic removed — all questions now in Step 2 questionnaire viewport)
+    // (Avoid-quiz and food-quiz sub-step logic removed — all questions now in Step 3 questionnaire viewport)
 
     // Read food-quiz answers from unified questionnaire viewport
     function getFoodQuizAnswers() {
@@ -5126,7 +5876,7 @@
     //  7. NAVIGATION (with slide transitions + questionnaire sub-steps)
     // ================================================================
     let currentStep = 0;
-    const totalSteps = 8;
+    const totalSteps = 9;
     let navDirection = 'forward'; // track for slide animation
 
     function goToStep(step) {
@@ -5136,34 +5886,34 @@
 
       // When leaving questionnaire step, reset saved selections
       // so fresh answers generate fresh pre-selections
-      if (currentStep === 2) {
+      if (currentStep === 3) {
         prevInterestSel = new Set();
         prevAvoidSel = new Set();
       }
       // Save current selections before leaving interest/avoid steps
-      if (currentStep === 3) {
+      if (currentStep === 4) {
         prevInterestSel = new Set(getSelectedDynamic('interestsSections'));
       }
-      if (currentStep === 4) {
+      if (currentStep === 5) {
         prevAvoidSel = new Set(getSelectedDynamic('avoidSections'));
       }
 
-      // Rebuild interest page when entering step 3
-      if (step === 3) {
+      // Rebuild interest page when entering step 4
+      if (step === 4) {
         buildInterestPage(prevInterestSel);
       }
-      // Rebuild avoid page when entering step 4 (quiz hidden, defaults used for scoring)
-      if (step === 4) {
+      // Rebuild avoid page when entering step 5 (quiz hidden, defaults used for scoring)
+      if (step === 5) {
         buildAvoidPage(prevAvoidSel);
       }
-      // Init food step when entering step 5 (quiz hidden, defaults used for scoring)
-      if (step === 5) {
+      // Init food step when entering step 6 (quiz hidden, defaults used for scoring)
+      if (step === 6) {
         buildFoodPage();
         buildVibePage();
       }
 
-      // Reset questionnaire to first question when entering step 2
-      if (step === 2 && currentStep !== 2) {
+      // Reset questionnaire to first question when entering step 3
+      if (step === 3 && currentStep !== 3) {
         currentSubQuestion = 0;
         goToSubQuestion(0);
       }
@@ -5220,7 +5970,7 @@
         circle.innerHTML = '<span style="font-size:14px;">&#10003;</span>';
       });
       // Restore emoji for non-done steps
-      const stepEmojis = ['&#9992;&#65039;', '&#128101;', '&#127919;', '&#10084;&#65039;', '&#128683;', '&#127869;', '&#127758;', '&#9989;'];
+      const stepEmojis = ['&#9992;&#65039;', '&#128101;', '&#127976;', '&#127919;', '&#10084;&#65039;', '&#128683;', '&#127869;', '&#127758;', '&#9989;'];
       $$('.stepper__step:not(.is-done)').forEach(s => {
         const i = parseInt(s.dataset.step);
         s.querySelector('.stepper__circle').innerHTML = `<span>${stepEmojis[i]}</span>`;
@@ -5354,14 +6104,14 @@
         goToStep(currentStep + 1);
       }
       if (e.target.closest('.btn-prev')) {
-        // Special handling for questionnaire back (Step 2)
-        if (currentStep === 2) {
+        // Special handling for questionnaire back (Step 3)
+        if (currentStep === 3) {
           if (currentSubQuestion > 0) {
             goToSubQuestion(currentSubQuestion - 1);
             return;
           }
         }
-        // (Avoid-quiz and food-quiz back handlers removed — all questions now in Step 2)
+        // (Avoid-quiz and food-quiz back handlers removed — all questions now in Step 3)
         goToStep(currentStep - 1);
       }
     });
@@ -5549,12 +6299,12 @@
 
     // Pipeline roadmap data constants (from performance_analysis.md)
     const PIPELINE_STEPS = [
-      { i18nKey: 's7_pipeline_step1', label: 'Overview & Manifest', time: '~2 min', pct: 8, major: false },
-      { i18nKey: 's7_pipeline_step2', label: 'Day Generation', time: '~12 min', pct: 42, major: true },
-      { i18nKey: 's7_pipeline_step3', label: 'Budget', time: '~1 min', pct: 4, major: false },
-      { i18nKey: 's7_pipeline_step4', label: 'Assembly', time: '~1 min', pct: 4, major: false },
-      { i18nKey: 's7_pipeline_step5', label: 'HTML Rendering', time: '~11 min', pct: 39, major: true },
-      { i18nKey: 's7_pipeline_step6', label: 'Quality Testing', time: '~1 min', pct: 3, major: false }
+      { i18nKey: 's8_pipeline_step1', label: 'Overview & Manifest', time: '~2 min', pct: 8, major: false },
+      { i18nKey: 's8_pipeline_step2', label: 'Day Generation', time: '~12 min', pct: 42, major: true },
+      { i18nKey: 's8_pipeline_step3', label: 'Budget', time: '~1 min', pct: 4, major: false },
+      { i18nKey: 's8_pipeline_step4', label: 'Assembly', time: '~1 min', pct: 4, major: false },
+      { i18nKey: 's8_pipeline_step5', label: 'HTML Rendering', time: '~11 min', pct: 39, major: true },
+      { i18nKey: 's8_pipeline_step6', label: 'Quality Testing', time: '~1 min', pct: 3, major: false }
     ];
 
     function buildPipelineRoadmap() {
@@ -5562,8 +6312,8 @@
       if (!container) return;
       let html = '<div class="pipeline-roadmap">';
       html += '<div class="pipeline-roadmap__header">';
-      html += `<span class="pipeline-roadmap__title" data-i18n="s7_pipeline_title">${t('s7_pipeline_title')}</span>`;
-      html += `<span class="pipeline-roadmap__total" data-i18n="s7_pipeline_total">${t('s7_pipeline_total')}</span>`;
+      html += `<span class="pipeline-roadmap__title" data-i18n="s8_pipeline_title">${t('s8_pipeline_title')}</span>`;
+      html += `<span class="pipeline-roadmap__total" data-i18n="s8_pipeline_total">${t('s8_pipeline_total')}</span>`;
       html += '</div><div class="pipeline-roadmap__steps">';
       PIPELINE_STEPS.forEach((s, i) => {
         const majorClass = s.major ? ' pipeline-roadmap__step--major' : '';
@@ -5652,7 +6402,7 @@
         $('#openTripBar').innerHTML = '';
       };
       stopBtn.onclick = stopHandler;
-      statusEl.textContent = t('s7_bridge_running');
+      statusEl.textContent = t('s8_bridge_running');
       // Activate live color coding (red=pending, blue=active, green=done)
       const roadmapEl = document.querySelector('.pipeline-roadmap');
       if (roadmapEl) roadmapEl.classList.add('is-live');
@@ -5718,7 +6468,7 @@
             bar.classList.add('pipeline-roadmap__bar-segment--done');
           });
           statusEl.className = 'pipeline-roadmap__status pipeline-roadmap__status--done';
-          statusEl.textContent = data.status === 'completed' ? t('s7_bridge_complete') : t('s7_bridge_error');
+          statusEl.textContent = data.status === 'completed' ? t('s8_bridge_complete') : t('s8_bridge_error');
           fillEl.style.width = '100%';
           pctEl.textContent = '100%';
           if (data.status === 'completed') {
@@ -5732,7 +6482,7 @@
                   bar.innerHTML = info.files.map(f => {
                     const url = `http://localhost:3456/file/generated_trips/${info.folder}/${f}`;
                     const label = f.replace('.html', '').replace(/trip_full_?/i, '').toUpperCase() || 'Trip';
-                    return `<a class="open-trip-bar__btn" href="${url}" target="_blank">🗺️ ${t('s7_open_trip')} ${label !== 'TRIP' ? '(' + label + ')' : ''}</a>`;
+                    return `<a class="open-trip-bar__btn" href="${url}" target="_blank">🗺️ ${t('s8_open_trip')} ${label !== 'TRIP' ? '(' + label + ')' : ''}</a>`;
                   }).join('');
                   bar.style.display = '';
                 }
@@ -5745,14 +6495,14 @@
         if (data.type === 'error') {
           stopBtn.style.display = 'none';
           statusEl.className = 'pipeline-roadmap__status pipeline-roadmap__status--error';
-          statusEl.textContent = data.message || t('s7_bridge_error');
+          statusEl.textContent = data.message || t('s8_bridge_error');
           es.close();
         }
       };
 
       es.onerror = () => {
         statusEl.className = 'pipeline-roadmap__status pipeline-roadmap__status--error';
-        statusEl.textContent = t('s7_bridge_error');
+        statusEl.textContent = t('s8_bridge_error');
         es.close();
       };
     }
@@ -5771,14 +6521,14 @@
         const data = await resp.json();
         if (data.ok) {
           document.querySelector('#postDownload .post-download__icon').innerHTML = '&#128640;';
-          $('#postDownloadTitle').textContent = t('s7_bridge_title');
-          $('#postDownloadInstruction').textContent = t('s7_bridge_desc');
+          $('#postDownloadTitle').textContent = t('s8_bridge_title');
+          $('#postDownloadInstruction').textContent = t('s8_bridge_desc');
           $('#postDownloadCmdRow').style.display = 'none';
           $('#postDownloadHint').style.display = 'none';
           $('#postDownload').style.display = '';
           // Enter generating mode — hide hero, search bar, preview, etc.
           document.body.classList.add('is-generating');
-          if (window.showToast) window.showToast(t('s7_bridge_toast'), 'success');
+          if (window.showToast) window.showToast(t('s8_bridge_toast'), 'success');
           connectToProgress(data.id);
           return;
         }
@@ -5794,13 +6544,13 @@
       URL.revokeObjectURL(url);
 
       document.querySelector('#postDownload .post-download__icon').innerHTML = '&#9989;';
-      $('#postDownloadTitle').textContent = t('s7_post_title');
-      $('#postDownloadInstruction').textContent = t('s7_post_instruction');
+      $('#postDownloadTitle').textContent = t('s8_post_title');
+      $('#postDownloadInstruction').textContent = t('s8_post_instruction');
       $('#postDownloadCmdRow').style.display = '';
       $('#postDownloadHint').style.display = '';
       const cmdText = `generate trip from ${filename}`;
       $('#postDownloadCmd').textContent = cmdText;
-      $('#postDownloadHint').textContent = t('s7_post_hint');
+      $('#postDownloadHint').textContent = t('s8_post_hint');
       $('#postDownload').style.display = '';
     });
 
@@ -5820,7 +6570,7 @@
       if (!fill) return;
 
       window._updateProgressBar = function() {
-        const totalStepsCount = 8;
+        const totalStepsCount = 9;
         const pct = currentStep === 0 ? 0 : Math.round((currentStep / (totalStepsCount - 1)) * 100);
         fill.style.width = pct + '%';
         bar.setAttribute('aria-valuenow', pct);
@@ -5877,8 +6627,8 @@
           return;
         }
 
-        // Show on Steps 1-6 (after search bar data confirmed); hide on Step 0 and Step 7
-        if (currentStep === 0 || currentStep === 7) { bar.classList.remove('is-visible'); return; }
+        // Show on Steps 1-7 (after search bar data confirmed); hide on Step 0 and Step 8
+        if (currentStep === 0 || currentStep === 8) { bar.classList.remove('is-visible'); return; }
 
         bar.classList.add('is-visible');
 
@@ -6448,7 +7198,7 @@
       }
 
       // === Dynamic Wizard Adaptation ===
-      let activeSteps = [0, 1, 2, 3, 4, 5, 6, 7]; // all active by default
+      let activeSteps = [0, 1, 2, 3, 4, 5, 6, 7, 8]; // all active by default
 
       function applyDepth(level) {
         const maxTier = DEPTH_TO_MAX_TIER[level] || 3;
@@ -6465,11 +7215,11 @@
           }
         });
 
-        // All questions are now in Step 2 questionnaire viewport.
-        // Steps 0 (not used as separate step anymore), 1, 2 always active.
-        // Steps 3-6 always active (supplementary content: interests, avoid cards, food cards, extras).
-        // Step 7 always active (review).
-        activeSteps = [0, 1, 2, 3, 4, 5, 6, 7];
+        // All questions are now in Step 3 questionnaire viewport.
+        // Steps 0, 1, 2 (logistics) always active.
+        // Steps 3-7 always active (questionnaire, interests, avoid cards, food cards, extras).
+        // Step 8 always active (review).
+        activeSteps = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
         // Update stepper visibility
         document.querySelectorAll('.stepper__step').forEach(stepEl => {
@@ -6477,7 +7227,7 @@
           stepEl.style.display = activeSteps.includes(s) ? '' : 'none';
         });
 
-        // Rebuild sub-step dots for Step 2 based on visible question slides
+        // Rebuild sub-step dots for Step 3 based on visible question slides
         rebuildStyleSubDots(maxTier);
 
         // Apply default selections for all questions
@@ -6498,15 +7248,15 @@
           dot.setAttribute('data-q', String(i));
           dotsContainer.appendChild(dot);
         });
-        // Update Step 2 description to reflect question count
-        const s2desc = document.querySelector('[data-step="2"] .step__desc');
+        // Update Step 3 description to reflect question count
+        const s2desc = document.querySelector('[data-step="3"] .step__desc');
         if (s2desc && visibleSlides.length > 0) {
-          s2desc.setAttribute('data-i18n', 's2_desc');
-          s2desc.textContent = t('s2_desc');
+          s2desc.setAttribute('data-i18n', 's3_desc');
+          s2desc.textContent = t('s3_desc');
         }
       }
 
-      // (rebuildAvoidSubDots and rebuildFoodSubDots removed — all questions now in Step 2 viewport)
+      // (rebuildAvoidSubDots and rebuildFoodSubDots removed — all questions now in Step 3 viewport)
 
       // Apply default selections to all question slides based on QUESTION_DEFAULTS
       function applyDefaultSelections() {
@@ -6526,7 +7276,7 @@
       function findNearestActiveStep(target) {
         if (activeSteps.includes(target)) return target;
         // Find nearest active step — try forward first, then backward
-        for (let i = target; i <= 7; i++) {
+        for (let i = target; i <= 8; i++) {
           if (activeSteps.includes(i)) return i;
         }
         for (let i = target; i >= 0; i--) {
@@ -6693,7 +7443,7 @@
           const accessLabels = { none: 'None', flat: 'Prefer Flat Routes', wheelchair: 'Wheelchair Accessible' };
           prefs.push(`- **Accessibility needs:** ${accessLabels[accessVal] || accessVal}`);
 
-          // Wheelchair accessible (always-visible Step 6 field, not depth-gated)
+          // Wheelchair accessible (always-visible Step 7 field, not depth-gated)
           const wheelchairEl = document.querySelector('.depth-extra-question[data-question-key="wheelchairAccessible"] .q-card.is-selected');
           const wheelchairVal = wheelchairEl ? wheelchairEl.dataset.value : 'no';
           prefs.push(`- **Wheelchair accessible:** ${wheelchairVal === 'yes' ? 'yes' : 'no'}`);
@@ -6713,12 +7463,12 @@
           const crowdLabels = { offpeak: 'Prefer off-peak visits', some: 'Some crowds OK', dontmind: "Don't mind queuing" };
           prefs.push(`- **Crowd tolerance:** ${crowdLabels[crowdVal] || crowdVal}`);
 
-          // Cultural immersion (new T3, Step 2 style quiz)
+          // Cultural immersion (new T3, Step 3 style quiz)
           const cultureDepthVal = getStyleQuizAnswer('culturalImmersion') || defs.culturalImmersion;
           const cultureDepthLabels = { highlights: 'Photo ops & highlights', some: 'Some context & backstory', full: 'Full history & stories' };
           prefs.push(`- **Cultural immersion:** ${cultureDepthLabels[cultureDepthVal] || cultureDepthVal}`);
 
-          // Nightlife (new T3, Step 2 style quiz)
+          // Nightlife (new T3, Step 3 style quiz)
           const nightVal = getStyleQuizAnswer('nightlife') || defs.nightlife;
           const nightLabels = { none: 'Not important', some: 'A night or two', essential: 'Essential' };
           prefs.push(`- **Nightlife importance:** ${nightLabels[nightVal] || nightVal}`);
@@ -6752,6 +7502,76 @@
             md += `\n## Additional Preferences\n\n`;
             md += prefs.join('\n') + '\n';
           }
+        }
+
+        // === Hotel Assistance (conditional) ===
+        const hotelToggleEl = document.querySelector('.depth-extra-question[data-question-key="hotelAssistToggle"] .q-card.is-selected');
+        if (hotelToggleEl && hotelToggleEl.dataset.value === 'yes') {
+          md += `\n## Hotel Assistance\n\n`;
+
+          // Accommodation type
+          const hotelTypeEl = document.querySelector('.depth-extra-question[data-question-key="hotelType"] .q-card.is-selected');
+          md += `- **Accommodation type:** ${hotelTypeEl ? hotelTypeEl.dataset.enName : 'Not specified'}\n`;
+
+          // Location priority
+          const hotelLocEl = document.querySelector('.depth-extra-question[data-question-key="hotelLocation"] .q-card.is-selected');
+          md += `- **Location priority:** ${hotelLocEl ? hotelLocEl.dataset.enName : 'Not specified'}\n`;
+
+          // Quality level
+          const hotelStarsEl = document.querySelector('.depth-extra-question[data-question-key="hotelStars"] .q-card.is-selected');
+          md += `- **Quality level:** ${hotelStarsEl ? hotelStarsEl.dataset.enName : 'Not specified'}\n`;
+
+          // Amenities (multi-select)
+          const hotelAmenities = Array.from(document.querySelectorAll('#hotelAmenitiesChips .chip-toggle.is-selected'))
+            .map(c => c.dataset.enName);
+          md += `- **Must-have amenities:** ${hotelAmenities.length > 0 ? hotelAmenities.join(', ') : 'None'}\n`;
+
+          // Pets
+          const hotelPetsEl = document.querySelector('.depth-extra-question[data-question-key="hotelPets"] .q-card.is-selected');
+          md += `- **Traveling with pets:** ${hotelPetsEl && hotelPetsEl.dataset.value === 'yes' ? 'Yes' : 'No'}\n`;
+
+          // Cancellation
+          const hotelCancelEl = document.querySelector('.depth-extra-question[data-question-key="hotelCancellation"] .q-card.is-selected');
+          md += `- **Cancellation preference:** ${hotelCancelEl ? hotelCancelEl.dataset.enName : 'Not specified'}\n`;
+
+          // Budget (range slider)
+          const hotelSlider = document.getElementById('hotelBudgetSlider');
+          const hotelMinVal = hotelSlider ? hotelSlider.dataset.minVal : '30';
+          const hotelMaxVal = hotelSlider ? hotelSlider.dataset.maxVal : '1000';
+          md += `- **Daily budget per room:** $${hotelMinVal} - $${hotelMaxVal}\n`;
+        }
+
+        // === Car Rental Assistance (conditional) ===
+        const carToggleEl = document.querySelector('.depth-extra-question[data-question-key="carAssistToggle"] .q-card.is-selected');
+        if (carToggleEl && carToggleEl.dataset.value === 'yes') {
+          md += `\n## Car Rental Assistance\n\n`;
+
+          // Car category
+          const carCatEl = document.querySelector('.depth-extra-question[data-question-key="carCategory"] .q-card.is-selected');
+          md += `- **Car category:** ${carCatEl ? carCatEl.dataset.enName : 'Not specified'}\n`;
+
+          // Transmission
+          const carTransEl = document.querySelector('.depth-extra-question[data-question-key="carTransmission"] .q-card.is-selected');
+          md += `- **Transmission:** ${carTransEl ? carTransEl.dataset.enName : 'Not specified'}\n`;
+
+          // Fuel type
+          const carFuelEl = document.querySelector('.depth-extra-question[data-question-key="carFuel"] .q-card.is-selected');
+          md += `- **Fuel type:** ${carFuelEl ? carFuelEl.dataset.enName : 'Not specified'}\n`;
+
+          // Pickup & return
+          const carPickupEl = document.querySelector('.depth-extra-question[data-question-key="carPickup"] .q-card.is-selected');
+          md += `- **Pickup & return:** ${carPickupEl ? carPickupEl.dataset.enName : 'Not specified'}\n`;
+
+          // Extras (multi-select)
+          const carExtras = Array.from(document.querySelectorAll('#carExtrasChips .chip-toggle.is-selected'))
+            .map(c => c.dataset.enName);
+          md += `- **Additional equipment:** ${carExtras.length > 0 ? carExtras.join(', ') : 'None'}\n`;
+
+          // Budget (range slider)
+          const carSlider = document.getElementById('carBudgetSlider');
+          const carMinVal = carSlider ? carSlider.dataset.minVal : '0';
+          const carMaxVal = carSlider ? carSlider.dataset.maxVal : '1000';
+          md += `- **Daily rental budget:** $${carMinVal} - $${carMaxVal}\n`;
         }
 
         return md;

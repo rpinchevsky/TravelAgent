@@ -56,25 +56,40 @@ export class IntakePage {
   readonly adultPlus: Locator;
   readonly adultMinus: Locator;
 
-  // --- Step 3 (interests) ---
+  // --- Step 2 (hotel & car assistance) ---
+  readonly hotelAssistanceSection: Locator;
+  readonly hotelToggle: Locator;
+  readonly hotelSubQuestions: Locator;
+  readonly hotelTypeGrid: Locator;
+  readonly hotelAmenitiesChips: Locator;
+  readonly hotelBudgetSlider: Locator;
+
+  readonly carAssistanceSection: Locator;
+  readonly carToggle: Locator;
+  readonly carSubQuestions: Locator;
+  readonly carCategoryGrid: Locator;
+  readonly carExtrasChips: Locator;
+  readonly carBudgetSlider: Locator;
+
+  // --- Step 4 (interests) ---
   readonly interestCards: Locator;
   readonly interestSections: Locator;
 
-  // --- Step 4 (avoid & pace) ---
+  // --- Step 5 (avoid & pace) ---
   readonly avoidCards: Locator;
   readonly avoidSections: Locator;
   readonly paceCards: Locator;
 
-  // --- Step 5 (food) ---
+  // --- Step 6 (food) ---
   readonly foodExperienceCards: Locator;
   readonly vibeCards: Locator;
 
-  // --- Step 6 (extras) ---
+  // --- Step 7 (extras) ---
   readonly depthExtraQuestions: Locator;
   readonly reportLang: Locator;
   readonly wheelchairQuestion: Locator;
 
-  // --- Step 7 (review) ---
+  // --- Step 8 (review) ---
   readonly reviewStep: Locator;
   readonly previewContent: Locator;
   readonly previewTabLabel: Locator;
@@ -140,26 +155,42 @@ export class IntakePage {
     this.adultPlus = page.locator('#adultPlus');
     this.adultMinus = page.locator('#adultMinus');
 
-    // Step 3
+    // Step 2: Hotel Assistance
+    this.hotelAssistanceSection = page.locator('#hotelAssistanceSection');
+    this.hotelToggle = page.locator('[data-question-key="hotelAssistToggle"]');
+    this.hotelSubQuestions = page.locator('#hotelSubQuestions');
+    this.hotelTypeGrid = page.locator('[data-question-key="hotelType"] .option-grid');
+    this.hotelAmenitiesChips = page.locator('#hotelAmenitiesChips');
+    this.hotelBudgetSlider = page.locator('#hotelBudgetSlider');
+
+    // Step 2: Car Rental Assistance
+    this.carAssistanceSection = page.locator('#carAssistanceSection');
+    this.carToggle = page.locator('[data-question-key="carAssistToggle"]');
+    this.carSubQuestions = page.locator('#carSubQuestions');
+    this.carCategoryGrid = page.locator('[data-question-key="carCategory"] .option-grid');
+    this.carExtrasChips = page.locator('#carExtrasChips');
+    this.carBudgetSlider = page.locator('#carBudgetSlider');
+
+    // Step 4
     this.interestCards = page.locator('#interestsSections .interest-card');
     this.interestSections = page.locator('#interestsSections .chip-section');
 
-    // Step 4
+    // Step 5
     this.avoidCards = page.locator('#avoidSections .avoid-card');
     this.avoidSections = page.locator('#avoidSections .chip-section');
     this.paceCards = page.locator('.pace-card');
 
-    // Step 5
+    // Step 6
     this.foodExperienceCards = page.locator('#foodExperienceCards .interest-card');
     this.vibeCards = page.locator('#vibeGroup .avoid-card');
 
-    // Step 6
+    // Step 7
     this.depthExtraQuestions = page.locator('.depth-extra-question');
     this.reportLang = page.locator('#reportLang');
     this.wheelchairQuestion = page.locator('.depth-extra-question[data-question-key="wheelchairAccessible"]');
 
-    // Step 7
-    this.reviewStep = page.locator('section.step[data-step="7"]');
+    // Step 8
+    this.reviewStep = page.locator('section.step[data-step="8"]');
     this.previewContent = page.locator('#previewContent');
     this.previewTabLabel = page.locator('#previewTabLabel');
 
@@ -219,7 +250,7 @@ export class IntakePage {
 
   /** The Back button within the currently visible step */
   backButton(): Locator {
-    return this.visibleStep.locator('.btn-back');
+    return this.visibleStep.locator('.btn-prev');
   }
 
   // --- Navigation Helpers ---
@@ -231,20 +262,30 @@ export class IntakePage {
   }
 
   /**
-   * Complete Step 0 with default rhythm selection (balanced is pre-selected).
-   * Clicks Continue to advance past Step 0.
+   * Complete Step 0 by filling required fields (destination + dates) and clicking Continue.
    */
   async completeStep0() {
-    // Step 0 should be visible on load with balanced pre-selected
+    // Fill destination (required)
+    await this.destinationInput.fill('Test City');
+    // Fill arrival and departure dates (required) — use hidden input values directly
+    await this.page.evaluate(() => {
+      const arrival = document.getElementById('arrival') as HTMLInputElement;
+      const departure = document.getElementById('departure') as HTMLInputElement;
+      if (arrival) arrival.value = '2026-08-01T10:00';
+      if (departure) departure.value = '2026-08-05T18:00';
+    });
     await this.continueButton().click();
   }
 
   /**
-   * Complete Step 1 with minimal valid data (1 adult, default values).
+   * Complete Step 1 with minimal valid data (1 parent with name + birth year).
    * Clicks Continue to advance past Step 1.
    */
   async completeStep1() {
-    // Step 1: 1 adult is the default, just click Continue
+    // Fill first parent's name (required)
+    await this.page.locator('#parentsContainer .parent-name').first().fill('Test Parent');
+    // Select first parent's birth year (required)
+    await this.page.locator('#parentsContainer .dob-year').first().selectOption('1990');
     await this.continueButton().click();
   }
 
@@ -347,11 +388,11 @@ export class IntakePage {
   }
 
   /**
-   * Get the markdown/preview content from Step 7 (Review).
+   * Get the markdown/preview content from Step 8 (Review).
    */
   async getReviewContent(): Promise<string> {
     // The review step should contain a preview element (textarea, pre, or .markdown-preview)
-    const reviewStep = this.stepSection(7);
+    const reviewStep = this.stepSection(8);
     const preview = reviewStep.locator('textarea, pre, .markdown-preview, .review-content');
     if (await preview.count() > 0) {
       return (await preview.first().textContent()) ?? '';
@@ -375,16 +416,25 @@ export class IntakePage {
    */
   async navigateToStep(targetStep: number) {
     let current = await this.getCurrentStepNumber();
-    const maxAttempts = 10;
+    const maxAttempts = 20;
     let attempts = 0;
     while (current !== targetStep && attempts < maxAttempts) {
       attempts++;
       if (current < targetStep) {
+        // Step 3 has no Continue button — it uses auto-advance via card clicks.
+        // Click the already-selected card on each visible sub-step to trigger auto-advance.
+        if (current === 3) {
+          await this.skipStep3SubSteps();
+          current = await this.getCurrentStepNumber();
+          continue;
+        }
         const btn = this.continueButton();
         if (await btn.count() > 0) await btn.click();
       } else {
+        // Step 3 (questionnaire) has animating slides that make the back button unstable.
+        // Use force click to bypass the stability check.
         const btn = this.backButton();
-        if (await btn.count() > 0) await btn.click();
+        if (await btn.count() > 0) await btn.click({ force: true });
       }
       // Handle depth overlay if it appears
       if (await this.depthOverlay.isVisible().catch(() => false)) {
@@ -392,6 +442,56 @@ export class IntakePage {
       }
       current = await this.getCurrentStepNumber();
     }
+  }
+
+  /**
+   * Skip through all Step 3 sub-step questions by clicking the default-selected card
+   * on each visible slide. Step 3 auto-advances after each card click (400ms delay).
+   * After the last sub-step, it auto-navigates to Step 4.
+   */
+  async skipStep3SubSteps() {
+    const maxSubs = 35;
+    for (let i = 0; i < maxSubs; i++) {
+      const currentStepNum = await this.getCurrentStepNumber();
+      if (currentStepNum !== 3) break;
+
+      // Find the currently visible question slide and click its selected card
+      const visibleSlide = this.page.locator('.question-slide.is-visible');
+      if (await visibleSlide.count() === 0) break;
+
+      const selectedCard = visibleSlide.locator('.q-card.is-selected').first();
+      if (await selectedCard.count() > 0) {
+        await selectedCard.click();
+      } else {
+        // No pre-selected card — click the first card
+        const firstCard = visibleSlide.locator('.q-card').first();
+        if (await firstCard.count() > 0) await firstCard.click();
+        else break;
+      }
+      // Wait for auto-advance animation (400ms delay + transition)
+      await this.page.waitForTimeout(500);
+    }
+  }
+
+  /**
+   * Get an assistance section by key ('hotel' or 'car').
+   */
+  assistanceSectionByKey(key: 'hotel' | 'car'): Locator {
+    return key === 'hotel' ? this.hotelAssistanceSection : this.carAssistanceSection;
+  }
+
+  /**
+   * Get a slider handle element by slider ID and handle type.
+   */
+  sliderHandle(sliderId: string, handleType: 'min' | 'max'): Locator {
+    return this.page.locator(`#${sliderId} [data-handle="${handleType}"]`);
+  }
+
+  /**
+   * Get a sub-question container within a section by question key.
+   */
+  getSubQuestionByKey(sectionId: string, questionKey: string): Locator {
+    return this.page.locator(`#${sectionId} [data-question-key="${questionKey}"]`);
   }
 
   /**

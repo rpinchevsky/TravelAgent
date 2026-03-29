@@ -20,7 +20,7 @@ Act as an expert Travel Logistics Architect specializing in family-centric trips
 | Regression testing & quality | `/regression` | `development_rules.md`, `automation_rules.md`, `TripPage.ts`, `release_notes.md` |
 
 ## Feature / Rule Change Pipeline (Autonomous Subagent Orchestration)
-When adding features, changing rules, or fixing gaps between requirements and implementation, run the 6-phase development cycle automatically. Each phase runs as a **subagent** that loads only its own context, writes its deliverable to disk, and returns a short summary. The main context stays clean.
+When adding features, changing rules, or fixing gaps between requirements and implementation, run the 7-phase development cycle automatically. Each phase runs as a **subagent** that loads only its own context, writes its deliverable to disk, and returns a short summary. The main context stays clean.
 
 **Setup:** Create `technical_documents/YYYY-MM-DD_change-name/` folder for all deliverables.
 
@@ -31,14 +31,17 @@ When adding features, changing rules, or fixing gaps between requirements and im
 | # | Role (Scope) | Subagent Prompt | Reads from disk | Writes to disk |
 |---|---|---|---|---|
 | 1 | PM (PM-Req) | `.claude/skills/dev-cycle/prompts/pm.md` | Rule files relevant to request | `business_requirements.md` |
-| 2 | Dev (Dev-Design) | `.claude/skills/dev-cycle/prompts/dev-design.md` | BRD + affected rule files | `high_level_design.md`, `detailed_design.md` |
-| 3 | SA (SA-Review) | `.claude/skills/dev-cycle/prompts/sa-review.md` | BRD + HLD + DD + architecture rule files | `architecture_review.md` |
-| 4a | AE (AE-Plan) | `.claude/skills/dev-cycle/prompts/ae-test-plan.md` | BRD + DD + automation rules | `test_plan.md` |
+| 1b | UX/UI (UX-Design) | `.claude/skills/dev-cycle/prompts/ux-design.md` | BRD + design specs + current UI | `ux_design.md` |
+| 2 | Dev (Dev-Design) | `.claude/skills/dev-cycle/prompts/dev-design.md` | BRD + UX design + affected rule files | `high_level_design.md`, `detailed_design.md` |
+| 3 | SA (SA-Review) | `.claude/skills/dev-cycle/prompts/sa-review.md` | BRD + UX design + HLD + DD + architecture rule files | `architecture_review.md` |
+| 4a | AE (AE-Plan) | `.claude/skills/dev-cycle/prompts/ae-test-plan.md` | BRD + DD + UX design + automation rules | `test_plan.md` |
 | 4b | QA-A (QA-Review) | `.claude/skills/dev-cycle/prompts/qa-review.md` | BRD + test plan + automation rules | `qa_architecture_review.md` |
-| 5 | Dev (Dev-Impl) + AE (AE-Impl) | `.claude/skills/dev-cycle/prompts/dev-impl.md` + `ae-impl.md` | DD + test plan + relevant files | Code & test changes |
+| 5 | Dev (Dev-Impl) + AE (AE-Impl) | `.claude/skills/dev-cycle/prompts/dev-impl.md` + `ae-impl.md` | DD + UX design + test plan + relevant files | Code & test changes |
 | 6 | — | `/render` → `/regression` (as subagents, not skills) | Generated trip files | HTML + test reports |
 
 **Orchestration rules:**
+- **Phase 1b (UX) gating:** Phase 1b runs only when the change involves GUI/UI elements. The orchestrator determines this from the BRD — if any requirement touches `trip_intake.html`, HTML rendering, or visual components, Phase 1b is triggered. Non-GUI changes (rule-only, content-only, test-only) skip Phase 1b entirely.
+- **UX approval:** The `ux_design.md` includes a sign-off table for PM and Dev Team Lead. The UX subagent self-validates coverage and sets status. If UX design has unresolved conflicts with the BRD, re-spawn UX with PM feedback. Max 1 retry — escalate to user if still blocked.
 - **Rejection loops:** If SA (Phase 3) rejects, re-spawn Dev (Phase 2) with `architecture_review.md` included in context, then re-run SA. If QA-A (Phase 4b) rejects, re-spawn AE (Phase 4a) with `qa_architecture_review.md` included in context, then re-run QA-A. Max 2 retry rounds per loop — escalate to user only if still blocked.
 - **Parallel execution:** Phase 5 runs Dev and AE subagents in parallel. File ownership: Dev owns rule files and content/rendering code. AE owns test specs, `TripPage.ts`, and `release_notes.md`. Neither modifies the other's files.
 - **Phase 6:** Run as subagents (not skills) to keep main context clean. The subagent reads the render/regression skill files internally. Invoke render first (HTML must be fully generated), then regression.

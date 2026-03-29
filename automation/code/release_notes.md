@@ -1,5 +1,220 @@
 # Release Notes
 
+## 2026-03-29 — Accommodation Integration: Hotel Discovery & Booking Referral Cards
+
+### Changes
+
+#### Modified File: `tests/pages/TripPage.ts` (4 new properties, 9 new methods)
+
+**New readonly properties (constructor-initialized):**
+- `accommodationSections` — `.accommodation-section`
+- `accommodationCards` — `.accommodation-card`
+- `accommodationCardRatings` — `.accommodation-card__rating`
+- `bookingCtas` — `.booking-cta` (named per QF-4: consistent plural form without DOM suffix)
+
+**New helper methods:**
+- `getDayAccommodationSection(dayNumber)` — `#day-N .accommodation-section`
+- `getDayAccommodationCards(dayNumber)` — `#day-N .accommodation-card`
+- `getAccommodationCardName(card)` — `.accommodation-card__name`
+- `getAccommodationCardRating(card)` — `.accommodation-card__rating`
+- `getAccommodationCardBookingCta(card)` — `.booking-cta`
+- `getAccommodationCardPriceLevel(card)` — `.accommodation-card__price-level`
+- `getAccommodationCardTag(card)` — `.accommodation-card__tag`
+- `getAccommodationCardLinks(card)` — `.accommodation-card__link`
+- `getAccommodationCardProTip(card)` — `.pro-tip`
+
+#### Appended to `tests/regression/progression.spec.ts` (7 tests covering 17 logical TCs)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-200+201 | Accommodation section present on anchor days, absent on non-anchor days | REQ-004 AC-1; REQ-005 AC-3; REQ-010 AC-1 |
+| TC-202+203+205+213+214+215+216 | Card count, structure, tags, grid, pro-tips, intro, visual distinction | REQ-004 AC-4/AC-9; REQ-009 AC-1/AC-2/AC-6; REQ-010 AC-2/AC-6 |
+| TC-204+206 | Booking CTA link structure and URL parameters | REQ-003 AC-1 through AC-6; REQ-009 AC-3; REQ-010 AC-3 |
+| TC-207+208 | Price level pip structure and ascending order | REQ-004 AC-10; REQ-009 AC-4 |
+| TC-209+210 | Accommodation line in anchor day pricing grid and aggregate budget | REQ-005 AC-1/AC-4; REQ-010 AC-4/AC-5 |
+| TC-211 | Manifest accommodation schema validation | REQ-001 AC-1 through AC-5; REQ-008 AC-1 through AC-5 |
+| TC-212 | Accommodation cards not counted in POI totals | REQ-009 AC-2; POI parity rule |
+| TC-214 | All accommodation cards are children of accommodation-grid | REQ-009 AC-6 |
+
+**Implementation notes:**
+- Manifest-driven anchor day detection via inline `getAccommodationStays()` helper (QF-7: no separate utility file)
+- QF-1 incorporated: contiguous night coverage assertion for multi-stay trips (no gaps between stays)
+- QF-2 incorporated: duplicate class-exclusion check removed from TC-212; TC-205 is authoritative
+- QF-3 incorporated: section heading `🏨` emoji presence assertion added to Test Block 1
+- QF-4 incorporated: global property named `bookingCtas` (not `bookingCtaButtons`) for POM consistency
+- QF-6 incorporated: manifest `options_count` cross-validated against actual DOM card count
+- All assertions use `expect.soft()` with descriptive `'Day N, Card C: ...'` messages
+- No hardcoded natural language text — CSS selectors, URL patterns, and `🏨` emoji marker only
+- Shared-page fixture for all DOM tests; file-system only for TC-211 manifest schema
+- TC-204 uses JavaScript `URL` class for robust parameter parsing (no regex on full URL)
+
+#### Files Modified
+- `tests/pages/TripPage.ts` — 4 new properties + 9 new methods for accommodation locators
+- `tests/regression/progression.spec.ts` — 7 new tests in `test.describe('Progression — Accommodation Integration')` block
+
+#### Files Added
+- None
+
+### Affected Sections
+- No HTML or content changes — test-only update
+- Tests target `trip_full_{LANG}.html` (generated trip HTML)
+- BRD coverage: REQ-001/003/004/005/008/009/010/011 — 17 logical test cases consolidated into 7 `test()` blocks
+
+---
+
+## 2026-03-28 — Themed Container Contrast: Banner Luminance Regression & Utility Tests
+
+### Changes
+
+#### New File: `tests/utils/color-utils.ts` (utility)
+
+Pure-function module providing `parseRgb()` and `relativeLuminance()` for sRGB contrast validation. No Playwright dependency. Used by `banner-contrast.spec.ts` and validated by `color-utils.spec.ts`.
+
+#### New Spec File: `tests/regression/color-utils.spec.ts` (8 tests)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-003.1 | parseRgb parses rgb(255, 255, 255) | REQ-002 -> AC-3 |
+| TC-003.2 | parseRgb parses rgb(0, 0, 0) | REQ-002 -> AC-3 |
+| TC-003.3 | parseRgb parses rgba(250, 250, 250, 1) | REQ-002 -> AC-3 |
+| TC-003.4 | parseRgb throws on invalid input | REQ-002 -> AC-3 |
+| TC-003.5 | relativeLuminance returns ~1.0 for white | REQ-002 -> AC-3 |
+| TC-003.6 | relativeLuminance returns 0.0 for black | REQ-002 -> AC-3 |
+| TC-003.7 | relativeLuminance returns ~0.95 for #FAFAFA | REQ-002 -> AC-3 |
+| TC-003.8 | relativeLuminance returns ~0.012 for #1C1C1E (pre-fix) | REQ-002 -> AC-3 |
+
+**Implementation notes:**
+- Standalone unit test file per QA QF-3 recommendation (separation of concerns)
+- Imports from `@playwright/test` — no shared-page fixture needed (pure functions)
+- Hard assertions: utility correctness is foundational
+
+#### New Spec File: `tests/regression/banner-contrast.spec.ts` (dayCount tests)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-001+002 | Day N banner title and date luminance > 0.7 | REQ-002 -> AC-1, AC-2, AC-4, AC-5, AC-7, AC-8 |
+
+**Implementation notes:**
+- One `test()` per day with 4 `expect.soft()` calls: existence check + luminance check for both title and date
+- Shared-page fixture (read-only `evaluate()` for `getComputedStyle().color`)
+- Existence-check soft assertions per QA QF-2 recommendation (missing elements flagged, not silently skipped)
+- `MIN_LUMINANCE = 0.7` named constant at file top
+- All selectors via POM (`getDayBannerTitle(n)`, `getDayBannerDate(n)`)
+- No hardcoded language strings — CSS class selectors only
+
+#### Appended to `tests/regression/progression.spec.ts` (1 test)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-007 | Banner title/date explicit color declaration in inlined `<style>` | REQ-003 -> AC-1, AC-2, AC-3 |
+
+**Implementation notes:**
+- Regex validation on inlined `<style>` content via `tripPage.inlineStyle`
+- `.day-card__banner-date` regex uses soft assertion — may not match if element inherits from parent (SA FB-1 option b)
+
+#### Files Added
+- `tests/utils/color-utils.ts` — sRGB luminance utility (parseRgb, relativeLuminance)
+- `tests/regression/color-utils.spec.ts` — 8 unit tests for color utilities
+- `tests/regression/banner-contrast.spec.ts` — per-day banner contrast regression tests
+
+#### Files Modified
+- `tests/regression/progression.spec.ts` — appended TC-007 themed container contrast gate test
+
+#### POM Changes
+- None — existing `getDayBannerTitle(n)` and `getDayBannerDate(n)` methods used. `getDayBanner(n)` omitted per SA FB-3 (not needed by spec).
+
+---
+
+## 2026-03-28 — Hotel Assistance & Car Rental Assistance: Intake Progression Tests (29 TCs)
+
+### Changes
+
+#### New Spec File: `tests/intake/intake-hotel-car-assistance.spec.ts` (22 tests)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-201+211 | Hotel and car sections visible on Step 6 at all depths (3 iterations) | REQ-001 -> AC-1; REQ-003 -> AC-1; REQ-011 -> AC-2, AC-3 |
+| TC-202+212 | Both toggles default to "No" with sub-questions hidden | REQ-001 -> AC-2, AC-3; REQ-003 -> AC-2, AC-3 |
+| TC-203 | Hotel toggle "Yes" reveals 7 sub-questions | REQ-001 -> AC-4; REQ-002 -> AC-1 |
+| TC-204 | Hotel toggle "No" collapses and resets all selections | REQ-001 -> AC-5 |
+| TC-205+208 | Hotel sub-question option counts, slider config, and hotelPets default | REQ-002 -> AC-2 through AC-8 |
+| TC-206 | Hotel type card grid single-select (radio) behavior | REQ-002 -> AC-2 |
+| TC-207 | Hotel amenities multi-select chip behavior | REQ-002 -> AC-5 |
+| TC-209 | Hotel budget range slider keyboard interaction | REQ-005 -> AC-6, AC-7 |
+| TC-210 | Range slider handles cannot cross each other | REQ-005 -> AC-3 |
+| TC-213 | Car toggle "Yes" reveals 6 sub-questions | REQ-003 -> AC-4; REQ-004 -> AC-1 |
+| TC-214 | Car toggle "No" collapses and resets all selections | REQ-003 -> AC-5 |
+| TC-215 | Car sub-question option counts and slider config | REQ-004 -> AC-2 through AC-7 |
+| TC-216 | Car category card grid single-select (radio) behavior | REQ-004 -> AC-2 |
+| TC-217 | Car extras multi-select chip behavior | REQ-004 -> AC-6 |
+| TC-218+220 | Hotel and car markdown output with fields; section ordering (QF-3) | REQ-006 -> AC-1, AC-3, AC-4, AC-6, AC-7; REQ-007 -> AC-1, AC-3, AC-4, AC-6, AC-7 |
+| TC-219+221 | Hotel and car sections omitted from markdown when "No" | REQ-006 -> AC-2; REQ-007 -> AC-2 |
+| TC-222 | Unselected fields show "Not specified" / "None" defaults | REQ-006 -> AC-5; REQ-007 -> AC-5 |
+| TC-227 | Step 6 section ordering: wheelchair before hotel before car | REQ-010 -> AC-1, AC-5 |
+| TC-228 | Expand animation uses CSS transition (max-height + opacity) | REQ-009 -> AC-1 |
+| TC-229 | Hotel and car toggles operate independently | REQ-001, REQ-003 (independence) |
+
+#### New Spec File: `tests/intake/intake-hotel-car-i18n-keys.spec.ts` (1 test, static file analysis)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-223 | All 101 i18n keys present in all 12 locale files | REQ-008 -> AC-1 through AC-5 |
+
+**QF-1 resolution:** TC-223 separated into its own spec file (no browser dependency). Playwright does not launch a browser since `page` is never referenced.
+
+#### New Spec File: `tests/intake/intake-hotel-car-i18n.spec.ts` (3 tests, browser-based)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-224 | data-i18n attributes on all hotel section DOM elements | REQ-008 -> AC-1; REQ-002 -> AC-9 |
+| TC-225 | data-i18n attributes on all car section DOM elements | REQ-008 -> AC-1; REQ-004 -> AC-8 |
+| TC-226 | data-en-name attributes on option cards and chips | REQ-008 -> AC-6 |
+
+**Implementation notes:**
+- TC-201+211 and TC-202+212 merged per QF-2 to reduce page loads (hotel and car checked in same visit)
+- TC-218+220 includes QF-3 markdown section ordering assertion (Hotel before Car)
+- TC-205 includes TC-208 (hotelPets default) as traceability alias via `expect.soft()`
+- Markdown assertions use English field labels — intentional (generateMarkdown() outputs hard-coded English)
+- All slider tests use keyboard interaction (ArrowRight/ArrowLeft), not pointer drag
+- No `waitForTimeout()` or `sleep()` calls — all state verified via web-first assertions
+
+#### Playwright Config Changes
+- Added `/intake-hotel-car/` to `testIgnore` arrays in both `desktop-chromium` and `desktop-chromium-rtl` projects
+- Updated `intake-i18n` project `testMatch` to include `intake-hotel-car`
+
+#### Files Modified
+- `tests/pages/IntakePage.ts` — added 12 new locators and 3 parameterized helper methods
+- `playwright.config.ts` — updated testMatch/testIgnore for new intake spec file routing
+
+#### Files Added
+- `tests/intake/intake-hotel-car-assistance.spec.ts` — 22 progression tests (toggle, expand/collapse, option counts, selection, slider, markdown, ordering, animation, independence)
+- `tests/intake/intake-hotel-car-i18n-keys.spec.ts` — 1 static file analysis test (101 keys x 12 locales)
+- `tests/intake/intake-hotel-car-i18n.spec.ts` — 3 browser-based i18n DOM attribute tests
+
+#### New POM Locators (IntakePage.ts)
+- `hotelAssistanceSection` — `#hotelAssistanceSection`
+- `hotelToggle` — `[data-question-key="hotelAssistToggle"]`
+- `hotelSubQuestions` — `#hotelSubQuestions`
+- `hotelTypeGrid` — `[data-question-key="hotelType"] .option-grid`
+- `hotelAmenitiesChips` — `#hotelAmenitiesChips`
+- `hotelBudgetSlider` — `#hotelBudgetSlider`
+- `carAssistanceSection` — `#carAssistanceSection`
+- `carToggle` — `[data-question-key="carAssistToggle"]`
+- `carSubQuestions` — `#carSubQuestions`
+- `carCategoryGrid` — `[data-question-key="carCategory"] .option-grid`
+- `carExtrasChips` — `#carExtrasChips`
+- `carBudgetSlider` — `#carBudgetSlider`
+- `assistanceSectionByKey(key)` — parameterized locator for hotel or car section
+- `sliderHandle(sliderId, handleType)` — parameterized locator for slider min/max handles
+- `getSubQuestionByKey(sectionId, questionKey)` — parameterized sub-question locator
+
+### Affected Sections
+- No HTML or content changes — test-only update
+- Tests target `trip_intake.html` (intake wizard page, not generated trip HTML)
+- BRD coverage: REQ-001 through REQ-011 — 65 of 79 acceptance criteria covered; 14 correctly deferred to existing specs or non-automatable
+
+---
+
 ## 2026-03-23 — Google Places MCP: POI Phone/Rating + Wheelchair Accessibility (13 TCs)
 
 ### Changes

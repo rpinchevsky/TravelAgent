@@ -9,8 +9,8 @@ import * as path from 'path';
  * cross-catalog consistency, and rule file documentation updates.
  * These are filesystem-only tests (no browser needed) except TC-106 and TC-131.
  *
- * Test cases: TC-100 through TC-107, TC-125, TC-126, TC-127, TC-131
- * Spec file: intake-i18n-catalogs.spec.ts (10 tests)
+ * Test cases: TC-100 through TC-107, TC-125, TC-126, TC-127, TC-131, TC-350
+ * Spec file: intake-i18n-catalogs.spec.ts (11 tests)
  */
 
 const SUPPORTED_LANGUAGES = [
@@ -398,6 +398,53 @@ test.describe('i18n Catalog Files — Filesystem Validation', () => {
       /setLanguage/i.test(content),
       'Existing setLanguage documentation retained'
     ).toBe(true);
+  });
+
+  test('TC-350: no Unicode replacement characters (U+FFFD) in any locale file', async () => {
+    // Catches encoding corruption where valid characters are mangled into U+FFFD (�).
+    // Language-agnostic: checks encoding integrity, not specific translations.
+    const corrupted: Array<{ lang: string; key: string; snippet: string }> = [];
+
+    for (const lang of SUPPORTED_LANGUAGES) {
+      const catalog = loadLocale(lang);
+      if (!catalog) continue;
+
+      function scanValue(val: unknown, keyPath: string) {
+        if (typeof val === 'string') {
+          if (val.includes('\uFFFD')) {
+            corrupted.push({
+              lang,
+              key: keyPath,
+              snippet: val.slice(0, 80),
+            });
+          }
+        } else if (Array.isArray(val)) {
+          for (let i = 0; i < val.length; i++) {
+            scanValue(val[i], `${keyPath}[${i}]`);
+          }
+        } else if (typeof val === 'object' && val !== null) {
+          for (const [k, v] of Object.entries(val)) {
+            scanValue(v, `${keyPath}.${k}`);
+          }
+        }
+      }
+
+      for (const [key, value] of Object.entries(catalog)) {
+        scanValue(value, key);
+      }
+    }
+
+    for (const entry of corrupted) {
+      expect.soft(
+        null,
+        `ui_${entry.lang}.json key "${entry.key}" contains U+FFFD: "${entry.snippet}"`
+      ).toBeNull();
+    }
+
+    expect(
+      corrupted.length,
+      `Found ${corrupted.length} corrupted value(s): ${corrupted.map(e => `ui_${e.lang}.json → ${e.key}`).join(', ')}`
+    ).toBe(0);
   });
 });
 

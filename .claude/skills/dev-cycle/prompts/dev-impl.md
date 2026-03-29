@@ -17,8 +17,9 @@ This prompt covers the **Dev-Impl** sub-scope only. Your tasks:
 Read these files before implementing:
 1. `{change_folder}/detailed_design.md` — the approved DD (your implementation spec)
 2. `{change_folder}/business_requirements.md` — the BRD (acceptance criteria are the source of truth)
-3. `{change_folder}/architecture_review.md` — check for any "Approved with Changes" conditions that must be met
-4. **Files listed in DD §1 "File Changes"** — read current state of each file before modifying
+3. `{change_folder}/ux_design.md` — the approved UX design (if present — GUI changes only). Use this as the visual reference for layout, component appearance, interactions, responsive behavior, accessibility, RTL, and dark mode. Implementation must match the UX spec.
+4. `{change_folder}/architecture_review.md` — check for any "Approved with Changes" conditions that must be met
+5. **Files listed in DD §1 "File Changes"** — read current state of each file before modifying
 
 ## Instructions
 

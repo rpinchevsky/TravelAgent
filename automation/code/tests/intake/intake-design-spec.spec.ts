@@ -64,7 +64,7 @@ test.describe('Design Spec Compliance', () => {
     expect.soft(result.top, 'Lang selector top position').toBe('16px');
   });
 
-  test('TC-095: context bar visibility follows spec (hidden Step 0 & 7, visible Steps 1-6)', async () => {
+  test('TC-095: context bar visibility follows spec (hidden Step 0 & 8, visible Steps 1-7)', async () => {
     // Step 0: hidden
     await expect.soft(intake.contextBar, 'Hidden on Step 0').not.toBeVisible();
 
@@ -74,28 +74,28 @@ test.describe('Design Spec Compliance', () => {
     // Step 2: visible
     await expect.soft(intake.contextBar, 'Visible on Step 2').toBeVisible();
 
-    // Navigate to Step 7
-    await intake.navigateToStep(7);
+    // Navigate to Step 8 (Review)
+    await intake.navigateToStep(8);
     const currentStep = await intake.getCurrentStepNumber();
-    if (currentStep === 7) {
-      await expect.soft(intake.contextBar, 'Hidden on Step 7').not.toBeVisible();
+    if (currentStep === 8) {
+      await expect.soft(intake.contextBar, 'Hidden on Step 8').not.toBeVisible();
     }
   });
 
   test('TC-096: preview tab label shows dynamic filename pattern', async () => {
     await intake.completePrerequisiteSteps();
     await intake.selectDepthAndConfirm(20);
-    await intake.navigateToStep(7);
+    await intake.navigateToStep(8);
 
     const tabText = await intake.previewTabLabel.textContent();
     expect.soft(tabText, 'Tab label should end with .md').toContain('.md');
     expect.soft(tabText, 'Tab label should contain trip_details').toContain('trip_details');
   });
 
-  test('TC-097: Step 6 depth-extra-question cards have reduced min-height', async () => {
+  test('TC-097: Step 7 depth-extra-question cards have reduced min-height', async () => {
     await intake.completePrerequisiteSteps();
     await intake.selectDepthAndConfirm(25); // T4 questions visible at depth 25
-    await intake.navigateToStep(6);
+    await intake.navigateToStep(7);
 
     const result = await intake.page.evaluate(() => {
       const extraQ = document.querySelector('.depth-extra-question .q-card');
@@ -107,14 +107,14 @@ test.describe('Design Spec Compliance', () => {
     });
     if (result.found) {
       const minH = parseInt(result.minHeight);
-      expect.soft(minH, 'Step 6 q-card min-height should be <= 140px').toBeLessThanOrEqual(140);
+      expect.soft(minH, 'Step 7 q-card min-height should be <= 140px').toBeLessThanOrEqual(140);
     }
   });
 
-  test('TC-098: Step 6 depth-extra-question labels styled like chip-section__title', async () => {
+  test('TC-098: Step 7 depth-extra-question labels styled like chip-section__title', async () => {
     await intake.completePrerequisiteSteps();
     await intake.selectDepthAndConfirm(25);
-    await intake.navigateToStep(6);
+    await intake.navigateToStep(7);
 
     const result = await intake.page.evaluate(() => {
       const label = document.querySelector('.depth-extra-question .field__label');

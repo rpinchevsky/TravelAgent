@@ -303,7 +303,7 @@ test.describe('Translation Rendering', () => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(20);
     await intake.waitForI18nReady();
-    await intake.navigateToStep(3);
+    await intake.navigateToStep(4);
 
     // English: verify cards have visible non-empty names and data-en-name
     const enResult = await page.evaluate(() => {
@@ -595,7 +595,7 @@ test.describe('Item Card Rendering & Markdown', () => {
     // Setup with depth and navigate to interests
     await intake.completePrerequisiteSteps();
     await intake.selectDepthAndConfirm(20);
-    await intake.navigateToStep(3);
+    await intake.navigateToStep(4);
 
     // Select a few interest cards
     const cards = intake.interestCards;
@@ -614,7 +614,7 @@ test.describe('Item Card Rendering & Markdown', () => {
     });
 
     // Navigate to review step
-    await intake.navigateToStep(7);
+    await intake.navigateToStep(8);
     const markdown = await intake.getRawMarkdown();
 
     // Verify English names appear in markdown

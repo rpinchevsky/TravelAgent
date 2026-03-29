@@ -49,6 +49,12 @@ export class TripPage {
   // --- Budget ---
   readonly budgetSection: Locator;
 
+  // --- Accommodation ---
+  readonly accommodationSections: Locator;
+  readonly accommodationCards: Locator;
+  readonly accommodationCardRatings: Locator;
+  readonly bookingCtas: Locator;
+
   // --- Inline styles ---
   readonly inlineStyle: Locator;
 
@@ -94,6 +100,12 @@ export class TripPage {
 
     // Budget
     this.budgetSection = page.locator('#budget');
+
+    // Accommodation
+    this.accommodationSections = page.locator('.accommodation-section');
+    this.accommodationCards = page.locator('.accommodation-card');
+    this.accommodationCardRatings = page.locator('.accommodation-card__rating');
+    this.bookingCtas = page.locator('.booking-cta');
 
     // Inline style
     this.inlineStyle = page.locator('head style');
@@ -179,5 +191,43 @@ export class TripPage {
 
   getPoiCardAccessibleBadge(poiCard: Locator): Locator {
     return poiCard.locator('.poi-card__accessible');
+  }
+
+  // --- Accommodation helpers ---
+
+  getDayAccommodationSection(dayNumber: number): Locator {
+    return this.page.locator(`#day-${dayNumber} .accommodation-section`);
+  }
+
+  getDayAccommodationCards(dayNumber: number): Locator {
+    return this.page.locator(`#day-${dayNumber} .accommodation-card`);
+  }
+
+  getAccommodationCardName(card: Locator): Locator {
+    return card.locator('.accommodation-card__name');
+  }
+
+  getAccommodationCardRating(card: Locator): Locator {
+    return card.locator('.accommodation-card__rating');
+  }
+
+  getAccommodationCardBookingCta(card: Locator): Locator {
+    return card.locator('.booking-cta');
+  }
+
+  getAccommodationCardPriceLevel(card: Locator): Locator {
+    return card.locator('.accommodation-card__price-level');
+  }
+
+  getAccommodationCardTag(card: Locator): Locator {
+    return card.locator('.accommodation-card__tag');
+  }
+
+  getAccommodationCardLinks(card: Locator): Locator {
+    return card.locator('.accommodation-card__link');
+  }
+
+  getAccommodationCardProTip(card: Locator): Locator {
+    return card.locator('.pro-tip');
   }
 }

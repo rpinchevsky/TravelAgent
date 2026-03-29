@@ -52,14 +52,14 @@ const DEPTH_EXPECTATIONS: Record<number, { count: number; visible: string[]; hid
 };
 
 test.describe('Question Visibility per Depth Level', () => {
-  // TC-004 through TC-008 (consolidated data-driven) + TC-009 (Steps 0/1/7 always present)
+  // TC-004 through TC-008 (consolidated data-driven) + TC-009 (Steps 0/1/8 always present)
   for (const depth of DEPTH_LEVELS) {
-    test(`TC-004..008+009: depth ${depth} shows exactly ${DEPTH_EXPECTATIONS[depth].count} questions, Steps 0/1/7 present`, async ({ page }) => {
+    test(`TC-004..008+009: depth ${depth} shows exactly ${DEPTH_EXPECTATIONS[depth].count} questions, Steps 0/1/8 present`, async ({ page }) => {
       const intake = new IntakePage(page);
       await intake.setupWithDepth(depth);
 
-      // TC-009: Steps 0, 1, and 7 are always present in the DOM
-      for (const stepNum of [0, 1, 7]) {
+      // TC-009: Steps 0, 1, and 8 are always present in the DOM
+      for (const stepNum of [0, 1, 8]) {
         const step = intake.stepSection(stepNum);
         expect.soft(
           await step.count(),
@@ -102,12 +102,12 @@ test.describe('Quiz Auto-Advance with Reduced Question Set', () => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(10);
 
-    // Navigate to Step 2 (quiz: setting, culture — 2 visible questions at depth 10)
-    // Step 2 should be the first step after the depth selector
+    // After depth selection, we land on Step 2 (hotel/car). Navigate to Step 3 (quiz).
+    await intake.navigateToStep(3);
     const currentStep = await intake.getCurrentStepNumber();
-    expect.soft(currentStep, 'should be on Step 2 after depth selection').toBe(2);
+    expect.soft(currentStep, 'should be on Step 3 (quiz step)').toBe(3);
 
-    // Step 2 has quiz sub-questions. At depth 10, only setting and culture are visible.
+    // Step 3 has quiz sub-questions. At depth 10, only setting and culture are visible.
     // Answer the first quiz question (setting) — click any option
     const settingQuestion = intake.questionByKey('setting');
     const settingOptions = settingQuestion.locator('[data-value]');
@@ -124,10 +124,10 @@ test.describe('Quiz Auto-Advance with Reduced Question Set', () => {
     }
 
     // After answering the last visible sub-question (culture), the wizard should
-    // advance to the next step (Step 3), not show a hidden third question
+    // advance to the next step (Step 4), not show a hidden third question
     await page.waitForTimeout(500); // Allow auto-advance animation
     const nextStep = await intake.getCurrentStepNumber();
-    expect(nextStep, 'should advance to next step after last visible quiz question').toBeGreaterThan(2);
+    expect(nextStep, 'should advance to next step after last visible quiz question').toBeGreaterThan(3);
   });
 });
 
@@ -158,5 +158,50 @@ test.describe('New T4/T5 Question Rendering', () => {
         `T5 question "${key}" should exist in DOM at depth 30`
       ).toBeGreaterThanOrEqual(1);
     }
+  });
+});
+
+// ============================================================================
+// TC-337: Sub-step Dots Render in Step 3
+// TC-338: Auto-advance After Last Question Goes to Step 4
+// TC-339: Back from Step 4 Returns to Step 3
+// ============================================================================
+test.describe('Step 3 Quiz Navigation (TC-337, TC-338, TC-339)', () => {
+  test('TC-337: sub-step dots render in Step 3 and count matches visible questions', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.navigateToStep(3);
+
+    const dots = intake.subStepDots(3);
+    const dotCount = await dots.count();
+    expect(dotCount, 'Step 3 has sub-step dots').toBeGreaterThan(0);
+
+    // Dot count should match visible question count in Step 3
+    const visibleQCount = await page.evaluate(() => {
+      const step3 = document.querySelector('section.step[data-step="3"]');
+      if (!step3) return 0;
+      return step3.querySelectorAll('.question-slide').length;
+    });
+    expect.soft(dotCount, 'dot count matches visible question slides').toBe(visibleQCount);
+  });
+
+  test('TC-338: auto-advance after last Step 3 question goes to Step 4', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.navigateToStep(3);
+
+    // Skip through all Step 3 sub-steps
+    await intake.skipStep3SubSteps();
+
+    const current = await intake.getCurrentStepNumber();
+    expect(current, 'auto-advanced to Step 4 after last question').toBe(4);
+  });
+
+  test('TC-339: back from Step 4 returns to Step 3', async ({ page }) => {
+    const intake = new IntakePage(page);
+    await intake.setupWithDepth(20);
+    await intake.navigateToStep(4);
+    await intake.backButton().click();
+    expect(await intake.getCurrentStepNumber(), 'back from Step 4 goes to Step 3').toBe(3);
   });
 });

@@ -17,9 +17,9 @@ test.describe('Markdown Output Completeness', () => {
     // Navigate through all steps accepting defaults
     await intake.navigateForwardThroughAllSteps();
 
-    // Should be on Step 7 (Review)
+    // Should be on Step 8 (Review)
     const currentStep = await intake.getCurrentStepNumber();
-    expect.soft(currentStep, 'reached Step 7 (Review)').toBe(7);
+    expect.soft(currentStep, 'reached Step 8 (Review)').toBe(8);
 
     // Get the preview/markdown content
     const content = await intake.getReviewContent();
@@ -29,7 +29,7 @@ test.describe('Markdown Output Completeness', () => {
 
     // The output should contain multiple sections (indicated by markdown headers or structured content)
     // Check for structural elements rather than specific text
-    const reviewStep = intake.stepSection(7);
+    const reviewStep = intake.stepSection(8);
     const previewElement = reviewStep.locator('textarea, pre, .markdown-preview, .review-content');
 
     if (await previewElement.count() > 0) {
@@ -52,7 +52,7 @@ test.describe('Markdown Output Completeness', () => {
     await intake.navigateForwardThroughAllSteps();
 
     const currentStep = await intake.getCurrentStepNumber();
-    expect.soft(currentStep, 'reached Step 7').toBe(7);
+    expect.soft(currentStep, 'reached Step 8').toBe(8);
 
     const content = await intake.getReviewContent();
     expect.soft(content.length, 'depth 20: output has content').toBeGreaterThan(50);
@@ -67,7 +67,7 @@ test.describe('Markdown Output Completeness', () => {
     await intake.navigateForwardThroughAllSteps();
 
     const currentStep = await intake.getCurrentStepNumber();
-    expect.soft(currentStep, 'reached Step 7').toBe(7);
+    expect.soft(currentStep, 'reached Step 8').toBe(8);
 
     const content = await intake.getReviewContent();
     expect.soft(content.length, 'depth 30: output has content').toBeGreaterThan(50);
@@ -84,7 +84,7 @@ test.describe('Markdown Output Completeness', () => {
     // Navigate to Step 7
     await intake.navigateForwardThroughAllSteps();
 
-    const reviewStep = intake.stepSection(7);
+    const reviewStep = intake.stepSection(8);
     await expect(reviewStep).toBeVisible();
 
     // Preview should contain content (all sections populated, no blanks)
@@ -100,22 +100,22 @@ test.describe('Markdown Output Completeness', () => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(10);
 
-    // At depth 10, first navigate through quiz step (Step 2) accepting defaults
+    // At depth 10, first navigate through quiz step (Step 3) accepting defaults
     // per QF-4: must pass through quiz step before checking chip pre-selections
     let currentStep = await intake.getCurrentStepNumber();
 
-    // Navigate until we reach the interests step (Step 3)
-    while (currentStep < 3) {
+    // Navigate until we reach the interests step (Step 4)
+    while (currentStep < 4) {
       // If on a quiz step, the auto-advance may handle it; click continue if available
       const continueBtn = intake.continueButton();
       if (await continueBtn.count() > 0 && await continueBtn.isVisible()) {
         await continueBtn.click();
       }
       currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 7) break;
+      if (currentStep >= 8) break;
     }
 
-    if (currentStep === 3) {
+    if (currentStep === 4) {
       // Verify interest chips have at least 1 pre-selected chip
       const interestsQuestion = intake.questionByKey('interests');
       const selectedChips = interestsQuestion.locator('.chip.is-selected, .chip-option.is-selected, [aria-pressed="true"]');

@@ -23,11 +23,12 @@ Write `test_plan.md` in the change folder using the template at `technical_docum
 Read these files before writing:
 1. `{change_folder}/business_requirements.md` — the BRD (acceptance criteria are your source of truth)
 2. `{change_folder}/detailed_design.md` — the DD (to understand what's changing and where)
-3. `technical_documents/templates/test_plan_template.md`
-4. `automation/code/automation_rules.md` — test engineering standards you must follow
-5. `automation/code/tests/pages/TripPage.ts` — existing POM locators (to reuse or identify new ones needed)
-6. **Existing spec files** relevant to the change — check `automation/code/tests/regression/` for specs that test the same area
-7. **If retry after QA-A rejection:** Also read `{change_folder}/qa_architecture_review.md` — address all feedback items marked as Blocking
+3. `{change_folder}/ux_design.md` — the UX design (if present — GUI changes only). Use this to derive test cases for visual layout, responsive behavior, interaction patterns, accessibility, and RTL/dark mode.
+4. `technical_documents/templates/test_plan_template.md`
+5. `automation/code/automation_rules.md` — test engineering standards you must follow
+6. `automation/code/tests/pages/TripPage.ts` — existing POM locators (to reuse or identify new ones needed)
+7. **Existing spec files** relevant to the change — check `automation/code/tests/regression/` for specs that test the same area
+8. **If retry after QA-A rejection:** Also read `{change_folder}/qa_architecture_review.md` — address all feedback items marked as Blocking
 
 ## Instructions
 

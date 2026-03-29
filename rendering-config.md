@@ -45,7 +45,31 @@
 - Every `###` section in the source markdown that describes a Point of Interest **MUST** be rendered as exactly one `<div class="poi-card">` in the HTML output. POI sections are identified by their heading emoji: 🛒 (grocery store), 🎯 (optional along-the-way stop), and all other POI types (attractions, restaurants, activities, etc.). The only `###` sections that are NOT POIs are those starting with logistics, cost, or backup-plan markers. Grocery and optional stops are full POIs — they get `poi-card` treatment like any other POI.
 - **No silent truncation:** Do NOT cap the number of POI cards per day. If a day has 4 POI descriptions in the markdown, the HTML must contain 4 `poi-card` elements for that day.
 - **No merging:** Each POI gets its own card — never combine two POIs into one card.
+- **Accommodation exclusion:** `###` headings prefixed with `🏨` are accommodation cards, not POIs. They render as `.accommodation-card` elements and are excluded from the parity count. The count of `.poi-card` elements must equal the count of non-accommodation `###` POI headings.
 - **Validation:** After HTML generation, the count of `.poi-card` elements inside each `#day-N` section must equal the count of `###` POI headings for that day in the source markdown.
+
+### Accommodation Section & Card Layout
+
+- **Section wrapper:** The `## 🏨` heading in markdown maps to `<div class="accommodation-section">` containing a `<h2 class="section-title accommodation-section__title">` and all child accommodation cards. **Important (FB-6):** `## 🏨` within a day file is rendered as a `<div class="accommodation-section">` inside the parent `<div class="day-card" id="day-N">`, not as a new top-level section. The h2 heading is semantic within the day context only.
+- **Card wrapper:** Each `### 🏨` heading maps to `<div class="accommodation-card" id="accom-stay-{S}-{N}">` where `{S}` is the stay block number and `{N}` is the 1-based option index.
+- **Distinction from POI cards:** Accommodation cards use `.accommodation-card`, NOT `.poi-card`. They are NOT counted in the POI Parity Check. The `### 🏨` prefix is the identifier — any `###` heading starting with `🏨` is an accommodation card, not a POI.
+- **Card internal structure:**
+  - Tag: `<span class="accommodation-card__tag">🏨</span>`
+  - Rating: `<span class="accommodation-card__rating">⭐ {rating} ({count})</span>` — same pattern as `.poi-card__rating`
+  - Name: `<h3 class="accommodation-card__name">` (semantic heading)
+  - Links: Same emoji-prefix pattern as POI cards (📍 Maps, 🌐 Site, 📸 Photos, 📞 Phone) using `<a class="accommodation-card__link">`
+  - Price level: `<div class="accommodation-card__price-level">` containing filled/unfilled currency symbols rendered as `<span class="price-pip price-pip--filled">💰</span>` and `<span class="price-pip price-pip--empty">○</span>`. For price_level=3: `💰💰💰○`.
+  - Description: `<div class="accommodation-card__description">`
+  - Booking CTA: `<a class="booking-cta" href="{booking_com_url}" target="_blank" rel="noopener noreferrer">` — styled as a prominent button, not an inline link
+  - Pro-tip: `<div class="pro-tip">` (reuses existing pro-tip component)
+- **Visual distinction:** `.accommodation-card` uses a warm amber accent (`#D4A83A` / `var(--color-brand-accent)`) for the left border and tag background, contrasting with the blue/teal used for POI cards. Background uses a subtle warm tint.
+- **Responsive:** Full-width on mobile; on desktop (>768px), cards may display in a responsive grid (1-3 columns depending on viewport width) using the `.accommodation-section` grid wrapper.
+- **Language-agnostic:** Card structure, class names, and element identification do not depend on specific language strings. Tests use CSS selectors only.
+
+### Accommodation Budget in Pricing Grid
+
+- The accommodation line item in the anchor day's pricing grid uses the standard `.pricing-cell` component.
+- The pricing cell label includes a `<span class="pricing-cell__badge pricing-cell__badge--estimate">` indicator to distinguish estimated costs from confirmed costs.
 
 ### Activity Labels in Itinerary Tables
 - **Clickable POI Link (Mandatory):** When an activity label references a specific POI that has a corresponding `<div class="poi-card">` in the same day, the label MUST be rendered as a clickable anchor: `<a class="activity-label" href="#poi-day-{D}-{N}">` instead of a plain `<span>`. The `href` must match the `id` of the target POI card. Generic actions (transport, walks without a named POI) that have no corresponding POI card remain as `<span class="activity-label">`.
@@ -96,6 +120,39 @@
 
 ### Banner Titles
 - Use emoji in `day-card__banner-title` (e.g., `День 1 — Остров Маргит 🏊`)
+
+### Themed Container Rule (Mandatory)
+
+A **themed container** is any element that meets BOTH conditions:
+1. It has a gradient background, solid colored background, or any background that is visually distinct from the default page background.
+2. It sets an explicit `color` on itself (or inherits a non-default text color from its parent) that differs from `var(--color-text-primary)`.
+
+**Known themed containers:** `.day-card__banner` (gradient background + `color: var(--color-text-inverse)`).
+
+**Rule:** Every child element inside a themed container that uses a semantic HTML tag (`h1`-`h6`, `p`, `a`, `span` containing visible text) **MUST** have an explicit `color` declaration in its own CSS class. Do NOT rely on CSS `color` inheritance inside themed containers.
+
+**Reason:** Global CSS resets (e.g., `h1, h2, h3, h4, h5, h6 { color: var(--color-text-primary) }`) target semantic tags with higher specificity than inherited `color` from a parent class. This causes child text to silently revert to the default dark color on a colored/gradient background, producing unreadable text.
+
+**Canonical example — `.day-card__banner`:**
+
+```css
+/* Parent sets color on the container */
+.day-card__banner {
+  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-accent-alt));
+  color: var(--color-text-inverse);
+}
+
+/* REQUIRED: children must set color explicitly */
+.day-card__banner-title {
+  color: var(--color-text-inverse);  /* Explicit — survives global h2 reset */
+}
+
+.day-card__banner-date {
+  color: var(--color-text-inverse);  /* Explicit — belt-and-suspenders, safe even if tag changes */
+}
+```
+
+**When adding new themed containers:** Apply this rule to all child text elements. Add the new container to the "Known themed containers" list above, and extend the pre-regression validation gate (item 12 in `development_rules.md` Section 3) to include the new container's child classes.
 
 ### SVG Requirements (Consolidated)
 - All `<svg>` elements MUST have explicit `width` and `height` HTML attributes.

@@ -29,6 +29,13 @@ The trip generation pipeline uses a two-layer data source approach for POI detai
 - **Graceful degradation:** If Google Places MCP is not configured or a place is not found, the pipeline continues with web fetch data only. Phone and rating fields are omitted (not rendered as empty).
 - **Default wheelchair behavior:** If the trip details file does not contain a `Wheelchair accessible` field, treat as `wheelchair accessible: no`.
 
+### Layer 2a: Google Places API (Accommodation Discovery)
+- For stay-block anchor days, query Google Places with `type=lodging` to discover accommodation options.
+- Uses the same MCP tool (`mcp__google-places__maps_search_places` → `mcp__google-places__maps_place_details`) as POI enrichment.
+- Provides: property name, rating, review count, price level, address, Google Maps link, phone, website, photos.
+- **Precedence rule:** Same as Layer 2 — Google Places structured fields take precedence over other sources.
+- **Graceful degradation:** Same as Layer 2 — if MCP unavailable or place not found, skip accommodation section. Trip generation continues without accommodation cards.
+
 ---
 
 ## Strategic Planning Logic
@@ -66,6 +73,71 @@ After initial itinerary draft, perform a dedicated research pass:
 - **Sit-down vs. grab-and-go distinction:**
   - **Sit-down restaurants** (meals where the family sits for 30+ minutes) → full `###` POI section with hours, prices, links, pro-tip.
   - **Quick snacks / street food / grab-and-go** (kürtőskalács stand, gelato cart, lángos window, etc.) → do NOT create a separate POI card. Instead, mention inline in the schedule table's "Детали" column (e.g., `Édes Mackó — kürtőskalács на углях, ~1 500 HUF`) or as a pro-tip inside the nearest POI card. Include a Google Maps link in the details text if available.
+
+---
+
+## Accommodation Selection
+
+### Stay Block Identification (Phase A)
+
+After building the Phase A overview table, analyze the area column across all days to identify distinct stay blocks:
+
+1. **Same-area rule:** Consecutive days in the same city or district = one stay block.
+2. **Area change rule:** When the planned area changes to a different city or district requiring accommodation relocation, a new stay block begins.
+3. **Coverage rule:** Every night of the trip must belong to exactly one stay block. No gaps, no overlaps.
+4. **Check-in / check-out:** Check-in date = first night's date. Check-out date = morning after the last night (departure day date, or the first day of the next stay block).
+5. **Single-base trips:** If all days are in the same city, produce exactly one stay block spanning arrival night to departure morning.
+6. **Anchor day:** The first day of each stay block is the "anchor day." Accommodation cards are placed in this day's file only.
+
+Record stay blocks in `manifest.json` under `accommodation.stays[]` (see content_format_rules.md for schema).
+
+### Accommodation Discovery (Phase B — Anchor Day Only)
+
+During Phase B, the subagent generating an anchor day's file performs accommodation research:
+
+1. **Parse preferences:** Read the `## Hotel Assistance` section from the active trip details file. Extract: accommodation_type, location_priority, quality_level, must_have_amenities, pets, daily_budget, cancellation_preference. If section absent, use defaults: mid-range quality, city center location, no pet requirement, no amenity filtering.
+2. **Google Places query:** Call `mcp__google-places__maps_search_places` with:
+   - `query`: "{accommodation_type} {stay_area}" (e.g., "Apartment Budapest" or "Hotel Budapest city center")
+   - `type`: `lodging`
+   - Adjust query center based on `location_priority`: center = historic center, attractions = tourist district, transport = main station area, quiet = residential area, beach = waterfront.
+3. **Filter results:**
+   - Exclude `business_status` = "CLOSED_PERMANENTLY" or "CLOSED_TEMPORARILY"
+   - Hard filter: if `daily_budget` is specified, exclude properties whose `price_level` maps to a range clearly outside the budget
+   - Hard filter: if `pets` = "Yes", note pet policy requirement (Google Places may not confirm — annotate as "verify with property")
+   - Soft rank: prefer properties matching `quality_level` → `price_level` mapping
+4. **Select 2-3 options:** Choose properties at different price points (budget, mid-range, upscale) where possible. Minimum 2, maximum 3. If fewer than 2 results remain after filtering, broaden search to city-level and retry once.
+5. **Enrich each option:** Call `mcp__google-places__maps_place_details` for each selected property to get: name, formatted_address, rating, user_ratings_total, price_level, website, international_phone_number, photos, url (Google Maps link).
+6. **Construct Booking.com deep link** for each option (see content_format_rules.md for URL format).
+7. **Write accommodation section** in the anchor day's markdown file (see content_format_rules.md for card template).
+8. **Graceful degradation:** If Google Places MCP is unavailable or returns no lodging results, skip the accommodation section entirely. Log in manifest as `"discovery_source": "skipped"`. Continue with day generation — accommodation is non-blocking.
+
+### Preference-to-Search Mapping
+
+| Preference Field | Google Places Influence | Card Annotation |
+|---|---|---|
+| accommodation_type | Query keyword (e.g., "Apartment", "Boutique Hotel") | Mentioned in card description |
+| location_priority | Search center point adjustment | Proximity noted in description |
+| quality_level | `price_level` filter: Budget=0-1, Mid-range=2, Upscale=3, Luxury=4 | Price level shown on card |
+| must_have_amenities | Not filterable via API; mentioned when verifiable | Listed in description; unverifiable ones noted as "check with property" |
+| pets | Hard filter annotation | Pet policy note in pro-tip |
+| daily_budget | Hard filter on `price_level` range | Budget alignment noted |
+| cancellation_preference | Not filterable via API | Mentioned in pro-tip (e.g., "Look for free cancellation on Booking.com") |
+
+### Price Level to Cost Range Mapping (Destination-Aware)
+
+Cost estimation uses Google Places `price_level` (0-4) mapped to destination-appropriate nightly ranges. The mapping is determined by the destination's market level, not hardcoded globally.
+
+**Budapest, Hungary (example):**
+
+| price_level | Label | HUF/night | EUR/night |
+|---|---|---|---|
+| 0 | Free / Бесплатно | — | — |
+| 1 | Budget / Бюджетный | 15,000–25,000 | 38–63 |
+| 2 | Mid-range / Средний | 25,000–50,000 | 63–125 |
+| 3 | Upscale / Высокий | 50,000–90,000 | 125–225 |
+| 4 | Luxury / Люксовый | 90,000+ | 225+ |
+
+When `price_level` is absent from Google Places data, omit the price level line from the card and note: "Price level unavailable — check Booking.com link for current rates" (in the reporting language).
 
 ---
 
@@ -111,6 +183,7 @@ Before presenting any "Day" to the user, you must pass this self-check:
 - [ ] Provide additional options in area if we won't like some of advised POI.
 - [ ] Is the logistics/transportation plan efficient?
 - [ ] Does the number of POI cards in the HTML match the number of `###` POI sections in the markdown for this day? (POI Parity Check)
+- [ ] If this is the first day of a stay block: does the accommodation section contain 2-3 options with complete cards (name, rating, maps link, booking link, price level)? Does at least one option's price level align with the traveler's stated budget preference (if available)?
 - [ ] If `wheelchair accessible: yes` is set in trip details: are all POIs verified for wheelchair accessibility? Are inaccessible POIs flagged or replaced?
 
 For Plan B provide what might be the reason to use that plan. Output of Plan B shall follow same rules and format as planned points of interest.

@@ -4,13 +4,13 @@ import { IntakePage } from '../pages/IntakePage';
 /**
  * Cross-Step Visual Consistency Tests (QA Test Plan Categories 1-2)
  *
- * Verifies that all card components across Steps 3-5 share the same
+ * Verifies that all card components across Steps 4-6 share the same
  * visual dimensions, layout, and interaction patterns. This is the
  * #1 lesson learned from the QA review: visual consistency across
  * screens must be tested property-by-property.
  */
 
-const CARD_STEPS = [3, 4, 5] as const;
+const CARD_STEPS = [4, 5, 6] as const;
 
 test.describe('Cross-Step Visual Consistency', () => {
   let intake: IntakePage;
@@ -20,32 +20,32 @@ test.describe('Cross-Step Visual Consistency', () => {
     await intake.setupWithDepth(20);
   });
 
-  test('TC-038: interest cards (Step 3) use centered vertical layout', async () => {
-    await intake.navigateToStep(3);
+  test('TC-038: interest cards (Step 4) use centered vertical layout', async () => {
+    await intake.navigateToStep(4);
     const styles = await intake.getCardStyles('#interestsSections .interest-card');
     expect.soft(styles.flexDirection, 'Interest card flex-direction').toBe('column');
     expect.soft(styles.textAlign, 'Interest card text-align').toBe('center');
     expect.soft(styles.alignItems, 'Interest card align-items').toBe('center');
   });
 
-  test('TC-039: avoid cards (Step 4) match interest card layout direction', async () => {
-    await intake.navigateToStep(4);
+  test('TC-039: avoid cards (Step 5) match interest card layout direction', async () => {
+    await intake.navigateToStep(5);
     const styles = await intake.getCardStyles('#avoidSections .avoid-card');
     expect.soft(styles.flexDirection, 'Avoid card flex-direction').toBe('column');
     expect.soft(styles.textAlign, 'Avoid card text-align').toBe('center');
     expect.soft(styles.alignItems, 'Avoid card align-items').toBe('center');
   });
 
-  test('TC-040: food experience cards (Step 5) match interest card layout direction', async () => {
-    await intake.navigateToStep(5);
+  test('TC-040: food experience cards (Step 6) match interest card layout direction', async () => {
+    await intake.navigateToStep(6);
     const styles = await intake.getCardStyles('#foodExperienceCards .interest-card');
     expect.soft(styles.flexDirection, 'Food card flex-direction').toBe('column');
     expect.soft(styles.textAlign, 'Food card text-align').toBe('center');
     expect.soft(styles.alignItems, 'Food card align-items').toBe('center');
   });
 
-  test('TC-041: vibe cards (Step 5) match interest card layout direction', async () => {
-    await intake.navigateToStep(5);
+  test('TC-041: vibe cards (Step 6) match interest card layout direction', async () => {
+    await intake.navigateToStep(6);
     const styles = await intake.getCardStyles('#vibeGroup .avoid-card');
     expect.soft(styles.flexDirection, 'Vibe card flex-direction').toBe('column');
     expect.soft(styles.textAlign, 'Vibe card text-align').toBe('center');
@@ -124,7 +124,7 @@ test.describe('Cross-Step Visual Consistency', () => {
   });
 
   test('TC-047: vibe cards use avoid-card--vibe CSS modifier (no inline style overrides)', async () => {
-    await intake.navigateToStep(5);
+    await intake.navigateToStep(6);
     const result = await intake.page.evaluate(() => {
       const vibeCards = document.querySelectorAll('#vibeGroup .avoid-card');
       const issues: string[] = [];
@@ -146,7 +146,7 @@ test.describe('Cross-Step Visual Consistency', () => {
   });
 
   test('TC-048: every step has step__title with accent bar and step__desc', async () => {
-    for (const step of [0, 1, 2, 3, 4, 5, 6, 7]) {
+    for (const step of [0, 1, 2, 3, 4, 5, 6, 7, 8]) {
       const section = intake.stepSection(step);
       const title = section.locator('.step__title');
       const desc = section.locator('.step__desc');
@@ -155,10 +155,10 @@ test.describe('Cross-Step Visual Consistency', () => {
     }
   });
 
-  test('TC-049: Steps 3-5 sub-sections use chip-section__title + chip-section__desc consistently', async () => {
+  test('TC-049: Steps 4-6 sub-sections use chip-section__title + chip-section__desc consistently', async () => {
     const result = await intake.page.evaluate(() => {
       const issues: string[] = [];
-      for (const step of [3, 4, 5]) {
+      for (const step of [4, 5, 6]) {
         const section = document.querySelector(`section.step[data-step="${step}"]`);
         if (!section) { issues.push(`Step ${step} section not found`); continue; }
         const titles = section.querySelectorAll('.chip-section__title');
@@ -185,7 +185,7 @@ test.describe('Cross-Step Visual Consistency', () => {
   });
 
   test('TC-050: every step has btn-bar with consistent layout', async () => {
-    for (const step of [0, 1, 2, 3, 4, 5, 6, 7]) {
+    for (const step of [0, 1, 2, 3, 4, 5, 6, 7, 8]) {
       const section = intake.stepSection(step);
       const btnBar = section.locator('.btn-bar');
       expect.soft(await btnBar.count(), `Step ${step} missing .btn-bar`).toBeGreaterThan(0);

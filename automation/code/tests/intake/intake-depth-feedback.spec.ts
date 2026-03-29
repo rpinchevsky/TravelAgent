@@ -46,8 +46,8 @@ test.describe('Context Bar & Toast Feedback', () => {
     await expect(intake.toast.first()).not.toBeVisible({ timeout: 10000 });
   });
 
-  // TC-026: Smooth transition to Step 7 at low depth
-  test('TC-026: no empty intermediary step between last content step and Step 7', async ({ page }) => {
+  // TC-026: Smooth transition to Step 8 at low depth
+  test('TC-026: no empty intermediary step between last content step and Step 8', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(10);
 
@@ -66,12 +66,12 @@ test.describe('Context Bar & Toast Feedback', () => {
       currentStep = await intake.getCurrentStepNumber();
       stepsVisited.push(currentStep);
 
-      if (currentStep === 7) break;
+      if (currentStep === 8) break;
     }
 
     // The last content step should transition directly to Step 7
     // No blank/empty step should appear in between
-    expect.soft(currentStep, 'reached Step 7 (Review)').toBe(7);
+    expect.soft(currentStep, 'reached Step 8 (Review)').toBe(8);
 
     // Verify no step in the visited sequence was empty
     // (This is a structural check — if we visited a step, it had content)

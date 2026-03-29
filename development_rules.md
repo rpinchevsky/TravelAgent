@@ -34,6 +34,13 @@ Every locator in `automation/code/tests/pages/TripPage.ts` defines a **structura
 | `a.activity-label[href^="#poi-day-"]` | Clickable activity labels linking to POI cards |
 | `.advisory--info` | Plan B and Logistics sections |
 | `#budget` | `<section id="budget">` |
+| `.accommodation-section` | `<div class="accommodation-section">` wrapping accommodation cards on anchor days |
+| `.accommodation-card` | `<div class="accommodation-card" id="accom-stay-{S}-{N}">` |
+| `.accommodation-card__rating` | `<span class="accommodation-card__rating">` inside each accommodation card |
+| `.accommodation-card__name` | `<h3 class="accommodation-card__name">` inside each accommodation card |
+| `.accommodation-card__link` | `<a class="accommodation-card__link">` for Maps, Site, Photos, Phone links |
+| `.accommodation-card__price-level` | `<div class="accommodation-card__price-level">` with `.price-pip` children |
+| `.booking-cta` | `<a class="booking-cta" href="..." target="_blank" rel="noopener noreferrer">` — Booking.com CTA button |
 | `head style` | Inlined CSS (no external `<link>`) |
 
 ### Source 2: rendering-config.md (Design System)
@@ -85,6 +92,12 @@ After HTML generation and BEFORE running Playwright regression, perform an autom
 9. Navigation completeness:   sidebar__link count matches mobile-nav__pill count
 10. POI card anchors:          Every .poi-card has id="poi-day-{D}-{N}"
 11. Activity label links:      POI-referencing .activity-label elements are <a> with href matching a .poi-card id
+12. Themed container contrast: For known themed containers (.day-card__banner), verify that child text-bearing
+    classes (.day-card__banner-title, .day-card__banner-date) have an explicit `color:` declaration in the
+    inlined <style> block. Regex: for each class, search the <style> content for
+    `\.day-card__banner-title\s*\{[^}]*color\s*:` and `\.day-card__banner-date\s*\{[^}]*color\s*:`
+    When new themed containers are added, extend this check with their child class names —
+    see rendering-config.md "Themed Container Rule" for the maintained list.
 ```
 
 ### How to run:

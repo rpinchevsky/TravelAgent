@@ -96,4 +96,50 @@ test.describe('HTML Structure & Syntax', () => {
     expect.soft(result.avoidHidden, 'avoidQuiz is display:none').toBe(true);
     expect.soft(result.foodHidden, 'foodQuiz is display:none').toBe(true);
   });
+
+  test('TC-317: wizard contains exactly 9 step elements (data-step 0-8)', async () => {
+    const result = await intake.page.evaluate(() => {
+      const steps = document.querySelectorAll('section.step[data-step]');
+      const values = Array.from(steps).map(s => s.getAttribute('data-step'));
+      return { count: steps.length, values };
+    });
+
+    expect(result.count, '9 step sections exist').toBe(9);
+    for (let i = 0; i <= 8; i++) {
+      expect.soft(
+        result.values.includes(String(i)),
+        `data-step="${i}" exists`
+      ).toBe(true);
+    }
+  });
+
+  test('TC-318: step content correct after renumbering (Step 3=questionnaire, 4=interests, 5=avoids, 6=food, 7=extras, 8=review)', async () => {
+    const result = await intake.page.evaluate(() => {
+      const step3 = document.querySelector('section.step[data-step="3"]');
+      const step4 = document.querySelector('section.step[data-step="4"]');
+      const step5 = document.querySelector('section.step[data-step="5"]');
+      const step6 = document.querySelector('section.step[data-step="6"]');
+      const step7 = document.querySelector('section.step[data-step="7"]');
+      const step8 = document.querySelector('section.step[data-step="8"]');
+      return {
+        step3HasQuestionSlides: step3 ? step3.querySelectorAll('.question-slide').length > 0 : false,
+        step4HasInterests: step4 ? step4.querySelector('#interestsSections') !== null : false,
+        step5HasAvoids: step5 ? step5.querySelector('#avoidSections') !== null : false,
+        step6HasFood: step6 ? step6.querySelector('#foodExperienceCards') !== null : false,
+        step7HasReportLang: step7 ? step7.querySelector('#reportLang') !== null : false,
+        step7NoHotel: step7 ? step7.querySelector('#hotelAssistanceSection') === null : false,
+        step7NoCar: step7 ? step7.querySelector('#carAssistanceSection') === null : false,
+        step8HasPreview: step8 ? step8.querySelector('#previewContent') !== null : false,
+      };
+    });
+
+    expect.soft(result.step3HasQuestionSlides, 'Step 3: has question slides (questionnaire)').toBe(true);
+    expect.soft(result.step4HasInterests, 'Step 4: has #interestsSections').toBe(true);
+    expect.soft(result.step5HasAvoids, 'Step 5: has #avoidSections').toBe(true);
+    expect.soft(result.step6HasFood, 'Step 6: has #foodExperienceCards').toBe(true);
+    expect.soft(result.step7HasReportLang, 'Step 7: has #reportLang').toBe(true);
+    expect.soft(result.step7NoHotel, 'Step 7: no hotel section').toBe(true);
+    expect.soft(result.step7NoCar, 'Step 7: no car section').toBe(true);
+    expect.soft(result.step8HasPreview, 'Step 8: has #previewContent (review)').toBe(true);
+  });
 });

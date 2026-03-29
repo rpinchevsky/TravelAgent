@@ -19,7 +19,7 @@ test.describe('Depth Change Mid-Wizard', () => {
     while (currentStep < 4) {
       await intake.continueButton().click();
       currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 7) break;
+      if (currentStep >= 8) break;
     }
 
     // Click the depth pill in context bar
@@ -70,7 +70,7 @@ test.describe('Depth Change Mid-Wizard', () => {
     while (currentStep < 4) {
       await intake.continueButton().click();
       currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 7) break;
+      if (currentStep >= 8) break;
     }
 
     // Select a non-default pace option (first option instead of default middle)
@@ -118,7 +118,7 @@ test.describe('Depth Change Mid-Wizard', () => {
     while (currentStep < 4) {
       await intake.continueButton().click();
       currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 7) break;
+      if (currentStep >= 8) break;
     }
 
     // Select a non-default budget option
@@ -180,7 +180,7 @@ test.describe('Re-entry Overlay Behavior', () => {
     while (currentStep < 4) {
       await intake.continueButton().click();
       currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 7) break;
+      if (currentStep >= 8) break;
     }
     const stepBeforeReentry = await intake.getCurrentStepNumber();
 
@@ -217,7 +217,7 @@ test.describe('Re-entry Overlay Behavior', () => {
     while (currentStep < 4) {
       await intake.continueButton().click();
       currentStep = await intake.getCurrentStepNumber();
-      if (currentStep >= 7) break;
+      if (currentStep >= 8) break;
     }
     const stepBeforeReentry = await intake.getCurrentStepNumber();
 
