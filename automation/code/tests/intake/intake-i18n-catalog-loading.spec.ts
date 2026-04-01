@@ -494,6 +494,8 @@ test.describe('Persistence & FOUC Prevention', () => {
 
   test('TC-117: User persisted language loaded before first render', async ({ page }) => {
     // REQ-005 -> AC-2
+    const PERSISTED_LANG =
+      'ru';
     // Set persisted language before navigation
     await page.addInitScript(() => {
       localStorage.setItem('tripIntakeLang', 'ru');
@@ -511,9 +513,9 @@ test.describe('Persistence & FOUC Prevention', () => {
     expect(enFetched, 'EN catalog fetched on init').toBe(true);
     expect(ruFetched, 'RU catalog fetched on init (persisted language)').toBe(true);
 
-    // Verify page displays in Russian (html[lang] = ru)
+    // Verify page displays in persisted language
     const htmlLang = await page.locator('html').getAttribute('lang');
-    expect(htmlLang, 'Page displays in persisted language').toBe('ru');
+    expect(htmlLang, 'Page displays in persisted language').toBe(PERSISTED_LANG);
   });
 
   test('TC-120: No flash of untranslated content on initial load', async ({ page }) => {
@@ -821,8 +823,10 @@ test.describe('Race Condition Guard', () => {
     await page.waitForLoadState('networkidle');
 
     // Final state should be Hebrew (last selection wins)
+    const EXPECTED_FINAL_LANG =
+      'he';
     const htmlLang = await page.locator('html').getAttribute('lang');
-    expect(htmlLang, 'Final language is Hebrew (last selected)').toBe('he');
+    expect(htmlLang, 'Final language matches last selected').toBe(EXPECTED_FINAL_LANG);
 
     const htmlDir = await page.locator('html').getAttribute('dir');
     expect(htmlDir, 'Final direction is RTL (Hebrew)').toBe('rtl');
@@ -840,11 +844,9 @@ test.describe('Cross-Validation (Browser + Filesystem)', () => {
     return JSON.parse(fs.readFileSync(enPath, 'utf-8'));
   }
 
-  test('TC-106: data-i18n count matches catalog key count', async ({ page }) => {
-    // REQ-007 -> AC-5
+  test('TC-106+131: data-i18n and data-i18n-placeholder keys map to catalog', async ({ page }) => {
+    // REQ-007 -> AC-5, AC-6
     const enCatalog = loadEnCatalog();
-
-    // Count non-special keys in catalog
     const catalogKeySet = new Set(
       Object.keys(enCatalog).filter((k) => !SPECIAL_KEYS.includes(k))
     );
@@ -853,41 +855,7 @@ test.describe('Cross-Validation (Browser + Filesystem)', () => {
     await intake.goto();
     await intake.waitForI18nReady();
 
-    // Count data-i18n elements in DOM
-    const domCount = await page.evaluate(() => {
-      return document.querySelectorAll('[data-i18n]').length;
-    });
-
-    expect(domCount, 'data-i18n element count is > 0').toBeGreaterThan(0);
-
-    // Collect unique data-i18n values and verify each exists in catalog
-    const domKeys = await page.evaluate(() => {
-      const els = document.querySelectorAll('[data-i18n]');
-      return Array.from(new Set(
-        Array.from(els).map(e => e.getAttribute('data-i18n')).filter(Boolean)
-      )) as string[];
-    });
-
-    for (const key of domKeys) {
-      expect.soft(
-        catalogKeySet.has(key),
-        `DOM data-i18n="${key}" exists in English catalog`
-      ).toBe(true);
-    }
-  });
-
-  test('TC-131: Post-extraction validation — data-i18n keys map to catalog', async ({ page }) => {
-    // REQ-007 -> AC-5, AC-6
-    const enCatalog = loadEnCatalog();
-    const catalogKeys = new Set(
-      Object.keys(enCatalog).filter((k) => !SPECIAL_KEYS.includes(k))
-    );
-
-    const intake = new IntakePage(page);
-    await intake.goto();
-    await intake.waitForI18nReady();
-
-    // Collect all data-i18n and data-i18n-placeholder values from the DOM
+    // Collect unique data-i18n and data-i18n-placeholder values from the DOM
     const { i18nKeys, placeholderKeys } = await page.evaluate(() => {
       const i18nEls = document.querySelectorAll('[data-i18n]');
       const placeholderEls = document.querySelectorAll('[data-i18n-placeholder]');
@@ -901,19 +869,21 @@ test.describe('Cross-Validation (Browser + Filesystem)', () => {
       };
     });
 
+    expect(i18nKeys.length, 'data-i18n element count is > 0').toBeGreaterThan(0);
+
     // Every data-i18n value must exist as a catalog key
     for (const key of i18nKeys) {
       expect.soft(
-        catalogKeys.has(key),
-        `data-i18n="${key}" has matching catalog key`
+        catalogKeySet.has(key),
+        `data-i18n="${key}" exists in English catalog`
       ).toBe(true);
     }
 
     // Every data-i18n-placeholder value must exist as a catalog key
     for (const key of placeholderKeys) {
       expect.soft(
-        catalogKeys.has(key),
-        `data-i18n-placeholder="${key}" has matching catalog key`
+        catalogKeySet.has(key),
+        `data-i18n-placeholder="${key}" exists in English catalog`
       ).toBe(true);
     }
   });

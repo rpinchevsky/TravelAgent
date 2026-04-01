@@ -39,7 +39,7 @@
 
 ---
 
-### Vajdahunyad vára / Замок Вайдахуняд
+### Vajdahunyad vára (belső udvar) / Замок Вайдахуняд (внутренний двор)
 
 📍 [Google Maps](https://www.google.com/maps/place/?q=place_id:ChIJoaLtEYfbQUcRjp9d1Wfk97w)
 🌐 [Сайт](https://www.mezogazdasagimuzeum.hu/)

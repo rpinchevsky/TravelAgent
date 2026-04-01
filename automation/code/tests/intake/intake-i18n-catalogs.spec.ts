@@ -26,6 +26,10 @@ const FALLBACK_LANGUAGES = [
 // Special keys that are not flat key-value strings
 const SPECIAL_KEYS = ['_items', 'months', 'days_short'] as const;
 
+// Base language used as reference catalog for cross-language comparisons
+const BASE_LANG =
+  'en';
+
 // Project root is four levels up from automation/code/tests/intake/
 const projectRoot = path.resolve(__dirname, '..', '..', '..', '..');
 const localesDir = path.join(projectRoot, 'locales');
@@ -170,7 +174,7 @@ test.describe('i18n Catalog Files — Filesystem Validation', () => {
     ).toBeGreaterThan(350);
 
     for (const lang of SUPPORTED_LANGUAGES) {
-      if (lang === 'en') continue;
+      if (lang === BASE_LANG) continue;
       const catalog = loadLocale(lang);
       if (!catalog) continue;
 

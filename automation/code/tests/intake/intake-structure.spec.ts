@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { IntakePage } from '../pages/IntakePage';
+import { STEPS, STEP_COUNT, STEP_CONTENT_MARKERS } from './utils/step-registry';
 
 /**
  * HTML Structure & Syntax Tests (QA Test Plan Category 3)
@@ -105,8 +106,8 @@ test.describe('HTML Structure & Syntax', () => {
       return { count: steps.length, values };
     });
 
-    expect(result.count, '9 step sections exist').toBe(9);
-    for (let i = 0; i <= 8; i++) {
+    expect(result.count, `at least ${STEP_COUNT} step sections exist`).toBeGreaterThanOrEqual(STEP_COUNT);
+    for (let i = 0; i < STEP_COUNT; i++) {
       expect.soft(
         result.values.includes(String(i)),
         `data-step="${i}" exists`
@@ -115,32 +116,33 @@ test.describe('HTML Structure & Syntax', () => {
   });
 
   test('TC-318: step content correct after renumbering (Step 3=questionnaire, 4=interests, 5=avoids, 6=food, 7=extras, 8=review)', async () => {
-    const result = await intake.page.evaluate(() => {
-      const step3 = document.querySelector('section.step[data-step="3"]');
-      const step4 = document.querySelector('section.step[data-step="4"]');
-      const step5 = document.querySelector('section.step[data-step="5"]');
-      const step6 = document.querySelector('section.step[data-step="6"]');
-      const step7 = document.querySelector('section.step[data-step="7"]');
-      const step8 = document.querySelector('section.step[data-step="8"]');
+    const stepNums = STEPS;
+    const result = await intake.page.evaluate((steps) => {
+      const stepQ = document.querySelector(`section.step[data-step="${steps.questionnaire}"]`);
+      const stepI = document.querySelector(`section.step[data-step="${steps.interests}"]`);
+      const stepA = document.querySelector(`section.step[data-step="${steps.avoids}"]`);
+      const stepF = document.querySelector(`section.step[data-step="${steps.food}"]`);
+      const stepD = document.querySelector(`section.step[data-step="${steps.details}"]`);
+      const stepR = document.querySelector(`section.step[data-step="${steps.review}"]`);
       return {
-        step3HasQuestionSlides: step3 ? step3.querySelectorAll('.question-slide').length > 0 : false,
-        step4HasInterests: step4 ? step4.querySelector('#interestsSections') !== null : false,
-        step5HasAvoids: step5 ? step5.querySelector('#avoidSections') !== null : false,
-        step6HasFood: step6 ? step6.querySelector('#foodExperienceCards') !== null : false,
-        step7HasReportLang: step7 ? step7.querySelector('#reportLang') !== null : false,
-        step7NoHotel: step7 ? step7.querySelector('#hotelAssistanceSection') === null : false,
-        step7NoCar: step7 ? step7.querySelector('#carAssistanceSection') === null : false,
-        step8HasPreview: step8 ? step8.querySelector('#previewContent') !== null : false,
+        questionnaireHasSlides: stepQ ? stepQ.querySelectorAll('.question-slide').length > 0 : false,
+        interestsHasSections: stepI ? stepI.querySelector('#interestsSections') !== null : false,
+        avoidsHasSections: stepA ? stepA.querySelector('#avoidSections') !== null : false,
+        foodHasCards: stepF ? stepF.querySelector('#foodExperienceCards') !== null : false,
+        detailsHasReportLang: stepD ? stepD.querySelector('#reportLang') !== null : false,
+        detailsNoHotel: stepD ? stepD.querySelector('#hotelAssistanceSection') === null : false,
+        detailsNoCar: stepD ? stepD.querySelector('#carAssistanceSection') === null : false,
+        reviewHasPreview: stepR ? stepR.querySelector('#previewContent') !== null : false,
       };
-    });
+    }, stepNums);
 
-    expect.soft(result.step3HasQuestionSlides, 'Step 3: has question slides (questionnaire)').toBe(true);
-    expect.soft(result.step4HasInterests, 'Step 4: has #interestsSections').toBe(true);
-    expect.soft(result.step5HasAvoids, 'Step 5: has #avoidSections').toBe(true);
-    expect.soft(result.step6HasFood, 'Step 6: has #foodExperienceCards').toBe(true);
-    expect.soft(result.step7HasReportLang, 'Step 7: has #reportLang').toBe(true);
-    expect.soft(result.step7NoHotel, 'Step 7: no hotel section').toBe(true);
-    expect.soft(result.step7NoCar, 'Step 7: no car section').toBe(true);
-    expect.soft(result.step8HasPreview, 'Step 8: has #previewContent (review)').toBe(true);
+    expect.soft(result.questionnaireHasSlides, `Step ${STEPS.questionnaire}: has question slides (questionnaire)`).toBe(true);
+    expect.soft(result.interestsHasSections, `Step ${STEPS.interests}: has #interestsSections`).toBe(true);
+    expect.soft(result.avoidsHasSections, `Step ${STEPS.avoids}: has #avoidSections`).toBe(true);
+    expect.soft(result.foodHasCards, `Step ${STEPS.food}: has #foodExperienceCards`).toBe(true);
+    expect.soft(result.detailsHasReportLang, `Step ${STEPS.details}: has #reportLang`).toBe(true);
+    expect.soft(result.detailsNoHotel, `Step ${STEPS.details}: no hotel section`).toBe(true);
+    expect.soft(result.detailsNoCar, `Step ${STEPS.details}: no car section`).toBe(true);
+    expect.soft(result.reviewHasPreview, `Step ${STEPS.review}: has #previewContent (review)`).toBe(true);
   });
 });

@@ -4,7 +4,7 @@ import { IntakePage } from '../pages/IntakePage';
 /**
  * Functional Correctness Tests (QA Test Plan Category 4)
  *
- * Tests context bar visibility, slide animations, preview rendering,
+ * Tests slide animations, preview rendering,
  * markdown output correctness, and datetime handling.
  */
 
@@ -14,43 +14,6 @@ test.describe('Functional Correctness', () => {
   test.beforeEach(async ({ page }) => {
     intake = new IntakePage(page);
     await intake.goto();
-  });
-
-  test('TC-056: context bar hidden on Step 0', async () => {
-    const step = await intake.getCurrentStepNumber();
-    expect.soft(step, 'Should start on Step 0').toBe(0);
-    await expect(intake.contextBar).not.toBeVisible();
-  });
-
-  test('TC-057: context bar visible on Steps 1-7', async () => {
-    await intake.completePrerequisiteSteps();
-    await intake.completeStep2();
-    await intake.selectDepthAndConfirm(20);
-
-    // Navigate to Step 2 to check context bar
-    await intake.navigateToStep(2);
-    await expect.soft(intake.contextBar, 'Context bar visible on Step 2').toBeVisible();
-
-    // Navigate through steps 3-7
-    for (const step of [3, 4, 5, 6, 7]) {
-      await intake.navigateToStep(step);
-      const current = await intake.getCurrentStepNumber();
-      if (current === step) {
-        const visible = await intake.contextBar.isVisible();
-        expect.soft(visible, `Context bar visible on Step ${step}`).toBe(true);
-      }
-    }
-  });
-
-  test('TC-058: context bar hidden on Step 8 (Review)', async () => {
-    await intake.completePrerequisiteSteps();
-    await intake.completeStep2();
-    await intake.selectDepthAndConfirm(20);
-    await intake.navigateToStep(8);
-    const current = await intake.getCurrentStepNumber();
-    if (current === 8) {
-      await expect(intake.contextBar, 'Context bar hidden on Step 8').not.toBeVisible();
-    }
   });
 
   test('TC-059: step slide animation uses correct direction classes', async () => {
@@ -111,6 +74,9 @@ test.describe('Functional Correctness', () => {
   });
 
   test('TC-062: vibe card names use data-en-name for markdown output', async () => {
+    await intake.completePrerequisiteSteps();
+    await intake.completeStep2();
+    await intake.selectDepthAndConfirm(20);
     await intake.navigateToStep(6);
 
     const result = await intake.page.evaluate(() => {
@@ -147,68 +113,12 @@ test.describe('Functional Correctness', () => {
 });
 
 // ============================================================================
-// Navigation Progression Tests (TC-329/365 through TC-336, TC-342, TC-365-372)
-// TC-329 replaced by TC-365: depth overlay does NOT fire after Step 1 (step reorder)
-// TC-385 removed per QF-3: POM navigation is tested implicitly via TC-365–TC-369
+// Navigation Progression Tests (TC-333–TC-336, TC-342, TC-370–TC-372)
+// TC-056–TC-058 removed: covered by TC-095 in design-spec
+// TC-329 replaced by TC-365 (removed): covered by TC-333 full forward
+// TC-365–TC-369 removed: covered by TC-333/TC-334 full forward/backward + TC-370/TC-372
 // ============================================================================
-test.describe('Step Reorder Navigation (TC-365 through TC-372)', () => {
-  test('TC-365: Step 1 Continue navigates to Step 2 — no depth overlay', async ({ page }) => {
-    // Replaces TC-329 (was: depth overlay fires between Step 1 and Step 3)
-    const intake = new IntakePage(page);
-    await intake.goto();
-    await intake.completeStep0();
-    await intake.completeStep1();
-
-    // Depth overlay should NOT be visible after Step 1
-    await expect(intake.depthOverlay).not.toBeVisible();
-
-    // Current step should be 2 (hotel/car)
-    const current = await intake.getCurrentStepNumber();
-    expect(current, 'Step 1 Continue lands on Step 2').toBe(2);
-  });
-
-  test('TC-366: Step 2 Continue opens depth overlay', async ({ page }) => {
-    const intake = new IntakePage(page);
-    await intake.goto();
-    await intake.completeStep0();
-    await intake.completeStep1();
-    // Now on Step 2
-    expect(await intake.getCurrentStepNumber(), 'on Step 2').toBe(2);
-
-    await intake.completeStep2();
-    await expect(intake.depthOverlay).toBeVisible();
-  });
-
-  test('TC-367: depth confirm proceeds to Step 3', async ({ page }) => {
-    const intake = new IntakePage(page);
-    await intake.goto();
-    await intake.completeStep0();
-    await intake.completeStep1();
-    await intake.completeStep2();
-    await intake.selectDepthAndConfirm(20);
-
-    expect(await intake.getCurrentStepNumber(), 'depth confirm lands on Step 3').toBe(3);
-  });
-
-  test('TC-368: backward from Step 3 returns to Step 2', async ({ page }) => {
-    const intake = new IntakePage(page);
-    await intake.setupWithDepth(20);
-    // setupWithDepth lands on Step 3
-    expect(await intake.getCurrentStepNumber(), 'starts on Step 3').toBe(3);
-
-    await intake.backButton().click();
-    expect(await intake.getCurrentStepNumber(), 'back from Step 3 goes to Step 2').toBe(2);
-  });
-
-  test('TC-369: backward from Step 2 returns to Step 1', async ({ page }) => {
-    const intake = new IntakePage(page);
-    await intake.setupWithDepth(20);
-    await intake.navigateToStep(2);
-
-    await intake.backButton().click();
-    expect(await intake.getCurrentStepNumber(), 'back from Step 2 goes to Step 1').toBe(1);
-  });
-
+test.describe('Step Reorder Navigation (TC-370 through TC-372)', () => {
   test('TC-370: depth pill re-entry works from later steps', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(20);
@@ -275,14 +185,7 @@ test.describe('Step Reorder Navigation (TC-365 through TC-372)', () => {
   });
 });
 
-test.describe('Step 2 Navigation — Existing Tests (TC-330 through TC-336, TC-342)', () => {
-  test('TC-330: Continue on Step 2 advances to Step 3 (via depth)', async ({ page }) => {
-    const intake = new IntakePage(page);
-    await intake.setupWithDepth(20);
-    // setupWithDepth now lands on Step 3
-    expect(await intake.getCurrentStepNumber(), 'lands on Step 3 after depth').toBe(3);
-  });
-
+test.describe('Step 2 Navigation — Existing Tests (TC-333 through TC-336, TC-342)', () => {
   test('TC-333: full forward navigation 0→8', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.goto();

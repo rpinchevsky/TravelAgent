@@ -26,6 +26,7 @@ export interface LanguageLabels {
   sectionMornPrep: string;
   sectionLunch: string;
   sectionBirthdayLunch: string;
+  sectionSchedule: string;
   budgetTotal: string;
   pageTitlePattern: (destination: string, year: number) => string;
   fileSuffix: string;
@@ -52,6 +53,7 @@ export const LANGUAGE_LABELS: Record<string, LanguageLabels> = {
     sectionMornPrep: 'Утренние сборы',
     sectionLunch: 'Обед:',
     sectionBirthdayLunch: 'Праздничный обед',
+    sectionSchedule: 'Расписание',
     budgetTotal: 'Итого',
     pageTitlePattern: (dest, year) => `${dest} ${year} — Семейный маршрут`,
     fileSuffix: 'ru',
@@ -75,6 +77,7 @@ export const LANGUAGE_LABELS: Record<string, LanguageLabels> = {
     sectionMornPrep: 'Morning Prep',
     sectionLunch: 'Lunch:',
     sectionBirthdayLunch: 'Birthday Lunch',
+    sectionSchedule: 'Schedule',
     budgetTotal: 'Total',
     pageTitlePattern: (dest, year) => `${dest} ${year} — Family Itinerary`,
     fileSuffix: 'en',
@@ -98,6 +101,7 @@ export const LANGUAGE_LABELS: Record<string, LanguageLabels> = {
     sectionMornPrep: 'הכנות בוקר',
     sectionLunch: 'ארוחת צהריים:',
     sectionBirthdayLunch: 'ארוחת יום הולדת',
+    sectionSchedule: 'לוח זמנים',
     budgetTotal: 'סה"כ',
     pageTitlePattern: (dest, year) => `${dest} ${year} — מסלול משפחתי`,
     fileSuffix: 'he',
@@ -236,6 +240,7 @@ export function loadTripConfig(): TripConfig {
     labels.sectionMornPrep,
     labels.sectionLunch,
     labels.sectionBirthdayLunch,
+    labels.sectionSchedule,
   ];
 
   const result: TripConfig = {

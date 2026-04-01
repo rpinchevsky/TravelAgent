@@ -3,8 +3,12 @@ import { loadTripConfig } from '../utils/trip-config';
 
 const tripConfig = loadTripConfig();
 
-test.describe('Day Cards — Content Verification', () => {
-  for (let i = 0; i < tripConfig.dayCount; i++) {
+test.describe('Day Cards — Content Verification (sampled)', () => {
+  // Sample first, second, and last day — covers arrival, active, departure patterns.
+  // Systemic issues (missing banner, broken table) appear on any day.
+  const sampleDays = [...new Set([0, 1, tripConfig.dayCount - 1])];
+
+  for (const i of sampleDays) {
     test(`Day ${i} should have complete card structure`, async ({ tripPage, sharedPage }) => {
       // Banner title and date
       const bannerTitle = tripPage.getDayBannerTitle(i);

@@ -1,0 +1,2740 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budapest 2026 — מסלול טיול</title>
+  <style>
+/* ==========================================================================
+   Enterprise Travel UI System v3.0
+   rendering_style_config.css
+   Source of Truth: rendering-config.md
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* --- Spacing Scale (8px base) --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+
+  /* --- Border Radius --- */
+  --radius-container: 12px;
+  --radius-interactive: 6px;
+
+  /* --- Typography --- */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-body: 1.5;
+  --line-height-heading: 1.2;
+
+  /* --- Type Scale (fluid, mobile-first) --- */
+  --text-xs:   0.75rem;   /* 12px */
+  --text-sm:   0.875rem;  /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.125rem;  /* 18px */
+  --text-xl:   1.25rem;   /* 20px */
+  --text-2xl:  1.5rem;    /* 24px */
+  --text-3xl:  1.875rem;  /* 30px */
+  --text-4xl:  2.25rem;   /* 36px */
+
+  /* --- Light Theme Color Palette --- */
+  /* Brand */
+  --color-brand-primary:    #1A3C5E;   /* Deep navy — trust & authority */
+  --color-brand-accent:     #C9972B;   /* Warm gold — premium feel */
+  --color-brand-accent-alt: #2E7D9A;   /* Teal — destinations & maps */
+
+  /* Surface */
+  --color-bg:               #F8F7F4;   /* Warm off-white parchment */
+  --color-surface:          #FFFFFF;
+  --color-surface-raised:   #F2F0EC;
+  --color-surface-overlay:  rgba(255, 255, 255, 0.92);
+
+  /* Typography */
+  --color-text-primary:     #1C1C1E;
+  --color-text-secondary:   #4A4A52;
+  --color-text-muted:       #8A8A96;
+  --color-text-inverse:     #FAFAFA;
+
+  /* Borders */
+  --color-border:           rgba(0, 0, 0, 0.10);
+  --color-border-strong:    rgba(0, 0, 0, 0.20);
+
+  /* Semantic */
+  --color-success:          #2D7D3A;
+  --color-warning:          #C9972B;
+  --color-error:            #B53B3B;
+  --color-info:             #2E7D9A;
+
+  /* Focus ring */
+  --focus-ring: 2px solid var(--color-brand-accent);
+  --focus-ring-offset: 2px;
+
+  /* --- Sidebar --- */
+  --sidebar-width: 260px;
+  --sidebar-bg: var(--color-brand-primary);
+  --sidebar-text: var(--color-text-inverse);
+
+  /* --- Z-Index Scale --- */
+  --z-below:   -1;
+  --z-base:     0;
+  --z-raised:   10;
+  --z-nav:      1000;
+  --z-modal:    2000;
+  --z-tooltip:  3000;
+
+  /* --- Transitions --- */
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+
+  /* --- Shadows --- */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+  --shadow-lg:  0 8px 28px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-xl:  0 20px 60px rgba(0,0,0,0.12);
+}
+
+/* --- Dark Theme Override via media query --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:              #0F1923;
+    --color-surface:         #1A2A3A;
+    --color-surface-raised:  #1F3247;
+    --color-surface-overlay: rgba(26, 42, 58, 0.94);
+
+    --color-text-primary:    #FAFAFA;
+    --color-text-secondary:  #C8CDD6;
+    --color-text-muted:      #7B8693;
+    --color-text-inverse:    #1C1C1E;
+
+    --color-border:          rgba(255, 255, 255, 0.10);
+    --color-border-strong:   rgba(255, 255, 255, 0.20);
+
+    --color-brand-accent:    #D4A83A;   /* slightly brighter gold on dark */
+
+    --sidebar-bg:            #0D1F2D;
+
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.30);
+    --shadow-md:  0 4px 12px rgba(0,0,0,0.30);
+    --shadow-lg:  0 8px 28px rgba(0,0,0,0.40);
+    --shadow-xl:  0 20px 60px rgba(0,0,0,0.50);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   2. MODERN CSS RESET
+   -------------------------------------------------------------------------- */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent font-size inflation on mobile */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* Safe area for notched devices */
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  /* CRITICAL: Do NOT add overflow hidden/auto/scroll here — breaks sticky nav */
+}
+
+img, video, picture, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  /* Performance: all images lazy by default */
+  loading: lazy;
+  height: auto;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: var(--line-height-heading);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+ul[role='list'], ol[role='list'] {
+  list-style: none;
+}
+
+a {
+  color: var(--color-brand-accent-alt);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--transition-fast), opacity var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-brand-primary);
+  opacity: 0.85;
+}
+
+/* Universal focus ring — WCAG 2.1 keyboard navigation */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-interactive);
+}
+
+/* Remove focus ring for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   3. PAGE LAYOUT — Mobile-first, CSS Grid
+   -------------------------------------------------------------------------- */
+
+/*
+  Mobile: single-column stacked layout
+  Desktop (≥1024px): sidebar + main content
+  CRITICAL: No overflow on .page-wrapper — stickiness depends on root scroll
+*/
+
+.page-wrapper {
+  display: block;            /* Mobile: block layout — grid breaks sticky on iOS Safari */
+  min-height: 100dvh;
+}
+
+@media (min-width: 1024px) {
+  .page-wrapper {
+    display: grid;           /* Desktop: switch to grid for sidebar layout */
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: 1fr;
+  }
+}
+
+.main-content {
+  padding: var(--space-4) var(--space-3);
+  max-width: 960px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding: var(--space-5) var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: var(--space-6) var(--space-6);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   4. SIDEBAR NAVIGATION — Desktop Fixed, Auto-Dark
+   -------------------------------------------------------------------------- */
+
+.sidebar {
+  display: none; /* hidden on mobile — pill nav takes over */
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  width: var(--sidebar-width);
+  padding: var(--space-5) var(--space-3);
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    position: sticky;       /* sticks within viewport as user scrolls */
+    top: 0;
+    height: 100dvh;
+    overflow-y: auto;
+  }
+}
+
+.sidebar__logo {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-accent);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: var(--space-3);
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-interactive);
+  color: rgba(250, 250, 250, 0.75);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar__link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-inverse);
+  opacity: 1;
+}
+
+.sidebar__link.is-active,
+.sidebar__link[aria-current="page"] {
+  background-color: var(--color-brand-accent);
+  color: #1C1C1E;
+  font-weight: var(--font-weight-semibold);
+}
+
+.sidebar__link svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   5. MOBILE NAV — Horizontal Scrollable Pill Row
+   -------------------------------------------------------------------------- */
+
+.mobile-nav {
+  /* Sticky wrapper — MUST NOT have overflow to work on iOS Safari */
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  top: env(safe-area-inset-top, 0);
+  z-index: var(--z-nav);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.mobile-nav__scroll {
+  /* Inner scroll container — handles horizontal overflow */
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  overflow-x: auto;
+  scrollbar-width: none;         /* Firefox */
+  -ms-overflow-style: none;      /* IE/Edge */
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+.mobile-nav__scroll::-webkit-scrollbar {
+  display: none;                 /* Chrome/Safari */
+}
+
+@media (min-width: 1024px) {
+  .mobile-nav {
+    display: none;               /* hidden on desktop — sidebar takes over */
+  }
+}
+
+.mobile-nav__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), color var(--transition-fast),
+              border-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.mobile-nav__pill:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  opacity: 1;
+}
+
+.mobile-nav__pill.is-active {
+  background-color: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+
+/* --------------------------------------------------------------------------
+   6. CARDS — Elegant Container System
+   -------------------------------------------------------------------------- */
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.card--flat {
+  box-shadow: none;
+  background-color: var(--color-surface-raised);
+}
+
+.card--featured {
+  border-left: 4px solid var(--color-brand-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.card__title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.card__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.card__body {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+}
+
+.card__footer {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* Day Card — wraps a full itinerary day */
+.day-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin-bottom: var(--space-5);
+}
+
+.day-card__banner {
+  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-accent-alt) 100%);
+  color: var(--color-text-inverse);
+  padding: var(--space-4) var(--space-5);
+}
+
+.day-card__banner-date {
+  font-size: var(--text-sm);
+  opacity: 0.8;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-inverse);
+}
+
+.day-card__banner-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--space-1);
+  color: var(--color-text-inverse);
+}
+
+.day-card__content {
+  padding: var(--space-4) var(--space-5);
+}
+
+
+/* --------------------------------------------------------------------------
+   7. ITINERARY TABLE — Comfortable (desktop) / Compact (mobile)
+   -------------------------------------------------------------------------- */
+
+.itinerary-table-wrapper {
+  width: 100%;
+  border-radius: var(--radius-container);
+  border: 1px solid var(--color-border);
+  overflow-x: auto;       /* horizontal scroll on small screens */
+  box-shadow: var(--shadow-sm);
+  /* Note: overflow-x only on this wrapper, never on body/page-wrapper */
+}
+
+.itinerary-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--text-sm);       /* Compact on mobile */
+}
+
+/* Sticky column headers */
+.itinerary-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--space-2) var(--space-3);   /* Compact padding */
+  text-align: left;
+  z-index: var(--z-raised);
+  border-bottom: 2px solid var(--color-brand-accent);
+  white-space: nowrap;
+}
+
+.itinerary-table thead th:first-child {
+  border-top-left-radius: var(--radius-container);
+}
+
+.itinerary-table thead th:last-child {
+  border-top-right-radius: var(--radius-container);
+}
+
+.itinerary-table tbody td {
+  padding: var(--space-2) var(--space-3);   /* Compact */
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+}
+
+.itinerary-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.itinerary-table tbody tr:nth-child(even) {
+  background-color: var(--color-surface-raised);
+}
+
+.itinerary-table tbody tr:hover {
+  background-color: rgba(201, 151, 43, 0.06);   /* warm gold tint */
+}
+
+/* Comfortable density on desktop */
+@media (min-width: 768px) {
+  .itinerary-table {
+    font-size: var(--text-base);
+  }
+
+  .itinerary-table thead th {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .itinerary-table tbody td {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* Time cell */
+.itinerary-table .col-time {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-accent);
+  white-space: nowrap;
+  width: 80px;
+}
+
+@media (min-width: 768px) {
+  .itinerary-table .col-time {
+    width: 100px;
+  }
+}
+
+/* Activity type cell with SVG icon */
+.activity-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* Clickable activity labels that link to POI cards */
+a.activity-label {
+  text-decoration: none;
+  color: var(--color-text-primary);
+  border-bottom: 1px dashed var(--color-brand-accent-alt);
+  transition: color var(--transition-base), border-color var(--transition-base);
+  cursor: pointer;
+}
+
+a.activity-label:hover {
+  color: var(--color-brand-accent);
+  border-bottom-style: solid;
+}
+
+a.activity-label:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-interactive);
+}
+
+/* POI card highlight when navigated to via anchor */
+.poi-card:target {
+  box-shadow: var(--shadow-md);
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+  animation: poi-highlight 1.5s ease-out;
+}
+
+@keyframes poi-highlight {
+  0% { outline-color: var(--color-brand-accent); }
+  100% { outline-color: transparent; }
+}
+
+.activity-label svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-brand-accent-alt);
+}
+
+
+/* --------------------------------------------------------------------------
+   8. ACTIVITY / POI SECTION
+   -------------------------------------------------------------------------- */
+
+.itinerary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .itinerary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .itinerary-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.poi-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.poi-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.poi-card__image-wrapper {
+  border-radius: var(--radius-container) var(--radius-container) 0 0;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background-color: var(--color-surface-raised);
+}
+
+.poi-card__image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.poi-card:hover .poi-card__image-wrapper img {
+  transform: scale(1.03);
+}
+
+.poi-card__body {
+  padding: var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.poi-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-brand-accent-alt);
+}
+
+.poi-card__tag svg {
+  width: 13px;
+  height: 13px;
+}
+
+.poi-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-accent);
+  margin-top: var(--space-1);
+}
+
+.poi-card__accessible {
+  display: inline-block;
+  font-size: var(--text-sm);
+  margin-top: var(--space-1);
+}
+
+.poi-card__name {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.poi-card__description {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+  flex: 1;
+}
+
+.poi-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.poi-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-accent-alt);
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-interactive);
+  padding: 3px var(--space-2);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.poi-card__link:hover {
+  background-color: var(--color-surface-raised);
+  border-color: var(--color-brand-accent-alt);
+  opacity: 1;
+}
+
+.poi-card__link svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Pro-tip callout */
+.pro-tip {
+  display: flex;
+  gap: var(--space-2);
+  background-color: rgba(46, 125, 154, 0.08);
+  border-left: 3px solid var(--color-brand-accent-alt);
+  border-radius: 0 var(--radius-interactive) var(--radius-interactive) 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+}
+
+.pro-tip svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-brand-accent-alt);
+}
+
+
+/* --------------------------------------------------------------------------
+   8a. ACCOMMODATION SECTION & CARDS
+   Visually distinct from POI cards: warm amber accent, different layout
+   -------------------------------------------------------------------------- */
+
+.accommodation-section {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 2px solid var(--color-brand-accent);
+}
+
+.accommodation-section__title {
+  color: var(--color-brand-accent);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.accommodation-section__intro {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.accommodation-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .accommodation-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+.accommodation-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-brand-accent);
+  border-radius: 12px;
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.accommodation-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.accommodation-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: rgba(201, 151, 43, 0.12);
+  color: var(--color-brand-accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  .accommodation-card__tag {
+    background-color: rgba(212, 168, 58, 0.15);
+  }
+}
+
+.accommodation-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin-left: var(--space-2);
+}
+
+.accommodation-card__name {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: var(--space-2) 0;
+  line-height: 1.3;
+}
+
+.accommodation-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.accommodation-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-sm);
+  color: var(--color-brand-accent-alt);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.accommodation-card__link:hover {
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+}
+
+.accommodation-card__price-level {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: var(--space-2) 0;
+  font-size: var(--text-sm);
+}
+
+.price-pip {
+  font-size: var(--text-base);
+}
+
+.price-pip--filled {
+  opacity: 1;
+}
+
+.price-pip--empty {
+  opacity: 0.3;
+}
+
+.accommodation-card__description {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: var(--space-2) 0;
+}
+
+/* Booking.com CTA button */
+.booking-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px 20px;
+  background-color: var(--color-brand-accent);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+  margin: var(--space-3) 0;
+}
+
+.booking-cta:hover {
+  background-color: #B8871F;
+  box-shadow: var(--shadow-md);
+}
+
+.booking-cta:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Estimate badge in pricing grid */
+.pricing-cell__badge--estimate {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+
+/* --------------------------------------------------------------------------
+   9. TYPOGRAPHY — Semantic Hierarchy
+   -------------------------------------------------------------------------- */
+
+.page-title {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-primary);
+  line-height: var(--line-height-heading);
+  margin-bottom: var(--space-2);
+}
+
+.page-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.section-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--color-brand-accent);
+  display: inline-block;
+  margin-bottom: var(--space-4);
+}
+
+.section-label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+
+@media (min-width: 768px) {
+  .page-title  { font-size: var(--text-4xl); }
+  .section-title { font-size: var(--text-3xl); }
+}
+
+
+/* --------------------------------------------------------------------------
+   10. BADGES & TAGS
+   -------------------------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.badge--primary {
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+.badge--accent {
+  background-color: var(--color-brand-accent);
+  color: #1C1C1E;
+}
+
+.badge--success {
+  background-color: rgba(45, 125, 58, 0.12);
+  color: var(--color-success);
+}
+
+.badge--info {
+  background-color: rgba(46, 125, 154, 0.12);
+  color: var(--color-info);
+}
+
+.badge--warning {
+  background-color: rgba(201, 151, 43, 0.14);
+  color: var(--color-warning);
+}
+
+
+/* --------------------------------------------------------------------------
+   11. HOLIDAY / ADVISORY ALERT
+   -------------------------------------------------------------------------- */
+
+.advisory {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-container);
+  border: 1px solid;
+  margin-bottom: var(--space-5);
+}
+
+.advisory--warning {
+  background-color: rgba(201, 151, 43, 0.08);
+  border-color: rgba(201, 151, 43, 0.30);
+  color: var(--color-text-primary);
+}
+
+.advisory--info {
+  background-color: rgba(46, 125, 154, 0.08);
+  border-color: rgba(46, 125, 154, 0.30);
+  color: var(--color-text-primary);
+}
+
+.advisory__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.advisory--warning .advisory__icon { color: var(--color-warning); }
+.advisory--info    .advisory__icon { color: var(--color-info); }
+
+.advisory__title {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.advisory__body {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+}
+
+
+/* --------------------------------------------------------------------------
+   12. PRICING TABLE
+   -------------------------------------------------------------------------- */
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.pricing-cell {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-interactive);
+  padding: var(--space-3);
+  text-align: center;
+}
+
+.pricing-cell__label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pricing-cell__amount {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-primary);
+  margin-top: var(--space-1);
+}
+
+.pricing-cell__currency {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+
+/* --------------------------------------------------------------------------
+   13. UTILITY CLASSES
+   -------------------------------------------------------------------------- */
+
+/* Whitespace */
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.mt-6 { margin-top: var(--space-6); }
+
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-5); }
+
+.pt-4 { padding-top: var(--space-4); }
+.pb-4 { padding-bottom: var(--space-4); }
+.p-4  { padding: var(--space-4); }
+
+/* Text */
+.text-muted     { color: var(--color-text-muted); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-accent    { color: var(--color-brand-accent); }
+.text-sm        { font-size: var(--text-sm); }
+.text-xs        { font-size: var(--text-xs); }
+.font-medium    { font-weight: var(--font-weight-medium); }
+.font-semibold  { font-weight: var(--font-weight-semibold); }
+
+/* Layout helpers */
+.flex          { display: flex; }
+.flex-col      { flex-direction: column; }
+.items-center  { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2         { gap: var(--space-2); }
+.gap-3         { gap: var(--space-3); }
+.gap-4         { gap: var(--space-4); }
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-4) 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   14. RTL OVERRIDES
+   -------------------------------------------------------------------------- */
+
+[dir="rtl"] .pro-tip {
+  border-left: none;
+  border-right: 3px solid var(--color-brand-accent-alt);
+  border-radius: var(--radius-interactive) 0 0 var(--radius-interactive);
+}
+
+[dir="rtl"] .itinerary-table thead th {
+  text-align: right;
+}
+
+
+/* --------------------------------------------------------------------------
+   15. PRINT STYLES
+   -------------------------------------------------------------------------- */
+
+@media print {
+  .sidebar,
+  .mobile-nav {
+    display: none !important;
+  }
+
+  .page-wrapper {
+    display: block;
+  }
+
+  .card,
+  .poi-card,
+  .day-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: #fff;
+  }
+
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #555;
+  }
+}
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="page-wrapper">
+
+<aside class="sidebar" aria-label="Desktop Navigation">
+    <div class="sidebar__logo"><span>🌐 TravelUI</span></div>
+    <nav class="sidebar__nav">
+        <a class="sidebar__link is-active" aria-current="page" href="#overview"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>סקירה כללית</a>
+        <a class="sidebar__link" href="#day-0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>יום 0 — הגעה</a>
+        <a class="sidebar__link" href="#day-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>יום 1 — ציוני דרך</a>
+        <a class="sidebar__link" href="#day-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>יום 2 — קולינריה</a>
+        <a class="sidebar__link" href="#day-3"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>יום 3 — יציאה</a>
+        <a class="sidebar__link" href="#budget"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>תקציב</a>
+    </nav>
+</aside>
+
+<nav class="mobile-nav" aria-label="Mobile Navigation">
+  <div class="mobile-nav__scroll">
+    <a class="mobile-nav__pill is-active" href="#overview">📋 סקירה</a>
+    <a class="mobile-nav__pill" href="#day-0">🏰 יום 0</a>
+    <a class="mobile-nav__pill" href="#day-1">🏛️ יום 1</a>
+    <a class="mobile-nav__pill" href="#day-2">🍷 יום 2</a>
+    <a class="mobile-nav__pill" href="#day-3">🌅 יום 3</a>
+    <a class="mobile-nav__pill" href="#budget">💰 תקציב</a>
+  </div>
+</nav>
+
+<main id="main-content" class="main-content">
+<h1 class="page-title">Budapest 2026 — מסלול טיול <svg width="28" height="20" viewBox="0 0 28 20" role="img" aria-label="Hungary flag" style="vertical-align:middle;display:inline-block;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.1)"><rect width="28" height="6.67" fill="#CE2939"/><rect y="6.67" width="28" height="6.67" fill="#FFFFFF"/><rect y="13.33" width="28" height="6.67" fill="#477050"/></svg></h1>
+<p class="page-subtitle">14–17 באפריל 2026 · AAA (~29)</p>
+
+<section id="overview">
+  <h2 class="section-title">📋 סקירה כללית</h2>
+  <div class="itinerary-table-wrapper">
+    <table class="itinerary-table">
+      <thead><tr><th>תאריך</th><th>יום</th><th>אזור</th><th>בוקר</th><th>צהריים</th><th>אחה"צ</th><th>ערב</th></tr></thead>
+      <tbody>
+        <tr><td>14.04</td><td>שלישי</td><td>בודה (Buda)</td><td>הגעה 10:00, התארגנות</td><td>ארוחת צהריים באזור הטירה</td><td>טירת בודה, מצודת הדייגים, כנסיית מתיאש</td><td>ארוחת ערב על גג עם נוף פנורמי</td></tr>
+        <tr><td>15.04</td><td>רביעי</td><td>פשט (Pest)</td><td>פרלמנט, בזיליקת סנט שטפן + כיפת תצפית</td><td>שוק מרכזי גדול + אוכל רחוב</td><td>מרחצאות סצ'ני</td><td>רובע יהודי: בארים, יין, וויסקי</td></tr>
+        <tr><td>16.04</td><td>חמישי</td><td>פשט + אי מרגרט</td><td>כיכר הגיבורים, טירת ויידהוניאד</td><td>ארוחה + טעימות יין</td><td>חדר בריחה, אי מרגרט</td><td>שייט ערב על הדנובה</td></tr>
+        <tr><td>17.04</td><td>שישי</td><td>גלרט (Gellért)</td><td>צילומי זריחה מגבעת גלרט</td><td>יציאה בשעה 10:00</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="day-card" id="day-0">
+  <div class="day-card__banner">
+    <div class="day-card__banner-date">יום שלישי, 14.04.2026</div>
+    <h2 class="day-card__banner-title">🏰 יום 0 — הגעה וגבעת בודה</h2>
+  </div>
+  <div class="day-card__content">
+    <a class="map-link" href="https://www.google.com/maps/dir/Aranybástya+Budapest/Budavári+Palota+Budapest/Halászbástya+Budapest/Mátyás-templom+Budapest/Leo+Rooftop+Budapest/" target="_blank" rel="noopener noreferrer">🗺️ פתח מסלול יומי בגוגל מפות</a>
+
+    <div class="itinerary-table-wrapper">
+      <table class="itinerary-table">
+        <thead><tr><th>שעה</th><th>פעילות</th><th>פרטים</th></tr></thead>
+        <tbody>
+          <tr><td>10:00</td><td><span class="activity-label">✈️ הגעה לבודפשט</span></td><td>נחיתה / הגעה. Bolt לשדרות הטירה ~35 דק׳</td></tr>
+          <tr><td>11:00</td><td><span class="activity-label">🏨 צ׳ק-אין במלון</span></td><td>השארת מזוודות, התארגנות</td></tr>
+          <tr><td>12:00</td><td><a class="activity-label" href="#poi-day-0-1">🍽️ ארוחת צהריים — Aranybástya</a></td><td>מסעדה הונגרית מובחרת עם נוף על הדנובה ברובע הטירה. ראה פרטים למטה</td></tr>
+          <tr><td>13:30</td><td><a class="activity-label" href="#poi-day-0-2">🏰 טירת בודה (Budavári Palota)</a></td><td>סיור חיצוני, מרפסת תצפית, צילום הפרלמנט מעבר לנהר</td></tr>
+          <tr><td>14:30</td><td><a class="activity-label" href="#poi-day-0-3">📸 מצודת הדייגים (Halászbástya)</a></td><td>7 צריחים, נוף פנורמי 360°, נקודת צילום מרהיבה</td></tr>
+          <tr><td>15:30</td><td><a class="activity-label" href="#poi-day-0-4">⛪ כנסיית מתיאש (Mátyás-templom)</a></td><td>גג רעפים צבעוני של Zsolnay, פנים גותי-חדש מעוטר. כניסה 3,100 HUF</td></tr>
+          <tr><td>16:30</td><td><span class="activity-label">🚶 טיול ברחובות רובע הטירה</span></td><td>רחובות Tárnok, Úri, Fortuna — ארכיטקטורה מימי הביניים, חנויות</td></tr>
+          <tr><td>17:30</td><td><span class="activity-label">📸 שעת הזהב — גשר השרשראות</span></td><td>ירידה לטיילת הדנובה בצד בודה, צילום הגשר והפרלמנט באור שקיעה</td></tr>
+          <tr><td>19:30</td><td><a class="activity-label" href="#poi-day-0-5">🍸 ארוחת ערב — Leo Rooftop Budapest</a></td><td>קוקטיילים ומנות עם נוף פנורמי על הדנובה, גשר השרשראות והפרלמנט</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="itinerary-grid">
+
+      <!-- POI 1: Aranybástya -->
+      <div class="poi-card" id="poi-day-0-1">
+        <span class="poi-card__tag">🍽️ מסעדה</span>
+        <span class="poi-card__rating">⭐ 4.8 (Google)</span>
+        <h3 class="poi-card__name">Aranybástya / ארניבאשטיה</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJozVaTlPdQUcR1fr59NeCfio" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="http://www.aranybastya.com/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Aranybástya+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+36309561342" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>מסעדה הונגרית יוקרתית בלב רובע הטירה, ממוקמת על קצה המצוק עם נוף ישיר על הדנובה, הפרלמנט וגשר השרשראות. התפריט מציע מנות הונגריות קלאסיות ברמה גבוהה — מומלץ במיוחד פואה-גרא הונגרי, גולאש מסורתי, ובשרים על הגריל. בערב ניתן לשבת באיגלו מחומם על המרפסת. מקום מושלם למי שרוצה חוויה קולינרית אותנטית עם נוף.</p>
+          <p>שעות פעילות: יומי 12:00–22:00</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> הזמן מקום מראש דרך האתר — בשעות הצהריים ביום חול יש סיכוי טוב לקבל שולחן עם נוף. חובה לנסות את הטירמיסו.
+        </div>
+      </div>
+
+      <!-- POI 2: Budavári Palota -->
+      <div class="poi-card" id="poi-day-0-2">
+        <span class="poi-card__tag">🏰 טירה</span>
+        <span class="poi-card__rating">⭐ 4.7 (Google)</span>
+        <h3 class="poi-card__name">Budavári Palota / טירת בודה</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJDw826jzcQUcRdiUBqV86zj0" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://budavar.hu/budai-var/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Buda+Castle+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+3614583000" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>מתחם הטירה המלכותית של בודפשט שוכן על גבעה מעל הדנובה ומהווה אתר מורשת עולמית של UNESCO. החצר החיצונית והמרפסות פתוחות חינם ומציעות את אחד מנקודות הצילום הטובות ביותר בעיר — נוף חזיתי ישיר אל הפרלמנט, הגשרים וצד פשט. בתוך המתחם נמצאים הגלריה הלאומית ומוזיאון ההיסטוריה של בודפשט. הפוניקולר (Budavári Sikló) עולה מ-Clark Ádám tér לפסגה.</p>
+          <p>שעות פעילות: החצרות פתוחות 24/7. מוזיאונים: 10:00–18:00 (שלישי–ראשון).</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> הגע מצד דרום-מערב (דרך הגן) להימנע מהתורים ליד הפוניקולר. הנוף מהמרפסת הדרומית — הטוב ביותר לצילום אחה״צ כשהשמש מאירה את הפרלמנט.
+        </div>
+      </div>
+
+      <!-- POI 3: Halászbástya -->
+      <div class="poi-card" id="poi-day-0-3">
+        <span class="poi-card__tag">📸 תצפית</span>
+        <span class="poi-card__rating">⭐ 4.8 (Google)</span>
+        <h3 class="poi-card__name">Halászbástya / מצודת הדייגים</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJnam0fyLcQUcRRl4jRKg8Ji8" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://budavar.hu/halaszbastya/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Fishermans+Bastion+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>שבעת הצריחים הלבנים של מצודת הדייגים מסמלים את שבעת שבטי המג׳אר שייסדו את הונגריה. המבנה בסגנון ניאו-רומאנסקי (1902) מציע את הנוף הפנורמי המרהיב ביותר בבודפשט — הפרלמנט, הדנובה, גשרי העיר ובזיליקת סנט שטפן נשקפים מכל מרפסת. הקומה התחתונה פתוחה חינם; הקומה העליונה בתשלום (1,200 HUF) אך לא חובה — גם מלמטה הנוף מדהים. זו נקודת צילום שלא כדאי לפספס.</p>
+          <p>שעות פעילות: פתוח 24/7.</p>
+          <p>כניסה: קומה תחתונה — חינם. קומה עליונה — 1,200 HUF (~3 EUR).</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> הקומה התחתונה חינמית לגמרי ומספיקה לתמונות מעולות. בשעות הצהריים ביום שלישי הקהל דליל יחסית — תזמון מושלם.
+        </div>
+      </div>
+
+      <!-- POI 4: Mátyás-templom -->
+      <div class="poi-card" id="poi-day-0-4">
+        <span class="poi-card__tag">⛪ כנסייה</span>
+        <span class="poi-card__rating">⭐ 4.8 (Google)</span>
+        <h3 class="poi-card__name">Mátyás-templom / כנסיית מתיאש</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJ1yuefiLcQUcR1Uppb4xy0GI" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://matyas-templom.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Matthias+Church+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+3613555657" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>כנסייה גותית מהמאה ה-13 עם גג רעפי Zsolnay צבעוניים שהפכו לסמל בודפשט. הפנים מעוטר בפרסקואות, חלונות ויטראז׳ ואווירה מיסטית. כאן הוכתר הקיסר פרנץ יוזף ב-1867 — האירוע שהביא לעצמאות הונגריה בתוך האימפריה. בתקופה העות׳מאנית שימשה כמסגד. הגג הצבעוני תוכנן להיראות מצד פשט מעבר לנהר — הצהרת נוכחות ויזואלית.</p>
+          <p>שעות פעילות: יומי 09:00–17:00</p>
+          <p>כניסה: 3,100 HUF (~8 EUR). צריח: תוספת ~3,100 HUF.</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> כדאי להיכנס — הפנים מרשים לא פחות מהחוץ. רכוש כרטיס באתר מראש כדי לדלג על התור. סיור הצריח (תוספת) כולל נוף 360° אך דורש טיפוס מדרגות.
+        </div>
+      </div>
+
+      <!-- POI 5: Leo Rooftop -->
+      <div class="poi-card" id="poi-day-0-5">
+        <span class="poi-card__tag">🍸 קוקטיילים</span>
+        <span class="poi-card__rating">⭐ 4.3 (Google)</span>
+        <h3 class="poi-card__name">Leo Rooftop Budapest / ליאו רופטופ</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJCQvB0HbdQUcRoYV_UyRI-ko" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="http://www.leobudapest.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Leo+Rooftop+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+36709446320" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>בר-מסעדה על גג מלון The Clark, ממש ליד גשר השרשראות. הנוף מהגג הוא מהטובים בבודפשט — פנורמה ישירה על הדנובה, הפרלמנט והבזיליקה. קוקטיילים יצירתיים, מנות ביסטרו איכותיות (מיני-בורגרים, קרוקטות פירות ים, צ׳יפס טריפל-קוק). האווירה אינטימית ומעוצבת. מקום מושלם לסיום יום ראשון עם משקה ונוף שקיעה.</p>
+          <p>שעות פעילות: יומי 12:00–00:00</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> הזמן שולחן דרך OpenTable לפחות 3-4 ימים מראש — בערבים הגג מתמלא מהר. מחירים גבוהים (ארוחה + שתייה ~25,000–35,000 HUF לאדם) אבל שווה כל שקל בשביל הנוף.
+        </div>
+      </div>
+
+      <!-- POI 6: Grocery -->
+      <div class="poi-card" id="poi-day-0-6">
+        <span class="poi-card__tag">🛒 סופרמרקט</span>
+        <span class="poi-card__rating">⭐ 4.0 (Google)</span>
+        <h3 class="poi-card__name">SPAR Supermarket — Batthyány tér</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJTZ68gRncQUcRWS0_kxLMACI" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>סופרמרקט גדול בכיכר Batthyány, 10 דקות הליכה מרובע הטירה. מגוון רחב — מים, פירות, חטיפים, בירה מקומית.</p>
+          <p>שעות פעילות: ראשון–שבת 06:30–21:00</p>
+        </div>
+      </div>
+
+      <!-- POI 7: Along the way -->
+      <div class="poi-card" id="poi-day-0-7">
+        <span class="poi-card__tag">🎯 בדרך</span>
+        <h3 class="poi-card__name">בדרך (אופציונלי)</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/search/Sziklakórház+Budapest/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p><strong>1. Sziklakórház / בית החולים במערה</strong> — מוזיאון מרתק בתוך מערות טבעיות מתחת לגבעת הטירה — שימש כבית חולים סודי במלחמת העולם השנייה ובמרד 1956. סיורים מודרכים בלבד (45 דק׳). נקודה ייחודית לצלמים. 🎯 התאמה: היסטוריה, צילום</p>
+          <p><strong>2. Ruszwurm Cukrászda / קונדיטוריית רושוורם</strong> — בית הקפה העתיק ביותר בבודפשט (1827), ברחוב Szentháromság ליד כנסיית מתיאש. עוגות הונגריות מסורתיות וקפה מצוין. הפנים ששומר על עיצוב מקורי מהמאה ה-19. 🎯 התאמה: אוכל, חוויה מקומית</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Accommodation Section -->
+    <div class="accommodation-section">
+      <h2 class="section-title accommodation-section__title">🏨 אירוח</h2>
+      <p>צ׳ק-אין: 14.04.2026 | צ׳ק-אאוט: 17.04.2026 | 3 לילות | מבוגר 1</p>
+
+      <!-- Accommodation 1: Maison Bistro & Hotel -->
+      <div class="accommodation-card" id="accom-stay-1-1">
+        <span class="accommodation-card__tag">🏨</span>
+        <span class="accommodation-card__rating">⭐ 4.9 (Google)</span>
+        <h3 class="accommodation-card__name">Maison Bistro &amp; Hotel / מזון ביסטרו &amp; מלון</h3>
+        <div class="accommodation-card__links">
+          <a class="accommodation-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJO6LEaR_cQUcRL9OZaTPziLY" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="accommodation-card__link" data-link-type="site" href="http://www.maisonbudapest.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="accommodation-card__link" data-link-type="phone" href="tel:+3614054980" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="accommodation-card__description">
+          <p>בוטיק-מלון מקסים בלב רובע הטירה, 5 דקות הליכה ממצודת הדייגים. חדרים מרווחים בעיצוב רוסטי-אלגנטי, שירות אישי ויוצא דופן, ארוחת בוקר מצוינת במסעדה הצמודה. המיקום שקט ושלו למרות הקרבה לאטרקציות. מסעדת השותפים Arany Hordó מגישה מטבח הונגרי אותנטי. מושלם למטייל שמחפש חוויה אותנטית עם אופי מקומי.</p>
+          <p>מחיר משוער: 120–180 EUR / לילה (כולל ארוחת בוקר)</p>
+        </div>
+        <div class="accommodation-card__price-level">💰💰💰💰○</div>
+        <a class="booking-cta" href="https://www.booking.com/searchresults.html?ss=Maison+Bistro+Hotel+Budapest+Hungary&checkin=2026-04-14&checkout=2026-04-17&group_adults=1&group_children=0" target="_blank" rel="noopener noreferrer">חפש ב-Booking.com</a>
+      </div>
+
+      <!-- Accommodation 2: Leon Hotel -->
+      <div class="accommodation-card" id="accom-stay-1-2">
+        <span class="accommodation-card__tag">🏨</span>
+        <span class="accommodation-card__rating">⭐ 4.8 (Google)</span>
+        <h3 class="accommodation-card__name">Leon Hotel / מלון ליאון</h3>
+        <div class="accommodation-card__links">
+          <a class="accommodation-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJj3f3GTzcQUcRXshq6_P4fyk" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="accommodation-card__link" data-link-type="site" href="https://leonhotelbudapest.hu/en/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="accommodation-card__link" data-link-type="phone" href="tel:+3616104891" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="accommodation-card__description">
+          <p>מלון בוטיק מודרני ויוקרתי ברחוב Lánchíd, 5 דקות הליכה מגשר השרשראות וטירת בודה. חדרים מעוצבים עם תשומת לב לפרטים, נוף לנהר מחדרי הקומות הגבוהות, ארוחת בוקר איכותית ומסעדת לאונג׳ במקום. הצוות מקצועי ואדיב במיוחד. מיקום אידיאלי — גם צד בודה וגם פשט נגישים ברגל.</p>
+          <p>מחיר משוער: 150–220 EUR / לילה (כולל ארוחת בוקר)</p>
+        </div>
+        <div class="accommodation-card__price-level">💰💰💰💰○</div>
+        <a class="booking-cta" href="https://www.booking.com/searchresults.html?ss=Leon+Hotel+Budapest+Hungary&checkin=2026-04-14&checkout=2026-04-17&group_adults=1&group_children=0" target="_blank" rel="noopener noreferrer">חפש ב-Booking.com</a>
+      </div>
+
+      <!-- Accommodation 3: Baltazár Boutique Hotel -->
+      <div class="accommodation-card" id="accom-stay-1-3">
+        <span class="accommodation-card__tag">🏨</span>
+        <span class="accommodation-card__rating">⭐ 4.3 (Google)</span>
+        <h3 class="accommodation-card__name">Baltazár Boutique Hotel / בלתזאר בוטיק</h3>
+        <div class="accommodation-card__links">
+          <a class="accommodation-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJiRp72trdQUcRYbFHFiF0r4I" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="accommodation-card__link" data-link-type="site" href="https://baltazarbudapest.com/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="accommodation-card__link" data-link-type="phone" href="tel:+3613007051" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="accommodation-card__description">
+          <p>מלון בוטיק שיקי עם מסעדת גריל (Michelin Guide) ברובע הטירה. 11 חדרים בלבד — אווירה אינטימית ושקטה. העיצוב משלב אלמנטים תעשייתיים עם נגיעות הונגריות. מסעדת הגריל Baltazár Grill מגישה סטייקים ובשרים על גחלים — בונוס ענק לחובב בשר. ממוקם בקצה הצפוני של רובע הטירה, שקט בלילה.</p>
+          <p>מחיר משוער: 180–280 EUR / לילה (כולל ארוחת בוקר)</p>
+        </div>
+        <div class="accommodation-card__price-level">💰💰💰💰○</div>
+        <a class="booking-cta" href="https://www.booking.com/searchresults.html?ss=Baltazar+Boutique+Hotel+Budapest+Hungary&checkin=2026-04-14&checkout=2026-04-17&group_adults=1&group_children=0" target="_blank" rel="noopener noreferrer">חפש ב-Booking.com</a>
+      </div>
+    </div>
+
+    <!-- Pricing grid -->
+    <div class="pricing-grid">
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">הגעה + העברה למלון (Bolt)</span>
+        <span class="pricing-cell__amount">12,000</span>
+        <span class="pricing-cell__currency">HUF / 31 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">ארוחת צהריים — Aranybástya</span>
+        <span class="pricing-cell__amount">12,000</span>
+        <span class="pricing-cell__currency">HUF / 31 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">כניסה לכנסיית מתיאש</span>
+        <span class="pricing-cell__amount">3,100</span>
+        <span class="pricing-cell__currency">HUF / 8 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">ארוחת ערב — Leo Rooftop (מנות + קוקטיילים)</span>
+        <span class="pricing-cell__amount">30,000</span>
+        <span class="pricing-cell__currency">HUF / 77 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">שונות (שתייה, חטיפים)</span>
+        <span class="pricing-cell__amount">3,000</span>
+        <span class="pricing-cell__currency">HUF / 8 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">🏨 אירוח (ממוצע, ללילה)</span>
+        <span class="pricing-cell__amount">65,000</span>
+        <span class="pricing-cell__currency">HUF / 167 EUR</span>
+      </div>
+      <div class="pricing-cell pricing-cell--total">
+        <span class="pricing-cell__label"><strong>סה״כ יום 0</strong></span>
+        <span class="pricing-cell__amount"><strong>125,100</strong></span>
+        <span class="pricing-cell__currency">HUF / ~322 EUR</span>
+      </div>
+    </div>
+
+    <!-- Plan B -->
+    <div class="advisory advisory--info" data-section-type="plan-b">
+      <div class="advisory__icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </div>
+      <div class="advisory__content">
+        <h3 class="advisory__title">🅱️ תוכנית חלופית — Citadella וגבעת גלרט</h3>
+        <p>אם מזג האוויר גשום ורובע הטירה פחות נעים — קח Bolt לגבעת גלרט (Gellért-hegy). מצודת הציטדלה בפסגה (10 דקות הליכה מהכביש) מציעה נוף 360° על כל בודפשט. בירידה — מרחצאות גלרט ההיסטוריים (Gellért Gyógyfürdő) לשעה-שעתיים של התחממות. סיום עם ארוחת ערב בצד פשט.</p>
+        <p>📍 <a href="https://www.google.com/maps/search/Citadella+Budapest/" target="_blank" rel="noopener noreferrer">Google Maps</a> · 💰 מצודת הציטדלה — חינם. מרחצאות גלרט — ~11,000 HUF.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="day-card" id="day-1">
+  <div class="day-card__banner">
+    <div class="day-card__banner-date">יום רביעי, 15.04.2026</div>
+    <h2 class="day-card__banner-title">🏛️ יום 1 — פשט: ציוני דרך ותרבות</h2>
+  </div>
+  <div class="day-card__content">
+    <a class="map-link" href="https://www.google.com/maps/dir/Országház+Budapest/Cipők+a+Duna-parton+Budapest/Szent+István-bazilika+Budapest/Nagy+Vásárcsarnok+Budapest/Széchenyi+Gyógyfürdő+Budapest/FIRST+Craft+Beer+BBQ+Budapest/Szimpla+Kert+Budapest/" target="_blank" rel="noopener noreferrer">🗺️ פתח מסלול יומי בגוגל מפות</a>
+
+    <div class="itinerary-table-wrapper">
+      <table class="itinerary-table">
+        <thead><tr><th>שעה</th><th>פעילות</th><th>פרטים</th></tr></thead>
+        <tbody>
+          <tr><td>10:00</td><td><a class="activity-label" href="#poi-day-1-1">🏛️ בניין הפרלמנט (Országház)</a></td><td>חזית חיצונית מרהיבה, צילום מכיכר Kossuth. סיור פנימי 45 דק׳ (הזמן כרטיס מראש!)</td></tr>
+          <tr><td>10:45</td><td><a class="activity-label" href="#poi-day-1-2">👟 נעליים על גדת הדנובה</a></td><td>אנדרטה מרגשת לזכר קורבנות השואה. 5 דק׳ הליכה דרומה לאורך הנהר</td></tr>
+          <tr><td>11:15</td><td><span class="activity-label">🚕 Bolt לבזיליקה</span></td><td>5 דק׳ נסיעה</td></tr>
+          <tr><td>11:30</td><td><a class="activity-label" href="#poi-day-1-3">⛪ בזיליקת סנט שטפן (Szent István-bazilika)</a></td><td>ביקור + עלייה לכיפת התצפית — נוף 360° על בודפשט. נקודת צילום מרכזית</td></tr>
+          <tr><td>13:00</td><td><a class="activity-label" href="#poi-day-1-4">🍽️ השוק המרכזי הגדול (Nagy Vásárcsarnok)</a></td><td>ארוחת צהריים: לאנגוש, גולאש, ירקות כבושים, פפריקה. סיור בדוכנים</td></tr>
+          <tr><td>14:30</td><td><span class="activity-label">🚕 Bolt למרחצאות סצ׳ני</span></td><td>~15 דק׳ נסיעה</td></tr>
+          <tr><td>15:00</td><td><a class="activity-label" href="#poi-day-1-5">♨️ מרחצאות סצ׳ני (Széchenyi Gyógyfürdő)</a></td><td>2.5 שעות של טבילה בבריכות תרמיות, סאונות, ארכיטקטורה ניאו-בארוקית</td></tr>
+          <tr><td>17:30</td><td><span class="activity-label">🚕 חזרה למלון</span></td><td>מקלחת, החלפת בגדים</td></tr>
+          <tr><td>19:00</td><td><a class="activity-label" href="#poi-day-1-6">🍖 ארוחת ערב — FIRST Craft Beer &amp; BBQ</a></td><td>בירה קראפט מקומית + בשר מעושן ברובע היהודי. ראה פרטים למטה</td></tr>
+          <tr><td>21:00</td><td><a class="activity-label" href="#poi-day-1-7">🍺 Szimpla Kert / סימפלה קרט</a></td><td>בר ההריסות האייקוני של בודפשט. אווירה, עיצוב מטורף, מוזיקה חיה</td></tr>
+          <tr><td>22:00</td><td><a class="activity-label" href="#poi-day-1-8">🍷 Kadarka Wine Bar / קדרקה</a></td><td>טעימת יינות הונגריים מיקבים קטנים. ראה פרטים למטה</td></tr>
+          <tr><td>23:00</td><td><a class="activity-label" href="#poi-day-1-9">🥃 GoodSpirit Whisky &amp; Cocktail Bar</a></td><td>אוסף וויסקי אדיר, קוקטיילים יצירתיים. ראה פרטים למטה</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="itinerary-grid">
+
+      <!-- POI 1: Országház -->
+      <div class="poi-card" id="poi-day-1-1">
+        <span class="poi-card__tag">🏛️ ציון דרך</span>
+        <span class="poi-card__rating">⭐ 4.8 (Google)</span>
+        <h3 class="poi-card__name">Országház / בניין הפרלמנט</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJPaPURhDcQUcRbg-P_7giITQ" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://www.parlament.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Hungarian+Parliament+Building+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+3614414000" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>בניין הפרלמנט ההונגרי הוא אחד המבנים היפים ביותר באירופה — ארכיטקטורה ניאו-גותית מ-1904 עם כמעט 700 חדרים, כיפה מרכזית מרשימה ושפע פסלים ומגדלים. מבפנים: חדרי מדרגות עם זהב, כתר הקדוש של הונגריה מוצג מתחת לכיפה, ואולמות ישיבה מפוארים. נוף החזית מגדת הנהר (בייחוד בלילה כשהוא מואר) הוא אייקוני. בסיור הפנימי (45 דק׳) רואים את הכיפה, גרם המדרגות הראשי ואולם הכנסות.</p>
+          <p>שעות פעילות: יומי 08:00–18:00</p>
+          <p>כניסה: 10,000 HUF (~26 EUR) לאזרח לא-אירופי, כולל סיור מודרך.</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> כרטיסים לסיור נגמרים מהר — הזמן באתר parlament.hu לפחות 3-4 ימים מראש. מחיר לאזרח שאינו EEA: 10,000 HUF (~26 EUR). אם לא הספקת להזמין, החזית החיצונית + כיכר Kossuth שווים את הביקור גם ללא כניסה.
+        </div>
+      </div>
+
+      <!-- POI 2: Cipők a Duna-parton -->
+      <div class="poi-card" id="poi-day-1-2">
+        <span class="poi-card__tag">👟 אנדרטה</span>
+        <span class="poi-card__rating">⭐ 4.7 (Google)</span>
+        <h3 class="poi-card__name">Cipők a Duna-parton / נעליים על גדת הדנובה</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJ32QtdBbcQUcR1mrLvmwZjvY" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Shoes+on+the+Danube+Bank+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>אנדרטה מרגשת ועוצמתית על גדת הדנובה — 60 זוגות נעליים מברזל יצוק, מנעלי גברים, נשים וילדים, מונחים על קצה הרציף. לזכר אלפי יהודים שנורו לנהר על ידי מיליציית Arrow Cross ב-1944-1945, שנאלצו לחלוץ נעליהם לפני הירי. האנדרטה פשוטה אך מזעזעת — כל זוג נעליים מייצג חיים שנגדעו. ביקור חובה, במיוחד עבור מטייל ישראלי.</p>
+          <p>שעות פעילות: פתוח 24/7. חינם.</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> האנדרטה פתוחה 24/7 וללא כניסה. 5 דקות הליכה דרומה מהפרלמנט לאורך הנהר. שקט יחסית בבוקר — זמן טוב לרגע של התבוננות וצילום.
+        </div>
+      </div>
+
+      <!-- POI 3: Szent István-bazilika -->
+      <div class="poi-card" id="poi-day-1-3">
+        <span class="poi-card__tag">⛪ בזיליקה</span>
+        <span class="poi-card__rating">⭐ 4.7 (Google)</span>
+        <h3 class="poi-card__name">Szent István-bazilika / בזיליקת סנט שטפן</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJ982jOl7BQUcRy7x_rqz8Qt0" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://bazilikabudapest.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=St+Stephens+Basilica+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+3613110839" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>הבזיליקה הגדולה ביותר בבודפשט, על שם סנט שטפן (אישטוואן), מייסד המדינה ההונגרית. הפנים ניאו-קלאסי מפואר עם כיפת פסיפס מוזהבת, פרסקואות ומזבח מרשים. האטרקציה הראשית לצלם: כיפת התצפית — עלייה בליפט + מדרגות למרפסת עם נוף 360° על גגות בודפשט, גבעת בודה והפרלמנט. בתוך הכנסייה מוצגת היד הקדושה של סנט שטפן — שריד מהמאה ה-11.</p>
+          <p>שעות פעילות: ראשון–שישי 09:00–17:15 | שבת 09:00–17:15 | ראשון 12:30–17:15</p>
+          <p>כניסה: כנסייה בלבד — תרומה (~400 HUF). כנסייה + כיפה + אוצר — 8,200 HUF (~21 EUR).</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> קנה כרטיס "כנסייה + כיפה + אוצר" באתר (21 EUR) לדילוג על התור. ביום רביעי בצהריים התורים קצרים. הכיפה היא חובה לצלם — אחת מנקודות התצפית הטובות בעיר.
+        </div>
+      </div>
+
+      <!-- POI 4: Nagy Vásárcsarnok -->
+      <div class="poi-card" id="poi-day-1-4">
+        <span class="poi-card__tag">🍽️ שוק / אוכל</span>
+        <span class="poi-card__rating">⭐ 4.3 (Google)</span>
+        <h3 class="poi-card__name">Nagy Vásárcsarnok / השוק המרכזי הגדול</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJ98Kx4k_cQUcRzC66ex41jKA" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://piaconline.hu/nagycsarnok/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Central+Market+Hall+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+3613663540" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>השוק הגדול ביותר והיפה ביותר בבודפשט, בבניין היסטורי מרהיב (1897) עם גג רעפי Zsolnay. קומת הקרקע — דוכני בשר, נקניקיות הונגריות, גבינות, פפריקה, פירות טריים ומאפים. הקומה העליונה — אוכל רחוב ומזכרות. כאן טועמים לאנגוש (Lángos) — הסטריט-פוד ההונגרי האולטימטיבי: בצק מטוגן עם שמנת חמוצה וגבינה (~1,500-2,500 HUF). גם גולאש, כבד אווז ועוד. חוויה קולינרית ותצלומית גם יחד.</p>
+          <p>שעות פעילות: ראשון–שישי 06:00–18:00 | שבת 06:00–16:00 | ראשון 10:00–16:00</p>
+          <p>כניסה: חינם.</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> הגע ביום רביעי בצהריים — פחות עמוס מסופ״ש. לאנגוש הכי טוב בקומה העליונה ב-Langos Papa. לא לשכוח לקנות פפריקה הונגרית (חריפה!) כמזכרת.
+        </div>
+      </div>
+
+      <!-- POI 5: Széchenyi Gyógyfürdő -->
+      <div class="poi-card" id="poi-day-1-5">
+        <span class="poi-card__tag">♨️ מרחצאות</span>
+        <span class="poi-card__rating">⭐ 4.2 (Google)</span>
+        <h3 class="poi-card__name">Széchenyi Gyógyfürdő / מרחצאות סצ׳ני</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJd1VnBYbbQUcREiSNtgjDwMs" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://www.szechenyifurdo.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Szechenyi+Thermal+Baths+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+36204350051" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>המרחצאות התרמיים הגדולים ביותר באירופה, בארמון ניאו-בארוקי מרהיב (1913) בפארק העירוני. 3 בריכות חיצוניות ו-15 בריכות פנימיות בטמפרטורות שונות (29°–38°C), סאונות, חדרי אדים ומתקני עיסוי. הבריכה החיצונית המרכזית עם האדים מעל המים היא אחת התמונות האייקוניות של בודפשט. אפשר לבלות כאן שעתיים-שלוש בקלות — כל בריכה היא חוויה אחרת. מושלם לאחר יום הליכות.</p>
+          <p>שעות פעילות: ראשון–חמישי 07:00–20:00 | שישי 07:00–22:00 | שבת–ראשון 08:00–20:00</p>
+          <p>כניסה: ~13,200 HUF (~34 EUR) כולל לוקר, ביום חול.</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> הגע בסביבות 15:00 ביום רביעי — הקהל דליל יחסית. קח לוקר (locker) ולא קבינה — זול יותר ומספיק. הבא כפכפים ומגבת משלך. כרטיס מראש באתר חוסך תור.
+        </div>
+      </div>
+
+      <!-- POI 6: FIRST Craft Beer & BBQ -->
+      <div class="poi-card" id="poi-day-1-6">
+        <span class="poi-card__tag">🍺 בירה קראפט</span>
+        <span class="poi-card__rating">⭐ 4.7 (Google)</span>
+        <h3 class="poi-card__name">FIRST Craft Beer &amp; BBQ / פירסט קראפט ביר &amp; ברביקיו</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJ2-yraULcQUcRhBmF7VF5AG8" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://firstbbq.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=FIRST+Craft+Beer+BBQ+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+36202603261" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>מסעדת BBQ ובירה קראפט ברובע היהודי (District VII) — בדיוק מה שחובב בשר ובירה מחפש. בירה מבושלת במקום (NEIPA, IPA, Stout ועוד), בשר מעושן low-and-slow, בורגרים עסיסיים, צלעות ומגש בשרים לשניים. האווירה נינוחה עם מוזיקה טובה, הצוות ידידותי ויודע לייעץ על שילובי בירה-בשר. הטוויסט ההונגרי על BBQ אמריקאי הופך כל מנה לייחודית.</p>
+          <p>שעות פעילות: רביעי 12:00–00:00</p>
+          <p>ארוחה ממוצעת: 8,000–14,000 HUF (~20–36 EUR) כולל בירה.</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> הזמן את מגש הבשר לשניים (meat platter for two) — גם אם אתה אחד, זה שווה (ואפשר לקחת). נסה את ה-Flower Power NEIPA — הכי טרי שיש. ביום רביעי בערב המקום שקט יחסית.
+        </div>
+      </div>
+
+      <!-- POI 7: Szimpla Kert -->
+      <div class="poi-card" id="poi-day-1-7">
+        <span class="poi-card__tag">🍺 בר הריסות</span>
+        <span class="poi-card__rating">⭐ 4.6 (Google)</span>
+        <h3 class="poi-card__name">Szimpla Kert / סימפלה קרט</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJ5Q3SoELcQUcRpB0x-9NCdyY" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://szimpla.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Szimpla+Kert+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>בר ההריסות (Ruin Bar) המקורי והמפורסם ביותר בבודפשט — בניין נטוש שהוסב לחלל בילוי מטורף עם עיצוב אקלקטי, גרפיטי, רהיטים ממוחזרים ואמנות רחוב בכל פינה. מספר קומות, ברים, מזנונים ופינות ישיבה — כל חדר הוא עולם בפני עצמו. מוזיקה חיה, DJ סטים, ואווירה של פסטיבל. זה המקום שהמציא את תופעת בתי ההריסות של בודפשט. חובה לראות לפחות פעם אחת.</p>
+          <p>שעות פעילות: רביעי 15:00–04:00</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> הגע בסביבות 21:00 (רביעי) — עדיין לא צפוף ואפשר למצוא מקום לשבת. ביום שישי-שבת יש תור ארוך — אפשר לשלם 10 EUR כדי לדלג. בירה 1,500–2,500 HUF.
+        </div>
+      </div>
+
+      <!-- POI 8: Kadarka Wine Bar -->
+      <div class="poi-card" id="poi-day-1-8">
+        <span class="poi-card__tag">🍷 בר יין</span>
+        <span class="poi-card__rating">⭐ 4.5 (Google)</span>
+        <h3 class="poi-card__name">Kadarka Wine Bar / קדרקה בר יין</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJkaD3aGncQUcRoEcntPpnrW8" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="http://kadarkawinebar.com/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Kadarka+Wine+Bar+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+3612665094" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>בר יין אינטימי ואותנטי ברחוב Király, המתמחה ביינות הונגריים מיקבים קטנים — הדברים שלא תמצא בסופרמרקט. כ-100 יינות זמינים בכוס, צוות בקיא שמכוון בדיוק לפי טעם אישי. אווירה חמה ושקטה, מנות ליווי בסיסיות (גבינות, נקניקים). המקום נקרא על שם זן הענבים ההונגרי Kadarka — ביין האדום המקומי כדאי להתחיל. חוויה של טעימת יין בלי פרטנטיות.</p>
+          <p>שעות פעילות: יומי 16:00–00:00</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> בקש מהצוות להמליץ על Egri Bikavér (דם השור מאגר) או Villányi Franc — שניהם אדומים הונגריים מצוינים. כוס יין 1,500–3,500 HUF.
+        </div>
+      </div>
+
+      <!-- POI 9: GoodSpirit -->
+      <div class="poi-card" id="poi-day-1-9">
+        <span class="poi-card__tag">🥃 וויסקי / קוקטיילים</span>
+        <span class="poi-card__rating">⭐ 4.8 (Google)</span>
+        <h3 class="poi-card__name">GoodSpirit Whisky &amp; Cocktail Bar / גודספיריט</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJwbXdUUTcQUcR6PfiKmPbJOI" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="http://www.goodspiritbar.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=GoodSpirit+Whisky+Cocktail+Bar+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+36202868040" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>בר וויסקי וקוקטיילים ברמה עולמית — אוסף של מאות בקבוקי וויסקי נדירים וייחודיים מכל העולם, ברמנים מקצועיים שמבינים בדיוק מה אתה מחפש. הקוקטיילים יצירתיים ומפתיעים, המנות הקטנות (פופקורן, זיתים) משלימות. האווירה חמה ואינטימית, אידיאלית לסיום ערב. מי שמגיע מאדינבורו אומר שזה ברמה של הטובים בסקוטלנד — ובבודפשט. סיום מושלם ללילה של אוכל ושתייה.</p>
+          <p>שעות פעילות: רביעי 17:00–00:00</p>
+        </div>
+        <div class="pro-tip">
+          <strong>💡 טיפ:</strong> בקש מהברמן המלצה לפי טעם — הם מומחים אמיתיים. נסה פלינקה (Pálinka) הונגרית לצד הוויסקי — ברנדי פירות מקומי חזק ומיוחד. קוקטייל 3,500–5,500 HUF.
+        </div>
+      </div>
+
+      <!-- POI 10: Grocery -->
+      <div class="poi-card" id="poi-day-1-10">
+        <span class="poi-card__tag">🛒 סופרמרקט</span>
+        <span class="poi-card__rating">⭐ 3.9 (Google)</span>
+        <h3 class="poi-card__name">Lidl — Arany János u.</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJaQ31utLdQUcR5P7WmJKHQ1Q" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p>סופרמרקט במרכז פשט, 3 דקות הליכה מבזיליקת סנט שטפן. מחירים נמוכים, מגוון טוב. מושלם לקניית מים ושתייה לפני מרחצאות סצ׳ני.</p>
+          <p>שעות פעילות: ראשון–שבת 07:00–21:00</p>
+        </div>
+      </div>
+
+      <!-- POI 11: Along the way -->
+      <div class="poi-card" id="poi-day-1-11">
+        <span class="poi-card__tag">🎯 בדרך</span>
+        <h3 class="poi-card__name">בדרך (אופציונלי)</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/search/New+York+Cafe+Budapest/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+        </div>
+        <div class="poi-card__description">
+          <p><strong>1. New York Café / קפה ניו-יורק</strong> — בית הקפה הכי יפה בעולם (מ-1894), בתוך מלון Anantara New York Palace. פנים מוזהב בסגנון רנסאנס איטלקי עם פרסקואות ונברשות. עוגות ומאפים ברמה גבוהה, קפה מצוין. כדאי להיכנס גם רק לצילום (הזמן שולחן). 15 דק׳ הליכה מהרובע היהודי. 🎯 התאמה: צילום, חוויה קולינרית, אווירה</p>
+          <p><strong>2. Dohány utcai Zsinagóga / בית הכנסת ברחוב דוהני</strong> — בית הכנסת הגדול ביותר באירופה ושני בגודלו בעולם. ארכיטקטורה מאורית מרהיבה, מוזיאון השואה, עץ החיים בחצר האחורית. ממוקם בכניסה לרובע היהודי — 5 דק׳ הליכה מ-FIRST Craft Beer. 🎯 התאמה: היסטוריה, צילום, מורשת יהודית</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Pricing grid -->
+    <div class="pricing-grid">
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">סיור פנימי בפרלמנט</span>
+        <span class="pricing-cell__amount">10,000</span>
+        <span class="pricing-cell__currency">HUF / 26 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">בזיליקת סנט שטפן (כנסייה + כיפה + אוצר)</span>
+        <span class="pricing-cell__amount">8,200</span>
+        <span class="pricing-cell__currency">HUF / 21 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">ארוחת צהריים — השוק המרכזי (סטריט-פוד)</span>
+        <span class="pricing-cell__amount">6,500</span>
+        <span class="pricing-cell__currency">HUF / 17 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">מרחצאות סצ׳ני (כניסה + לוקר)</span>
+        <span class="pricing-cell__amount">13,200</span>
+        <span class="pricing-cell__currency">HUF / 34 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">Bolt (3 נסיעות)</span>
+        <span class="pricing-cell__amount">6,000</span>
+        <span class="pricing-cell__currency">HUF / 15 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">ארוחת ערב — FIRST Craft Beer &amp; BBQ</span>
+        <span class="pricing-cell__amount">12,000</span>
+        <span class="pricing-cell__currency">HUF / 31 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">Szimpla Kert (2-3 בירות)</span>
+        <span class="pricing-cell__amount">5,000</span>
+        <span class="pricing-cell__currency">HUF / 13 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">Kadarka (2 כוסות יין)</span>
+        <span class="pricing-cell__amount">5,000</span>
+        <span class="pricing-cell__currency">HUF / 13 EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">GoodSpirit (2 קוקטיילים / וויסקי)</span>
+        <span class="pricing-cell__amount">9,000</span>
+        <span class="pricing-cell__currency">HUF / 23 EUR</span>
+      </div>
+      <div class="pricing-cell pricing-cell--total">
+        <span class="pricing-cell__label"><strong>סה״כ יום 1</strong></span>
+        <span class="pricing-cell__amount"><strong>74,900</strong></span>
+        <span class="pricing-cell__currency">HUF / ~193 EUR</span>
+      </div>
+    </div>
+
+    <!-- Plan B -->
+    <div class="advisory advisory--info" data-section-type="plan-b">
+      <div class="advisory__icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </div>
+      <div class="advisory__content">
+        <h3 class="advisory__title">🅱️ תוכנית חלופית — מוזיאון יום גשום</h3>
+        <p>אם מזג האוויר גשום ומרחצאות סצ׳ני פחות מושכים — החלף את אחה״צ ב<strong>בית האופרה ההונגרי</strong> (Magyar Állami Operaház, Andrássy út 22). סיור מודרך באחד מבתי האופרה היפים באירופה (45 דק׳, ~4,500 HUF). בהמשך — קפה ב-<strong>Book Café</strong> בארמון Alexandra (Andrássy út 39), ואז ישר לארוחת ערב ברובע היהודי כמתוכנן.</p>
+        <p>📍 <a href="https://www.google.com/maps/search/Hungarian+State+Opera+House+Budapest/" target="_blank" rel="noopener noreferrer">Google Maps</a> · 💰 סיור מודרך ~4,500 HUF (~12 EUR).</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="day-card" id="day-2">
+  <div class="day-card__banner">
+    <div class="day-card__banner-date">יום חמישי, 16.04.2026</div>
+    <h2 class="day-card__banner-title">יום 2 — כיכר הגיבורים, קולינריה ושייט 🏛️</h2>
+  </div>
+  <div class="day-card__content">
+    <a class="map-link" href="https://www.google.com/maps/dir/Hősök+tere+Budapest/Vajdahunyad+Castle+Budapest/Essência+Restaurant+Budapest/DiVino+Wine+Bar+Budapest/E-Exit+Escape+Room+Budapest/Margaret+Island+Budapest/Legenda+City+Cruises+Budapest/" target="_blank" rel="noopener noreferrer">🗺️ פתח מסלול יומי בגוגל מפות</a>
+
+    <div class="itinerary-table-wrapper">
+      <table class="itinerary-table">
+        <thead><tr><th>שעה</th><th>פעילות</th><th>פרטים</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="col-time">10:00</td>
+            <td><a class="activity-label" href="#poi-day-2-1">📸 Hősök tere / כיכר הגיבורים</a></td>
+            <td>אתר מורשת עולמית של אונסק"ו — אנדרטת המילניום, קולונדה עם פסלי מלכים. צילום, כניסה חופשית</td>
+          </tr>
+          <tr>
+            <td class="col-time">10:45</td>
+            <td><a class="activity-label" href="#poi-day-2-2">🏰 Vajdahunyad vára / טירת ויידהוניאד</a></td>
+            <td>טירה בגן העיר — שילוב ייחודי של גותיקה, רנסנס וברוק. פרטים למטה</td>
+          </tr>
+          <tr>
+            <td class="col-time">11:30</td>
+            <td><span class="activity-label">🚕 נסיעה למרכז פשט</span></td>
+            <td>Bolt/מונית ~15 דקות לאזור Sas utca</td>
+          </tr>
+          <tr>
+            <td class="col-time">12:00</td>
+            <td><a class="activity-label" href="#poi-day-2-3">⭐🍽️ Essência / אסנסיה</a></td>
+            <td>ארוחת צהריים — מישלן ⭐ (הפרטוגזית-הונגרית). תפריט טעימות 5 מנות. פרטים למטה</td>
+          </tr>
+          <tr>
+            <td class="col-time">14:30</td>
+            <td><a class="activity-label" href="#poi-day-2-4">🍷 DiVino Wine Bar / דיוינו בר יין</a></td>
+            <td>טעימת יינות הונגריים ליד הבזיליקה. פרטים למטה</td>
+          </tr>
+          <tr>
+            <td class="col-time">16:00</td>
+            <td><a class="activity-label" href="#poi-day-2-5">🔐 E-Exit Escape Room / חדר בריחה E-Exit</a></td>
+            <td>בירת חדרי הבריחה של אירופה! חדר "Heaven and Hell" או "Subway". פרטים למטה</td>
+          </tr>
+          <tr>
+            <td class="col-time">17:30</td>
+            <td><a class="activity-label" href="#poi-day-2-6">🌿 Margitsziget / אי מרגרט</a></td>
+            <td>הליכה/אופניים, גן יפני, מזרקה מוזיקלית, צילומי שקיעה. פרטים למטה</td>
+          </tr>
+          <tr>
+            <td class="col-time">19:30</td>
+            <td><a class="activity-label" href="#poi-day-2-7">🛥️ Legenda City Cruises / שייט לג'נדה</a></td>
+            <td>שייט ערב על הדנובה — פרלמנט, טירה וגשרות מוארים. פרטים למטה</td>
+          </tr>
+          <tr>
+            <td class="col-time">21:00</td>
+            <td><span class="activity-label">🚕 חזרה למלון</span></td>
+            <td>Bolt/מונית מנמל Vigadó tér</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="itinerary-grid">
+
+      <!-- POI 1: Hősök tere / כיכר הגיבורים -->
+      <div class="poi-card" id="poi-day-2-1">
+        <span class="poi-card__tag">🏛️ כיכר / ציון דרך</span>
+        <span class="poi-card__rating">⭐ 4.7 (Google)</span>
+        <h3 class="poi-card__name">Hősök tere / כיכר הגיבורים</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJaSHx-YfbQUcRPylIurx8QTQ" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://www.budapest.com/city_guide/sights/squares/heroes_square.en.html" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Heroes+Square+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+        </div>
+        <div class="poi-card__description"><p>כיכר הגיבורים היא אחד הציוני הדרך האיקוניים ביותר של בודפשט ואתר מורשת עולמית של אונסק"ו. אנדרטת המילניום במרכז הכיכר מוקפת בפסלים מונומנטליים של מנהיגי הונגריה ודמויות היסטוריות, עם קולונדה מרשימה משני צדיה. המרחב הפתוח האדיר — בין מוזיאון האמנויות היפות ל-Műcsarnok (אולם האמנות) — הוא מושלם לצילום, במיוחד בשעות הבוקר עם אור רך. הכניסה חופשית.</p></div>
+        <div class="pro-tip"><strong>💡 טיפ:</strong> הגע מוקדם בבוקר (~10:00) לפני קבוצות התיירים. עמוד במרכז הכיכר לצילום סימטרי של שתי הקולונדות. הזווית הטובה ביותר — מכיוון שדרת אנדרשי, עם כל האנדרטה במסגרת אחת.</div>
+      </div>
+
+      <!-- POI 2: Vajdahunyad vára / טירת ויידהוניאד -->
+      <div class="poi-card" id="poi-day-2-2">
+        <span class="poi-card__tag">🏰 טירה</span>
+        <span class="poi-card__rating">⭐ 4.7 (Google)</span>
+        <h3 class="poi-card__name">Vajdahunyad vára / טירת ויידהוניאד</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJoaLtEYfbQUcRjp9d1Wfk97w" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://www.mezogazdasagimuzeum.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Vajdahunyad+Castle+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+3614220765" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description"><p>טירת אגדה בלב גן העיר, שנבנתה ב-1896 לתערוכת המילניום של הונגריה. המתחם משלב ארבעה סגנונות אדריכליים — רומנסק, גותי, רנסנס וברוק — בהשראת מבנים היסטוריים מרחבי הונגריה ההיסטורית. החצר הפנימית פתוחה ללא תשלום ומציעה זוויות צילום מדהימות: אגם עם ברווזים, גשר אבן, מגדלים מחודדים. חפש את פסל ה-Anonymus (השפשף את העט שלו למזל!) ואת פסל המיני של דרקולה שמתחבא מאחורי הטירה.</p></div>
+        <div class="pro-tip"><strong>💡 טיפ:</strong> 30–40 דקות מספיקות לחצר ולצילומים. בתוך הטירה פועל המוזיאון החקלאי (~1,800 HUF) — אופציונלי. הזווית הפוטוגנית ביותר: מהגשר מול הכניסה הגותית, עם השתקפות באגם.</div>
+      </div>
+
+      <!-- POI 3: Essência Restaurant (מישלן ⭐) -->
+      <div class="poi-card" id="poi-day-2-3">
+        <span class="poi-card__tag">⭐ מישלן</span>
+        <span class="poi-card__rating">⭐ 4.8 (Google)</span>
+        <h3 class="poi-card__name">Essência Restaurant / מסעדת אסנסיה (מישלן ⭐)</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJ19o4RGXdQUcRanV3UxHAd5w" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://www.essenciarestaurant.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Essência+Restaurant+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+36706000315" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description"><p>מסעדת מישלן ⭐ של השף הפורטוגזי Tiago Sabarigo וחברתו Éva — שילוב יוצא דופן של מטבח פורטוגזי-הונגרי. תפריט טעימות של 5 מנות בצהריים עם מנות יצירתיות כמו גלידת שמן זית עם קוויאר, דגים טריים ובשרים מעולים. המקום אינטימי וחמים, עם שירות שמספר את הסיפור מאחורי כל מנה. זו מסעדת המישלן היחידה בבודפשט שפתוחה לארוחת צהריים ביום חמישי — הזמנה מראש חובה.</p>
+<p><strong>🍽️ חלופה (ללא מישלן): Gundel Café Patisserie Restaurant / גונדל</strong> — מסעדה אגדית בת 130 שנה ממש ליד כיכר הגיבורים — קלאסיקה הונגרית ברמה הגבוהה ביותר. פאפריקש עוף, גולאש, פלצ'ינטה (קרפ) גונדל המפורסמות. מוזיקה חיה (פסנתר וכינור צועני). 📍 <a href="https://www.google.com/maps/place/?q=place_id:ChIJhzNeW4jbQUcRDpNeQSc81aA" target="_blank" rel="noopener noreferrer">מפות</a> · 🌐 <a href="https://www.gundel.hu/" target="_blank" rel="noopener noreferrer">אתר</a> · ⭐ 4.7/5 · 💰 מנה עיקרית: 5,500–9,000 HUF (14–23 EUR)</p></div>
+        <div class="pro-tip"><strong>💡 טיפ:</strong> הזמן דרך האתר לפחות שבוע מראש. תפריט הטעימות (~32,000 HUF) הוא הבחירה המומלצת. הזכר שאתה חוגג חופשה — לפעמים יש הפתעות שף.</div>
+      </div>
+
+      <!-- POI 4: DiVino Wine Bar -->
+      <div class="poi-card" id="poi-day-2-4">
+        <span class="poi-card__tag">🍷 בר יין</span>
+        <span class="poi-card__rating">⭐ 4.5 (Google)</span>
+        <h3 class="poi-card__name">DiVino Wine Bar / דיוינו בר יין</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJQ-FoyGrcQUcRgLmbVnWHEOo" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://bazilika.divino.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=DiVino+Wine+Bar+Budapest+Basilica&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+36709353980" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description"><p>בר יין מקסים ממש ליד הבזיליקה של סנט סטפן, עם מבחר עצום של יינות הונגריים. ביום חמישי נפתח ב-12:00 — מושלם לביקור אחרי ארוחת הצהריים. המקום מציע טעימות יין בסגנון חופשי: בחר מתוך עשרות יינות הונגריים (Tokaji, Egri Bikavér, Villány) לפי כוס. תפריט קל של טאפאס, גבינות ונקניקים הונגריים. הנוף על הבזיליקה מהמרפסת — bonus מדהים.</p></div>
+        <div class="pro-tip"><strong>💡 טיפ:</strong> נסה Tokaji Aszú (יין מתוק מפורסם) ו-Egri Bikavér ("דם השור מאגר" — אדום עמוק). 3–4 כוסות טעימה + צלחת גבינות = חוויה מושלמת. אפשר גם לשבת בחוץ עם נוף על הבזיליקה.</div>
+      </div>
+
+      <!-- POI 5: E-Exit Escape Room -->
+      <div class="poi-card" id="poi-day-2-5">
+        <span class="poi-card__tag">🔐 חדר בריחה</span>
+        <span class="poi-card__rating">⭐ 4.9 (Google)</span>
+        <h3 class="poi-card__name">E-Exit Escape Room / חדר בריחה E-Exit</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJoTTtb2jcQUcRUYGgcvcO4Og" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="http://escaperoom.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=E-Exit+Escape+Room+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+36300854571" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description"><p>בודפשט היא בירת חדרי הבריחה של אירופה, ו-E-Exit הוא מהמובילים עם דירוג 4.9 כמעט מושלם. החדרים הם "דור שני" — ללא מנעולים, רק חידות טכנולוגיות ואפקטים מיוחדים. החדר "Heaven and Hell" הוא הדגל — חידות מבריקות בנושא גן עדן וגיהנום עם סיום מפתיע. "Subway" הוא אלטרנטיבה מעולה על רכבת תחתית. משחק אחד נמשך 60 דקות. אפשר לשחק יחיד — הצוות מתאים את הקושי.</p></div>
+        <div class="pro-tip"><strong>💡 טיפ:</strong> הזמן מראש דרך האתר — שעות פופולריות מלאות מהר. לשחקן יחיד, "Subway" מומלץ יותר (פחות תלוי בצוות). הגע 10 דקות לפני הזמן.</div>
+      </div>
+
+      <!-- POI 6: Margitsziget / אי מרגרט -->
+      <div class="poi-card" id="poi-day-2-6">
+        <span class="poi-card__tag">🌿 פארק / אי</span>
+        <span class="poi-card__rating">⭐ 4.7 (Google)</span>
+        <h3 class="poi-card__name">Margitsziget / אי מרגרט</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJ16rPd_zbQUcR_VCmOq57n2g" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://www.budapest.com/city_guide/sights/margaret_island.en.html" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Margaret+Island+Budapest&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+        </div>
+        <div class="poi-card__description"><p>אי ירוק באורך 2.5 ק"מ באמצע הדנובה — אואזיס של שקט בלב העיר. שבילי הליכה ואופניים, גן יפני מטופח, שרידים מימי הביניים (מנזר דומיניקני), מזרקה מוזיקלית (מופע אור וצליל בערב), ונופי שקיעה מדהימים על הדנובה. באפריל הגן כבר פורח — אווירה רומנטית ופוטוגנית. אפשר לשכור אופניים או רכבים רב-מושביים בכניסה.</p></div>
+        <div class="pro-tip"><strong>💡 טיפ:</strong> הגע לפני השקיעה (~19:00 באפריל) — המזרקה המוזיקלית מתחילה בחשכה. צלם את השקיעה מהצד המערבי של האי עם נוף על גבעת בודה. השכרת אופניים (~1,500 HUF/שעה) מומלצת בהחלט.</div>
+      </div>
+
+      <!-- POI 7: Legenda City Cruises -->
+      <div class="poi-card" id="poi-day-2-7">
+        <span class="poi-card__tag">🛥️ שייט</span>
+        <span class="poi-card__rating">⭐ 4.5 (Google)</span>
+        <h3 class="poi-card__name">Legenda City Cruises / שייט לג'נדה על הדנובה</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJ2dSGoUDcQUcRQPIqeDUNig8" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="http://legenda.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Legenda+Danube+Cruise+Budapest+night&tbm=isch" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+3612664190" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description"><p>שייט ערב על הדנובה הוא חוויה שאי אפשר לפספס. Legenda היא חברת השייט המוכרת ביותר בבודפשט — סירות מודרניות עם חלונות פנורמיים וסיפון פתוח. השייט נמשך ~75 דקות, עולה ויורד בנהר ליד כל הנקודות המרכזיות: הפרלמנט המואר, טירת בודה, גשר השרשרות, והגשרות ההיסטוריים. כולל משקה קבלה (שמפניה) ומדריך אודיו במגוון שפות כולל עברית.</p></div>
+        <div class="pro-tip"><strong>💡 טיפ:</strong> בחר בשייט של 21:00 — לאחר חשכה מלאה, כל המבנים מוארים. שב על הסיפון העליון (לבוש שכבה נוספת — קריר על המים באפריל). צד ימין של הסירה = נוף על בודה וטירה.</div>
+      </div>
+
+      <!-- POI 8: 🛒 Lidl (חנות קרובה) -->
+      <div class="poi-card" id="poi-day-2-8">
+        <span class="poi-card__tag">🛒 סופרמרקט</span>
+        <span class="poi-card__rating">⭐ 4.1 (Google)</span>
+        <h3 class="poi-card__name">Lidl — Bajcsy-Zsilinszky út 61</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJD38e7DjqQUcRIWAvIqFY9mU" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+        </div>
+        <div class="poi-card__description"><p>ליד שדרת אנדרשי, על המסלול בין מרכז פשט לאי מרגרט. חנות גדולה עם מחירים טובים, מים, חטיפים ואלכוהול. שעות פעילות: יום חמישי 07:00–21:00. חלופה: <strong>ALDI</strong> — Váci út 14 (~400 מ' צפונה, ⭐ 4.3/5).</p></div>
+      </div>
+
+      <!-- POI 9: 🎯 בדרך (אופציונלי) -->
+      <div class="poi-card" id="poi-day-2-9">
+        <span class="poi-card__tag">🎯 בדרך</span>
+        <h3 class="poi-card__name">בדרך (אופציונלי)</h3>
+        <div class="poi-card__description">
+<p><strong>1. Szépművészeti Múzeum / מוזיאון לאמנויות יפות</strong> — אחד המוזיאונים הגדולים ביותר באירופה, ממש ליד כיכר הגיבורים. אוסף מרשים של ציורים ספרדים (אל גרקו, גויה), אימפרסיוניסטים צרפתים ופסלים מצריים. שווה 45–60 דקות אם אוהבים אמנות. 📍 <a href="https://www.google.com/maps/search/Szépművészeti+Múzeum+Budapest/" target="_blank" rel="noopener noreferrer">מפות</a> · ⭐ 4.6/5 · 💰 3,200 HUF (8 EUR) · 🎯 עניין: מוזיאונים, צילום</p>
+<p><strong>2. Faust Wine Cellar / מרתף יין פאוסט</strong> — מרתף יין מימי הביניים מתחת למלון הילטון בטירת בודה. חוויית טעימת יין בנרות עם גבור (Gabor), המארח שמספר על כל יין. חלופה מעולה ל-DiVino אם מעדיפים אווירה היסטורית. פתוח ביום חמישי 17:00–20:00 בלבד. 📍 <a href="https://www.google.com/maps/place/?q=place_id:ChIJd8f_nhjcQUcRkqdGVp0NDvQ" target="_blank" rel="noopener noreferrer">מפות</a> · 🌐 <a href="http://gbwine.eu/" target="_blank" rel="noopener noreferrer">אתר</a> · ⭐ 4.7/5 · 💰 8,000–12,000 HUF (20–31 EUR) · 🎯 עניין: טעימת יינות, היסטוריה</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">כיכר הגיבורים + טירת ויידהוניאד</span>
+        <span class="pricing-cell__amount">0</span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">ארוחת צהריים Essência (טעימות 5 מנות)</span>
+        <span class="pricing-cell__amount">32,000 / 82</span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">טעימת יינות DiVino (3 כוסות + גבינות)</span>
+        <span class="pricing-cell__amount">8,500 / 22</span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">חדר בריחה E-Exit (שחקן יחיד)</span>
+        <span class="pricing-cell__amount">10,000 / 26</span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">השכרת אופניים אי מרגרט</span>
+        <span class="pricing-cell__amount">1,500 / 4</span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">שייט ערב Legenda (Duna Bella)</span>
+        <span class="pricing-cell__amount">4,500 / 12</span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">תחבורה (Bolt x 3)</span>
+        <span class="pricing-cell__amount">6,000 / 15</span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+      <div class="pricing-cell pricing-cell--total">
+        <span class="pricing-cell__label"><strong>סה״כ יום 2</strong></span>
+        <span class="pricing-cell__amount"><strong>62,500 / ~161</strong></span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+    </div>
+
+    <div class="advisory advisory--info" data-section-type="plan-b">
+      <div class="advisory__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+      <div class="advisory__content">
+        <h3 class="advisory__title">🅱️ תוכנית חלופית — Rumour (מישלן ⭐) לארוחת ערב</h3>
+        <p>אם מעדיפים חוויית מישלן בערב במקום שייט — <strong>Rumour</strong> (Bródy Sándor u. 5) היא מישלן ⭐ עם תפריט מודרני-הונגרי. שלב עם שייט יום קצר יותר ב-17:00 במקום ערב. לחלופין, אם מזג האוויר לא מתאים לשייט, בילוי ערב ברובע היהודי: בר שרידים (ruin bars) — <strong>Szimpla Kert</strong> הוא המקורי והמפורסם ביותר, עם בירת מלאכה ואווירה של בודפשט אותנטית. 📍 <a href="https://www.google.com/maps/search/Szimpla+Kert+Budapest/" target="_blank" rel="noopener noreferrer">מפות</a></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="day-card" id="day-3">
+  <div class="day-card__banner">
+    <div class="day-card__banner-date">שישי, 17.04.2026</div>
+    <h2 class="day-card__banner-title">יום 3 — זריחה ויציאה 🌅</h2>
+  </div>
+  <div class="day-card__content">
+    <a class="map-link" href="https://www.google.com/maps/dir/Szent+Gellért+tér+Budapest/Citadella+Budapest/Gellért+Pékség+Budapest/" target="_blank" rel="noopener noreferrer">🗺️ פתח מסלול יומי בגוגל מפות</a>
+
+    <div class="itinerary-table-wrapper">
+      <table class="itinerary-table">
+        <thead><tr><th>שעה</th><th>פעילות</th><th>פרטים</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="col-time">05:15</td>
+            <td><span class="activity-label">⏰ השכמה</span></td>
+            <td>התארגנות מהירה, ציוד צילום</td>
+          </tr>
+          <tr>
+            <td class="col-time">05:30</td>
+            <td><span class="activity-label">🚶 עלייה לגבעת גלרט</span></td>
+            <td>יציאה מכיכר גלרט (Szent Gellért tér), עלייה ברגל ~20-25 דק'</td>
+          </tr>
+          <tr>
+            <td class="col-time">05:51</td>
+            <td><a class="activity-label" href="#poi-day-3-1">🌅 זריחה מהציטדלה</a></td>
+            <td>זריחה בזווית 73° (מזרח-צפון-מזרח). הגיעו 15-20 דק' לפני לתפוס מיקום</td>
+          </tr>
+          <tr>
+            <td class="col-time">05:50–07:00</td>
+            <td><a class="activity-label" href="#poi-day-3-2">📸 צילום פנורמי — פסל החירות</a></td>
+            <td>צילומי זריחה: פרלמנט, טירת בודה, גשר השרשראות, הדנובה, פסל החירות</td>
+          </tr>
+          <tr>
+            <td class="col-time">07:00–07:30</td>
+            <td><span class="activity-label">🚶 ירידה מהגבעה</span></td>
+            <td>ירידה חזרה לכיכר גלרט דרך שביל Jubileumi Park</td>
+          </tr>
+          <tr>
+            <td class="col-time">07:30–08:00</td>
+            <td><a class="activity-label" href="#poi-day-3-3">☕ Gellért Pékség / מאפיית גלרט</a></td>
+            <td>מאפייה הונגרית, פתוחה מ-06:00. קפה + מאפה ~1,500 HUF</td>
+          </tr>
+          <tr>
+            <td class="col-time">08:00–08:30</td>
+            <td><span class="activity-label">🧳 חזרה למלון</span></td>
+            <td>אריזה אחרונה, צ'ק-אאוט</td>
+          </tr>
+          <tr>
+            <td class="col-time">08:30–09:00</td>
+            <td><span class="activity-label">🚕 נסיעה לנקודת יציאה</span></td>
+            <td>Bolt/טקסי — ~30-40 דק' לשדה התעופה, ~8,000-12,000 HUF</td>
+          </tr>
+          <tr>
+            <td class="col-time">10:00</td>
+            <td><span class="activity-label">🛫 יציאה</span></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="itinerary-grid">
+
+      <!-- POI 1: Citadella Kilátó / תצפית הציטדלה -->
+      <div class="poi-card" id="poi-day-3-1">
+        <span class="poi-card__tag">🌅 תצפית / זריחה</span>
+        <span class="poi-card__rating">⭐ 4.6 (Google)</span>
+        <h3 class="poi-card__name">Citadella Kilátó / תצפית הציטדלה</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJ2yAmK0jcQUcRjBKEjm_O1i4" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://www.citadella.hu/" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?tbm=isch&q=Citadella+Budapest+sunrise+panorama" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+3614665794" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description"><p>גבעת גלרט (235 מ' מעל פני הים) היא אולי נקודת התצפית הטובה ביותר בבודפשט כולה. בזריחה, כשהאור הזהוב הראשון מכה בכיפת הפרלמנט ומחליק על פני הדנובה, האווירה כאן היא משהו שאי אפשר לשחזר בשום שעה אחרת. מלמעלה נפרשת פנורמה של 360° — צד בודה עם הטירה המלכותית, צד פשט עם שדרת אנדרשי, גשר השרשראות, גשר אליזבת וגשר חירות למרגלותיך. עמדו בצד המזרחי של הציטדלה (מול פשט) לצילום הזריחה — השמש עולה מאחורי הפרלמנט בזווית 73° באמצע אפריל.</p></div>
+        <div class="pro-tip"><strong>💡 טיפ:</strong> הגיעו לפחות 20 דקות לפני הזריחה (05:30) כדי לבחור מיקום ולהגדיר את הציוד. השמש עולה מהר — ה"שעה הזהובה" נמשכת כ-30-40 דקות. הביאו חצובה — החשיכה לפני הזריחה מאפשרת חשיפות ארוכות מרהיבות של אורות העיר. הטמפרטורה בבוקר באפריל: ~5-8°C — לבשו שכבות.</div>
+      </div>
+
+      <!-- POI 2: Szabadság-szobor / פסל החירות -->
+      <div class="poi-card" id="poi-day-3-2">
+        <span class="poi-card__tag">🏛️ ציון דרך</span>
+        <span class="poi-card__rating">⭐ 3.8 (Google)</span>
+        <h3 class="poi-card__name">Szabadság-szobor / פסל החירות</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJI5RfGADdQUcRRwcB9p0tR6g" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://hu.wikipedia.org/wiki/Szabads%C3%A1g-szobor_(Budapest)" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?tbm=isch&q=Szabadság+szobor+Budapest" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+        </div>
+        <div class="poi-card__description"><p>פסל החירות (Szabadság-szobor) ניצב בפסגת גבעת גלרט כסמל הבולט ביותר של קו הרקיע הבודפשטי. דמות האישה המחזיקה עלה דקל מתנשאת ל-14 מטר (על בסיס של 26 מ'), וניתן לזהות אותה מכל נקודה כמעט בעיר. הפסל הוקם ב-1947, והוא אחד מציוני הדרך האיקוניים ביותר של הונגריה. הסילואט של הפסל על רקע שמי הזריחה הוורדרדים הוא קאדר קלאסי — הצילום הטוב ביותר הוא מלמטה, מצד דרום-מערב.</p></div>
+        <div class="pro-tip"><strong>💡 טיפ:</strong> שימו לב שאזור הציטדלה עצמו עובר שיפוץ (2024-2026) — המבצר עשוי להיות מגודר חלקית, אך נקודות התצפית והפסל נגישים. בדקו מראש האם השיפוץ הסתיים.</div>
+      </div>
+
+      <!-- POI 3: Gellért Pékség / מאפיית גלרט -->
+      <div class="poi-card" id="poi-day-3-3">
+        <span class="poi-card__tag">☕ מאפייה</span>
+        <span class="poi-card__rating">⭐ 4.1 (Google)</span>
+        <h3 class="poi-card__name">Gellért Pékség / מאפיית גלרט</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJkYo06k3cQUcREv_TGjsIOV8" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?tbm=isch&q=Gellért+Pékség+Budapest+bakery" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            📸 תמונות
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+36308760135" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description"><p>מאפייה הונגרית מקומית ממש ברחוב Bartók Béla, 3 דקות הליכה מכיכר גלרט — המקום המושלם לארוחת בוקר מהירה אחרי הירידה מהגבעה. מגוון רחב של לחמים טריים, מאפים הונגריים (rétes, pogácsa), פיצות, ראפים וקפה. פתוחה מ-06:00 ביום שישי. נסו pogácsa — לחמנייה הונגרית עם גבינה, או rétes (שטרודל) עם פרג או תפוחים.</p></div>
+        <div class="pro-tip"><strong>💡 טיפ:</strong> אם אתם רוצים לשבת בפנים — יש שני שולחנות קטנים ליד החלונות. לחלופין, קחו לדרך ושבו על ספסל מול הדנובה בגלרט.</div>
+      </div>
+
+      <!-- POI 4: 🛒 SPAR market -->
+      <div class="poi-card" id="poi-day-3-4">
+        <span class="poi-card__tag">🛒 סופרמרקט</span>
+        <span class="poi-card__rating">⭐ 3.8 (Google)</span>
+        <h3 class="poi-card__name">SPAR market / סופרמרקט שפאר</h3>
+        <div class="poi-card__links">
+          <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/?q=place_id:ChIJwRZS87PdQUcRFij_VIfVK9s" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            📍 מפות
+          </a>
+          <a class="poi-card__link" data-link-type="site" href="https://www.spar.hu/hu_HU/uzletek.html" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            🌐 אתר
+          </a>
+          <a class="poi-card__link" data-link-type="phone" href="tel:+36208238426" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            📞 טלפון
+          </a>
+        </div>
+        <div class="poi-card__description"><p>Szabolcska Mihály u. 20, 1114 Budapest. סניף קטן ונוח, כ-10 דקות הליכה דרומית מכיכר גלרט. פתוח ביום שישי מ-06:00. רוב הסופרמרקטים באזור גלרט פותחים ב-06:00-07:00 ביום שישי. אם אתם צריכים מים או חטיפים לדרך, עדיף לקנות מראש (בערב הקודם) או ב-Gellért Pékség שפתוחה מ-06:00.</p></div>
+      </div>
+
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">גבעת גלרט + ציטדלה (כניסה חופשית)</span>
+        <span class="pricing-cell__amount">0</span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">ארוחת בוקר — Gellért Pékség (קפה + מאפה)</span>
+        <span class="pricing-cell__amount">1,500 / 4</span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="pricing-cell__label">Bolt/טקסי לנקודת יציאה</span>
+        <span class="pricing-cell__amount">10,000 / 25</span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+      <div class="pricing-cell pricing-cell--total">
+        <span class="pricing-cell__label"><strong>סה״כ יום 3</strong></span>
+        <span class="pricing-cell__amount"><strong>~11,500 / ~29</strong></span>
+        <span class="pricing-cell__currency">HUF / EUR</span>
+      </div>
+    </div>
+
+    <div class="advisory advisory--info" data-section-type="plan-b">
+      <div class="advisory__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+      <div class="advisory__content">
+        <h3 class="advisory__title">🅱️ תוכנית חלופית — בוקר גשום</h3>
+        <p>אם מזג האוויר לא משתף פעולה (גשם, ערפל כבד — הנוף ייחסם):</p>
+        <p><strong>אפשרות 1 — קפה ופרידה מבודפשט בסטייל:</strong> <strong>Starbucks Gellért</strong> (פתוח מ-07:00 ביום שישי) — כיכר גלרט 3, ממש ליד מלון גלרט. שבו ליד החלון הגדול עם נוף לגשר חירות ולדנובה. קפה + מאפה ~2,000-3,000 HUF. 📍 <a href="https://www.google.com/maps/place/?q=place_id:ChIJiU12om3dQUcR7HaepZ5ag88" target="_blank" rel="noopener noreferrer">מפות</a> · ⭐ 4.7/5</p>
+        <p><strong>אפשרות 2 — שוק ההישרדות האחרון:</strong> אם אתם קמים מוקדם בכל מקרה, השתמשו בזמן לסיבוב אחרון ברחוב Váci או ברובע היהודי לקניית מזכרות (חנויות פותחות מ-08:00-09:00). רוב חנויות המזכרות באזור Deák Ferenc tér פתוחות מוקדם.</p>
+        <p><strong>אפשרות 3 — צילומי בוקר חלופיים:</strong> אם יש גשם קל אבל לא ערפל — צילום תחת מטריה נותן תמונות דרמטיות. השתקפויות ברחובות רטובים, אורות ערפליים מעל הדנובה. הנוף מגבעת גלרט בגשם קל יכול להיות דרמטי אפילו יותר מזריחה נקייה.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<section id="budget">
+  <h2 class="section-title">💰 תקציב מסע</h2>
+
+  <p class="text-secondary mb-4">14–17 באפריל 2026 · AAA (1 מבוגר) · HUF פורינט הונגרי | EUR (שער משוער: 1 € ≈ 389 HUF)</p>
+
+  <!-- Daily summary table -->
+  <h3 class="font-semibold mb-3">סיכום יומי</h3>
+  <div class="itinerary-table-wrapper mb-5">
+    <table class="itinerary-table">
+      <thead>
+        <tr><th>יום</th><th>תאריך</th><th>כותרת</th><th>HUF</th><th>EUR</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0</td><td>14.04</td><td>הגעה וגבעת בודה</td><td>60,100</td><td>~155</td></tr>
+        <tr><td>1</td><td>15.04</td><td>פשט: ציוני דרך ותרבות</td><td>74,900</td><td>~193</td></tr>
+        <tr><td>2</td><td>16.04</td><td>כיכר הגיבורים, קולינריה ושייט</td><td>62,500</td><td>~161</td></tr>
+        <tr><td>3</td><td>17.04</td><td>זריחה ויציאה</td><td>11,500</td><td>~29</td></tr>
+        <tr style="font-weight:600;background:rgba(201,151,43,0.08)">
+          <td colspan="3"><strong>סה"כ פעילויות</strong></td>
+          <td><strong>209,000</strong></td>
+          <td><strong>~538</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Accommodation estimate table -->
+  <h3 class="font-semibold mb-3">🏨 אירוח (הערכה)</h3>
+  <div class="itinerary-table-wrapper mb-5">
+    <table class="itinerary-table">
+      <thead>
+        <tr><th>אפשרות</th><th>מחיר/לילה (EUR)</th><th>3 לילות (EUR)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Maison Bistro &amp; Hotel (בוטיק ⭐⭐⭐⭐)</td><td>120–180</td><td>360–540</td></tr>
+        <tr><td>Leon Hotel (בוטיק ⭐⭐⭐⭐)</td><td>150–220</td><td>450–660</td></tr>
+        <tr><td>Baltazár Boutique Hotel (⭐⭐⭐⭐)</td><td>180–280</td><td>540–840</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="text-secondary mb-4"><strong>טווח אירוח:</strong> 360–840 EUR (3 לילות)</p>
+
+  <!-- Category breakdown table -->
+  <h3 class="font-semibold mb-3">פירוט לפי קטגוריה</h3>
+  <div class="itinerary-table-wrapper mb-5">
+    <table class="itinerary-table">
+      <thead>
+        <tr><th>קטגוריה</th><th>HUF</th><th>EUR</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🍽️ אוכל ושתייה</td><td>103,000</td><td>~265</td></tr>
+        <tr><td>🎟️ כניסות ופעילויות</td><td>36,500</td><td>~94</td></tr>
+        <tr><td>🚕 תחבורה (Bolt)</td><td>34,000</td><td>~87</td></tr>
+        <tr><td>♨️ מרחצאות</td><td>13,200</td><td>~34</td></tr>
+        <tr><td>🍺 חיי לילה (בארים, יין, וויסקי)</td><td>19,000</td><td>~49</td></tr>
+        <tr><td>🛥️ שייט דנובה</td><td>4,500</td><td>~12</td></tr>
+        <tr style="font-weight:600;background:rgba(201,151,43,0.08)">
+          <td><strong>סה"כ פעילויות</strong></td>
+          <td><strong>~209,000</strong></td>
+          <td><strong>~538</strong></td>
+        </tr>
+        <tr><td>🏨 אירוח (הערכה, 3 לילות)</td><td>140,000–327,000</td><td>360–840</td></tr>
+        <tr style="font-weight:600;background:rgba(201,151,43,0.08)">
+          <td><strong>סה"כ כולל (טווח)</strong></td>
+          <td><strong>349,000–536,000</strong></td>
+          <td><strong>~898–1,378</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Notes -->
+  <div class="pro-tip mt-4">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>
+    <span>מחירי אירוח הם הערכה — בדוק מחירים עדכניים ב-Booking.com. אם תבחר ב-Gundel במקום Essência ביום 2, חסוך ~15,000 HUF (~38 EUR). מחירים בהונגריה אטרקטיביים ביחס למערב אירופה — תמורה מצוינת לכסף. שער חליפין משוער: 1 EUR ≈ 389 HUF.</span>
+  </div>
+</section>
+
+</main>
+
+</div>
+
+<script>
+// IntersectionObserver for active nav tracking
+document.addEventListener('DOMContentLoaded', () => {
+  const sections = document.querySelectorAll('[id^="day-"], #overview, #budget');
+  const sidebarLinks = document.querySelectorAll('.sidebar__link');
+  const mobilePills = document.querySelectorAll('.mobile-nav__pill');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        const href = '#' + id;
+        sidebarLinks.forEach(link => {
+          link.classList.toggle('is-active', link.getAttribute('href') === href);
+          if (link.getAttribute('href') === href) {
+            link.setAttribute('aria-current', 'page');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+        mobilePills.forEach(pill => {
+          pill.classList.toggle('is-active', pill.getAttribute('href') === href);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(section => observer.observe(section));
+});
+</script>
+</body>
+</html>

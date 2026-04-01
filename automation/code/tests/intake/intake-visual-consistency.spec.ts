@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { IntakePage } from '../pages/IntakePage';
+import { STEPS } from './utils/step-registry';
 
 /**
  * Cross-Step Visual Consistency Tests (QA Test Plan Categories 1-2)
@@ -10,7 +11,7 @@ import { IntakePage } from '../pages/IntakePage';
  * screens must be tested property-by-property.
  */
 
-const CARD_STEPS = [4, 5, 6] as const;
+const CARD_STEPS = [STEPS.interests, STEPS.avoids, STEPS.food] as const;
 
 test.describe('Cross-Step Visual Consistency', () => {
   let intake: IntakePage;
@@ -18,12 +19,12 @@ test.describe('Cross-Step Visual Consistency', () => {
   test.beforeEach(async ({ page }) => {
     intake = new IntakePage(page);
     await intake.setupWithDepth(20);
-    // Navigate to Step 5 to ensure interest (Step 4) and avoid (Step 5) cards are rendered
-    await intake.navigateToStep(5);
+    // Navigate to avoids step to ensure interest and avoid cards are rendered
+    await intake.navigateToStep(STEPS.avoids);
   });
 
   test('TC-038: interest cards (Step 4) use centered vertical layout', async () => {
-    await intake.navigateToStep(4);
+    await intake.navigateToStep(STEPS.interests);
     const styles = await intake.getCardStyles('#interestsSections .interest-card');
     expect.soft(styles.flexDirection, 'Interest card flex-direction').toBe('column');
     expect.soft(styles.textAlign, 'Interest card text-align').toBe('center');
@@ -31,7 +32,7 @@ test.describe('Cross-Step Visual Consistency', () => {
   });
 
   test('TC-039: avoid cards (Step 5) match interest card layout direction', async () => {
-    await intake.navigateToStep(5);
+    await intake.navigateToStep(STEPS.avoids);
     const styles = await intake.getCardStyles('#avoidSections .avoid-card');
     expect.soft(styles.flexDirection, 'Avoid card flex-direction').toBe('column');
     expect.soft(styles.textAlign, 'Avoid card text-align').toBe('center');
@@ -39,7 +40,7 @@ test.describe('Cross-Step Visual Consistency', () => {
   });
 
   test('TC-040: food experience cards (Step 6) match interest card layout direction', async () => {
-    await intake.navigateToStep(6);
+    await intake.navigateToStep(STEPS.food);
     const styles = await intake.getCardStyles('#foodExperienceCards .interest-card');
     expect.soft(styles.flexDirection, 'Food card flex-direction').toBe('column');
     expect.soft(styles.textAlign, 'Food card text-align').toBe('center');
@@ -47,7 +48,7 @@ test.describe('Cross-Step Visual Consistency', () => {
   });
 
   test('TC-041: vibe cards (Step 6) match interest card layout direction', async () => {
-    await intake.navigateToStep(6);
+    await intake.navigateToStep(STEPS.food);
     const styles = await intake.getCardStyles('#vibeGroup .avoid-card');
     expect.soft(styles.flexDirection, 'Vibe card flex-direction').toBe('column');
     expect.soft(styles.textAlign, 'Vibe card text-align').toBe('center');
@@ -111,22 +112,36 @@ test.describe('Cross-Step Visual Consistency', () => {
   });
 
   test('TC-046: all grid layouts use same column count at desktop width', async () => {
-    const result = await intake.page.evaluate(() => {
-      const grids = [
-        document.querySelector('#interestsSections .interest-grid'),
-        document.querySelector('#avoidSections .avoid-grid'),
-        document.querySelector('#foodExperienceCards .interest-grid'),
-        document.querySelector('#vibeGroup .avoid-grid'),
-      ].filter(Boolean);
-      const cols = grids.map(g => window.getComputedStyle(g!).gridTemplateColumns);
-      const allMatch = cols.every(c => c === cols[0]);
-      return { allMatch, cols };
-    });
-    expect(result.allMatch, `Grid columns: ${JSON.stringify(result.cols)}`).toBe(true);
+    // Navigate to each step and collect column counts from visible grids
+    // (computed styles differ between visible and hidden elements)
+    const gridSteps: { step: number; selector: string }[] = [
+      { step: STEPS.interests, selector: '#interestsSections .interest-grid' },
+      { step: STEPS.avoids, selector: '#avoidSections .avoid-grid' },
+      { step: STEPS.food, selector: '#foodExperienceCards .interest-grid' },
+      { step: STEPS.food, selector: '#vibeGroup .avoid-grid' },
+    ];
+    const colCounts: number[] = [];
+    let lastStep = -1;
+    for (const { step, selector } of gridSteps) {
+      if (step !== lastStep) {
+        await intake.navigateToStep(step);
+        lastStep = step;
+      }
+      const count = await intake.page.evaluate((sel) => {
+        const grid = document.querySelector(sel);
+        if (!grid) return -1;
+        const cols = window.getComputedStyle(grid).gridTemplateColumns;
+        // Count the number of column tracks (split by space, filtering empty)
+        return cols.split(/\s+/).filter(Boolean).length;
+      }, selector);
+      colCounts.push(count);
+    }
+    const allMatch = colCounts.every(c => c === colCounts[0]);
+    expect(allMatch, `Grid column counts: ${JSON.stringify(colCounts)}`).toBe(true);
   });
 
   test('TC-047: vibe cards use avoid-card--vibe CSS modifier (no inline style overrides)', async () => {
-    await intake.navigateToStep(6);
+    await intake.navigateToStep(STEPS.food);
     const result = await intake.page.evaluate(() => {
       const vibeCards = document.querySelectorAll('#vibeGroup .avoid-card');
       const issues: string[] = [];
@@ -148,7 +163,7 @@ test.describe('Cross-Step Visual Consistency', () => {
   });
 
   test('TC-048: every step has step__title with accent bar and step__desc', async () => {
-    for (const step of [0, 1, 2, 3, 4, 5, 6, 7, 8]) {
+    for (const step of Object.values(STEPS)) {
       const section = intake.stepSection(step);
       const title = section.locator('.step__title');
       const desc = section.locator('.step__desc');
@@ -158,9 +173,10 @@ test.describe('Cross-Step Visual Consistency', () => {
   });
 
   test('TC-049: Steps 4-6 sub-sections use chip-section__title + chip-section__desc consistently', async () => {
-    const result = await intake.page.evaluate(() => {
+    const cardStepNums = [STEPS.interests, STEPS.avoids, STEPS.food];
+    const result = await intake.page.evaluate((stepNums) => {
       const issues: string[] = [];
-      for (const step of [4, 5, 6]) {
+      for (const step of stepNums) {
         const section = document.querySelector(`section.step[data-step="${step}"]`);
         if (!section) { issues.push(`Step ${step} section not found`); continue; }
         const titles = section.querySelectorAll('.chip-section__title');
@@ -179,7 +195,7 @@ test.describe('Cross-Step Visual Consistency', () => {
         });
       }
       return issues;
-    });
+    }, cardStepNums);
     for (const issue of result) {
       expect.soft(false, issue).toBe(true);
     }
@@ -187,7 +203,7 @@ test.describe('Cross-Step Visual Consistency', () => {
   });
 
   test('TC-050: every step has btn-bar with consistent layout', async () => {
-    for (const step of [0, 1, 2, 3, 4, 5, 6, 7, 8]) {
+    for (const step of Object.values(STEPS)) {
       const section = intake.stepSection(step);
       const btnBar = section.locator('.btn-bar');
       expect.soft(await btnBar.count(), `Step ${step} missing .btn-bar`).toBeGreaterThan(0);

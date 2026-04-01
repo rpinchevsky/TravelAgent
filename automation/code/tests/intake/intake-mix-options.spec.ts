@@ -15,13 +15,8 @@ import { IntakePage } from '../pages/IntakePage';
  * Spec file: intake-mix-options.spec.ts (8 test cases)
  */
 
-const SUPPORTED_LANGUAGES = [
-  'en', 'ru', 'he', 'es', 'fr', 'de', 'it', 'pt', 'zh', 'ja', 'ko', 'ar',
-] as const;
-
 // Project root is four levels up from automation/code/tests/intake/
 const projectRoot = path.resolve(__dirname, '..', '..', '..', '..');
-const localesDir = path.join(projectRoot, 'locales');
 const intakeHtmlPath = path.join(projectRoot, 'trip_intake.html');
 const rulesPath = path.join(projectRoot, 'trip_intake_rules.md');
 
@@ -58,16 +53,6 @@ const SELECTION_TESTS = [
   { questionKey: 'diningstyle', newValue: 'mix' },
   { questionKey: 'mealpriority', newValue: 'all' },
   { questionKey: 'transport', newValue: 'mix' },
-] as const;
-
-// --- Required i18n keys for TC-138 ---
-const REQUIRED_I18N_KEYS = [
-  'q_dine_mix',
-  'q_dine_mix_desc',
-  'q_meal_all',
-  'q_meal_all_desc',
-  'q_transport_mix',
-  'q_transport_mix_desc',
 ] as const;
 
 test.describe('Mix/All Option Cards — DOM Structure (TC-134/135/136)', () => {
@@ -152,69 +137,42 @@ test.describe('Mix/All Option Cards — Selection Behavior (TC-137)', () => {
   test('TC-137: Selecting mix/all card applies is-selected and deselects siblings', async ({ page }) => {
     // REQ-001 -> AC-6, REQ-002 -> AC-6, REQ-003 -> AC-6
     for (const cfg of SELECTION_TESTS) {
-      const questionSlide = intake.questionByKey(cfg.questionKey);
+      // Navigate to the correct sub-question slide within Step 3 questionnaire
+      // and perform selection test entirely in page.evaluate to avoid auto-advance race
+      const result = await page.evaluate(({ questionKey, newValue }) => {
+        // Navigate to the correct slide
+        const visible = getVisibleStyleSlides();
+        const idx = visible.findIndex((s: Element) => s.getAttribute('data-question-key') === questionKey);
+        if (idx < 0) return { error: `Slide not found for ${questionKey}` };
+        goToSubQuestion(idx);
 
-      // Get the first existing card (not the new mix/all card)
-      const firstCard = questionSlide.locator(`.q-card:not([data-value="${cfg.newValue}"])`).first();
-      await firstCard.waitFor({ state: 'attached' });
+        const slide = document.querySelector(`[data-question-key="${questionKey}"]`);
+        if (!slide) return { error: `Slide element not found for ${questionKey}` };
 
-      // Click the first card via evaluate to avoid animation timing issues
-      await page.evaluate(
-        ({ key }) => {
-          const slide = document.querySelector(`[data-question-key="${key}"]`);
-          const card = slide?.querySelector(`.q-card:not([data-value="${key === 'mealpriority' ? 'all' : 'mix'}"])`);
-          if (card) (card as HTMLElement).click();
-        },
-        { key: cfg.questionKey }
-      );
+        // Click the first non-mix card (triggers radio select + auto-advance timer)
+        const firstCard = slide.querySelector(`.q-card:not([data-value="${newValue}"])`) as HTMLElement;
+        if (!firstCard) return { error: `No non-mix card found in ${questionKey}` };
+        firstCard.click();
 
-      // Verify first card is selected
-      await expect(firstCard).toHaveClass(/is-selected/);
+        const firstSelected = firstCard.classList.contains('is-selected');
 
-      // Now click the new mix/all card
-      const mixCard = questionSlide.locator(`.q-card[data-value="${cfg.newValue}"]`);
-      await mixCard.click();
+        // Immediately click the mix/all card (before 400ms auto-advance)
+        const mixCard = slide.querySelector(`.q-card[data-value="${newValue}"]`) as HTMLElement;
+        if (!mixCard) return { error: `Mix card not found in ${questionKey}` };
+        mixCard.click();
 
-      // Verify mix/all card is now selected (auto-wait)
-      await expect(mixCard).toHaveClass(/is-selected/);
+        const mixSelected = mixCard.classList.contains('is-selected');
+        const selectedCount = slide.querySelectorAll('.q-card.is-selected').length;
+        const selectedValue = slide.querySelector('.q-card.is-selected')?.getAttribute('data-value') ?? '';
 
-      // Verify exactly 1 card is selected in this question
-      const selectedCount = await questionSlide.locator('.q-card.is-selected').count();
-      expect.soft(selectedCount, `${cfg.questionKey}: exactly 1 selected`).toBe(1);
+        return { firstSelected, mixSelected, selectedCount, selectedValue, error: null };
+      }, { questionKey: cfg.questionKey, newValue: cfg.newValue });
 
-      // Verify the selected card is the mix/all card
-      const selectedValue = await questionSlide.locator('.q-card.is-selected').getAttribute('data-value');
-      expect.soft(selectedValue, `${cfg.questionKey}: selected card is ${cfg.newValue}`).toBe(cfg.newValue);
-    }
-  });
-});
-
-test.describe('Mix/All Option Cards — i18n Keys (TC-138)', () => {
-  test('TC-138: New i18n keys present in all 12 locale files', async () => {
-    // REQ-004 -> AC-1, AC-2, AC-3
-    for (const lang of SUPPORTED_LANGUAGES) {
-      const filePath = path.join(localesDir, `ui_${lang}.json`);
-
-      // Verify file exists and is valid JSON
-      let catalog: Record<string, unknown> | null = null;
-      try {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        catalog = JSON.parse(content);
-      } catch {
-        expect.soft(false, `ui_${lang}.json: valid JSON parse`).toBe(true);
-        continue;
-      }
-
-      expect.soft(catalog, `ui_${lang}.json: parsed successfully`).not.toBeNull();
-      if (!catalog) continue;
-
-      for (const key of REQUIRED_I18N_KEYS) {
-        const value = catalog[key];
-        expect.soft(
-          typeof value === 'string' && value.length > 0,
-          `ui_${lang}.json: ${key} exists and non-empty`
-        ).toBe(true);
-      }
+      expect.soft(result.error, `${cfg.questionKey}: no errors`).toBeNull();
+      expect.soft(result.firstSelected, `${cfg.questionKey}: first card was selected`).toBe(true);
+      expect.soft(result.mixSelected, `${cfg.questionKey}: mix card is selected`).toBe(true);
+      expect.soft(result.selectedCount, `${cfg.questionKey}: exactly 1 selected`).toBe(1);
+      expect.soft(result.selectedValue, `${cfg.questionKey}: selected card is ${cfg.newValue}`).toBe(cfg.newValue);
     }
   });
 });

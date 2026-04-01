@@ -1,6 +1,4 @@
 import { test, expect } from '@playwright/test';
-import * as fs from 'fs';
-import * as path from 'path';
 import { IntakePage } from '../pages/IntakePage';
 
 /**
@@ -18,23 +16,6 @@ import { IntakePage } from '../pages/IntakePage';
  * of UI language. This matches the existing pattern — markdown assertions using
  * English text are intentional exceptions to the language-independence rule.
  */
-
-const SUPPORTED_LANGUAGES = [
-  'en', 'ru', 'he', 'es', 'fr', 'de', 'it', 'pt', 'zh', 'ja', 'ko', 'ar',
-] as const;
-
-// Project root is four levels up from automation/code/tests/intake/
-const projectRoot = path.resolve(__dirname, '..', '..', '..', '..');
-const localesDir = path.join(projectRoot, 'locales');
-
-// --- Required i18n keys for TC-152 ---
-const REQUIRED_I18N_KEYS = [
-  's6_wheelchair',
-  's6_wheelchair_no',
-  's6_wheelchair_no_desc',
-  's6_wheelchair_yes',
-  's6_wheelchair_yes_desc',
-] as const;
 
 test.describe('Wheelchair Question — Visibility (TC-147)', () => {
   // TC-147: Wheelchair question visible on Step 7 at all depth levels
@@ -134,36 +115,6 @@ test.describe('Wheelchair Question — Markdown Output (TC-150/TC-151)', () => {
     const rawMd = await intake.getRawMarkdown();
     expect(rawMd, 'markdown should contain Wheelchair accessible').toContain('Wheelchair accessible');
     expect(rawMd, 'markdown wheelchair value should be no').toMatch(/Wheelchair accessible.*\bno\b/);
-  });
-});
-
-test.describe('Wheelchair Question — i18n Keys (TC-152)', () => {
-  test('TC-152: wheelchair i18n keys present in all 12 locale files', async () => {
-    // REQ-006 -> AC-5
-    // Static file analysis — no browser needed
-    for (const lang of SUPPORTED_LANGUAGES) {
-      const filePath = path.join(localesDir, `ui_${lang}.json`);
-
-      let catalog: Record<string, unknown> | null = null;
-      try {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        catalog = JSON.parse(content);
-      } catch {
-        expect.soft(false, `ui_${lang}.json: valid JSON parse`).toBe(true);
-        continue;
-      }
-
-      expect.soft(catalog, `ui_${lang}.json: parsed successfully`).not.toBeNull();
-      if (!catalog) continue;
-
-      for (const key of REQUIRED_I18N_KEYS) {
-        const value = catalog[key];
-        expect.soft(
-          typeof value === 'string' && value.length > 0,
-          `ui_${lang}.json: ${key} exists and non-empty`
-        ).toBe(true);
-      }
-    }
   });
 });
 

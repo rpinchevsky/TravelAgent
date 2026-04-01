@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -495,6 +495,7 @@
       user-select: none;
       box-shadow: var(--shadow-sm);
       overflow: hidden;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
     .interest-card::before {
       content: '';
@@ -2424,50 +2425,50 @@
               </div>
             </div>
 
-            <!-- H2: Location Priority (q-card single-select, 5 options) -->
+            <!-- H2: Location Priority (multi-select card grid, 5 options) -->
             <div class="depth-extra-question" data-question-key="hotelLocation">
               <label class="field__label" data-i18n="s6_hotel_location">Location Priority</label>
-              <div class="question-options">
-                <div class="q-card" tabindex="0" role="button" data-value="center" data-en-name="City center &amp; walkable">
+              <div class="option-grid" data-multi-select role="group">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="center" data-en-name="City center &amp; walkable">
                   <div class="q-card__icon">&#127963;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_loc_center">City Center &amp; Walkable</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="attractions" data-en-name="Near main attractions">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="attractions" data-en-name="Near main attractions">
                   <div class="q-card__icon">&#127984;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_loc_attractions">Near Main Attractions</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="quiet" data-en-name="Quiet &amp; residential">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="quiet" data-en-name="Quiet &amp; residential">
                   <div class="q-card__icon">&#127795;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_loc_quiet">Quiet &amp; Residential</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="beach" data-en-name="Beachfront or waterfront">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="beach" data-en-name="Beachfront or waterfront">
                   <div class="q-card__icon">&#127754;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_loc_beach">Beachfront / Waterfront</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="transport" data-en-name="Near transport hub">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="transport" data-en-name="Near transport hub">
                   <div class="q-card__icon">&#128646;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_loc_transport">Near Transport Hub</div>
                 </div>
               </div>
             </div>
 
-            <!-- H3: Quality Level (q-card single-select, 4 options) -->
+            <!-- H3: Quality Level (multi-select card grid, 4 options) -->
             <div class="depth-extra-question" data-question-key="hotelStars">
               <label class="field__label" data-i18n="s6_hotel_stars">Quality Level</label>
-              <div class="question-options">
-                <div class="q-card" tabindex="0" role="button" data-value="budget" data-en-name="Budget (1-2 stars)">
+              <div class="option-grid" data-multi-select role="group">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="budget" data-en-name="Budget (1-2 stars)">
                   <div class="q-card__icon">&#11088;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_stars_budget">Budget (1-2 stars)</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="midrange" data-en-name="Mid-range (3 stars)">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="midrange" data-en-name="Mid-range (3 stars)">
                   <div class="q-card__icon">&#11088;&#11088;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_stars_mid">Mid-range (3 stars)</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="upscale" data-en-name="Upscale (4 stars)">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="upscale" data-en-name="Upscale (4 stars)">
                   <div class="q-card__icon">&#11088;&#11088;&#11088;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_stars_upscale">Upscale (4 stars)</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="luxury" data-en-name="Luxury (5 stars)">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="luxury" data-en-name="Luxury (5 stars)">
                   <div class="q-card__icon">&#11088;&#11088;&#11088;&#11088;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_stars_luxury">Luxury (5 stars)</div>
                 </div>
@@ -2510,21 +2511,21 @@
               </div>
             </div>
 
-            <!-- H6: Cancellation Preference (q-card single-select, 3 options) -->
+            <!-- H6: Cancellation Preference (multi-select card grid, 3 options) -->
             <div class="depth-extra-question" data-question-key="hotelCancellation">
               <label class="field__label" data-i18n="s6_hotel_cancellation">Cancellation Flexibility</label>
-              <div class="question-options">
-                <div class="q-card" tabindex="0" role="button" data-value="free" data-en-name="Free cancellation (even if pricier)">
+              <div class="option-grid" data-multi-select role="group">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="free" data-en-name="Free cancellation (even if pricier)">
                   <div class="q-card__icon">&#128275;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_cancel_free">Free Cancellation</div>
                   <div class="q-card__desc" data-i18n="s6_hotel_cancel_free_desc">Even if it costs more</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="nonrefundable" data-en-name="Non-refundable is fine (cheaper)">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="nonrefundable" data-en-name="Non-refundable is fine (cheaper)">
                   <div class="q-card__icon">&#128176;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_cancel_cheap">Non-refundable OK</div>
                   <div class="q-card__desc" data-i18n="s6_hotel_cancel_cheap_desc">Cheaper rates are fine</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="nopref" data-en-name="No preference">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="nopref" data-en-name="No preference">
                   <div class="q-card__icon">&#129335;</div>
                   <div class="q-card__title" data-i18n="s6_hotel_cancel_nopref">No Preference</div>
                   <div class="q-card__desc" data-i18n="s6_hotel_cancel_nopref_desc">Either way is fine</div>
@@ -2636,69 +2637,69 @@
               </div>
             </div>
 
-            <!-- C2: Transmission (q-card single-select, 3 options) -->
+            <!-- C2: Transmission (multi-select card grid, 3 options) -->
             <div class="depth-extra-question" data-question-key="carTransmission">
               <label class="field__label" data-i18n="s6_car_transmission">Transmission</label>
-              <div class="question-options">
-                <div class="q-card" tabindex="0" role="button" data-value="automatic" data-en-name="Automatic">
+              <div class="option-grid" data-multi-select role="group">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="automatic" data-en-name="Automatic">
                   <div class="q-card__icon">&#129302;</div>
                   <div class="q-card__title" data-i18n="s6_car_trans_auto">Automatic</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="manual" data-en-name="Manual">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="manual" data-en-name="Manual">
                   <div class="q-card__icon">&#128400;</div>
                   <div class="q-card__title" data-i18n="s6_car_trans_manual">Manual</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="nopref" data-en-name="No preference">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="nopref" data-en-name="No preference">
                   <div class="q-card__icon">&#129335;</div>
                   <div class="q-card__title" data-i18n="s6_car_trans_nopref">No Preference</div>
                 </div>
               </div>
             </div>
 
-            <!-- C3: Fuel Type (q-card single-select, 5 options) -->
+            <!-- C3: Fuel Type (multi-select card grid, 5 options) -->
             <div class="depth-extra-question" data-question-key="carFuel">
               <label class="field__label" data-i18n="s6_car_fuel">Fuel Type Preference</label>
-              <div class="question-options">
-                <div class="q-card" tabindex="0" role="button" data-value="petrol" data-en-name="Petrol">
+              <div class="option-grid" data-multi-select role="group">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="petrol" data-en-name="Petrol">
                   <div class="q-card__icon">&#9981;</div>
                   <div class="q-card__title" data-i18n="s6_car_fuel_petrol">Petrol</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="diesel" data-en-name="Diesel">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="diesel" data-en-name="Diesel">
                   <div class="q-card__icon">&#9981;</div>
                   <div class="q-card__title" data-i18n="s6_car_fuel_diesel">Diesel</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="hybrid" data-en-name="Hybrid">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="hybrid" data-en-name="Hybrid">
                   <div class="q-card__icon">&#127793;</div>
                   <div class="q-card__title" data-i18n="s6_car_fuel_hybrid">Hybrid</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="electric" data-en-name="Electric">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="electric" data-en-name="Electric">
                   <div class="q-card__icon">&#9889;</div>
                   <div class="q-card__title" data-i18n="s6_car_fuel_electric">Electric</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="nopref" data-en-name="No preference">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="nopref" data-en-name="No preference">
                   <div class="q-card__icon">&#129335;</div>
                   <div class="q-card__title" data-i18n="s6_car_fuel_nopref">No Preference</div>
                 </div>
               </div>
             </div>
 
-            <!-- C4: Pickup & Return (q-card single-select, 4 options) -->
+            <!-- C4: Pickup & Return (multi-select card grid, 4 options) -->
             <div class="depth-extra-question" data-question-key="carPickup">
               <label class="field__label" data-i18n="s6_car_pickup">Pickup &amp; Return</label>
-              <div class="question-options">
-                <div class="q-card" tabindex="0" role="button" data-value="airport" data-en-name="Airport">
+              <div class="option-grid" data-multi-select role="group">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="airport" data-en-name="Airport">
                   <div class="q-card__icon">&#9992;</div>
                   <div class="q-card__title" data-i18n="s6_car_pickup_airport">Airport</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="city" data-en-name="City center office">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="city" data-en-name="City center office">
                   <div class="q-card__icon">&#127963;</div>
                   <div class="q-card__title" data-i18n="s6_car_pickup_city">City Center Office</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="hotel" data-en-name="Hotel or accommodation delivery">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="hotel" data-en-name="Hotel or accommodation delivery">
                   <div class="q-card__icon">&#127976;</div>
                   <div class="q-card__title" data-i18n="s6_car_pickup_hotel">Hotel Delivery</div>
                 </div>
-                <div class="q-card" tabindex="0" role="button" data-value="train" data-en-name="Train station">
+                <div class="q-card" tabindex="0" role="button" aria-pressed="false" data-value="train" data-en-name="Train station">
                   <div class="q-card__icon">&#128646;</div>
                   <div class="q-card__title" data-i18n="s6_car_pickup_train">Train Station</div>
                 </div>
@@ -2760,7 +2761,7 @@
           <!-- Q0: Rhythm (T1) -->
           <div class="question-slide is-visible" data-question="rhythm" data-qindex="0" data-question-key="rhythm" data-tier="1">
             <div class="question-slide__label" data-i18n="s0_title">What's Your Travel Rhythm?</div>
-            <div class="question-options question-options--4">
+            <div id="rhythmOptions" class="question-options question-options--4">
               <div class="q-card" tabindex="0" role="button" data-value="early">
                 <div class="q-card__icon">&#9728;&#65039;</div>
                 <div class="q-card__title" data-i18n="s0_early">Early Bird</div>
@@ -3484,6 +3485,8 @@
         <h2 class="step__title" data-i18n="s5_title">Set Your Boundaries</h2>
         <p class="step__desc" data-i18n="s5_desc">Deselect anything you'd prefer to skip on this trip.</p>
 
+        <div id="avoidQuiz" style="display:none;"><div class="sub-dots"></div></div>
+
         <div class="chip-section">
           <div class="chip-section__title" data-i18n="s4_avoid_title">&#128683; We'd Suggest Avoiding</div>
           <p class="chip-section__desc" data-i18n="s4_avoid_desc">Based on your answers. Tap to adjust.</p>
@@ -3507,6 +3510,8 @@
       <section class="step" data-step="6">
         <h2 class="step__title" data-i18n="s6_title">Food & Dining</h2>
         <p class="step__desc" data-i18n="s6_desc">Select food experiences and dining vibes that match your group.</p>
+
+        <div id="foodQuiz" style="display:none;"><div class="sub-dots"></div></div>
 
         <!-- Dynamic food experience cards -->
         <div class="chip-section">
@@ -3684,6 +3689,7 @@
     // i18n catalogs loaded from external JSON files (locales/ui_{lang}.json)
     // Each catalog includes UI strings + item translations (under _items key)
     const _uiCache = {};    // { lang: { key: value, ..., _items: { "English Name": "Translated Name" } } } — populated by fetchUiCatalog()
+    window._uiCache = _uiCache; // Expose for test automation access
     let _langRequestId = 0; // Sequence counter for race condition guard on rapid language switching (SA FB-2)
 
     // Emergency fallback: minimal UI strings if all external catalogs fail to load.
@@ -3755,6 +3761,11 @@
       const meta = LANG_META[lang] || LANG_META['en'];
       currentLang = lang;
 
+      // Set direction and lang immediately (before async fetch) so that
+      // RTL layout applies even while the catalog is still loading.
+      document.documentElement.dir = meta.dir;
+      document.documentElement.lang = lang;
+
       // Race condition guard: increment sequence counter (SA FB-2).
       // If user switches language again before this fetch completes,
       // the stale result is discarded.
@@ -3772,10 +3783,6 @@
           tr = _uiCache.en || _EMERGENCY_CATALOG;
         }
       }
-
-      // Set direction
-      document.documentElement.dir = meta.dir;
-      document.documentElement.lang = lang;
 
       // Translate all data-i18n elements
       document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -3816,7 +3823,7 @@
     (async function initLangSelector() {
       // SA FB-3: file:// detection MUST be the very first statement in this function,
       // before any DOM manipulation or fetch calls, to guarantee clean UX on file://.
-      if (window.location.protocol === 'file:') {
+      if (window.location.protocol === 'file:' || window.__protocolOverride === 'file:') {
         document.body.classList.remove('i18n-loading');
         const msg = document.createElement('div');
         msg.className = 'file-protocol-overlay';
@@ -3882,6 +3889,15 @@
 
     // Re-translate non-data-i18n dynamic content when language changes
     window.addEventListener('languagechange', () => {
+      // Re-translate dynamic card names (interest, food, vibe, avoid, highlight cards)
+      document.querySelectorAll('.interest-card[data-en-name]').forEach(card => {
+        const name = card.querySelector('.interest-card__name');
+        if (name) name.textContent = tItem(card.getAttribute('data-en-name'));
+      });
+      document.querySelectorAll('.avoid-card[data-en-name]').forEach(card => {
+        const name = card.querySelector('.avoid-card__name');
+        if (name) name.textContent = tItem(card.getAttribute('data-en-name'));
+      });
       // Update search bar traveler text (uses t() for adult/child labels)
       if (typeof updateSearchBarTravelers === 'function') updateSearchBarTravelers();
       // Re-render calendar with translated month/day names
@@ -5590,6 +5606,7 @@
         card.dataset.hlKey = item.key;
         gradientCounter++;
         const enName = (_uiCache.en && _uiCache.en[item.key]) || item.key;
+        card.dataset.enName = enName;
         const displayName = t(item.key);
         const emoji = getEmojiForInterest(enName);
         if (previousSelections.size > 0) {
@@ -5600,7 +5617,7 @@
         card.innerHTML = `
           <div class="interest-card__check">&#10003;</div>
           <div class="interest-card__emoji">${emoji}</div>
-          <div class="interest-card__name">${displayName}</div>
+          <div class="interest-card__name" data-i18n="${item.key}">${displayName}</div>
         `;
         card.addEventListener('click', () => card.classList.toggle('is-selected'));
         hlGrid.appendChild(card);
@@ -7575,13 +7592,15 @@
           const hotelTypeNames = hotelTypeEls.map(c => c.dataset.enName);
           md += `- **Accommodation type:** ${hotelTypeNames.length > 0 ? hotelTypeNames.join(', ') : 'Not specified'}\n`;
 
-          // Location priority
-          const hotelLocEl = document.querySelector('.depth-extra-question[data-question-key="hotelLocation"] .q-card.is-selected');
-          md += `- **Location priority:** ${hotelLocEl ? hotelLocEl.dataset.enName : 'Not specified'}\n`;
+          // Location priority (multi-select)
+          const hotelLocEls = Array.from(document.querySelectorAll('.depth-extra-question[data-question-key="hotelLocation"] .q-card.is-selected'));
+          const hotelLocNames = hotelLocEls.map(c => c.dataset.enName);
+          md += `- **Location priority:** ${hotelLocNames.length > 0 ? hotelLocNames.join(', ') : 'Not specified'}\n`;
 
-          // Quality level
-          const hotelStarsEl = document.querySelector('.depth-extra-question[data-question-key="hotelStars"] .q-card.is-selected');
-          md += `- **Quality level:** ${hotelStarsEl ? hotelStarsEl.dataset.enName : 'Not specified'}\n`;
+          // Quality level (multi-select)
+          const hotelStarsEls = Array.from(document.querySelectorAll('.depth-extra-question[data-question-key="hotelStars"] .q-card.is-selected'));
+          const hotelStarsNames = hotelStarsEls.map(c => c.dataset.enName);
+          md += `- **Quality level:** ${hotelStarsNames.length > 0 ? hotelStarsNames.join(', ') : 'Not specified'}\n`;
 
           // Amenities (multi-select)
           const hotelAmenities = Array.from(document.querySelectorAll('#hotelAmenitiesChips .chip-toggle.is-selected'))
@@ -7592,9 +7611,10 @@
           const hotelPetsEl = document.querySelector('.depth-extra-question[data-question-key="hotelPets"] .q-card.is-selected');
           md += `- **Traveling with pets:** ${hotelPetsEl && hotelPetsEl.dataset.value === 'yes' ? 'Yes' : 'No'}\n`;
 
-          // Cancellation
-          const hotelCancelEl = document.querySelector('.depth-extra-question[data-question-key="hotelCancellation"] .q-card.is-selected');
-          md += `- **Cancellation preference:** ${hotelCancelEl ? hotelCancelEl.dataset.enName : 'Not specified'}\n`;
+          // Cancellation (multi-select)
+          const hotelCancelEls = Array.from(document.querySelectorAll('.depth-extra-question[data-question-key="hotelCancellation"] .q-card.is-selected'));
+          const hotelCancelNames = hotelCancelEls.map(c => c.dataset.enName);
+          md += `- **Cancellation preference:** ${hotelCancelNames.length > 0 ? hotelCancelNames.join(', ') : 'Not specified'}\n`;
 
           // Budget (range slider)
           const hotelSlider = document.getElementById('hotelBudgetSlider');
@@ -7613,17 +7633,20 @@
           const carCatNames = carCatEls.map(c => c.dataset.enName);
           md += `- **Car category:** ${carCatNames.length > 0 ? carCatNames.join(', ') : 'Not specified'}\n`;
 
-          // Transmission
-          const carTransEl = document.querySelector('.depth-extra-question[data-question-key="carTransmission"] .q-card.is-selected');
-          md += `- **Transmission:** ${carTransEl ? carTransEl.dataset.enName : 'Not specified'}\n`;
+          // Transmission (multi-select)
+          const carTransEls = Array.from(document.querySelectorAll('.depth-extra-question[data-question-key="carTransmission"] .q-card.is-selected'));
+          const carTransNames = carTransEls.map(c => c.dataset.enName);
+          md += `- **Transmission:** ${carTransNames.length > 0 ? carTransNames.join(', ') : 'Not specified'}\n`;
 
-          // Fuel type
-          const carFuelEl = document.querySelector('.depth-extra-question[data-question-key="carFuel"] .q-card.is-selected');
-          md += `- **Fuel type:** ${carFuelEl ? carFuelEl.dataset.enName : 'Not specified'}\n`;
+          // Fuel type (multi-select)
+          const carFuelEls = Array.from(document.querySelectorAll('.depth-extra-question[data-question-key="carFuel"] .q-card.is-selected'));
+          const carFuelNames = carFuelEls.map(c => c.dataset.enName);
+          md += `- **Fuel type:** ${carFuelNames.length > 0 ? carFuelNames.join(', ') : 'Not specified'}\n`;
 
-          // Pickup & return
-          const carPickupEl = document.querySelector('.depth-extra-question[data-question-key="carPickup"] .q-card.is-selected');
-          md += `- **Pickup & return:** ${carPickupEl ? carPickupEl.dataset.enName : 'Not specified'}\n`;
+          // Pickup & return (multi-select)
+          const carPickupEls = Array.from(document.querySelectorAll('.depth-extra-question[data-question-key="carPickup"] .q-card.is-selected'));
+          const carPickupNames = carPickupEls.map(c => c.dataset.enName);
+          md += `- **Pickup & return:** ${carPickupNames.length > 0 ? carPickupNames.join(', ') : 'Not specified'}\n`;
 
           // Extras (multi-select)
           const carExtras = Array.from(document.querySelectorAll('#carExtrasChips .chip-toggle.is-selected'))

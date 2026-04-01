@@ -318,7 +318,7 @@ const server = http.createServer((req, res) => {
       const content = fs.readFileSync(absPath);
       res.writeHead(200, {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'public, max-age=3600'
       });
       res.end(content);
     } catch (e) {

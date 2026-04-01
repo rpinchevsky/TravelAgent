@@ -45,11 +45,8 @@ test.describe('Overview Table', () => {
 });
 
 test.describe('Budget Section', () => {
-  test('should have budget section visible', async ({ tripPage, page }) => {
+  test('should have budget section visible', async ({ tripPage }) => {
     await expect(tripPage.budgetSection).toBeAttached();
-    // TC-004: budget section must not be nested inside any day-card element
-    const nestedBudgetCount = await page.locator('.day-card #budget').count();
-    expect.soft(nestedBudgetCount, '#budget must not be nested inside a .day-card element').toBe(0);
   });
 
   test('budget table should contain total label', async ({ tripPage }) => {

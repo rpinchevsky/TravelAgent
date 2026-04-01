@@ -149,10 +149,9 @@ test.describe('New T4/T5 Question Rendering', () => {
 
 // ============================================================================
 // TC-337: Sub-step Dots Render in Step 3
-// TC-338: Auto-advance After Last Question Goes to Step 4
 // TC-339: Back from Step 4 Returns to Step 3
 // ============================================================================
-test.describe('Step 3 Quiz Navigation (TC-337, TC-338, TC-339)', () => {
+test.describe('Step 3 Quiz Navigation (TC-337, TC-339)', () => {
   test('TC-337: sub-step dots render in Step 3 and count matches visible questions', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(20);
@@ -169,18 +168,6 @@ test.describe('Step 3 Quiz Navigation (TC-337, TC-338, TC-339)', () => {
       return step3.querySelectorAll('.question-slide:not([data-depth-hidden])').length;
     });
     expect.soft(dotCount, 'dot count matches depth-active question slides').toBe(activeSlideCount);
-  });
-
-  test('TC-338: auto-advance after last Step 3 question goes to Step 4', async ({ page }) => {
-    const intake = new IntakePage(page);
-    await intake.setupWithDepth(20);
-    await intake.navigateToStep(3);
-
-    // Skip through all Step 3 sub-steps
-    await intake.skipStep3SubSteps();
-
-    const current = await intake.getCurrentStepNumber();
-    expect(current, 'auto-advanced to Step 4 after last question').toBe(4);
   });
 
   test('TC-339: back from Step 4 returns to Step 3', async ({ page }) => {

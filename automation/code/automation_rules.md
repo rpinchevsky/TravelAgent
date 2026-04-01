@@ -73,7 +73,55 @@ All automation tests must be language-independent and trip-independent.
 * **Source of Truth:** All trip-specific values must be derived from `trip_details.md` (via `trip-config.ts`) or extracted from the generated markdown (via `markdown-pois.ts`).
 * **Exception:** Visual regression snapshot filenames are inherently trip-specific and are exempt.
 
-### 7.3 Enforcement
+### 7.3 Markdown Output Exception
+* `generateMarkdown()` in `trip_intake.html` uses hard-coded English labels for all field keys (e.g., "Wheelchair accessible", "## Hotel Assistance"). Tests asserting markdown content may use English strings — this is an intentional exception. Add a comment `// Markdown uses English-only labels (QF-1)` near such assertions.
+
+### 7.4 Enforcement
 * QA-A and SA are jointly responsible for catching violations during Phase 3 (Architecture Review) and Phase 4 (Test Planning).
 * Any PR that introduces hardcoded language or trip content in test code must be rejected.
 * The `code-quality/language-independence.spec.ts` lint guard automatically scans for Cyrillic literals, hardcoded filenames, and `hasText` filters with string constants. It runs as part of the regression suite.
+
+## 8. Test Resilience Best Practices
+
+These rules ensure product changes cause minimal test breakage.
+
+### 8.1 No Exact Option Counts
+* **Rule:** Never assert exact counts for product options (cards, chips, grid items). Use `toBeGreaterThanOrEqual(MIN)` with a meaningful lower bound instead.
+* **Why:** Adding a single hotel type, amenity chip, or car category would break every exact-count test.
+* **Example:** `expect(chipCount).toBeGreaterThanOrEqual(5)` instead of `expect(chipCount).toBe(12)`.
+
+### 8.2 No CSS Rule Scanning
+* **Rule:** Never iterate `document.styleSheets → cssRules` to assert CSS rule existence. This is fragile to CSS reorganization, minification, and framework changes.
+* **Alternative:** Use `getComputedStyle()` on the actual rendered element to assert the *behavior* (e.g., "element has RTL direction", "background differs in dark mode").
+* **Example (RTL):** Instead of scanning for `[dir="rtl"] .avoid-card__x` in stylesheets, switch to Hebrew, select a card, and assert `getComputedStyle(badge).left !== 'auto'`.
+
+### 8.3 No Exact CSS Pixel Values
+* **Rule:** Do not assert exact pixel values (e.g., `top: '16px'`, `borderLeftWidth: '4px'`). Design tweaks break these silently.
+* **Alternative:** Assert existence and non-zero: `parseInt(borderWidth) > 0` or positional ranges: `top is non-negative`.
+* **Exception:** Tolerance-based checks are acceptable for alignment tests (e.g., "controls aligned within 5px").
+
+### 8.4 Step Registry (Single Source of Truth)
+* **Rule:** Never use hardcoded step numbers in test files. Import `STEPS`, `STEP_COUNT`, `STEPPER_LABEL_KEYS`, etc. from `tests/intake/utils/step-registry.ts`.
+* **Why:** When steps are reordered or inserted (as happened with Step 2 hotel/car), updating ONE file fixes all tests.
+* **Example:** `navigateToStep(STEPS.interests)` instead of `navigateToStep(4)`.
+
+### 8.5 Centralized i18n Key Validation
+* **Rule:** All i18n key presence validation must use `tests/intake/utils/i18n-required-keys.ts` as the single source of truth. When adding new i18n keys, add them to the relevant group in that file.
+* **Test:** The master validation test (`intake-i18n-keys-master.spec.ts`) validates ALL required keys in one pass across all 12 locales, grouped by feature for traceability.
+* **Anti-pattern:** Do not create per-feature i18n key tests in individual spec files.
+
+### 8.6 Parameterize Symmetric Tests
+* **Rule:** When hotel and car (or other symmetric features) share identical test patterns, use data-driven parameterization with a config array rather than duplicating test blocks.
+* **Example:** Define `ASSISTANCE_SECTIONS` config array, loop `for (const cfg of ASSISTANCE_SECTIONS)` in one `test.describe`.
+* **When to keep separate:** Tests with feature-specific assertions (e.g., hotel budget slider has different min/max from car) remain separate.
+
+### 8.7 Delete Duplicates Aggressively
+* **Rule:** If test A is a strict superset of test B, delete B. If two tests cover the same behavior from different angles, keep the more comprehensive one.
+* **Checklist before adding a new test:**
+  1. Does an existing test already cover this behavior?
+  2. Can this be added as a soft assertion in an existing test?
+  3. Can this be parameterized with an existing data-driven loop?
+
+### 8.8 Filesystem Tests Skip Browser
+* **Rule:** Tests that only read JSON files or HTML source from disk must NOT destructure `{ page }` in their callback. Use `async () =>` so Playwright skips browser launch.
+* **Applies to:** Locale file validation, source code regex checks, rule file documentation checks.

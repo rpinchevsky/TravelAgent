@@ -118,9 +118,9 @@ Hotel and car rental assistance toggles with optional sub-questions. Both toggle
 | Field | Type | Notes |
 |-------|------|-------|
 | Hotel Assistance (toggle) | 2-option card (supplementary) | Yes = show hotel sub-questions, No = hide (default). Clearing resets all hotel selections. |
-| Hotel sub-questions (7) | Various (supplementary) | hotelType (card grid 12, multi-select), hotelLocation (q-card 5), hotelStars (q-card 4), hotelAmenities (chips 12), hotelPets (toggle 2), hotelCancellation (q-card 3), hotelBudget (range slider $30-$1000) |
+| Hotel sub-questions (7) | Various (supplementary) | hotelType (card grid 12, multi-select), hotelLocation (card grid 5, multi-select), hotelStars (card grid 4, multi-select), hotelAmenities (chips 12), hotelPets (toggle 2), hotelCancellation (card grid 3, multi-select), hotelBudget (range slider $30-$1000) |
 | Car Rental Assistance (toggle) | 2-option card (supplementary) | Yes = show car sub-questions, No = hide (default). Clearing resets all car selections. |
-| Car sub-questions (6) | Various (supplementary) | carCategory (card grid 14, multi-select), carTransmission (q-card 3), carFuel (q-card 5), carPickup (q-card 4), carExtras (chips 7), carBudget (range slider $0-$1000) |
+| Car sub-questions (6) | Various (supplementary) | carCategory (card grid 14, multi-select), carTransmission (card grid 3, multi-select), carFuel (card grid 5, multi-select), carPickup (card grid 4, multi-select), carExtras (chips 7), carBudget (range slider $0-$1000) |
 
 ### Step 3 — All Preferences (One-by-One Questionnaire)
 
@@ -260,17 +260,17 @@ These fields are always visible within their step and do not count toward the qu
 | foodNotes | Textarea | Step 6 |
 | hotelAssistToggle | 2-option card | Step 2 |
 | hotelType | Multi-select card grid (12 options) | Step 2 |
-| hotelLocation | q-card (5 options) | Step 2 |
-| hotelStars | q-card (4 options) | Step 2 |
+| hotelLocation | Multi-select card grid (5 options) | Step 2 |
+| hotelStars | Multi-select card grid (4 options) | Step 2 |
 | hotelAmenities | Multi-select chips (12 options) | Step 2 |
 | hotelPets | 2-option card | Step 2 |
-| hotelCancellation | q-card (3 options) | Step 2 |
+| hotelCancellation | Multi-select card grid (3 options) | Step 2 |
 | hotelBudget | Dual-handle range slider | Step 2 |
 | carAssistToggle | 2-option card | Step 2 |
 | carCategory | Multi-select card grid (14 options) | Step 2 |
-| carTransmission | q-card (3 options) | Step 2 |
-| carFuel | q-card (5 options) | Step 2 |
-| carPickup | q-card (4 options) | Step 2 |
+| carTransmission | Multi-select card grid (3 options) | Step 2 |
+| carFuel | Multi-select card grid (5 options) | Step 2 |
+| carPickup | Multi-select card grid (4 options) | Step 2 |
 | carExtras | Multi-select chips (7 options) | Step 2 |
 | carBudget | Dual-handle range slider | Step 2 |
 | reportLang | Dropdown | Step 7 |
@@ -477,19 +477,19 @@ The generated markdown must match the structure of `trip_details.md` so it can b
 ## Hotel Assistance
 
 - **Accommodation type:** {comma-separated values or "Not specified"}
-- **Location priority:** {value}
-- **Quality level:** {value}
+- **Location priority:** {comma-separated values or "Not specified"}
+- **Quality level:** {comma-separated values or "Not specified"}
 - **Must-have amenities:** {comma-separated list or "None"}
 - **Traveling with pets:** {Yes/No}
-- **Cancellation preference:** {value}
+- **Cancellation preference:** {comma-separated values or "Not specified"}
 - **Daily budget per room:** ${min} - ${max}
 
 ## Car Rental Assistance
 
 - **Car category:** {comma-separated values or "Not specified"}
-- **Transmission:** {value}
-- **Fuel type:** {value}
-- **Pickup & return:** {value}
+- **Transmission:** {comma-separated values or "Not specified"}
+- **Fuel type:** {comma-separated values or "Not specified"}
+- **Pickup & return:** {comma-separated values or "Not specified"}
 - **Additional equipment:** {comma-separated list or "None"}
 - **Daily rental budget:** ${min} - ${max}
 ```

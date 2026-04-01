@@ -27,8 +27,12 @@ const tripConfig = loadTripConfig();
  */
 const MIN_LUMINANCE = 0.7;
 
-test.describe('Banner Contrast — Themed Container Validation', () => {
-  for (let i = 0; i < tripConfig.dayCount; i++) {
+test.describe('Banner Contrast — Themed Container Validation (sampled)', () => {
+  // Sample first, middle, last day — contrast is set by CSS, not per-day content.
+  // A systemic contrast regression appears on any day.
+  const sampleDays = [...new Set([0, Math.floor(tripConfig.dayCount / 2), tripConfig.dayCount - 1])];
+
+  for (const i of sampleDays) {
     test(`Day ${i} banner text should have light color (luminance > ${MIN_LUMINANCE})`, async ({ tripPage }) => {
       // QF-2: Existence-check soft assertion per QA feedback — flag missing
       // elements as a test concern rather than silently skipping
