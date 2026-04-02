@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arad, Romania 2026 — מסלול טיול</title>
+  <style>
+/* ==========================================================================
+   Enterprise Travel UI System v3.0
+   rendering_style_config.css
+   Source of Truth: rendering-config.md
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* --- Spacing Scale (8px base) --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+
+  /* --- Border Radius --- */
+  --radius-container: 12px;
+  --radius-interactive: 6px;
+
+  /* --- Typography --- */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-body: 1.5;
+  --line-height-heading: 1.2;
+
+  /* --- Type Scale (fluid, mobile-first) --- */
+  --text-xs:   0.75rem;   /* 12px */
+  --text-sm:   0.875rem;  /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.125rem;  /* 18px */
+  --text-xl:   1.25rem;   /* 20px */
+  --text-2xl:  1.5rem;    /* 24px */
+  --text-3xl:  1.875rem;  /* 30px */
+  --text-4xl:  2.25rem;   /* 36px */
+
+  /* --- Light Theme Color Palette --- */
+  /* Brand */
+  --color-brand-primary:    #1A3C5E;   /* Deep navy — trust & authority */
+  --color-brand-accent:     #C9972B;   /* Warm gold — premium feel */
+  --color-brand-accent-alt: #2E7D9A;   /* Teal — destinations & maps */
+
+  /* Surface */
+  --color-bg:               #F8F7F4;   /* Warm off-white parchment */
+  --color-surface:          #FFFFFF;
+  --color-surface-raised:   #F2F0EC;
+  --color-surface-overlay:  rgba(255, 255, 255, 0.92);
+
+  /* Typography */
+  --color-text-primary:     #1C1C1E;
+  --color-text-secondary:   #4A4A52;
+  --color-text-muted:       #8A8A96;
+  --color-text-inverse:     #FAFAFA;
+
+  /* Borders */
+  --color-border:           rgba(0, 0, 0, 0.10);
+  --color-border-strong:    rgba(0, 0, 0, 0.20);
+
+  /* Semantic */
+  --color-success:          #2D7D3A;
+  --color-warning:          #C9972B;
+  --color-error:            #B53B3B;
+  --color-info:             #2E7D9A;
+
+  /* Focus ring */
+  --focus-ring: 2px solid var(--color-brand-accent);
+  --focus-ring-offset: 2px;
+
+  /* --- Sidebar --- */
+  --sidebar-width: 260px;
+  --sidebar-bg: var(--color-brand-primary);
+  --sidebar-text: var(--color-text-inverse);
+
+  /* --- Z-Index Scale --- */
+  --z-below:   -1;
+  --z-base:     0;
+  --z-raised:   10;
+  --z-nav:      1000;
+  --z-modal:    2000;
+  --z-tooltip:  3000;
+
+  /* --- Transitions --- */
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+
+  /* --- Shadows --- */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+  --shadow-lg:  0 8px 28px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-xl:  0 20px 60px rgba(0,0,0,0.12);
+}
+
+/* --- Dark Theme Override via media query --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:              #0F1923;
+    --color-surface:         #1A2A3A;
+    --color-surface-raised:  #1F3247;
+    --color-surface-overlay: rgba(26, 42, 58, 0.94);
+
+    --color-text-primary:    #FAFAFA;
+    --color-text-secondary:  #C8CDD6;
+    --color-text-muted:      #7B8693;
+    --color-text-inverse:    #1C1C1E;
+
+    --color-border:          rgba(255, 255, 255, 0.10);
+    --color-border-strong:   rgba(255, 255, 255, 0.20);
+
+    --color-brand-accent:    #D4A83A;   /* slightly brighter gold on dark */
+
+    --sidebar-bg:            #0D1F2D;
+
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.30);
+    --shadow-md:  0 4px 12px rgba(0,0,0,0.30);
+    --shadow-lg:  0 8px 28px rgba(0,0,0,0.40);
+    --shadow-xl:  0 20px 60px rgba(0,0,0,0.50);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   2. MODERN CSS RESET
+   -------------------------------------------------------------------------- */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent font-size inflation on mobile */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* Safe area for notched devices */
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  /* CRITICAL: Do NOT add overflow hidden/auto/scroll here — breaks sticky nav */
+}
+
+img, video, picture, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  /* Performance: all images lazy by default */
+  loading: lazy;
+  height: auto;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: var(--line-height-heading);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+ul[role='list'], ol[role='list'] {
+  list-style: none;
+}
+
+a {
+  color: var(--color-brand-accent-alt);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--transition-fast), opacity var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-brand-primary);
+  opacity: 0.85;
+}
+
+/* Universal focus ring — WCAG 2.1 keyboard navigation */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-interactive);
+}
+
+/* Remove focus ring for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   3. PAGE LAYOUT — Mobile-first, CSS Grid
+   -------------------------------------------------------------------------- */
+
+/*
+  Mobile: single-column stacked layout
+  Desktop (≥1024px): sidebar + main content
+  CRITICAL: No overflow on .page-wrapper — stickiness depends on root scroll
+*/
+
+.page-wrapper {
+  display: block;            /* Mobile: block layout — grid breaks sticky on iOS Safari */
+  min-height: 100dvh;
+}
+
+@media (min-width: 1024px) {
+  .page-wrapper {
+    display: grid;           /* Desktop: switch to grid for sidebar layout */
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: 1fr;
+  }
+}
+
+.main-content {
+  padding: var(--space-4) var(--space-3);
+  max-width: 960px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding: var(--space-5) var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: var(--space-6) var(--space-6);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   4. SIDEBAR NAVIGATION — Desktop Fixed, Auto-Dark
+   -------------------------------------------------------------------------- */
+
+.sidebar {
+  display: none; /* hidden on mobile — pill nav takes over */
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  width: var(--sidebar-width);
+  padding: var(--space-5) var(--space-3);
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    position: sticky;       /* sticks within viewport as user scrolls */
+    top: 0;
+    height: 100dvh;
+    overflow-y: auto;
+  }
+}
+
+.sidebar__logo {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-accent);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: var(--space-3);
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-interactive);
+  color: rgba(250, 250, 250, 0.75);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar__link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-inverse);
+  opacity: 1;
+}
+
+.sidebar__link.is-active,
+.sidebar__link[aria-current="page"] {
+  background-color: var(--color-brand-accent);
+  color: #1C1C1E;
+  font-weight: var(--font-weight-semibold);
+}
+
+.sidebar__link svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   5. MOBILE NAV — Horizontal Scrollable Pill Row
+   -------------------------------------------------------------------------- */
+
+.mobile-nav {
+  /* Sticky wrapper — MUST NOT have overflow to work on iOS Safari */
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  top: env(safe-area-inset-top, 0);
+  z-index: var(--z-nav);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.mobile-nav__scroll {
+  /* Inner scroll container — handles horizontal overflow */
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  overflow-x: auto;
+  scrollbar-width: none;         /* Firefox */
+  -ms-overflow-style: none;      /* IE/Edge */
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+.mobile-nav__scroll::-webkit-scrollbar {
+  display: none;                 /* Chrome/Safari */
+}
+
+@media (min-width: 1024px) {
+  .mobile-nav {
+    display: none;               /* hidden on desktop — sidebar takes over */
+  }
+}
+
+.mobile-nav__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), color var(--transition-fast),
+              border-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.mobile-nav__pill:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  opacity: 1;
+}
+
+.mobile-nav__pill.is-active {
+  background-color: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+
+/* --------------------------------------------------------------------------
+   6. CARDS — Elegant Container System
+   -------------------------------------------------------------------------- */
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.card--flat {
+  box-shadow: none;
+  background-color: var(--color-surface-raised);
+}
+
+.card--featured {
+  border-left: 4px solid var(--color-brand-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.card__title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.card__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.card__body {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+}
+
+.card__footer {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* Day Card — wraps a full itinerary day */
+.day-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin-bottom: var(--space-5);
+}
+
+.day-card__banner {
+  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-accent-alt) 100%);
+  color: var(--color-text-inverse);
+  padding: var(--space-4) var(--space-5);
+}
+
+.day-card__banner-date {
+  font-size: var(--text-sm);
+  opacity: 0.8;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-inverse);
+}
+
+.day-card__banner-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--space-1);
+  color: var(--color-text-inverse);
+}
+
+.day-card__content {
+  padding: var(--space-4) var(--space-5);
+}
+
+
+/* --------------------------------------------------------------------------
+   7. ITINERARY TABLE — Comfortable (desktop) / Compact (mobile)
+   -------------------------------------------------------------------------- */
+
+.itinerary-table-wrapper {
+  width: 100%;
+  border-radius: var(--radius-container);
+  border: 1px solid var(--color-border);
+  overflow-x: auto;       /* horizontal scroll on small screens */
+  box-shadow: var(--shadow-sm);
+  /* Note: overflow-x only on this wrapper, never on body/page-wrapper */
+}
+
+.itinerary-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--text-sm);       /* Compact on mobile */
+}
+
+/* Sticky column headers */
+.itinerary-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--space-2) var(--space-3);   /* Compact padding */
+  text-align: left;
+  z-index: var(--z-raised);
+  border-bottom: 2px solid var(--color-brand-accent);
+  white-space: nowrap;
+}
+
+.itinerary-table thead th:first-child {
+  border-top-left-radius: var(--radius-container);
+}
+
+.itinerary-table thead th:last-child {
+  border-top-right-radius: var(--radius-container);
+}
+
+.itinerary-table tbody td {
+  padding: var(--space-2) var(--space-3);   /* Compact */
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+}
+
+.itinerary-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.itinerary-table tbody tr:nth-child(even) {
+  background-color: var(--color-surface-raised);
+}
+
+.itinerary-table tbody tr:hover {
+  background-color: rgba(201, 151, 43, 0.06);   /* warm gold tint */
+}
+
+/* Comfortable density on desktop */
+@media (min-width: 768px) {
+  .itinerary-table {
+    font-size: var(--text-base);
+  }
+
+  .itinerary-table thead th {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .itinerary-table tbody td {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* Time cell */
+.itinerary-table .col-time {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-accent);
+  white-space: nowrap;
+  width: 80px;
+}
+
+@media (min-width: 768px) {
+  .itinerary-table .col-time {
+    width: 100px;
+  }
+}
+
+/* Activity type cell with SVG icon */
+.activity-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* Clickable activity labels that link to POI cards */
+a.activity-label {
+  text-decoration: none;
+  color: var(--color-text-primary);
+  border-bottom: 1px dashed var(--color-brand-accent-alt);
+  transition: color var(--transition-base), border-color var(--transition-base);
+  cursor: pointer;
+}
+
+a.activity-label:hover {
+  color: var(--color-brand-accent);
+  border-bottom-style: solid;
+}
+
+a.activity-label:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-interactive);
+}
+
+/* POI card highlight when navigated to via anchor */
+.poi-card:target {
+  box-shadow: var(--shadow-md);
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+  animation: poi-highlight 1.5s ease-out;
+}
+
+@keyframes poi-highlight {
+  0% { outline-color: var(--color-brand-accent); }
+  100% { outline-color: transparent; }
+}
+
+.activity-label svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-brand-accent-alt);
+}
+
+
+/* --------------------------------------------------------------------------
+   8. ACTIVITY / POI SECTION
+   -------------------------------------------------------------------------- */
+
+.itinerary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .itinerary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .itinerary-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.poi-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.poi-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.poi-card__image-wrapper {
+  border-radius: var(--radius-container) var(--radius-container) 0 0;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background-color: var(--color-surface-raised);
+}
+
+.poi-card__image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.poi-card:hover .poi-card__image-wrapper img {
+  transform: scale(1.03);
+}
+
+.poi-card__body {
+  padding: var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.poi-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-brand-accent-alt);
+}
+
+.poi-card__tag svg {
+  width: 13px;
+  height: 13px;
+}
+
+.poi-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-accent);
+  margin-top: var(--space-1);
+}
+
+.poi-card__accessible {
+  display: inline-block;
+  font-size: var(--text-sm);
+  margin-top: var(--space-1);
+}
+
+.poi-card__name {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.poi-card__description {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+  flex: 1;
+}
+
+.poi-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.poi-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-accent-alt);
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-interactive);
+  padding: 3px var(--space-2);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.poi-card__link:hover {
+  background-color: var(--color-surface-raised);
+  border-color: var(--color-brand-accent-alt);
+  opacity: 1;
+}
+
+.poi-card__link svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Pro-tip callout */
+.pro-tip {
+  display: flex;
+  gap: var(--space-2);
+  background-color: rgba(46, 125, 154, 0.08);
+  border-left: 3px solid var(--color-brand-accent-alt);
+  border-radius: 0 var(--radius-interactive) var(--radius-interactive) 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+}
+
+.pro-tip svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-brand-accent-alt);
+}
+
+
+/* --------------------------------------------------------------------------
+   8a. ACCOMMODATION SECTION & CARDS
+   Visually distinct from POI cards: warm amber accent, different layout
+   -------------------------------------------------------------------------- */
+
+.accommodation-section {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 2px solid var(--color-brand-accent);
+}
+
+.accommodation-section__title {
+  color: var(--color-brand-accent);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.accommodation-section__intro {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.accommodation-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .accommodation-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+.accommodation-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-brand-accent);
+  border-radius: 12px;
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.accommodation-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.accommodation-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: rgba(201, 151, 43, 0.12);
+  color: var(--color-brand-accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  .accommodation-card__tag {
+    background-color: rgba(212, 168, 58, 0.15);
+  }
+}
+
+.accommodation-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin-left: var(--space-2);
+}
+
+.accommodation-card__name {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: var(--space-2) 0;
+  line-height: 1.3;
+}
+
+.accommodation-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.accommodation-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-sm);
+  color: var(--color-brand-accent-alt);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.accommodation-card__link:hover {
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+}
+
+.accommodation-card__price-level {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: var(--space-2) 0;
+  font-size: var(--text-sm);
+}
+
+.price-pip {
+  font-size: var(--text-base);
+}
+
+.price-pip--filled {
+  opacity: 1;
+}
+
+.price-pip--empty {
+  opacity: 0.3;
+}
+
+.accommodation-card__description {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: var(--space-2) 0;
+}
+
+/* Booking.com CTA button */
+.booking-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px 20px;
+  background-color: var(--color-brand-accent);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+  margin: var(--space-3) 0;
+}
+
+.booking-cta:hover {
+  background-color: #B8871F;
+  box-shadow: var(--shadow-md);
+}
+
+.booking-cta:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Estimate badge in pricing grid */
+.pricing-cell__badge--estimate {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+
+/* --------------------------------------------------------------------------
+   9. TYPOGRAPHY — Semantic Hierarchy
+   -------------------------------------------------------------------------- */
+
+.page-title {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-primary);
+  line-height: var(--line-height-heading);
+  margin-bottom: var(--space-2);
+}
+
+.page-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.section-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--color-brand-accent);
+  display: inline-block;
+  margin-bottom: var(--space-4);
+}
+
+.section-label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+
+@media (min-width: 768px) {
+  .page-title  { font-size: var(--text-4xl); }
+  .section-title { font-size: var(--text-3xl); }
+}
+
+
+/* --------------------------------------------------------------------------
+   10. BADGES & TAGS
+   -------------------------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.badge--primary {
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+.badge--accent {
+  background-color: var(--color-brand-accent);
+  color: #1C1C1E;
+}
+
+.badge--success {
+  background-color: rgba(45, 125, 58, 0.12);
+  color: var(--color-success);
+}
+
+.badge--info {
+  background-color: rgba(46, 125, 154, 0.12);
+  color: var(--color-info);
+}
+
+.badge--warning {
+  background-color: rgba(201, 151, 43, 0.14);
+  color: var(--color-warning);
+}
+
+
+/* --------------------------------------------------------------------------
+   11. HOLIDAY / ADVISORY ALERT
+   -------------------------------------------------------------------------- */
+
+.advisory {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-container);
+  border: 1px solid;
+  margin-bottom: var(--space-5);
+}
+
+.advisory--warning {
+  background-color: rgba(201, 151, 43, 0.08);
+  border-color: rgba(201, 151, 43, 0.30);
+  color: var(--color-text-primary);
+}
+
+.advisory--info {
+  background-color: rgba(46, 125, 154, 0.08);
+  border-color: rgba(46, 125, 154, 0.30);
+  color: var(--color-text-primary);
+}
+
+.advisory__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.advisory--warning .advisory__icon { color: var(--color-warning); }
+.advisory--info    .advisory__icon { color: var(--color-info); }
+
+.advisory__title {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.advisory__body {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+}
+
+
+/* --------------------------------------------------------------------------
+   12. PRICING TABLE
+   -------------------------------------------------------------------------- */
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.pricing-cell {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-interactive);
+  padding: var(--space-3);
+  text-align: center;
+}
+
+.pricing-cell__label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pricing-cell__amount {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-primary);
+  margin-top: var(--space-1);
+}
+
+.pricing-cell__currency {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+
+/* --------------------------------------------------------------------------
+   13. UTILITY CLASSES
+   -------------------------------------------------------------------------- */
+
+/* Whitespace */
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.mt-6 { margin-top: var(--space-6); }
+
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-5); }
+
+.pt-4 { padding-top: var(--space-4); }
+.pb-4 { padding-bottom: var(--space-4); }
+.p-4  { padding: var(--space-4); }
+
+/* Text */
+.text-muted     { color: var(--color-text-muted); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-accent    { color: var(--color-brand-accent); }
+.text-sm        { font-size: var(--text-sm); }
+.text-xs        { font-size: var(--text-xs); }
+.font-medium    { font-weight: var(--font-weight-medium); }
+.font-semibold  { font-weight: var(--font-weight-semibold); }
+
+/* Layout helpers */
+.flex          { display: flex; }
+.flex-col      { flex-direction: column; }
+.items-center  { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2         { gap: var(--space-2); }
+.gap-3         { gap: var(--space-3); }
+.gap-4         { gap: var(--space-4); }
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-4) 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   14. RTL OVERRIDES
+   -------------------------------------------------------------------------- */
+
+[dir="rtl"] .pro-tip {
+  border-left: none;
+  border-right: 3px solid var(--color-brand-accent-alt);
+  border-radius: var(--radius-interactive) 0 0 var(--radius-interactive);
+}
+
+[dir="rtl"] .itinerary-table thead th {
+  text-align: right;
+}
+
+
+/* --------------------------------------------------------------------------
+   15. PRINT STYLES
+   -------------------------------------------------------------------------- */
+
+@media print {
+  .sidebar,
+  .mobile-nav {
+    display: none !important;
+  }
+
+  .page-wrapper {
+    display: block;
+  }
+
+  .card,
+  .poi-card,
+  .day-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: #fff;
+  }
+
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #555;
+  }
+}
+
+</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="page-wrapper">
+
+<aside class="sidebar" aria-label="Desktop Navigation">
+    <div class="sidebar__logo"><span>🌐 TravelUI</span></div>
+    <nav class="sidebar__nav">
+        <a class="sidebar__link is-active" aria-current="page" href="#overview"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> סקירה</a>
+        <a class="sidebar__link" href="#day-0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> יום 0 — הגעה</a>
+        <a class="sidebar__link" href="#day-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> יום 1 — יין ותרבות</a>
+        <a class="sidebar__link" href="#day-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> יום 2 — יציאה</a>
+        <a class="sidebar__link" href="#budget"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> תקציב</a></nav>
+</aside>
+
+<nav class="mobile-nav" aria-label="Mobile Navigation">
+  <div class="mobile-nav__scroll">
+    <a class="mobile-nav__pill is-active" href="#overview">סקירה</a>
+    <a class="mobile-nav__pill" href="#day-0">יום 0</a>
+    <a class="mobile-nav__pill" href="#day-1">יום 1</a>
+    <a class="mobile-nav__pill" href="#day-2">יום 2</a>
+    <a class="mobile-nav__pill" href="#budget">תקציב</a></div>
+</nav>
+
+<main id="main-content" class="main-content">
+    <section id="overview">
+  <h1 class="page-title">ערד, רומניה <svg width="28" height="20" viewBox="0 0 28 20" role="img" aria-label="Romania flag" style="vertical-align:middle;display:inline-block;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.1)"><rect x="0" y="0" width="9.33" height="20" fill="#002B7F"/><rect x="9.33" y="0" width="9.34" height="20" fill="#FCD116"/><rect x="18.67" y="0" width="9.33" height="20" fill="#CE1126"/></svg> 2026 — מסלול טיול</h1>
+  <p class="page-subtitle">11–13 במאי 2026 · RRRR (38)</p>
+
+  <h2 class="section-title">סקירה כללית</h2>
+  <div class="itinerary-table-wrapper">
+    <table class="itinerary-table">
+      <thead>
+        <tr><th>תאריך</th><th>יום</th><th>אזור</th><th>בוקר</th><th>צהריים</th><th>אחה"צ / ערב</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>11.05</td>
+          <td>שני</td>
+          <td>מרכז ערד</td>
+          <td>הגעה, סיור רגלי במרכז ההיסטורי — ארמונות אר-נובו, כיכר Piața Avram Iancu, בית עירייה, בית הכנסת הנאולוגי</td>
+          <td>Cocoșul de Aur — מטבח רומני מסורתי</td>
+          <td>שוק האיכרים Piața Mihai Viteazu, טעימת בראגה; ארוחת ערב — Euphoria Biergarten (בירה מלאכתית + צלייה)</td>
+        </tr>
+        <tr>
+          <td>12.05</td>
+          <td>שלישי</td>
+          <td>ערד + אזור יין Miniș</td>
+          <td>ארמון התרבות / מוזיאון ערד, כנסיית St. Anton, גן הפיוס</td>
+          <td>Grenier Brasserie — סטייקהאוס יוקרתי</td>
+          <td>יקב Balla Géza, יקב Josef Wines — טעימות; ארוחת ערב — Port Arthur BBQ על נהר Mureș</td>
+        </tr>
+        <tr>
+          <td>13.05</td>
+          <td>רביעי</td>
+          <td>מרכז ערד</td>
+          <td>Sunrise Brunch — ארוחת בוקר; יציאה ב-10:00</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>דגשים תכנוניים</h3>
+  <p><strong>יום שני 11.05:</strong> מוזיאונים סגורים ביום שני — יום אידיאלי לסיור רגלי, שווקים ואוכל.</p>
+  <p><strong>יום שלישי 12.05:</strong> יום מלא — תרבות בבוקר, אזור היין Miniș-Măderat אחה"צ (הכרם העתיק ביותר ברומניה, ~30 דק' נסיעה). נדרש רכב שכור או מונית.</p>
+  <p><strong>יום רביעי 13.05:</strong> יציאה — ארוחת בוקר קלה וצ'ק-אאוט.</p>
+  <p><strong>אירועים/חגים:</strong> אין חגים ציבוריים בתאריכי הנסיעה. שעות פעילות רגילות.</p>
+  <p><strong>מטבע:</strong> RON (לאו רומני). ~5 RON ≈ 1 USD, ~5.0 RON ≈ 1 EUR.</p>
+  <p><strong>חיות מחמד:</strong> לינה ידידותית לחיות מחמד — לאשר עם המלון.</p>
+
+  <h3>לינה</h3>
+  <p><strong>בלוק לינה:</strong> צ'ק-אין 11.05 → צ'ק-אאוט 13.05 (2 לילות)</p>
+  <p><strong>אזור:</strong> מרכז ערד</p>
+  <p><strong>העדפות:</strong> 4-5 כוכבים, מרכז העיר, ידידותי לחיות מחמד</p>
+  <p><strong>פירוט:</strong> ביום 0 (יום העגינה)</p>
+
+  <h3>השכרת רכב</h3>
+  <p><strong>סוג:</strong> SUV קומפקטי / SUV גדול, אוטומט, בנזין/היברידי</p>
+  <p><strong>איסוף/החזרה:</strong> שדה תעופה או משרד במרכז העיר</p>
+  <p><strong>המלצה:</strong> רכב נדרש ליום 1 (אזור היין). אפשרות חלופית: מונית (~100–150 RON הלוך-חזור)</p>
+</section>
+<div class="day-card" id="day-0">
+  <div class="day-card__banner">
+    <div class="day-card__banner-date">יום שני, 11.05.2026</div>
+    <h2 class="day-card__banner-title">יום 0 — הגעה למרכז ההיסטורי של ארד 🏛️</h2>
+  </div>
+  <div class="day-card__content">
+
+    <a class="map-link" href="https://www.google.com/maps/dir/Piața+Avram+Iancu+Arad/Primăria+Arad+Bulevardul+Revoluției+75/Sinagoga+neologă+Arad/Cocoșul+de+Aur+Arad/Piața+Mihai+Viteazu+Arad/Euphoria+Biergarten+Arad" target="_blank" rel="noopener noreferrer">🗺️ פתח מסלול יום ב-Google Maps</a>
+
+    <div class="itinerary-table-wrapper">
+      <table class="itinerary-table">
+        <thead><tr><th>שעה</th><th>פעילות</th><th>פרטים</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="col-time">10:00</td>
+            <td><span class="activity-label">🛬 הגעה לארד</span></td>
+            <td>צ'ק-אין בלינה, הנחת מזוודות</td>
+          </tr>
+          <tr>
+            <td class="col-time">11:00–13:30</td>
+            <td><a class="activity-label" href="#poi-day-0-1">🚶 סיור רגלי במרכז ההיסטורי</a></td>
+            <td>Piața Avram Iancu → Bd. Revoluției → ארמונות אר-נובו (Szántay, Bohus, Földes) → בית העירייה → בית הכנסת הנאולוגי. מרכז התיירות ב-Bd. Revoluției 81 מציע מפות חינם</td>
+          </tr>
+          <tr>
+            <td class="col-time">13:30–14:30</td>
+            <td><a class="activity-label" href="#poi-day-0-3">🍽️ ארוחת צהריים</a></td>
+            <td>Cocoșul de Aur — מנות רומניות קלאסיות ענקיות. נסו את ה-sarmale או tocitură</td>
+          </tr>
+          <tr>
+            <td class="col-time">15:00–16:30</td>
+            <td><a class="activity-label" href="#poi-day-0-4">🛒 שוק איכרים</a></td>
+            <td>Piața Mihai Viteazu — גבינות מקומיות, דבש, תבלינים. נסו משקה "Braga" מסורתי מדוכן Búnătăți de Hălmagiu (⭐ 4.5). עצירת רחוב: Lángos JULA SRL (Str. Metianu 13, ⭐ 4.9) — לאנגוש הונגרי מסורתי</td>
+          </tr>
+          <tr>
+            <td class="col-time">17:00–18:00</td>
+            <td><span class="activity-label">🍺 מנוחה + קפה</span></td>
+            <td>זמן חופשי במרכז, הליכה לכיוון המלון</td>
+          </tr>
+          <tr>
+            <td class="col-time">19:00–21:00</td>
+            <td><a class="activity-label" href="#poi-day-0-5">🥩 ארוחת ערב</a></td>
+            <td>Euphoria Biergarten — צלעות בקר מעושנות + בירה קראפט. ישיבה בחצר הפנימית</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="itinerary-grid">
+
+      <!-- POI 1: Piața Avram Iancu -->
+      <div class="poi-card" id="poi-day-0-1">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🏛️ אטרקציה</span>
+          <h3 class="poi-card__name">Piața Avram Iancu / כיכר אברם יאנקו</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Piața+Avram+Iancu,+Arad,+Romania/@46.1703329,21.3165672,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Piața+Avram+Iancu+Arad&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+          </div>
+          <div class="poi-card__description">הכיכר המרכזית של ארד, מוקפת בארמונות אר-נובו מרהיבים — Palatul Szántay (⭐ 4.4), Palatul Bohus ו-Palatul Földes. במרכז ניצב אנדרטת הגיבורים לזכר מהפכת 1848. הכיכר היא נקודת המוצא האידיאלית לסיור רגלי לאורך Bulevardul Revoluției, השדרה הראשית עם חזיתות מפוארות מתחילת המאה ה-20. מרכז התיירות (Bd. Revoluției 81) מציע סיורים מודרכים חינם — שווה לבדוק זמינות ביום ההגעה.</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> הגיעו בשעות הבוקר כשהאור מאיר את חזיתות הארמונות. הפסיכוזייקה של Str. Horia 3 (Palatul Szántay) היא אחת הדוגמאות היפות ביותר לאר-נובו בכל רומניה.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 2: Primăria Arad -->
+      <div class="poi-card" id="poi-day-0-2">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🏛️ אטרקציה</span>
+          <span class="poi-card__rating">⭐ 4.4/5 (ביקורות)</span>
+          <h3 class="poi-card__name">Primăria Arad / בית העירייה של ארד</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Arad+City+Hall/@46.1754176,21.3191732,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="site" href="http://www.primariaarad.ro/" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 🌐 אתר
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Primăria+Arad+City+Hall&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+            <a class="poi-card__link" data-link-type="phone" href="tel:+40257281850" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון
+            </a>
+          </div>
+          <div class="poi-card__description">בניין מונומנטלי בסגנון רנסנס-אקלקטי מ-1876, השולט על Bulevardul Revoluției. אחת הדוגמאות המרשימות ביותר לאדריכלות אקלקטית בארד, עם חזית מפוארת ופנים מעוטרים שמומלץ להציץ בהם דרך הכניסה הראשית. הבניין משמש עדיין כעירייה פעילה, אך מבקרים מוזמנים לראות את הלובי ואת Mozaicul de Marmură (פסיפס השיש, ⭐ 4.7) בקומת הכניסה.</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> הבניין פתוח לביקור בימי חול 08:30–16:00. היכנסו דרך הכניסה הראשית לראות את הפסיפס — אין צורך בכרטיס.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 3: Cocoșul de Aur -->
+      <div class="poi-card" id="poi-day-0-3">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🍽️ מסעדה</span>
+          <span class="poi-card__rating">⭐ 4.6/5 (ביקורות)</span>
+          <h3 class="poi-card__name">Cocoșul de Aur / התרנגול הזהוב</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Cocoșul+de+Aur/@46.1885301,21.3110209,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="site" href="http://www.cocosuldeaurarad.ro/" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 🌐 אתר
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Cocoșul+de+Aur+Arad&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+            <a class="poi-card__link" data-link-type="phone" href="tel:+40724687401" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון
+            </a>
+          </div>
+          <div class="poi-card__description">מסעדה רומנית אותנטית עם מנות קלאסיות בפורציות ענקיות ובמחירים נמוכים להפתיע. כל מנה מבושלת בסגנון ביתי — sarmale (כרוב ממולא), ciorbă de burtă (מרק כרס), tocitură (תבשיל בשר). לחם ופפרונצ'יני מגיעים חינם לכל שולחן. המלצרים בתלבושת אחידה, שירות אדיב. יש טרסה חיצונית מעושנת.</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> המסעדה פתוחה רק בימי חול 10:00–19:00 וסגורה בסופ"ש. הגיעו עד 13:30 כדי להבטיח מקום. הזמינו את "Meniu zilei" (תפריט יומי) — ארוחה מלאה ב-30–35 RON (~7 EUR).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 4: Piața Mihai Viteazu -->
+      <div class="poi-card" id="poi-day-0-4">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🛍️ שוק</span>
+          <span class="poi-card__rating">⭐ 4.2/5 (ביקורות)</span>
+          <h3 class="poi-card__name">Piața Mihai Viteazu / שוק האיכרים מיהאי ויטאזו</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Mihai+Viteazu+Agri-Food+Market/@46.1791205,21.3160337,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Piața+Mihai+Viteazu+Arad+market&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+            <a class="poi-card__link" data-link-type="phone" href="tel:+40257250056" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון
+            </a>
+          </div>
+          <div class="poi-card__description">השוק האותנטי ביותר בארד — חקלאים מקומיים מוכרים ירקות, פירות, גבינות (telemea, brânză de burduf), דבש, נקניקיות, תבלינים ופרחים. החלק הפנימי הקרוי מציע בשר ומוצרי חלב, בעוד הדוכנים החיצוניים מלאי תוצרת עונתית. אווירה שוקקת חיים — זה לא שוק תיירותי, אלא מקום שמקומיים קונים בו יומיום. נסו "Braga" — משקה מסורתי מותסס מדוחן, מתוק ומרענן.</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> פתוח יום שני 06:30–17:00. הדוכן Búnătăți de Hălmagiu (⭐ 4.5) מתמחה בספציאליטי מקומי מאזור Hălmagiu — גבינות מיושנות ונקניקיות מעושנות. תמקחו — המחירים גמישים.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 5: Euphoria Biergarten -->
+      <div class="poi-card" id="poi-day-0-5">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🍺 בירה</span>
+          <span class="poi-card__rating">⭐ 4.5/5 (ביקורות)</span>
+          <h3 class="poi-card__name">Euphoria Biergarten Arad / אופוריה בירגרטן ארד</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Euphoria+Biergarten+Arad/@46.1733017,21.3182006,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="site" href="https://euphoria.ro/restaurant-arad/" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 🌐 אתר
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Euphoria+Biergarten+Arad&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+            <a class="poi-card__link" data-link-type="phone" href="tel:+40745393333" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון
+            </a>
+          </div>
+          <div class="poi-card__description">חוויית הבירה והבשר של ארד. צלעות הבקר המעושנות (beef ribs) הן הדגל — רכות, עסיסיות ומבושלות לשלמות. בכניסה קיר מעוטר בספלי בירה אספנות, ומעל הבר נברשת ייחודית מבקבוקי בירה ירוקים מסודרים בספירלות. החצר הפנימית הגדולה מושלמת לערב קיצי. בירה קראפט מקומית וייבוא, תפריט עשיר עם אופציות ללא גלוטן.</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> פתוח יומיום 09:00–00:00. הזמינו את צלעות הבקר ("coaste de vită") מוקדם — לפעמים נגמרות בערב. שבו בחצר הפנימית ולא בחלק הסגור, האווירה שם מעולה.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 6: Profi (grocery) -->
+      <div class="poi-card" id="poi-day-0-6">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🛒 חנות קרובה</span>
+          <h3 class="poi-card__name">Profi City New</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Profi+City+New/@46.1722253,21.3153826,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+          </div>
+          <div class="poi-card__description">רשת סופרמרקט, Strada Lucian Blaga 2 (⭐ 3.9). 200 מ' מ-Bd. Revoluției. פתוח יומיום.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="accommodation-section">
+      <h2 class="section-title accommodation-section__title">🏨 לינה</h2>
+      <p class="accommodation-section__intro">שהייה של 2 לילות (11–13 במאי 2026). ארד היא עיר קומפקטית — כל האפשרויות ממוקמות במרכז, במרחק הליכה מהאטרקציות. בדקו עם הנכס לגבי מדיניות חיות מחמד.</p>
+      <div class="accommodation-grid">
+
+        <!-- Accommodation 1: Best Western -->
+        <div class="accommodation-card" id="accom-stay-1-1">
+          <span class="accommodation-card__tag">🏨</span>
+          <span class="accommodation-card__rating">⭐ 4.5/5</span>
+          <h3 class="accommodation-card__name">Best Western Central Hotel / בסט ווסטרן סנטרל</h3>
+          <div class="accommodation-card__links">
+            <a class="accommodation-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Best+Western+Central+Hotel/@46.1763663,21.3166932,17z" target="_blank" rel="noopener noreferrer">📍 Maps</a>
+            <a class="accommodation-card__link" data-link-type="site" href="https://www.bestwestern.gr/gr_GR/book/hotel-rooms.77547.html" target="_blank" rel="noopener noreferrer">🌐 אתר</a>
+            <a class="accommodation-card__link" data-link-type="photo" href="https://www.google.com/search?q=Best+Western+Central+Hotel+Arad&tbm=isch" target="_blank" rel="noopener noreferrer">📸 תמונות</a>
+            <a class="accommodation-card__link" data-link-type="phone" href="tel:+40257256636" target="_blank" rel="noopener noreferrer">📞 טלפון</a>
+          </div>
+          <div class="accommodation-card__price-level">
+            <span class="price-pip price-pip--filled">💰</span><span class="price-pip price-pip--filled">💰</span><span class="price-pip price-pip--empty">○</span><span class="price-pip price-pip--empty">○</span>
+          </div>
+          <div class="accommodation-card__description">מלון 3 כוכבים ב-Strada Horia 8, לב המרכז ההיסטורי. חדרים נקיים, ארוחת בוקר מגוונת, חניה חינם לאורחים. המיקום מושלם — צעדים מ-Bd. Revoluției ומכל האטרקציות. הצוות ידידותי ועוזר. חסרון: הבניין ישן יחסית, חדרי האמבט קטנים.</div>
+          <a class="booking-cta" href="https://www.booking.com/searchresults.html?ss=Best+Western+Central+Hotel+Arad+Romania&checkin=2026-05-11&checkout=2026-05-13&group_adults=1&group_children=0" target="_blank" rel="noopener noreferrer">בדוק מחירים ב-Booking.com</a>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> בקשו חדר מפונה מהרחוב הראשי — שקט יותר. חניה חינם כלולה. אשרו מראש שמקבלים חיות מחמד.</div>
+          </div>
+        </div>
+
+        <!-- Accommodation 2: Aniroc -->
+        <div class="accommodation-card" id="accom-stay-1-2">
+          <span class="accommodation-card__tag">🏨</span>
+          <span class="accommodation-card__rating">⭐ 4.6/5</span>
+          <h3 class="accommodation-card__name">Aniroc Signature Hotel / מלון אנירוק סיגנצ'ר</h3>
+          <div class="accommodation-card__links">
+            <a class="accommodation-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Aniroc+Signature+Hotel/@46.1709468,21.313483,17z" target="_blank" rel="noopener noreferrer">📍 Maps</a>
+            <a class="accommodation-card__link" data-link-type="site" href="https://www.anirocsignaturehotel.ro/" target="_blank" rel="noopener noreferrer">🌐 אתר</a>
+            <a class="accommodation-card__link" data-link-type="photo" href="https://www.google.com/search?q=Aniroc+Signature+Hotel+Arad&tbm=isch" target="_blank" rel="noopener noreferrer">📸 תמונות</a>
+            <a class="accommodation-card__link" data-link-type="phone" href="tel:+40357416107" target="_blank" rel="noopener noreferrer">📞 טלפון</a>
+          </div>
+          <div class="accommodation-card__price-level">
+            <span class="price-pip price-pip--filled">💰</span><span class="price-pip price-pip--filled">💰</span><span class="price-pip price-pip--filled">💰</span><span class="price-pip price-pip--empty">○</span>
+          </div>
+          <div class="accommodation-card__description">מלון בוטיק מודרני ואלגנטי ב-Strada Vasile Goldiș 5, מטרים מכיכר Avram Iancu. עיצוב פנימי מרשים, חדרים מרווחים, ארוחת בוקר מצוינת ומסעדה באיכות גבוהה. חניה תת-קרקעית חינם ומאובטחת. הצוות מקצועי ונותן יחס אישי. ללא ספק האופציה הכי מומלצת ליחס איכות-מחיר.</div>
+          <a class="booking-cta" href="https://www.booking.com/searchresults.html?ss=Aniroc+Signature+Hotel+Arad+Romania&checkin=2026-05-11&checkout=2026-05-13&group_adults=1&group_children=0" target="_blank" rel="noopener noreferrer">בדוק מחירים ב-Booking.com</a>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> השם "Aniroc" הוא "Corina" הפוך — שם בעלת המלון. בקשו חדר עם מרפסת. חניה תת-קרקעית חינם — יתרון גדול אם שוכרים רכב ליום היין.</div>
+          </div>
+        </div>
+
+        <!-- Accommodation 3: Continental Forum -->
+        <div class="accommodation-card" id="accom-stay-1-3">
+          <span class="accommodation-card__tag">🏨</span>
+          <span class="accommodation-card__rating">⭐ 4.3/5</span>
+          <h3 class="accommodation-card__name">Hotel Continental Forum Arad / מלון קונטיננטל פורום ארד</h3>
+          <div class="accommodation-card__links">
+            <a class="accommodation-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Hotel+Continental+Forum+Arad/@46.1741356,21.318273,17z" target="_blank" rel="noopener noreferrer">📍 Maps</a>
+            <a class="accommodation-card__link" data-link-type="site" href="https://continental-forum-arad.continentalhotels.ro/" target="_blank" rel="noopener noreferrer">🌐 אתר</a>
+            <a class="accommodation-card__link" data-link-type="photo" href="https://www.google.com/search?q=Hotel+Continental+Forum+Arad&tbm=isch" target="_blank" rel="noopener noreferrer">📸 תמונות</a>
+            <a class="accommodation-card__link" data-link-type="phone" href="tel:+40372578800" target="_blank" rel="noopener noreferrer">📞 טלפון</a>
+          </div>
+          <div class="accommodation-card__price-level">
+            <span class="price-pip price-pip--filled">💰</span><span class="price-pip price-pip--filled">💰</span><span class="price-pip price-pip--filled">💰</span><span class="price-pip price-pip--empty">○</span>
+          </div>
+          <div class="accommodation-card__description">מלון 4 כוכבים הממוקם ישירות על Bd. Revoluției 79-81, מול ארמון התרבות. המלון הגדול והמוכר ביותר בארד. חדרים מרווחים (כולל דירות), מסעדה, בריכה ופיטנס. פתוח 24/7. חסרון: חלק מהחדרים ישנים למרות שיפוץ 2023, ויש דיווחים על רעש מהרחוב.</div>
+          <a class="booking-cta" href="https://www.booking.com/searchresults.html?ss=Hotel+Continental+Forum+Arad+Romania&checkin=2026-05-11&checkout=2026-05-13&group_adults=1&group_children=0" target="_blank" rel="noopener noreferrer">בדוק מחירים ב-Booking.com</a>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> בקשו חדר מחודש הפונה לחצר הפנימית. המלון מציע גם דירות — יתרון אם רוצים מטבחון. אשרו מדיניות חיות מחמד.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">ארוחת צהריים (Cocoșul de Aur)</div>
+        <div class="pricing-cell__amount">45</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">שוק איכרים — טעימות וקניות</div>
+        <div class="pricing-cell__amount">30</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">לאנגוש ברחוב</div>
+        <div class="pricing-cell__amount">15</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">ארוחת ערב (Euphoria Biergarten — צלעות + 2 בירות)</div>
+        <div class="pricing-cell__amount">120</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">תחבורה (הליכה — חינם)</div>
+        <div class="pricing-cell__amount">0</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell" style="background-color: var(--color-brand-primary); color: var(--color-text-inverse); border-color: var(--color-brand-primary);">
+        <div class="pricing-cell__label" style="color: var(--color-text-inverse);">סה"כ יום 0</div>
+        <div class="pricing-cell__amount" style="color: var(--color-text-inverse);">210 / 42</div>
+        <div class="pricing-cell__currency" style="color: rgba(250,250,250,0.7);">RON / EUR</div>
+      </div>
+    </div>
+
+    <div class="advisory advisory--info" data-section-type="plan-b">
+      <svg class="advisory__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        <div class="advisory__title">🅱️ תוכנית חלופית — Parcul Pădurice + Curtea Veche</div>
+        <div class="advisory__body">אם מזג האוויר גשום או עייפות מהנסיעה: <strong>Parcul Pădurice</strong> (⭐ 4.4) — פארק עירוני ירוק עם מעיין ארטזי מפורסם (⭐ 4.8), Strada Corneliu Coposu 8. הליכה נעימה של 15 דקות מהמרכז. לארוחת ערב חלופית: <strong>Curtea Veche</strong> (Bd. Revoluției 85, ⭐ 4.1) — מסעדה עם עיצוב פנים וינטג' ותפריט רומני-אירופי.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="day-card" id="day-1">
+  <div class="day-card__banner">
+    <div class="day-card__banner-date">יום שלישי, 12.05.2026</div>
+    <h2 class="day-card__banner-title">יום 1 — ארמון התרבות ואזור היין של מיניש 🍷</h2>
+  </div>
+  <div class="day-card__content">
+
+    <a class="map-link" href="https://www.google.com/maps/dir/Palatul+Cultural+Arad/Biserica+Romano-Catolică+Sf+Anton+de+Padova+Arad/Grenier+Brasserie+Arad/Balla+Géza+Winery+Miniș/Josef+Wines+Ghioroc/Port+Arthur+BBQ+Arad" target="_blank" rel="noopener noreferrer">🗺️ פתח מסלול יום ב-Google Maps</a>
+
+    <div class="itinerary-table-wrapper">
+      <table class="itinerary-table">
+        <thead><tr><th>שעה</th><th>פעילות</th><th>פרטים</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="col-time">09:00–11:00</td>
+            <td><a class="activity-label" href="#poi-day-1-1">🏛️ ארמון התרבות + מוזיאון</a></td>
+            <td>Palatul Cultural — 125,000+ פריטים, אמנות, ארכיאולוגיה, טבע. כרטיס 28 RON (~6 EUR), אישור וידאו 19 RON</td>
+          </tr>
+          <tr>
+            <td class="col-time">11:00–11:30</td>
+            <td><a class="activity-label" href="#poi-day-1-2">⛪ כנסייה קתולית</a></td>
+            <td>Biserica Sf. Anton de Padova — חזית אקלקטית מרשימה עם טימפנון Pietà. 5 דקות הליכה מהארמון</td>
+          </tr>
+          <tr>
+            <td class="col-time">11:30–12:00</td>
+            <td><span class="activity-label">☕ הפסקת קפה</span></td>
+            <td>בית קפה ליד Bd. Revoluției — טעינת אנרגיה לפני היציאה לאזור היין</td>
+          </tr>
+          <tr>
+            <td class="col-time">12:30–13:30</td>
+            <td><a class="activity-label" href="#poi-day-1-3">🍽️ ארוחת צהריים</a></td>
+            <td>Grenier Brasserie — סטייקים, בורגר וואגיו, שטרודל תפוחים. טרסה חיצונית</td>
+          </tr>
+          <tr>
+            <td class="col-time">14:00</td>
+            <td><span class="activity-label">🚗 נסיעה לאזור היין</span></td>
+            <td>מונית/רכב שכור ~30 דקות מזרחה. תאמו מראש מונית חזרה</td>
+          </tr>
+          <tr>
+            <td class="col-time">14:30–15:30</td>
+            <td><a class="activity-label" href="#poi-day-1-4">🍷 יקב Balla Géza</a></td>
+            <td>סיור + טעימות ~9 יינות. הזמנה מראש חובה</td>
+          </tr>
+          <tr>
+            <td class="col-time">16:00–17:00</td>
+            <td><a class="activity-label" href="#poi-day-1-5">🍷 יקב Josef Wines</a></td>
+            <td>טעימות + צלחת גבינות ונקניקיות מקומיות</td>
+          </tr>
+          <tr>
+            <td class="col-time">17:30</td>
+            <td><span class="activity-label">🚗 חזרה לארד</span></td>
+            <td>~30 דקות</td>
+          </tr>
+          <tr>
+            <td class="col-time">18:30–20:30</td>
+            <td><a class="activity-label" href="#poi-day-1-6">🥩 ארוחת ערב</a></td>
+            <td>Port Arthur BBQ — פונטונים על נהר Mureș, שקיעה, בשר על הגריל</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="itinerary-grid">
+
+      <!-- POI 1: Palatul Cultural -->
+      <div class="poi-card" id="poi-day-1-1">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🏛️ אטרקציה</span>
+          <span class="poi-card__rating">⭐ 4.8/5 (ביקורות)</span>
+          <h3 class="poi-card__name">Palatul Cultural / ארמון התרבות</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/The+Palace+of+Culture/@46.1743658,21.3204199,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="site" href="http://museumarad.ro/" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 🌐 אתר
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Palatul+Cultural+Arad+Palace+of+Culture&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+          </div>
+          <div class="poi-card__description">הבניין המרשים ביותר בארד, שנבנה בין 1911–1916 בסגנון אקלקטי מפואר. אוסף של למעלה מ-125,000 פריטים הכולל אמנות, ארכיאולוגיה, מדעי הטבע והיסטוריה. האולם המרכזי עם האקוסטיקה המעולה משמש לקונצרטים ואירועי תרבות. הפנים משוחזרים להפליא — תקרות מצוירות, נברשות וטורים. בימי שלישי הבניין פתוח (סגור רק בימי שני).</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> כרטיס כניסה 28 RON (~6 EUR). אם רוצים לצלם וידאו — אישור נוסף ב-19 RON. הגיעו ב-09:00 עם הפתיחה, בדרך כלל אין המון קהל בשעות הבוקר.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 2: Biserica -->
+      <div class="poi-card" id="poi-day-1-2">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🏛️ אטרקציה</span>
+          <span class="poi-card__rating">⭐ 4.8/5 (ביקורות)</span>
+          <h3 class="poi-card__name">Biserica Romano-Catolică "Sf. Anton de Padova" / הכנסייה הקתולית של אנטוניוס הקדוש</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Biserica+Romano-Catolică+Sfântul+Anton+de+Padova/@46.17247930000001,21.3156598,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Biserica+Romano-Catolică+Sf+Anton+de+Padova+Arad&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+            <a class="poi-card__link" data-link-type="phone" href="tel:+40257280077" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון
+            </a>
+          </div>
+          <div class="poi-card__description">הכנסייה הקתולית הגדולה ביותר בארד, שנבנתה בין 1902–1904 בסגנון אקלקטי המשלב אלמנטים בארוקיים ורנסנסיים. החזית החיצונית מרשימה במיוחד — טימפנון עם תבליט Pietà (מריה מחזיקה את ישו). הפנים מוחשכים לרוב, אך אפשר לראות את השער החיצוני והחזית ללא כניסה. מבנה שווה עצירה של 10 דקות בדרך מהארמון לצהריים.</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> הכנסייה נמצאת ב-Bd. Revoluției 96A, 5 דקות הליכה דרומה מארמון התרבות. הכי מרשים מבחוץ — צלמו את החזית מהצד הנגדי של הרחוב.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 3: Grenier Brasserie -->
+      <div class="poi-card" id="poi-day-1-3">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🍽️ מסעדה</span>
+          <span class="poi-card__rating">⭐ 4.7/5 (ביקורות)</span>
+          <h3 class="poi-card__name">Grenier Brasserie / גרנייה בראסרי</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Grenier+Brasserie/@46.1655215,21.3222422,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="site" href="https://www.grenier-brasserie.ro/" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 🌐 אתר
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Grenier+Brasserie+Arad&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+            <a class="poi-card__link" data-link-type="phone" href="tel:+40723578133" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון
+            </a>
+          </div>
+          <div class="poi-card__description">המסעדה האלגנטית ביותר בארד — אידיאלית לארוחת צהריים לפני יציאה לאזור היין. תפריט עם חלק ייעודי לסטייקים, בורגר וואגיו מצוין ופסטות איכותיות. השטרודל תפוחים הוא חובה לקינוח. העיצוב הפנימי יפהפה, וטרסה אחורית שקטה ונעימה. רמת מחירים גבוהה מהממוצע בארד, אך המנות שוות.</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> פתוח בימי שלישי 12:00–23:00. הגיעו ל-12:30, הזמינו את הבורגר וואגיו או הטנדרלוין. המנות לא ענקיות — מושלם לפני טעימות יין.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 4: Balla Géza Winery -->
+      <div class="poi-card" id="poi-day-1-4">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🍷 יקב</span>
+          <span class="poi-card__rating">⭐ 4.7/5 (ביקורות)</span>
+          <h3 class="poi-card__name">Balla Géza Winery / יקב באלה גזה</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Balla+Géza+Winery/@46.1241209,21.5993861,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="site" href="http://www.ballageza.com/" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 🌐 אתר
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Balla+Géza+Winery+Miniș&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+            <a class="poi-card__link" data-link-type="phone" href="tel:+40745095537" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון
+            </a>
+          </div>
+          <div class="poi-card__description">היקב הראשי באזור היין ההיסטורי של מיניש — אחד מאזורי היין העתיקים ביותר ברומניה. סיור מודרך עולה על הגבעה עם נוף פנורמי עד ארד, ועובר במרתפים ובכרמים. טעימה של כ-9 יינות כולל לבנים, רוזה ואדומים. הבעלים עצמו מלווה לעיתים קרובות ומספר על ההיסטוריה והתהליך. יש גם חנות יין במקום במחירים ישירים מהיצרן.</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> <strong>חובה להזמין מראש</strong> — התקשרו יום לפני או שלחו הודעה. שעות פתיחה: שני–שבת 09:00–17:30, סגור בימי ראשון. טעימה + סיור כ-50–80 RON (~10–16 EUR). קנו בקבוקים במקום — המחיר טוב משמעותית מחנויות בעיר.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 5: Josef Wines -->
+      <div class="poi-card" id="poi-day-1-5">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🍷 יקב</span>
+          <span class="poi-card__rating">⭐ 4.8/5 (ביקורות)</span>
+          <h3 class="poi-card__name">Josef Wines / יקב ג'וזף ויינס</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Josef+Wines/@46.14987,21.597533,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="site" href="http://www.josefwines.ro/" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 🌐 אתר
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Josef+Wines+Ghioroc+Romania&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+            <a class="poi-card__link" data-link-type="phone" href="tel:+40722343528" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון
+            </a>
+          </div>
+          <div class="poi-card__description">יקב בוטיק קטן ואישי ב-Ghioroc, כ-5 דקות נסיעה מ-Balla Géza. הבעלים מירי מלווה אישית כל סיור עם סיפורים על המסורת המשפחתית וההיסטוריה של גפני הבקעה. הטעימה כוללת יינות עם צלחת גבינות, נקניקיות וחזיר מעושן מקומי — חוויה קולינרית ולא רק יין. ה-Cabernet Sauvignon שלהם נחשב מהטובים באזור.</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> <strong>חובה להזמין מראש</strong> — פתוח שני–חמישי 09:00–15:30, שישי עד 12:00 בלבד, סגור בסופ"ש. ביום שלישי יש חלון מושלם. הקדישו שעה מלאה — מירי לא ממהר וזו חוויה שלמה. ה-Cabernet Sauvignon הוא חובה.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 6: Port Arthur BBQ -->
+      <div class="poi-card" id="poi-day-1-6">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🍽️ מסעדה</span>
+          <span class="poi-card__rating">⭐ 4.3/5 (ביקורות)</span>
+          <h3 class="poi-card__name">Port Arthur BBQ &amp; More / פורט ארתור ברביקיו</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Port+Arthur+Bbq+%26+more/@46.1593773,21.3067267,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+            <a class="poi-card__link" data-link-type="photo" href="https://www.google.com/search?q=Port+Arthur+BBQ+Arad+Mureș&tbm=isch" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות
+            </a>
+            <a class="poi-card__link" data-link-type="phone" href="tel:+40732096803" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון
+            </a>
+          </div>
+          <div class="poi-card__description">פנינה חבויה על גדת נהר Mureș — שלושה פונטונים צפים ושתי טרסות עם כסאות נוחים, מוסתרים מאחורי צמחיה ורציף. הבשר נצלה על גריל, המנות פשוטות וטעימות, והמחירים נמוכים. רשימת יינות ארוכה — מושלם אחרי יום של טעימות. הנוף על הנהר בשקיעה הוא מהיפים בארד. מקום לא תיירותי שמקומיים אוהבים.</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> פתוח בימי שלישי 10:00–23:00. הגיעו ל-18:30 לתפוס פונטון עם נוף לשקיעה. הגישה קצת מסובכת — חפשו את הכניסה ב-Strada Gladiolelor 57, עברו מעבר לרציף. הזמינו בשר על הגריל ויין מקומי.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POI 7: Kaufland (grocery) -->
+      <div class="poi-card" id="poi-day-1-7">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🛒 חנות קרובה</span>
+          <h3 class="poi-card__name">Kaufland Arad-Funcționarilor</h3>
+          <div class="poi-card__links">
+            <a class="poi-card__link" data-link-type="maps" href="https://www.google.com/maps/place/Kaufland+Arad-Functionarilor/@46.185796,21.313323,17z" target="_blank" rel="noopener noreferrer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps
+            </a>
+          </div>
+          <div class="poi-card__description">סופרמרקט גדול, Strada Banu Mărăcine 6A (⭐ 4.2). 1.5 ק"מ צפונה מהמרכז. מבחר רחב, מחירים טובים.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">מוזיאון ארמון התרבות (כרטיס + וידאו)</div>
+        <div class="pricing-cell__amount">47</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">ארוחת צהריים (Grenier Brasserie)</div>
+        <div class="pricing-cell__amount">100</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">מונית לאזור היין (הלוך-חזור)</div>
+        <div class="pricing-cell__amount">150</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">טעימות Balla Géza (~9 יינות)</div>
+        <div class="pricing-cell__amount">70</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">טעימות Josef Wines + צלחת</div>
+        <div class="pricing-cell__amount">60</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">בקבוקי יין לקנייה (~2 בקבוקים)</div>
+        <div class="pricing-cell__amount">80</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">ארוחת ערב (Port Arthur BBQ)</div>
+        <div class="pricing-cell__amount">80</div>
+        <div class="pricing-cell__currency">RON</div>
+      </div>
+      <div class="pricing-cell" style="background-color: var(--color-brand-primary); color: var(--color-text-inverse); border-color: var(--color-brand-primary);">
+        <div class="pricing-cell__label" style="color: var(--color-text-inverse);">סה"כ יום 1</div>
+        <div class="pricing-cell__amount" style="color: var(--color-text-inverse);">587 / 117</div>
+        <div class="pricing-cell__currency" style="color: rgba(250,250,250,0.7);">RON / EUR</div>
+      </div>
+    </div>
+
+    <div class="advisory advisory--info" data-section-type="plan-b">
+      <svg class="advisory__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        <div class="advisory__title">🅱️ תוכנית חלופית — Eutopia Gardens + חנויות יין בעיר</div>
+        <div class="advisory__body">אם מזג האוויר גרוע או אין אפשרות להגיע לאזור היין: <strong>Eutopia Gardens</strong> (⭐ 4.1) — הרוזריום הגדול ביותר בדרום-מזרח אירופה עם 2,000+ זני ורדים, DN7 Vladimirescu, 15 ק"מ מזרחה (פתוח שני–שישי 09:00–20:00). לקניית יין בעיר: <strong>Biblioteca del Vino</strong> (Bd. Decebal 16, ⭐ 5.0) — חנות יין מובחרת, או <strong>BALADE Wine Store</strong> (Str. Horia 3-5, ⭐ 4.6). אפשר גם <strong>Escape Room Arad</strong> (Str. Avrig 22, ⭐ 4.8) לחוויה שונה.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="day-card" id="day-2">
+  <div class="day-card__banner">
+    <div class="day-card__banner-date">יום רביעי, 13 במאי 2026</div>
+    <h2 class="day-card__banner-title">יום 2 — יציאה 🛫</h2>
+  </div>
+  <div class="day-card__content">
+    <a class="map-link" href="https://www.google.com/maps/dir/Sunrise+Brunch,+Strada+Grigore+Alexandrescu+7a-7b,+Arad/" target="_blank" rel="noopener noreferrer">🗺️ פתח מסלול יום ב-Google Maps</a>
+
+    <div class="itinerary-table-wrapper">
+      <table class="itinerary-table">
+        <thead><tr><th>שעה</th><th>פעילות</th><th>פרטים</th></tr></thead>
+        <tbody>
+          <tr><td class="col-time">09:00</td><td><a class="activity-label" href="#poi-day-2-1">🍳 ארוחת בוקר</a></td><td>Sunrise Brunch — הברנץ׳ הטוב ביותר בערד</td></tr>
+          <tr><td class="col-time">09:50</td><td><span class="activity-label">🧳 יציאה</span></td><td>צ׳ק-אאוט ויציאה לפי לוח הזמנים של 10:00</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="itinerary-grid">
+      <div class="poi-card" id="poi-day-2-1">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🍽️ מסעדה</span>
+          <span class="poi-card__rating">⭐ 4.8/5</span>
+          <h3 class="poi-card__name">Sunrise Brunch / סאנרייז ברנץ׳</h3>
+          <div class="poi-card__links">
+            <a href="https://www.google.com/maps/place/?q=place_id:ChIJ6Vrh_gWZRUcRB3mi8XVeEe4" target="_blank" rel="noopener noreferrer" data-link-type="maps"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps</a>
+            <a href="https://sunrise-brunch.com/" target="_blank" rel="noopener noreferrer" data-link-type="site"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 🌐 אתר</a>
+            <a href="https://www.google.com/maps/place/?q=place_id:ChIJ6Vrh_gWZRUcRB3mi8XVeEe4#photos" target="_blank" rel="noopener noreferrer" data-link-type="photo"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 📸 תמונות</a>
+            <a href="tel:+40773314791" data-link-type="phone"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון</a>
+          </div>
+          <div class="poi-card__description">מקום הברנץ׳ האהוב ביותר בערד — אווירה חמימה ומזמינה עם שירות אדיב ומהיר. האומלטים כאן מוכנים מחומרי גלם טריים עם שילובים קלאסיים ויצירתיים, והקינוחים הבריאים מעולים לסיום ארוחה. מבקרים בינלאומיים משווים את הרמה לברנצ׳ים באירופה המערבית — וזה במחירים רומניים. מושלם לארוחה אחרונה לפני יציאה מהעיר.</div>
+          <div class="poi-card__meta"><strong>שעות פתיחה:</strong> כל יום 09:00–16:00 · <strong>כתובת:</strong> Str. Grigore Alexandrescu 7a-7b, Arad</div>
+          <div class="pro-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+            <div><strong>💡 טיפ:</strong> המסעדה נפתחת בדיוק ב-09:00 — הגע עם הפתיחה כדי להבטיח מקום ולסיים בנוחות עד 09:50. בימי חול בבוקר בדרך כלל שקט יחסית.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="poi-card" id="poi-day-2-2">
+        <div class="poi-card__body">
+          <span class="poi-card__tag">🛒 חנות קרובה</span>
+          <span class="poi-card__rating">⭐ 3.9/5</span>
+          <h3 class="poi-card__name">Profi City New</h3>
+          <div class="poi-card__links">
+            <a href="https://www.google.com/maps/place/?q=place_id:ChIJnSPwHv6YRUcRlhkMv-SX2Hc" target="_blank" rel="noopener noreferrer" data-link-type="maps"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 📍 Maps</a>
+            <a href="tel:+40736622776" data-link-type="phone"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 📞 טלפון</a>
+          </div>
+          <div class="poi-card__description">סופרמרקט 24/7, מרחק הליכה קצר מהמרכז. נוח לרכישות אחרונות לפני היציאה, גם מוקדם בבוקר.</div>
+          <div class="poi-card__meta"><strong>כתובת:</strong> Str. Lucian Blaga 2, Arad · <strong>שעות:</strong> פתוח 24/7</div>
+          <div class="poi-card__description"><strong>חלופה:</strong> <a href="https://www.google.com/maps/place/?q=place_id:ChIJgYMGVVOYRUcRCUqpoRXfRUc" target="_blank" rel="noopener noreferrer">Carrefour Market</a>, Bd. Revoluției 39-41 | ⭐ 4.0/5 | שעות: 07:00–22:00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-cell">
+        <div class="pricing-cell__label">ארוחת בוקר — Sunrise Brunch</div>
+        <div class="pricing-cell__amount">~50–80 / ~10–16</div>
+        <div class="pricing-cell__currency">RON / EUR</div>
+      </div>
+      <div class="pricing-cell" style="background-color: var(--color-brand-primary); color: var(--color-text-inverse); border-color: var(--color-brand-primary);">
+        <div class="pricing-cell__label" style="color: var(--color-text-inverse);">סה״כ יום 2</div>
+        <div class="pricing-cell__amount" style="color: var(--color-text-inverse);">~50–80 / ~10–16</div>
+        <div class="pricing-cell__currency" style="color: rgba(250,250,250,0.7);">RON / EUR</div>
+      </div>
+    </div>
+
+    <div class="advisory advisory--info" data-section-type="plan-b">
+      <svg class="advisory__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        <div class="advisory__title">🅱️ תוכנית חלופית — קפה מהיר</div>
+        <div class="advisory__body">אם Sunrise Brunch מלא או שלוח הזמנים לחוץ מדי — עצור ב-Profi City New (פתוח 24/7, ממש במרכז) לקנות מאפה טרי, קפה ארוז ופרי לדרך. אפשרות נוספת: כל אחד מבתי הקפה לאורך Bd. Revoluției מגיש קפה ומאפים לשבת בחוץ או לקחת. זה מספיק כדי להתחיל את הנסיעה בלי לוותר על ארוחת בוקר.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<section id="budget">
+  <h2 class="section-title">תקציב הנסיעה</h2>
+
+  <p><strong>תאריכים:</strong> 11–13 במאי 2026 (2 לילות, 3 ימים) · <strong>מטייל:</strong> RRRR (1 מבוגר) · <strong>מטבע:</strong> RON (לאו רומני) | ~5.0 RON ≈ 1 EUR</p>
+
+  <h3>סיכום לפי ימים</h3>
+  <div class="itinerary-table-wrapper">
+    <table class="itinerary-table">
+      <thead>
+        <tr><th>יום</th><th>כותרת</th><th>RON</th><th>EUR</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0 (11.05)</td><td>הגעה + מרכז היסטורי</td><td>210</td><td>42</td></tr>
+        <tr><td>1 (12.05)</td><td>ארמון התרבות + אזור היין</td><td>587</td><td>117</td></tr>
+        <tr><td>2 (13.05)</td><td>יציאה</td><td>~65</td><td>~13</td></tr>
+        <tr><td><strong>סה"כ פעילויות + אוכל</strong></td><td></td><td><strong>~862</strong></td><td><strong>~172</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>לינה (הערכה — 2 לילות)</h3>
+  <div class="itinerary-table-wrapper">
+    <table class="itinerary-table">
+      <thead>
+        <tr><th>אפשרות</th><th>EUR/לילה</th><th>סה"כ 2 לילות EUR</th><th>סה"כ 2 לילות RON</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Best Western Central</td><td>50–70</td><td>100–140</td><td>500–700</td></tr>
+        <tr><td>Aniroc Signature (מומלץ)</td><td>70–100</td><td>140–200</td><td>700–1,000</td></tr>
+        <tr><td>Continental Forum</td><td>90–130</td><td>180–260</td><td>900–1,300</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>פירוט לפי קטגוריות</h3>
+  <div class="itinerary-table-wrapper">
+    <table class="itinerary-table">
+      <thead>
+        <tr><th>קטגוריה</th><th>RON</th><th>EUR</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>אוכל (מסעדות + שוק + רחוב)</td><td>~490</td><td>~98</td></tr>
+        <tr><td>אטרקציות (מוזיאון + כנסיות)</td><td>~47</td><td>~9</td></tr>
+        <tr><td>יין (טעימות + בקבוקים)</td><td>~210</td><td>~42</td></tr>
+        <tr><td>תחבורה (מונית לאזור היין)</td><td>~150</td><td>~30</td></tr>
+        <tr><td><strong>סה"כ פעילויות</strong></td><td><strong>~862</strong></td><td><strong>~172</strong></td></tr>
+        <tr><td>לינה (הערכה)</td><td>500–1,300</td><td>100–260</td></tr>
+        <tr><td><strong>סה"כ נסיעה</strong></td><td><strong>~1,362–2,162</strong></td><td><strong>~272–432</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>הערה:</strong> מחירי הלינה הם הערכה בלבד. בדקו מחירים עדכניים בקישורי Booking.com שביום 0. כל ההוצאות לא כוללות טיפים (5–10% במסעדות).</p>
+</section></main>
+
+</div>
+</body>
+</html>

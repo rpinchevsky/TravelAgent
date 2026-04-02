@@ -5,13 +5,22 @@ description: "Run Playwright regression tests against generated trip HTML. Use w
 
 # Regression Test Skill
 
-Run the full Playwright regression suite against a trip HTML file with pre-validation, execution, and reporting.
+Run the Playwright regression suite against a trip HTML file with pre-validation, execution, and reporting. Supports two modes: **full** (all tests) and **smoke** (critical structural checks only).
 
 ## Argument Parsing
 
-- If the user provides an HTML file path as argument, use it as the LTR test target.
-- If no argument is provided, the config auto-discovers the latest `generated_trips/trip_YYYY-MM-DD_HHmm/` folder containing `trip_full_ru.html`.
-- RTL tests always auto-discover the latest folder containing `trip_full_he.html` unless `TRIP_RTL_HTML` is set.
+- `smoke` as first argument → run smoke tests only (`tests/regression/smoke.spec.ts`)
+- An HTML file path as argument → use it as the LTR test target
+- No argument → full regression, auto-discovers the latest `generated_trips/trip_YYYY-MM-DD_HHmm/` folder containing `trip_full_ru.html`
+- RTL tests always auto-discover the latest folder containing `trip_full_he.html` unless `TRIP_RTL_HTML` is set
+
+## Mode Selection Guide
+
+| Context | Mode | Command |
+|---|---|---|
+| After trip generation (no rule/feature changes) | Smoke | `rtk npx playwright test tests/regression/smoke.spec.ts` |
+| After feature/rule change (dev process Phase 6) | Full | `rtk npx playwright test` |
+| User explicitly requests full regression | Full | `rtk npx playwright test` |
 
 ## Workflow
 
@@ -36,14 +45,18 @@ Before running Playwright, perform these structural checks on the HTML file (per
 Set the environment variable and run from `automation/code/`:
 
 ```bash
-# With explicit path (from argument):
+# Smoke mode (after trip generation):
+cd automation/code && rtk npx playwright test tests/regression/smoke.spec.ts
+
+# Full mode — with explicit path (from argument):
 TRIP_LTR_HTML="<resolved_path>" rtk npx playwright test
 
-# Without argument (auto-discovery):
+# Full mode — without argument (auto-discovery):
 cd automation/code && rtk npx playwright test
 ```
 
 The config reads `TRIP_LTR_HTML` if set; otherwise auto-discovers the latest trip folder.
+When the `smoke` argument is provided, only `tests/regression/smoke.spec.ts` runs — ~8 fast tests covering page load, sections, navigation, sampled day content, POI spot-checks, budget, assembly order, and manifest integrity.
 
 ### Step 3: Report Results
 

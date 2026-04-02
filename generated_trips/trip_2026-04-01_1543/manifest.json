@@ -1,0 +1,38 @@
+{
+  "trip_details_file": "rrrr_trip_details_2026-05-11.md",
+  "destination": "Arad, Romania",
+  "arrival": "2026-05-11",
+  "departure": "2026-05-13",
+  "total_days": 3,
+  "created": "2026-04-01T15:43:00",
+  "languages": {
+    "he": {
+      "phase_a_complete": true,
+      "days": {
+        "day_00": { "status": "complete", "title": "הגעה וגילוי המרכז ההיסטורי", "last_modified": "2026-04-01T16:00:00" },
+        "day_01": { "status": "complete", "title": "יין, תרבות והיסטוריה", "last_modified": "2026-04-01T16:02:00" },
+        "day_02": { "status": "complete", "title": "יציאה", "last_modified": "2026-04-01T15:56:00" }
+      },
+      "budget_complete": true,
+      "assembly": {
+        "trip_full_md_built": "2026-04-01T16:10:00",
+        "trip_full_html_built": "2026-04-01T16:20:00",
+        "stale_days": []
+      }
+    }
+  },
+  "accommodation": {
+    "stays": [
+      {
+        "id": "stay_01",
+        "checkin": "2026-05-11",
+        "checkout": "2026-05-13",
+        "nights": 2,
+        "area": "Arad, Romania",
+        "anchor_day": "day_00",
+        "options_count": 3,
+        "discovery_source": "google_places"
+      }
+    ]
+  }
+}

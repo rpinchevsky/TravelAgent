@@ -1,0 +1,47 @@
+{
+  "trip_details_file": "trip_details.md",
+  "destination": "Budapest, Hungary",
+  "arrival": "2026-08-20",
+  "departure": "2026-08-31",
+  "total_days": 12,
+  "created": "2026-04-02T01:30:00",
+  "languages": {
+    "ru": {
+      "phase_a_complete": true,
+      "days": {
+        "day_00": { "status": "complete", "title": "Прилёт", "last_modified": "2026-04-02T01:45:00" },
+        "day_01": { "status": "complete", "title": "Остров Маргит — Palatinus Strand", "last_modified": "2026-04-02T01:45:00" },
+        "day_02": { "status": "complete", "title": "Варошлигет — Зоопарк и площадка", "last_modified": "2026-04-02T01:45:00" },
+        "day_03": { "status": "complete", "title": "Szimpla рынок → Будайский замок → круиз", "last_modified": "2026-04-02T01:45:00" },
+        "day_04": { "status": "complete", "title": "CSOPA → Kehli → Маргит", "last_modified": "2026-04-02T01:45:00" },
+        "day_05": { "status": "complete", "title": "Miniversum → Большой рынок → Ж/д музей", "last_modified": "2026-04-02T01:45:00" },
+        "day_06": { "status": "complete", "title": "🚗 Медвежья ферма → Ласар-парк", "last_modified": "2026-04-02T01:45:00" },
+        "day_07": { "status": "complete", "title": "🚗 Будакеси → Premier Outlet", "last_modified": "2026-04-02T01:45:00" },
+        "day_08": { "status": "complete", "title": "Детская ж/д → Тропикариум", "last_modified": "2026-04-02T01:45:00" },
+        "day_09": { "status": "complete", "title": "Цирк → Elevenpark", "last_modified": "2026-04-02T01:45:00" },
+        "day_10": { "status": "complete", "title": "🎂 Aquaworld — день рождения Итая", "last_modified": "2026-04-02T01:45:00" },
+        "day_11": { "status": "complete", "title": "Отлёт", "last_modified": "2026-04-02T01:45:00" }
+      },
+      "budget_complete": true,
+      "assembly": {
+        "trip_full_md_built": "2026-04-02T01:50:00",
+        "trip_full_html_built": "2026-04-02T02:10:00",
+        "stale_days": []
+      }
+    }
+  },
+  "accommodation": {
+    "stays": [
+      {
+        "id": "stay_01",
+        "checkin": "2026-08-20",
+        "checkout": "2026-08-31",
+        "nights": 11,
+        "area": "Budapest, Hungary",
+        "anchor_day": "day_00",
+        "options_count": 3,
+        "discovery_source": "google_places"
+      }
+    ]
+  }
+}

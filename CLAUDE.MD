@@ -49,6 +49,17 @@ When adding features, changing rules, or fixing gaps between requirements and im
 - **PM acceptance:** After Phase 6, report BRD acceptance criteria coverage to the user based on regression results.
 - **Reference doc:** `development_process.md` has full stakeholder responsibilities (not loaded into context — read only if needed).
 
+## Workflow Classification
+
+**Two distinct workflows exist — choose based on what is being requested:**
+
+| Request type | Workflow | Testing level |
+|---|---|---|
+| Logic / feature / rule change | Full 7-phase dev process (Feature / Rule Change Pipeline above) | Full regression (`/regression`) |
+| Trip generation ("create a trip", "generate trip from X") | Trip Generation Pipeline (below) — no dev process needed | Smoke tests only (`/regression smoke`) |
+
+**Rationale:** Trip generation is a known, deterministic flow that applies existing rules to new data. If no rules or features changed since the last generation, the output format is stable. Running full regression on every generation is overhead without proportional value. Smoke tests catch critical rendering breakages (missing sections, broken structure, manifest integrity) without exhaustive per-POI or per-field validation.
+
 ## Trip Generation Pipeline (Execute in Order)
 1. **Plan** — Read the trip details file (default: `trip_details.md`; override by specifying a filename, e.g., "generate trip from `Maryan.md`"), calculate ages, research destination (`trip_planning_rules.md`)
 2. **Phase A** — High-level summary table → create trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`, write `overview.md` + `manifest.json` (`content_format_rules.md`)
@@ -56,13 +67,38 @@ When adding features, changing rules, or fixing gaps between requirements and im
 4. **Budget** — Aggregate per-day costs into `budget.md` (`content_format_rules.md`)
 5. **Assemble** — Bash command concat of all parts into `trip_full.md` (no subagent — see `content_format_rules.md`)
 6. **Generate HTML** — Invoke `/render` skill for per-day fragment generation, assembly into `trip_full_LANG.html`, and pre-regression validation
-7. **Validate & Test** — Invoke `/regression` skill for test execution and reporting
+7. **Smoke Test** — Invoke `/regression smoke` for smoke-level validation (structural integrity, navigation, sampled day content, manifest)
+
+### Generation Timing Report
+Track the wall-clock start and end time of every phase above. After the pipeline completes (or aborts), present a summary table to the user:
+
+```
+## Generation Summary — trip_YYYY-MM-DD_HHmm
+
+| # | Phase | Started | Finished | Duration |
+|---|-------|---------|----------|----------|
+| 1 | Plan | HH:MM:SS | HH:MM:SS | Xm Ys |
+| 2 | Phase A | … | … | … |
+| 3 | Phase B | … | … | … |
+| 4 | Budget | … | … | … |
+| 5 | Assemble | … | … | … |
+| 6 | Generate HTML | … | … | … |
+| 7 | Smoke Test | … | … | … |
+| | **Total** | **HH:MM:SS** | **HH:MM:SS** | **Xm Ys** |
+```
+
+Rules:
+- Record timestamps immediately before and after each phase
+- Use local wall-clock time (HH:MM:SS, 24-hour format)
+- Duration in human-readable format: `Xm Ys` (e.g., `3m 15s`, `0m 8s`)
+- If a phase is aborted or fails, mark its Duration as `FAILED` and stop the table there
+- This table is always the last thing shown to the user after trip generation
 
 ## Incremental Edit Pipeline (Single Day Change)
 1. **Edit Day** — Regenerate only the affected `day_XX.md`
 2. **Re-assemble** — Rebuild `trip_full.md` (mechanical concat)
 3. **Rebuild HTML** — Invoke `/render` skill in incremental mode (rebuilds only changed day fragments)
-4. **Validate** — Invoke `/regression` skill for targeted validation on changed day
+4. **Smoke Test** — Invoke `/regression smoke` for smoke-level validation on rebuilt HTML
 
 ## Language-Agnostic Rule
 All code, refactoring, new features, and automation tests **must be language-agnostic**. The trip generator produces output in multiple languages (controlled by `trip_details.md`). No logic — in content generation, HTML rendering, or test assertions — may depend on a specific language. Tests must validate structure, element presence, and behavior without matching language-specific strings.
