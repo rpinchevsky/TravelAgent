@@ -1,5 +1,77 @@
 # Release Notes
 
+## 2026-04-02 — Car Rental Suggestion Mechanism: Rental Company Discovery, Price Comparison & Booking Links
+
+### Changes
+
+#### Modified File: `tests/pages/TripPage.ts` (4 new properties, 10 new methods)
+
+**New readonly properties (constructor-initialized):**
+- `carRentalSections` — `.car-rental-section`
+- `carRentalCategories` — `.car-rental-category`
+- `carRentalTables` — `.car-rental-table`
+- `rentalCtas` — `.rental-cta`
+
+**New helper methods:**
+- `getDayCarRentalSection(dayNumber)` — `#day-N .car-rental-section`
+- `getDayCarRentalCategories(dayNumber)` — `#day-N .car-rental-category`
+- `getCarRentalCategoryTitle(cat)` — `.car-rental-category__title`
+- `getCarRentalCategoryTable(cat)` — `.car-rental-table`
+- `getCarRentalTableRows(table)` — `tbody tr`
+- `getCarRentalTableHeaderCells(table)` — `thead th`
+- `getCarRentalCategoryEstimate(cat)` — `.car-rental-category__estimate`
+- `getCarRentalCategoryRecommendation(cat)` — `.car-rental-category__recommendation`
+- `getDayRentalCtas(dayNumber)` — `#day-N .rental-cta`
+- `getCarRentalProTip(section)` — `.pro-tip`
+
+#### Modified File: `tests/utils/trip-config.ts` (1 entry added to `excludedSections`)
+
+- Added `'🚗'` to `excludedSections` array (alongside existing `'⚠️'`) so that `### 🚗` car rental category headings are excluded from POI count by `getExpectedPoiCountsFromMarkdown()` (QF-2)
+
+#### New File: `tests/regression/car-rental.spec.ts` (11 tests covering 12 logical TCs)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-300 | Car rental section present on anchor days, absent on non-anchor days | REQ-011 AC-1/AC-7; REQ-005 AC-1; REQ-001 AC-6 |
+| TC-301 | Categories, tables, intros, estimates, recommendations, pro-tips | REQ-011 AC-2; REQ-005 AC-2/AC-3/AC-4/AC-5/AC-10; REQ-004 AC-1/AC-2; REQ-010 AC-1/AC-3/AC-5 |
+| TC-302 | Row count and rental CTA per row | REQ-011 AC-3; REQ-004 AC-3; REQ-010 AC-4 |
+| TC-303 | Rental CTA link structure and attributes (data-link-type, target, rel, href) | REQ-011 AC-4; REQ-006 AC-1/AC-4/AC-5; REQ-010 AC-4 |
+| TC-304+305 | Car rental line in anchor day pricing grid and aggregate budget | REQ-011 AC-5/AC-6; REQ-007 AC-1/AC-5 |
+| TC-306+311 | POI parity exclusion and visual distinction (consolidated per QF-1) | REQ-011 AC-9; REQ-005 AC-8; REQ-010 AC-2/AC-7/AC-8 |
+| TC-307 | Manifest car_rental schema validation (no browser) | REQ-008 AC-1/AC-2/AC-3/AC-4/AC-5/AC-6; REQ-001 AC-4/AC-5 |
+| TC-308 | Markdown POI exclusion — ### 🚗 headings not counted (no browser) | REQ-005 AC-8; REQ-010 AC-8 |
+| TC-309 | Overview does not contain detailed car rental elements | REQ-013 AC-1/AC-2/AC-3 |
+| TC-310 | Non-anchor car days do not duplicate rental cost in budget | REQ-007 AC-3/AC-4 |
+
+**QA feedback addressed:**
+- QF-1 resolved: TC-306 and TC-311 consolidated into single test `TC-306+311` — all class-exclusion assertions (POI, accommodation, booking-cta) in one describe block
+- QF-2 resolved: Added `'🚗'` to `excludedSections` in `trip-config.ts`
+- QF-3 resolved: REQ-004 AC-7 moved to "NOT covered" (unavailability annotation is language-dependent text — cannot be structurally asserted)
+
+**Implementation notes:**
+- Shared-page fixture for all DOM tests (TC-300 through TC-306+311, TC-309, TC-310)
+- `baseTest` (no browser) for filesystem-only tests (TC-307, TC-308)
+- `expect.soft()` with descriptive per-day/per-category messages throughout
+- All locators language-agnostic: CSS classes, data attributes, emoji markers only
+- TC-310 uses `test.fixme()` fallback when `.pricing-cell__badge--estimate` structural differentiator is not available
+- Pattern mirrors `accommodation.spec.ts` structure for consistency
+
+#### Files Modified
+- `tests/pages/TripPage.ts` — 4 new properties + 10 new helper methods
+- `tests/utils/trip-config.ts` — 1 entry added to `excludedSections`
+
+#### Files Added
+- `tests/regression/car-rental.spec.ts` — 11 tests across 10 describe blocks
+
+### Affected Sections
+- Trip HTML car rental sections on anchor days
+- Anchor day pricing grids (car rental line item)
+- Aggregate budget section (car rental category)
+- Manifest `car_rental.blocks[]` schema
+- POI parity counting logic (markdown utility exclusion)
+
+---
+
 ## 2026-03-29 — Hotel/Car Multi-Select and Step Reorder
 
 ### Changes

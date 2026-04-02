@@ -15,7 +15,7 @@
         "day_03": { "status": "complete", "title": "Szimpla рынок → Будайский замок → круиз", "last_modified": "2026-04-02T01:45:00" },
         "day_04": { "status": "complete", "title": "CSOPA → Kehli → Маргит", "last_modified": "2026-04-02T01:45:00" },
         "day_05": { "status": "complete", "title": "Miniversum → Большой рынок → Ж/д музей", "last_modified": "2026-04-02T01:45:00" },
-        "day_06": { "status": "complete", "title": "🚗 Медвежья ферма → Ласар-парк", "last_modified": "2026-04-02T01:45:00" },
+        "day_06": { "status": "complete", "title": "🚗 Медвежья ферма → Ласар-парк", "last_modified": "2026-04-02T14:00:00" },
         "day_07": { "status": "complete", "title": "🚗 Будакеси → Premier Outlet", "last_modified": "2026-04-02T01:45:00" },
         "day_08": { "status": "complete", "title": "Детская ж/д → Тропикариум", "last_modified": "2026-04-02T01:45:00" },
         "day_09": { "status": "complete", "title": "Цирк → Elevenpark", "last_modified": "2026-04-02T01:45:00" },
@@ -25,10 +25,25 @@
       "budget_complete": true,
       "assembly": {
         "trip_full_md_built": "2026-04-02T01:50:00",
-        "trip_full_html_built": "2026-04-02T02:10:00",
+        "trip_full_html_built": "2026-04-02T14:30:00",
         "stale_days": []
       }
     }
+  },
+  "car_rental": {
+    "blocks": [
+      {
+        "id": "rental_01",
+        "pickup_date": "2026-08-26",
+        "return_date": "2026-08-27",
+        "days": 2,
+        "pickup_location": "City center office",
+        "anchor_day": "day_06",
+        "categories_compared": ["Minivan", "Full-size SUV"],
+        "companies_per_category": 3,
+        "discovery_source": "web_search"
+      }
+    ]
   },
   "accommodation": {
     "stays": [

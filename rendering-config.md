@@ -46,7 +46,8 @@
 - Every `###` section in the source markdown that describes a Point of Interest **MUST** be rendered as exactly one `<div class="poi-card">` in the HTML output. POI sections are identified by their heading emoji: 🛒 (grocery store), 🎯 (optional along-the-way stop), and all other POI types (attractions, restaurants, activities, etc.). The only `###` sections that are NOT POIs are those starting with logistics, cost, or backup-plan markers. Grocery and optional stops are full POIs — they get `poi-card` treatment like any other POI.
 - **No silent truncation:** Do NOT cap the number of POI cards per day. If a day has 4 POI descriptions in the markdown, the HTML must contain 4 `poi-card` elements for that day.
 - **No merging:** Each POI gets its own card — never combine two POIs into one card.
-- **Accommodation exclusion:** `###` headings prefixed with `🏨` are accommodation cards, not POIs. They render as `.accommodation-card` elements and are excluded from the parity count. The count of `.poi-card` elements must equal the count of non-accommodation `###` POI headings.
+- **Accommodation exclusion:** `###` headings prefixed with `🏨` are accommodation cards, not POIs. They render as `.accommodation-card` elements and are excluded from the parity count.
+- **Car rental exclusion:** `###` headings prefixed with `🚗` are car rental category cards, not POIs. They render as `.car-rental-category` elements and are excluded from the parity count. The count of `.poi-card` elements must equal the count of non-accommodation, non-car-rental `###` POI headings.
 - **Validation:** After HTML generation, the count of `.poi-card` elements inside each `#day-N` section must equal the count of `###` POI headings for that day in the source markdown.
 
 ### Accommodation Section & Card Layout
@@ -66,6 +67,24 @@
 - **Visual distinction:** `.accommodation-card` uses a warm amber accent (`#D4A83A` / `var(--color-brand-accent)`) for the left border and tag background, contrasting with the blue/teal used for POI cards. Background uses a subtle warm tint.
 - **Responsive:** Full-width on mobile; on desktop (>768px), cards may display in a responsive grid (1-3 columns depending on viewport width) using the `.accommodation-section` grid wrapper.
 - **Language-agnostic:** Card structure, class names, and element identification do not depend on specific language strings. Tests use CSS selectors only.
+
+### Car Rental Section & Card Layout
+
+- **Section wrapper:** The `## 🚗` heading in markdown maps to `<div class="car-rental-section" role="region" aria-labelledby="car-rental-title-{block_id}">` containing a `<h2 class="section-title car-rental-section__title">` and an intro paragraph, followed by category sub-sections. **Important:** `## 🚗` within a day file is rendered as a `<div class="car-rental-section">` inside the parent `<div class="day-card" id="day-N">`, not as a new top-level section.
+- **Section intro:** `<p class="car-rental-section__intro">` — rental period, pickup location, transmission, fuel, equipment preferences in a compact `·`-separated format.
+- **Category sub-section:** Each `### 🚗` heading maps to `<div class="car-rental-category">` containing a category title, comparison table, estimate disclaimer, and best-value recommendation.
+- **Distinction from POI cards and accommodation cards:** Car rental categories use `.car-rental-category`, NOT `.poi-card` and NOT `.accommodation-card`. They are NOT counted in the POI Parity Check. The `### 🚗` prefix is the identifier — any `### ` heading starting with `🚗` is a car rental category, not a POI.
+- **Category card internal structure:**
+  - Tag: `<span class="car-rental-category__tag">🚗</span>`
+  - Title: `<h3 class="car-rental-category__title">` (semantic heading)
+  - Comparison table: `<div class="car-rental-table-wrapper"><table class="car-rental-table">` with 4 columns: Company, Daily Rate, Total Cost, Booking Link
+  - Estimate disclaimer: `<p class="car-rental-category__estimate">` — italic muted text
+  - Recommendation: `<p class="car-rental-category__recommendation">` — 💡 prefixed best-value note
+- **Booking CTA:** `<a class="rental-cta" data-link-type="rental-booking" href="{url}" target="_blank" rel="noopener noreferrer">` — teal button, distinct from amber `.booking-cta`
+- **Pro-tip:** Reuses existing `<div class="pro-tip">` component for child seat regulations, fuel policy, insurance tips
+- **Visual distinction:** `.car-rental-section` uses a teal accent (`#2E7D9A` / `var(--color-info)`) for the top border and heading color, contrasting with amber used for accommodation. `.car-rental-category` uses teal left border, contrasting with accommodation's amber left border.
+- **Responsive:** Full-width tables on desktop; tables wrapped in `.car-rental-table-wrapper` with `overflow-x: auto` on mobile (<768px). Company column sticky-left on mobile for comparison readability.
+- **Language-agnostic:** Card structure, class names, and element identification do not depend on specific language strings. Tests use CSS selectors and `data-link-type` attributes only.
 
 ### Accommodation Budget in Pricing Grid
 

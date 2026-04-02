@@ -237,6 +237,7 @@ export function loadTripConfig(): TripConfig {
     labels.sectionAlongTheWay,
     labels.sectionTransfer,
     '⚠️',
+    '🚗',
     labels.sectionMornPrep,
     labels.sectionLunch,
     labels.sectionBirthdayLunch,

@@ -55,6 +55,12 @@ export class TripPage {
   readonly accommodationCardRatings: Locator;
   readonly bookingCtas: Locator;
 
+  // --- Car Rental ---
+  readonly carRentalSections: Locator;
+  readonly carRentalCategories: Locator;
+  readonly carRentalTables: Locator;
+  readonly rentalCtas: Locator;
+
   // --- Inline styles ---
   readonly inlineStyle: Locator;
 
@@ -106,6 +112,12 @@ export class TripPage {
     this.accommodationCards = page.locator('.accommodation-card');
     this.accommodationCardRatings = page.locator('.accommodation-card__rating');
     this.bookingCtas = page.locator('.booking-cta');
+
+    // Car Rental
+    this.carRentalSections = page.locator('.car-rental-section');
+    this.carRentalCategories = page.locator('.car-rental-category');
+    this.carRentalTables = page.locator('.car-rental-table');
+    this.rentalCtas = page.locator('.rental-cta');
 
     // Inline style
     this.inlineStyle = page.locator('head style');
@@ -229,5 +241,47 @@ export class TripPage {
 
   getAccommodationCardProTip(card: Locator): Locator {
     return card.locator('.pro-tip');
+  }
+
+  // --- Car Rental helpers ---
+
+  getDayCarRentalSection(dayNumber: number): Locator {
+    return this.page.locator(`#day-${dayNumber} .car-rental-section`);
+  }
+
+  getDayCarRentalCategories(dayNumber: number): Locator {
+    return this.page.locator(`#day-${dayNumber} .car-rental-category`);
+  }
+
+  getCarRentalCategoryTitle(cat: Locator): Locator {
+    return cat.locator('.car-rental-category__title');
+  }
+
+  getCarRentalCategoryTable(cat: Locator): Locator {
+    return cat.locator('.car-rental-table');
+  }
+
+  getCarRentalTableRows(table: Locator): Locator {
+    return table.locator('tbody tr');
+  }
+
+  getCarRentalTableHeaderCells(table: Locator): Locator {
+    return table.locator('thead th');
+  }
+
+  getCarRentalCategoryEstimate(cat: Locator): Locator {
+    return cat.locator('.car-rental-category__estimate');
+  }
+
+  getCarRentalCategoryRecommendation(cat: Locator): Locator {
+    return cat.locator('.car-rental-category__recommendation');
+  }
+
+  getDayRentalCtas(dayNumber: number): Locator {
+    return this.page.locator(`#day-${dayNumber} .rental-cta`);
+  }
+
+  getCarRentalProTip(section: Locator): Locator {
+    return section.locator('.pro-tip');
   }
 }

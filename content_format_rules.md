@@ -98,6 +98,41 @@ Created during Phase A, updated after all days are generated (see Day Generation
 - `discovery_source`: Set to `"pending"` during Phase A, updated to `"google_places"` after successful discovery, `"skipped"` if MCP unavailable or zero results, `"manual"` if overridden by user.
 - For multi-stay trips, multiple entries with non-overlapping date ranges.
 
+**Car rental metadata (written during Phase A, updated after Phase B):**
+
+```json
+{
+  "car_rental": {
+    "blocks": [
+      {
+        "id": "rental_01",
+        "pickup_date": "2026-08-26",
+        "return_date": "2026-08-27",
+        "days": 2,
+        "pickup_location": "Airport",
+        "anchor_day": "day_06",
+        "categories_compared": ["Compact", "Full-size"],
+        "companies_per_category": 3,
+        "discovery_source": "web_search"
+      }
+    ]
+  }
+}
+```
+
+- `car_rental` is a top-level key (sibling to `languages` and `accommodation`).
+- `blocks` is an ordered array of car rental block objects.
+- `id`: Sequential identifier (`rental_01`, `rental_02`, ...).
+- `pickup_date` / `return_date`: ISO date strings (YYYY-MM-DD). Pickup = morning of first car day, return = evening of last car day.
+- `days`: Integer — number of rental days in the block.
+- `pickup_location`: Derived from `## Car Rental Assistance` pickup_return preference. If not specified, defaults to accommodation area.
+- `anchor_day`: Reference to the day file key (e.g., `day_06`) containing the car rental section.
+- `categories_compared`: List of car categories for which comparison tables were generated. Set to `[]` during Phase A, populated after Phase B.
+- `companies_per_category`: Set to `0` during Phase A, updated to actual count (2-3) after Phase B.
+- `discovery_source`: Set to `"pending"` during Phase A, updated to `"web_search"` after successful discovery, `"aggregator_fallback"` when only aggregator links were available, or `"skipped"` if discovery failed or `## Car Rental Assistance` was absent.
+- For trips with multiple non-adjacent car day groups, multiple entries exist in the `blocks` array.
+- When no car days exist in the itinerary, the `car_rental` object is present with an empty `blocks` array: `{ "car_rental": { "blocks": [] } }`.
+
 ---
 
 ## Phase A: High-Level Summary
@@ -120,6 +155,8 @@ Provide a table with:
 3. Write `manifest.json` with `trip_details_file` set to the active trip details filename, the language key under `languages`, all days listed as `"pending"`, `phase_a_complete: true`.
 4. Proceed directly to Phase B (do not wait for user approval).
 
+> **Car rental note:** The Phase A overview must NOT contain a detailed car rental recommendation section with pricing and company names. If car days exist, include a brief one-line reference: "Car rental details: see Day {N}" (localized), pointing to the anchor day. The anchor day's `## 🚗` section is the single source of truth for rental options, pricing, and booking links.
+
 ---
 
 ## Phase B: Detailed Operational Plan (Day-by-Day Generation)
@@ -135,7 +172,7 @@ When generating `day_XX_LANG.md`, load only:
 
 Do NOT load other day files — Phase A provides all cross-day coordination.
 
-> **Note:** The trip details file may contain optional `## Hotel Assistance` and `## Car Rental Assistance` sections at the end. These sections carry structured accommodation and vehicle preferences. The `## Hotel Assistance` section **is consumed** by the accommodation discovery logic: on anchor days (the first day of each stay block), the subagent parses this section to parameterize Google Places lodging queries and annotate accommodation cards. If the section is absent, sensible defaults are used (mid-range, city center, no pet requirement). The `## Car Rental Assistance` section is not currently consumed (future enhancement). Its presence does not affect existing generation behavior.
+> **Note:** The trip details file may contain optional `## Hotel Assistance` and `## Car Rental Assistance` sections at the end. These sections carry structured accommodation and vehicle preferences. The `## Hotel Assistance` section **is consumed** by the accommodation discovery logic: on anchor days (the first day of each stay block), the subagent parses this section to parameterize Google Places lodging queries and annotate accommodation cards. If the section is absent, sensible defaults are used (mid-range, city center, no pet requirement). The `## Car Rental Assistance` section **is consumed** by the car rental discovery logic: on anchor days (the first day of each car rental block), the subagent parses this section to parameterize web search queries and generate price comparison tables. If the section is absent, car rental sections are skipped entirely — unlike accommodation, car rental is not a universal need and requires explicit preferences.
 
 ### Per-Day File Format
 
@@ -198,12 +235,13 @@ On the first day of each stay block (the "anchor day"), include an accommodation
 **Section placement order within anchor day files:**
 1. Day header + schedule table
 2. POI cards (### headings)
-3. **Accommodation section (## 🏨)** ← NEW (anchor days only)
-4. Daily budget table (### Стоимость дня)
-5. Grocery store (### 🛒)
-6. Along-the-way stops (### 🎯)
-7. Plan B (### 🅱️)
-8. *(end of file)*
+3. Accommodation section (## 🏨) — anchor days for stay blocks only
+4. **Car rental section (## 🚗)** — anchor days for car rental blocks only
+5. Daily budget table (### Стоимость дня)
+6. Grocery store (### 🛒)
+7. Along-the-way stops (### 🎯)
+8. Plan B (### 🅱️)
+9. *(end of file)*
 
 > **Rationale:** The accommodation section appears before the daily budget table so that the reader encounters accommodation options before seeing their cost in the budget. The `## 🏨` heading (h2 level) acts as a major section divider between POI content and the operational/logistics sections that follow.
 
@@ -259,6 +297,53 @@ https://www.booking.com/searchresults.html?ss={hotel_name}+{destination}&checkin
 - `{child_count}`: Number of children from trip details travelers section
 - `{age}`: Each child's age calculated at check-in date (same age calculation as pipeline Pre-Flight Setup)
 - Multiple `age=` parameters, one per child
+
+### Car Rental Section (Anchor Day Only)
+
+On the first day of each car rental block (the "anchor day"), include a car rental section after the accommodation section (or after POI cards if no accommodation) and before the daily budget table. This section is NOT present on non-anchor days or when `## Car Rental Assistance` is absent from the trip details file.
+
+**Section format:**
+
+```
+## 🚗 {localized_car_rental_label}
+
+{localized_rental_period}: {pickup_date} → {return_date} ({N} {localized_days}) · {pickup_location} · {transmission} · {fuel_type} · {localized_equipment_note}: {equipment_list}
+
+### 🚗 {localized_category_name_1}
+
+| {localized_company} | {localized_daily_rate} | {localized_total} ({N} {localized_days}) | {localized_booking} |
+|---|---|---|---|
+| {company_1_name} | {daily_rate_local} (~EUR {daily_rate_eur}){localized_per_day} | {total_local} (~EUR {total_eur}) | [{localized_book_label}]({booking_url_1}) |
+| {company_2_name} | {daily_rate_local} (~EUR {daily_rate_eur}){localized_per_day} | {total_local} (~EUR {total_eur}) | [{localized_book_label}]({booking_url_2}) |
+| {company_3_name} | {daily_rate_local} (~EUR {daily_rate_eur}){localized_per_day} | {total_local} (~EUR {total_eur}) | [{localized_book_label}]({booking_url_3}) |
+
+*{localized_estimate_disclaimer}*
+
+💡 {localized_best_value}: {cheapest_company} — {localized_best_value_reason}
+
+### 🚗 {localized_category_name_2}
+
+| {localized_company} | {localized_daily_rate} | {localized_total} ({N} {localized_days}) | {localized_booking} |
+|---|---|---|---|
+| ... | ... | ... | ... |
+
+*{localized_estimate_disclaimer}*
+
+💡 {localized_best_value}: ...
+
+> **{localized_tip_label}:** {child_seat_regulations}. {fuel_policy_tip}. {insurance_recommendation}.
+```
+
+**Rules:**
+- The section heading uses `##` (h2), not `###` (h3), to distinguish from POI cards — same pattern as accommodation.
+- Individual category sub-sections use `### 🚗` (h3) with the car emoji prefix.
+- `### 🚗` headings are NOT POI headings. They are excluded from POI Parity Checks and do not generate `.poi-card` elements in HTML.
+- Comparison table rows are sorted by daily rate ascending (cheapest first).
+- All labels use the reporting language (localized).
+- Booking links are formatted as clickable markdown links within the table.
+- The estimate disclaimer is italic (`*...*`).
+- The pro-tip follows the same `> **{label}:**` format as accommodation and POI pro-tips.
+- Maximum 3 categories per section. If the traveler selected more than 3, prioritize the 3 most relevant and note additional categories in the pro-tip.
 
 ### Day Generation Protocol
 
@@ -410,6 +495,25 @@ After all days are complete for a given language:
   - EUR column: same structure
   - Mark as estimate: append "{localized_estimate_label}" or use italics
 - Subsequent days within the same stay block do NOT include accommodation in their budget table.
+
+### Car Rental Budget Integration
+
+4. If the trip contains car rental blocks (check `manifest.json → car_rental.blocks`):
+   - Add a "Car Rental" category row to `budget_LANG.md` showing the total estimated car rental cost range for the entire trip.
+   - The range is: (lowest daily rate across all companies and categories * total rental days) to (highest daily rate across all companies and categories * total rental days).
+   - Both local currency and EUR amounts are shown, consistent with existing format.
+   - Label the row as "{localized_car_rental_label} ({localized_estimate_label})" to indicate these are indicative estimates.
+   - If multiple rental blocks exist, sum the ranges across all blocks.
+   - If additional equipment costs (child seats, GPS) were discoverable, add a separate "{localized_equipment_label}" row with the estimated surcharge.
+
+**Anchor day budget table integration:**
+- On the anchor day's `### Стоимость дня` table, add a car rental line item:
+  - Label: "{localized_car_rental_label} ({days} {localized_days_label})"
+  - HUF column: "{daily_low}–{daily_high} × {days} = {total_low}–{total_high}"
+  - EUR column: same structure
+  - Mark as estimate: append "{localized_estimate_label}" or use italics
+- Subsequent car days within the same rental block do NOT include the rental cost in their budget table.
+- Fuel cost estimates remain on each car day's budget table independently (fuel is per-day, not per-block).
 
 ---
 

@@ -41,6 +41,10 @@ Every locator in `automation/code/tests/pages/TripPage.ts` defines a **structura
 | `.accommodation-card__link` | `<a class="accommodation-card__link">` for Maps, Site, Photos, Phone links |
 | `.accommodation-card__price-level` | `<div class="accommodation-card__price-level">` with `.price-pip` children |
 | `.booking-cta` | `<a class="booking-cta" href="..." target="_blank" rel="noopener noreferrer">` — Booking.com CTA button |
+| `.car-rental-section` | `<div class="car-rental-section" role="region">` wrapping car rental content on anchor days |
+| `.car-rental-category` | `<div class="car-rental-category">` per car category sub-section |
+| `.car-rental-table` | `<table class="car-rental-table">` price comparison table within each category |
+| `.rental-cta` | `<a class="rental-cta" data-link-type="rental-booking">` booking CTA buttons |
 | `head style` | Inlined CSS (no external `<link>`) |
 
 ### Source 2: rendering-config.md (Design System)
@@ -89,6 +93,7 @@ After HTML generation and BEFORE running Playwright regression, perform an autom
 6. Inlined CSS:               <style> tag in <head>, no <link> to rendering_style_config.css (Google Fonts <link> OK)
 7. SVG attributes:            All <svg> have explicit width="" and height=""
 8. POI parity:                Count of .poi-card per day matches markdown ### POI count in source day_XX.md
+                              (exclude ### 🏨 accommodation headings and ### 🚗 car rental headings from the expected count)
 9. Navigation completeness:   sidebar__link count matches mobile-nav__pill count
 10. POI card anchors:          Every .poi-card has id="poi-day-{D}-{N}"
 11. Activity label links:      POI-referencing .activity-label elements are <a> with href matching a .poi-card id

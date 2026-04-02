@@ -36,6 +36,44 @@ The trip generation pipeline uses a two-layer data source approach for POI detai
 - **Precedence rule:** Same as Layer 2 — Google Places structured fields take precedence over other sources.
 - **Graceful degradation:** Same as Layer 2 — if MCP unavailable or place not found, skip accommodation section. Trip generation continues without accommodation cards.
 
+### Layer 2b: Web Search & Fetch (Car Rental Discovery)
+- For car rental block anchor days, discover rental company options via web search and web fetch.
+- **Not using Google Places:** Google Places `type=car_rental` returns physical branch locations with limited fleet/pricing data. Web search is more effective for rental company comparison and aggregator links.
+- Web search queries: `"car rental {destination} {month} {year} {category}"` for each requested car category.
+- Web fetch: retrieve company sites and aggregator pages for pricing estimates.
+- Identify 2-3 distinct rental companies per car category: mix of international chains (Hertz, SIXT, Europcar, Enterprise, Avis, Budget) and local/regional companies.
+- For each company, discover or estimate: company name, daily rate, total cost for rental period, booking/search page URL.
+- **Transmission/fuel filter:** When company websites provide transmission and fuel type filtering, apply the traveler's preferences. Otherwise, annotate the preference in the section intro.
+- **Pickup/return location:** Verify branch availability (airport desk vs. city center office) when discoverable.
+- **Aggregator fallback:** If web search returns insufficient results, construct comparison links using well-known aggregators (rentalcars.com, kayak.com, autoeurope.com).
+- **Graceful degradation:** If no rental information can be discovered (network failure, insufficient results), omit the car rental section. Set `discovery_source: "skipped"` in manifest. Trip generation continues — car rental discovery is non-blocking.
+- Follows existing Network & Connectivity Rules (retry once, stop on second failure).
+
+**Booking Link URL Patterns (Data-Driven Reference):**
+
+| Company | URL Pattern | Pre-filled Parameters |
+|---|---|---|
+| SIXT | `https://www.sixt.com/car-rental/{city}/?{params}` | `pickup_date`, `return_date`, `pickup_station` |
+| Hertz | `https://www.hertz.com/rentacar/reservation/?{params}` | `pickUpDate`, `returnDate`, `pickUpLocationCode` |
+| Europcar | `https://www.europcar.com/en/car-hire/results?{params}` | `pickupDate`, `returnDate`, `pickupLocation` |
+| Enterprise | `https://www.enterprise.com/en/car-rental/results.html?{params}` | `pickupdate`, `returndate`, `pickuplocation` |
+| Avis | `https://www.avis.com/en/reserve?{params}` | `pickUpDate`, `returnDate`, `loc` |
+| Budget | `https://www.budget.com/en/reserve?{params}` | `pickUpDate`, `returnDate`, `loc` |
+
+**Aggregator fallback URL patterns:**
+
+| Aggregator | URL Pattern |
+|---|---|
+| rentalcars.com | `https://www.rentalcars.com/search-results?location={destination}&pick_date={pickup}&drop_date={return}` |
+| kayak.com | `https://www.kayak.com/cars/{destination}/{pickup}/{return}` |
+| autoeurope.com | `https://www.autoeurope.com/go/results/?{params}` |
+
+**URL construction rules:**
+- Dates in URL use ISO format (YYYY-MM-DD) or the format required by the specific company's URL pattern.
+- Location codes are destination-specific — use web fetch to discover the correct location code for the destination.
+- When a deep link cannot be reliably constructed, fall back to the company's homepage or destination-specific landing page.
+- All links use `target="_blank" rel="noopener noreferrer"`.
+
 ---
 
 ## Strategic Planning Logic
@@ -141,6 +179,52 @@ When `price_level` is absent from Google Places data, omit the price level line 
 
 ---
 
+## Car Rental Selection
+
+### Car Rental Block Identification (Phase A)
+
+After building the Phase A overview table, analyze the transportation column across all days to identify car rental blocks:
+
+1. **Car day detection:** Days marked with a car emoji (🚗) or whose transportation plan specifies "car rental" / "rental car" are car days.
+2. **Consecutive grouping:** Consecutive car days form a single car rental block. Non-adjacent car day groups produce separate rental blocks.
+3. **Anchor day:** The first day of each car rental block is the "anchor day." The car rental section is placed in this day's file only.
+4. **Pickup/return:** Pickup is the morning of the first car day. Return is the evening of the last car day. Location is derived from `## Car Rental Assistance` pickup_return preference, defaulting to the traveler's accommodation area.
+5. **No car days:** If no days use car transportation, the `car_rental` manifest object contains an empty `blocks` array.
+
+Record car rental blocks in `manifest.json` under `car_rental.blocks[]` (see content_format_rules.md for schema).
+
+### Car Rental Company Discovery (Phase B — Anchor Day Only)
+
+During Phase B, the subagent generating a car rental anchor day's file performs rental company research:
+
+1. **Parse preferences:** Read the `## Car Rental Assistance` section from the active trip details file. Extract: car_category (list), transmission, fuel_type (list), pickup_return (list), additional_equipment (list), daily_rental_budget (range).
+2. **Absence gate:** If `## Car Rental Assistance` is absent from the trip details file, skip car rental section entirely — do not generate comparison tables, do not add budget line items, do not query web search. Set manifest `discovery_source: "skipped"`. Unlike accommodation, car rental is not universal.
+3. **Web search:** For each car category in the preferences list (max 3 categories), execute web searches:
+   - Query: `"car rental {destination} {month} {year} {category} {transmission if specified}"` (e.g., "car rental Budapest August 2026 compact automatic")
+   - Identify 2-3 distinct rental companies per category operating at the destination.
+4. **Web fetch:** For each identified company, fetch their website or aggregator listing to discover:
+   - Daily rate for the requested category
+   - Total cost for the rental period (daily rate × rental days)
+   - Booking/search page URL
+5. **Filtering:** Apply transmission and fuel type preferences when company data supports it. Apply pickup/return location preference when branch data is available.
+6. **Budget soft filter:** If daily_rental_budget is specified, deprioritize options outside the range. Do not exclude unless 3+ options remain within range.
+7. **Construct booking deep links** for each company (see Layer 2b Booking Link URL Patterns table for URL patterns).
+8. **Write car rental section** in the anchor day's markdown file (see content_format_rules.md for template).
+9. **Graceful degradation:** If web search fails or returns insufficient results, use aggregator fallback links. If all discovery fails, omit the section and set manifest `discovery_source: "skipped"`.
+
+### Preference-to-Search Mapping
+
+| Preference Field | Search Influence | Card Annotation |
+|---|---|---|
+| car_category | Query keyword per category (e.g., "Compact", "Full-size", "Premium") | Separate comparison table per category |
+| transmission | Search query qualifier | Noted in section intro |
+| fuel_type | Search query qualifier where applicable | Noted in section intro |
+| pickup_return | Branch location filtering (airport vs. city center) | Noted in section intro |
+| additional_equipment | Not filterable via web search; included in pro-tips | Listed in section intro; surcharges noted when discoverable |
+| daily_rental_budget | Soft filter — deprioritize outside range | Budget alignment noted in recommendation |
+
+---
+
 ## Environmental & Event Intelligence
 If `Google Search` detects a local holiday, major festival, or "bridge day" during the `trip_context.timing`:
 
@@ -184,6 +268,7 @@ Before presenting any "Day" to the user, you must pass this self-check:
 - [ ] Is the logistics/transportation plan efficient?
 - [ ] Does the number of POI cards in the HTML match the number of `###` POI sections in the markdown for this day? (POI Parity Check)
 - [ ] If this is the first day of a stay block: does the accommodation section contain 2-3 options with complete cards (name, rating, maps link, booking link, price level)? Does at least one option's price level align with the traveler's stated budget preference (if available)?
+- [ ] If this is the first day of a car rental block: does the car rental section contain a price comparison table per requested category with 2-3 company options, booking links, and cost estimates? Does at least one option per category fall within the traveler's stated daily rental budget (if available)?
 - [ ] If `wheelchair accessible: yes` is set in trip details: are all POIs verified for wheelchair accessibility? Are inaccessible POIs flagged or replaced?
 
 For Plan B provide what might be the reason to use that plan. Output of Plan B shall follow same rules and format as planned points of interest.

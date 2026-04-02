@@ -87,6 +87,15 @@ Quality over quantity, 10:00–18:00
 | Ariel | 2020-05-20 | Plushies, Trains, Construction Vehicles, Animals, Arcade Games, Claw Machines | Loves animals |
 | Itay  | 2022-08-30 | Plushies, Soft Play Areas, Animals, Arcade Games, Claw Machines | Active, no stroller |
 
+## Car Rental Assistance
+
+- **Car category:** Minivan, Full-size SUV
+- **Transmission:** Automatic
+- **Fuel type:** Petrol, Hybrid
+- **Pickup & return:** City center office
+- **Additional equipment:** None
+- **Daily rental budget:** $40 - $150
+
 ## Language Preference
 
 - **Reporting language:** Russian
