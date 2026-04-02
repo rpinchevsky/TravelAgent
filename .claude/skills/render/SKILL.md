@@ -70,7 +70,7 @@ All component rules, CSS class requirements, POI card structure, activity label 
 
 ### Step 4: Pre-Regression Validation Gate
 
-After HTML generation, run the 11-point structural validation from `development_rules.md` §3 using Grep/Read on the output HTML. This catches 80%+ of failures before Playwright runs.
+After HTML generation, run the 12-point structural validation from `development_rules.md` §3 using Grep/Read on the output HTML. This catches 80%+ of failures before Playwright runs.
 
 If validation fails, fix the HTML and re-run validation before reporting success.
 

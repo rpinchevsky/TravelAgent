@@ -39,6 +39,7 @@ Before running Playwright, perform these structural checks on the HTML file (per
 9. **Navigation completeness:** `sidebar__link` count matches `mobile-nav__pill` count
 10. **POI card anchors:** Every `.poi-card` has `id="poi-day-{D}-{N}"`
 11. **Activity label links:** POI-referencing `.activity-label` are `<a>` with `href` matching a `.poi-card` id
+12. **Themed container contrast:** For known themed containers (`.day-card__banner`), verify child text classes (`.day-card__banner-title`, `.day-card__banner-date`) have explicit `color:` declarations in the inlined `<style>` block
 
 ### Step 2: Execute Tests
 

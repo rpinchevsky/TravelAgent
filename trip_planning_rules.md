@@ -80,7 +80,8 @@ The trip generation pipeline uses a two-layer data source approach for POI detai
 
 ### 1. The Interest Hierarchy
 - **Primary:** Prioritize `trip_context.universal_interests`. These are the "must-haves" for the family unit.
-- **Secondary:** Look for opportunities to weave in `travelers.children[].specific_interests` if they are geographically close to a Primary activity.
+- **Secondary — Shared Kids:** Use the `### Kids Interests` section (shared across all children) to identify kid-focused activities that complement Universal Interests. These inform along-the-way stops (§ `По пути`) and backup plans.
+- **Tertiary — Per-Child:** Look for opportunities to weave in `travelers.children[].specific_interests` (per-child column in the Children table) if they are geographically close to a Primary activity.
 - **Conflict Resolution:** If a "Universal" interest and a "Specific" interest conflict, prioritize the "Universal" activity but mention the "Specific" one as an alternative or quick stop.
 - **Avoidance:** Avoid `trip_context.places_to_avoid`. Those are places that you shall avoid during your trip creation.
 - **The "Only Here" Rule:** Search for attractions that exist only in this city or country.
@@ -89,14 +90,14 @@ The trip generation pipeline uses a two-layer data source approach for POI detai
 After initial itinerary draft, perform a dedicated research pass:
 1. Search: "[destination] unique attractions NOT found elsewhere + [each child's specific_interests]"
 2. Search: "[destination] endemic experiences families children animals/trains/etc"
-3. Cross-reference every traveler's `specific_interests` against results
+3. Cross-reference both `### Kids Interests` (shared) and each traveler's per-child `specific_interests` against results
 4. Replace generic POIs (soft play, generic mall) with "Only Here" alternatives
 
 **Priority order:** "Only Here" POI > Universal Interest match > Generic attraction
 
 ### 3. The "Age-Appropriate" Filter
 - **Safety:** Every activity must be safe for the *calculated* age of the youngest child.
-- **Pace:** Adhere strictly to the `pace_preference`. Note: `pace_preference` controls the *tempo* between activities (no rushing, buffer time), NOT the number of POIs per day. Each full day should include 4–5 POI cards (attractions + sit-down restaurants + secondary stops). Quick snacks and street food do not count toward this target (see §5 Culinary Selection).
+- **Pace:** Adhere strictly to the `pace_preference`. Note: `pace_preference` controls the *tempo* between activities (no rushing, buffer time), NOT the number of POIs per day. Each full day should target 4–5 POI cards (attractions + sit-down restaurants + secondary stops); hard minimum is 3 (see CEO Audit). Quick snacks and street food do not count toward this target (see §5 Culinary Selection).
 - **Movement:** Prioritize according to `universal_interests` and `specific_interests` of persons in trip.
 
 ### 4. Geographic Clustering (Zero Waste Time)

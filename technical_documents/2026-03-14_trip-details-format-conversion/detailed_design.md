@@ -71,7 +71,7 @@ const languages = raw.match(/## Languages\n([\s\S]*?)(?=\n##|$)/);
 
 **Action:** Modify — find/replace `trip_details.json` → `trip_details.md`
 
-**Files:** `CLAUDE.MD`, `README.md`, `content_format_rules.md`, `trip_planning_rules.md`, `rendering-config.md`, `automation/code/release_notes.md`, `automation/code/test_plan.md`, `activity-label-languages.spec.ts`, `poi-languages.spec.ts`, automation report `index.html`
+**Files:** `CLAUDE.MD`, `README.md`, `content_format_rules.md`, `trip_planning_rules.md`, `rendering-config.md`, `automation/code/release_notes.md`, `automation/code/regression_test_plan.md`, `activity-label-languages.spec.ts`, `poi-languages.spec.ts`, automation report `index.html`
 
 **Rationale:** Ensures zero stale references remain.
 

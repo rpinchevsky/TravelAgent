@@ -8,16 +8,16 @@ Act as an expert Travel Logistics Architect specializing in family-centric trips
 |---|---|---|
 | Trip planning logic | `trip_planning_rules.md` | Interest hierarchy, age filters, clustering, culinary, events, research, CEO audit |
 | Content & output format | `content_format_rules.md` | Modular trip folder, Phase A/B output, day-by-day generation, assembly, incremental edits |
-| Trip intake — business logic | `trip_intake_rules.md` | Wizard flow, validation, dynamic interest engine, output format |
-| Trip intake — design spec | `trip_intake_design.md` | Visual layout, CSS classes, component specs, animations |
 
 **Read the relevant rule file(s) before starting any task.** For trip generation (Phase A/B), the two files above are sufficient.
 
-## Rule Files (Loaded On-Demand via Skills)
-| Domain | Skill | Files Loaded |
+## Rule Files (Loaded On-Demand)
+| Domain | Trigger | Files Loaded |
 |---|---|---|
-| HTML rendering & generation | `/render` | `rendering-config.md`, `development_rules.md` §1–3, `base_layout.html`, `rendering_style_config.css`, `TripPage.ts` |
-| Regression testing & quality | `/regression` | `development_rules.md`, `automation_rules.md`, `TripPage.ts`, `release_notes.md` |
+| Trip intake — business logic | Working on `trip_intake.html` or intake wizard | `trip_intake_rules.md` |
+| Trip intake — design spec | Working on `trip_intake.html` or intake wizard | `trip_intake_design.md` |
+| HTML rendering & generation | `/render` skill | `rendering-config.md`, `development_rules.md` §1–3, `base_layout.html`, `rendering_style_config.css`, `TripPage.ts` |
+| Regression testing & quality | `/regression` skill | `development_rules.md`, `automation_rules.md`, `TripPage.ts`, `release_notes.md` |
 
 ## Feature / Rule Change Pipeline (Autonomous Subagent Orchestration)
 When adding features, changing rules, or fixing gaps between requirements and implementation, run the 7-phase development cycle automatically. Each phase runs as a **subagent** that loads only its own context, writes its deliverable to disk, and returns a short summary. The main context stays clean.
@@ -45,25 +45,26 @@ When adding features, changing rules, or fixing gaps between requirements and im
 - **Rejection loops:** If SA (Phase 3) rejects, re-spawn Dev (Phase 2) with `architecture_review.md` included in context, then re-run SA. If QA-A (Phase 4b) rejects, re-spawn AE (Phase 4a) with `qa_architecture_review.md` included in context, then re-run QA-A. Max 2 retry rounds per loop — escalate to user only if still blocked.
 - **Parallel execution:** Phase 5 runs Dev and AE subagents in parallel. File ownership: Dev owns rule files and content/rendering code. AE owns test specs, `TripPage.ts`, and `release_notes.md`. Neither modifies the other's files.
 - **Phase 6:** Run as subagents (not skills) to keep main context clean. The subagent reads the render/regression skill files internally. Invoke render first (HTML must be fully generated), then regression.
-- **Change types:** Bug fixes use abbreviated cycle (Phase 1 + 5 + 6). Test-only updates use Phase 4 + 5 + 6. Content-only regeneration skips this pipeline — use Trip Generation Pipeline.
 - **PM acceptance:** After Phase 6, report BRD acceptance criteria coverage to the user based on regression results.
 - **Reference doc:** `development_process.md` has full stakeholder responsibilities (not loaded into context — read only if needed).
 
 ## Workflow Classification
 
-**Two distinct workflows exist — choose based on what is being requested:**
+**Choose the workflow based on what is being requested:**
 
 | Request type | Workflow | Testing level |
 |---|---|---|
 | Logic / feature / rule change | Full 7-phase dev process (Feature / Rule Change Pipeline above) | Full regression (`/regression`) |
+| Bug fix (HTML doesn't match rules) | Abbreviated dev process (Phase 1 + 5 + 6) | Only the relevant test suite or specific test covering the fix |
+| Test-only update (sync to new content) | Abbreviated dev process (Phase 4 + 5 + 6) | Affected spec files only |
 | Trip generation ("create a trip", "generate trip from X") | Trip Generation Pipeline (below) — no dev process needed | Smoke tests only (`/regression smoke`) |
 
-**Rationale:** Trip generation is a known, deterministic flow that applies existing rules to new data. If no rules or features changed since the last generation, the output format is stable. Running full regression on every generation is overhead without proportional value. Smoke tests catch critical rendering breakages (missing sections, broken structure, manifest integrity) without exhaustive per-POI or per-field validation.
+**Rationale:** Trip generation is a known, deterministic flow that applies existing rules to new data. Running full regression on every generation is overhead without proportional value. Smoke tests catch critical rendering breakages (missing sections, broken structure, manifest integrity) without exhaustive per-POI or per-field validation.
 
 ## Trip Generation Pipeline (Execute in Order)
 1. **Plan** — Read the trip details file (default: `trip_details.md`; override by specifying a filename, e.g., "generate trip from `Maryan.md`"), calculate ages, research destination (`trip_planning_rules.md`)
 2. **Phase A** — High-level summary table → create trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`, write `overview.md` + `manifest.json` (`content_format_rules.md`)
-3. **Phase B** — Parallel day generation: spawn subagents to write `day_00.md` through `day_NN.md`, verify all files, update manifest once (`content_format_rules.md`)
+3. **Phase B** — Parallel day generation in batches of 2 days per subagent, verify all files, update manifest once (`content_format_rules.md`)
 4. **Budget** — Aggregate per-day costs into `budget.md` (`content_format_rules.md`)
 5. **Assemble** — Bash command concat of all parts into `trip_full.md` (no subagent — see `content_format_rules.md`)
 6. **Generate HTML** — Invoke `/render` skill for per-day fragment generation, assembly into `trip_full_LANG.html`, and pre-regression validation
@@ -95,10 +96,11 @@ Rules:
 - This table is always the last thing shown to the user after trip generation
 
 ## Incremental Edit Pipeline (Single Day Change)
-1. **Edit Day** — Regenerate only the affected `day_XX.md`
-2. **Re-assemble** — Rebuild `trip_full.md` (mechanical concat)
-3. **Rebuild HTML** — Invoke `/render` skill in incremental mode (rebuilds only changed day fragments)
-4. **Smoke Test** — Invoke `/regression smoke` for smoke-level validation on rebuilt HTML
+1. **Edit Day** — Regenerate only the affected `day_XX_LANG.md`
+2. **Update Manifest** — Set `last_modified` on the changed day, add to `stale_days`
+3. **Re-assemble** — Rebuild `trip_full_LANG.md` (mechanical concat)
+4. **Rebuild HTML** — Invoke `/render` skill in incremental mode (rebuilds only changed day fragments)
+5. **Smoke Test** — Invoke `/regression smoke` for smoke-level validation on rebuilt HTML
 
 ## Language-Agnostic Rule
 All code, refactoring, new features, and automation tests **must be language-agnostic**. The trip generator produces output in multiple languages (controlled by `trip_details.md`). No logic — in content generation, HTML rendering, or test assertions — may depend on a specific language. Tests must validate structure, element presence, and behavior without matching language-specific strings.

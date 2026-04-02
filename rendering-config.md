@@ -201,9 +201,9 @@ Transform trip data from the modular trip folder (`generated_trips/trip_YYYY-MM-
 
 ### Source: Modular Trip Folder
 The pipeline reads from the trip folder structure defined in `content_format_rules.md`:
-- `overview.md` — header, holiday advisory, Phase A table → `#overview` section
-- `day_00.md` through `day_NN.md` — each day → one `#day-{N}` section
-- `budget.md` — aggregated budget → `#budget` section
+- `overview_LANG.md` — header, holiday advisory, Phase A table → `#overview` section
+- `day_00_LANG.md` through `day_NN_LANG.md` — each day → one `#day-{N}` section
+- `budget_LANG.md` — aggregated budget → `#budget` section
 
 ### Step 1: Analyze Data
 - Read `manifest.json` from the trip folder to determine total days and their status.
@@ -242,7 +242,7 @@ Generate the three shell fragments sequentially. These provide navigation contex
 
 #### Step 2b: Batch Assignment for Day Fragments
 
-Divide all days (day_00 through day_NN) into contiguous batches using the same sizing table as Phase B (see `content_format_rules.md` § Day Generation Protocol):
+Divide all days (day_00 through day_NN) into contiguous batches. **Note:** This table differs from Phase B (`content_format_rules.md`) intentionally — Phase B uses small batches (2 days) for content research quality; HTML fragment generation uses larger batches for speed since no web research is needed:
 
 | Total Days (N) | Batch Count | Batch Size |
 |---|---|---|

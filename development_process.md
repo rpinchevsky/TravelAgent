@@ -213,6 +213,13 @@ Every change follows these phases in order. Each phase has a **gate** — the ne
   - Affected rule files and sections
   - Priority and scope (which days/components are impacted)
 
+#### Phase 1b — UX/UI Design (Conditional)
+- **Trigger:** Runs only when the BRD touches GUI/UI elements (`trip_intake.html`, HTML rendering, visual components). Skipped for rule-only, content-only, or test-only changes.
+- UX/UI Principal Engineer reads BRD + design specs + current UI
+- Produces `ux_design.md` with sign-off table for PM and Dev Team Lead
+- If UX design has unresolved conflicts with BRD, re-spawn with PM feedback (max 1 retry)
+- See `CLAUDE.md` § Feature / Rule Change Pipeline for full orchestration rules
+
 #### Phase 2 — Design
 - Dev reads the BRD and affected rule files
 - Dev produces `high_level_design.md`: which components change, data flow, dependencies
@@ -285,10 +292,4 @@ This process supplements (does not replace) the existing rule files:
 
 ## When to Use This Process
 
-| Change Type | Full Cycle Required? |
-|---|---|
-| New feature (new POI type, new section) | Yes — all 6 phases |
-| Rule file update (planning, content, rendering) | Yes — all 6 phases |
-| Bug fix (HTML doesn't match rules) | Abbreviated — Phase 1 (BRD) + Phase 5–6 (fix + validate) |
-| Content-only regeneration (same rules, new trip) | No — use existing Trip Generation Pipeline |
-| Test-only update (sync to new content) | Abbreviated — Phase 4 (test plan) + Phase 5–6 |
+See `CLAUDE.md` § Workflow Classification for the authoritative table mapping change types to workflows and testing levels.

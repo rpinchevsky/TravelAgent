@@ -24,7 +24,7 @@ Replace the JSON-formatted trip metadata file with an equivalent markdown file. 
 | Trip planning rules | `trip_planning_rules.md` | Modified — file reference |
 | Rendering config | `rendering-config.md` | Modified — file reference |
 | Release notes | `automation/code/release_notes.md` | Modified — file reference |
-| Test plan | `automation/code/test_plan.md` | Modified — file reference |
+| Test plan | `automation/code/regression_test_plan.md` | Modified — file reference |
 | Language test specs | `activity-label-languages.spec.ts`, `poi-languages.spec.ts` | Modified — file reference |
 
 ## 3. Data Flow

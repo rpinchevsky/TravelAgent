@@ -161,7 +161,7 @@ Provide a table with:
 
 ## Phase B: Detailed Operational Plan (Day-by-Day Generation)
 
-Phase B generates **each day into its own file**, using parallel subagents for faster execution. This avoids output token limits and enables per-day editing.
+Phase B generates **each day into its own file**, using parallel subagents in batches of 2 days each. This avoids output token limits and enables per-day editing.
 
 ### Generation Context per Day
 
@@ -211,6 +211,12 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 
 ...
 
+## 🏨 {Accommodation label} (anchor days for stay blocks only)
+{2-3 accommodation option cards — see Accommodation Section below}
+
+## 🚗 {Car rental label} (anchor days for car rental blocks only)
+{Price comparison tables per category — see Car Rental Section below}
+
 ### Стоимость дня {N}
 
 | Статья | HUF | EUR |
@@ -228,15 +234,17 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 {Backup plan content}
 ```
 
+> **Section placement order:** The template above shows all possible sections in their required order. The `## 🏨` and `## 🚗` sections appear only on anchor days (see below). The daily budget table always follows them.
+
 ### Accommodation Section (Anchor Day Only)
 
 On the first day of each stay block (the "anchor day"), include an accommodation section after the POI cards and before the daily budget table. This section is NOT present on non-anchor days.
 
-**Section placement order within anchor day files:**
+**Section placement order within anchor day files** (matches the Per-Day File Format template above):
 1. Day header + schedule table
 2. POI cards (### headings)
 3. Accommodation section (## 🏨) — anchor days for stay blocks only
-4. **Car rental section (## 🚗)** — anchor days for car rental blocks only
+4. Car rental section (## 🚗) — anchor days for car rental blocks only
 5. Daily budget table (### Стоимость дня)
 6. Grocery store (### 🛒)
 7. Along-the-way stops (### 🎯)
@@ -347,27 +355,27 @@ On the first day of each car rental block (the "anchor day"), include a car rent
 
 ### Day Generation Protocol
 
-Phase B generates days in parallel across multiple subagents for faster wall-clock execution. Each day file is self-contained (Phase A provides all cross-day coordination), so days can be generated independently.
+Phase B generates days in parallel across multiple subagents, with each subagent handling **2 days**. Each day file is self-contained (Phase A provides all cross-day coordination), so days can be generated independently.
 
 #### Step 1: Batch Assignment
 
-The main agent divides all days (day_00 through day_NN) into contiguous batches:
+The main agent divides all days (day_00 through day_NN) into contiguous batches of **2 days each**:
 
 | Total Days (N) | Batch Count | Batch Size |
 |---|---|---|
 | 0 | 0 | — (skip Phase B, proceed to Budget) |
 | 1 | 1 | 1 |
-| 2-3 | 2 | ceil(N/2) |
-| 4-11 | 3 | ceil(N/3) |
-| 12+ | 4 | ceil(N/4) |
+| 2+ | ceil(N/2) | 2 (last batch may have 1) |
 
-Batches are assigned in chronological order: batch 1 gets the lowest-numbered days, batch 2 the next range, etc. The last batch may contain fewer days (remainder). Every day must appear in exactly one batch -- no gaps, no overlaps.
+Batches are assigned in chronological order: batch 1 gets the lowest-numbered days, batch 2 the next pair, etc. The last batch may contain 1 day (remainder). Every day must appear in exactly one batch -- no gaps, no overlaps.
 
-**Example:** 12 days (day_00 through day_11), 4 batches:
-- Batch 1: day_00, day_01, day_02
-- Batch 2: day_03, day_04, day_05
-- Batch 3: day_06, day_07, day_08
-- Batch 4: day_09, day_10, day_11
+**Example:** 12 days (day_00 through day_11), 6 batches:
+- Batch 1: day_00, day_01
+- Batch 2: day_02, day_03
+- Batch 3: day_04, day_05
+- Batch 4: day_06, day_07
+- Batch 5: day_08, day_09
+- Batch 6: day_10, day_11
 
 #### Step 2: Parallel Subagent Execution
 

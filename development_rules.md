@@ -66,7 +66,7 @@ After Phase B day-by-day generation and BEFORE assembly, validate the trip folde
 2. All days complete:         Every day in manifest.days has status: "complete"
 3. Day files exist:           Every key in manifest.days has a matching .md file in the folder
 4. Day count matches:         Number of day files == manifest.total_days (including day_00 if applicable)
-5. Overview exists:           overview.md present and non-empty
+5. Overview exists:           overview_LANG.md present and non-empty
 6. Per-day budget:            Each day_XX.md contains a "### Стоимость дня" section
 7. No orphan files:           No day_XX.md files exist that aren't listed in manifest.days
 8. POI minimum count:         Each full day (excluding day_00 arrival and last-day departure) has >= 3 POI

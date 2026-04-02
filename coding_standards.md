@@ -1,14 +1,18 @@
 # Coding Standards
 
-This document defines the coding standards for the Budapest Travel Planner project. All code contributions — whether by humans or AI agents — must follow these standards. Code reviews validate compliance.
+This document defines coding standards for the Budapest Travel Planner project. All code contributions — whether by humans or AI agents — must follow these standards. Code reviews validate compliance.
+
+For domain-specific rules, each section references its **authoritative source** — the file where the canonical definition lives. This file provides TypeScript conventions, code examples, and review checklists that supplement those sources.
 
 ---
 
-## 1. Golden Rule: Language Independence
+## 1. Language Independence
 
-Every piece of code in this project — content generation, HTML rendering, test automation — **must be language-agnostic**. The trip generator produces output in multiple languages (Russian, English, Hebrew, etc.). No logic may depend on a specific language.
+> **Authoritative source:** `automation_rules.md` §7 (full specification: §7.1–7.4, enforcement, exceptions)
 
-### 1.1 What This Means in Practice
+All code must be language-agnostic. The trip generator produces output in multiple languages. No logic may depend on a specific language.
+
+**Quick reference — allowed vs. forbidden:**
 
 | Layer | Allowed | Forbidden |
 |---|---|---|
@@ -18,24 +22,9 @@ Every piece of code in this project — content generation, HTML rendering, test
 | HTML generation | `data-section-type="plan-b"`, class-based semantics | Language-specific `id` or class names |
 | File naming | `day_01_${langCode}.md`, `trip_full_${suffix}.html` | `day_01_russian.md`, `trip_full.html` |
 
-### 1.2 Localized Strings: Single Source of Truth
+**Localized strings** live in exactly two files: `trip-config.ts` (`LANGUAGE_LABELS`) and `language-config.ts` (`SCRIPT_MAP`). To add a new language: add one entry to `LANGUAGE_LABELS` — no spec files change.
 
-All language-specific labels live in exactly **two files**:
-
-- [trip-config.ts](automation/code/tests/utils/trip-config.ts) — `LANGUAGE_LABELS` record (day titles, section names, month names, page title patterns)
-- [language-config.ts](automation/code/tests/utils/language-config.ts) — `SCRIPT_MAP` (Unicode range detection per script)
-
-To add a new language: add one entry to `LANGUAGE_LABELS` — no spec files change.
-
-### 1.3 Automated Enforcement
-
-The [language-independence.spec.ts](automation/code/tests/code-quality/language-independence.spec.ts) lint guard scans all test source for violations:
-- Cyrillic/Hebrew/Arabic string literals outside allowed files
-- Hardcoded `trip_full_*.html` filenames
-- `hasText` filters with string literals in `TripPage.ts`
-- Hardcoded `lang="xx"` assertions
-
-This lint runs as part of regression. **Violations fail the build.**
+**Automated enforcement:** `language-independence.spec.ts` lint guard runs as part of regression. Violations fail the build.
 
 ---
 
@@ -127,6 +116,10 @@ const planB = sharedPage.locator(`#day-${i} .advisory--info[data-section-type="p
 
 ## 3. Playwright Test Standards
 
+> **Authoritative source for policies:** `automation_rules.md` §3 (zero-flakiness), §5 (POM, technology stack), §6 (performance optimization), §7 (language independence), §8 (test resilience)
+>
+> This section provides practical code examples and file organization conventions that supplement those policies.
+
 ### 3.1 File Organization
 
 ```
@@ -139,14 +132,7 @@ tests/
 └── code-quality/     # Meta-tests (lint guards on test source code)
 ```
 
-### 3.2 Page Object Model (POM)
-
-All DOM selectors live in Page Object classes (`TripPage.ts`, `IntakePage.ts`). Spec files **never** contain raw CSS selectors.
-
-**Rules:**
-- One class per page/component under test.
-- All locators initialized in the constructor as `readonly` properties.
-- Parameterized accessors for repeated patterns (days, POIs):
+### 3.2 Page Object Model (POM) — Code Examples
 
 ```typescript
 // ✅ Good — parameterized, language-independent
@@ -171,7 +157,7 @@ test('check POIs', async ({ page }) => {
 4. Structural selectors — `.pricing-grid .pricing-cell`
 5. **Never** — text-based selectors (`:has-text()`, `hasText:`)
 
-### 3.3 Fixture Usage
+### 3.3 Fixture Usage — Code Examples
 
 | Fixture | Use When | Import From |
 |---|---|---|
@@ -193,12 +179,10 @@ test('should scroll to section on sidebar click', async ({ page }) => {
 });
 ```
 
-### 3.4 Assertions
-
-- **Web-first assertions** — Always prefer `await expect(locator).toBeVisible()` over manual `waitForTimeout` + check.
-- **Soft assertions for batched validation** — Use `expect.soft()` inside data-driven loops so one day's failure doesn't skip remaining days:
+### 3.4 Assertions — Code Examples
 
 ```typescript
+// ✅ Soft assertions for batched per-day validation
 for (let i = 0; i < tripConfig.dayCount; i++) {
   test(`Day ${i} should have complete card structure`, async ({ tripPage }) => {
     await expect.soft(bannerTitle, `Day ${i}: banner title visible`).toBeVisible();
@@ -207,12 +191,7 @@ for (let i = 0; i < tripConfig.dayCount; i++) {
 }
 ```
 
-- **Descriptive failure messages** — Always include day number or POI name in soft assertion messages.
-- **No hard sleeps** — Never use `page.waitForTimeout()` except where `IntersectionObserver` timing requires a brief settle (max 300ms, with a comment explaining why).
-
-### 3.5 Data-Driven Tests
-
-Generate test cases dynamically from `tripConfig`, never hardcode trip-specific values:
+### 3.5 Data-Driven Tests — Code Examples
 
 ```typescript
 // ✅ Good — dynamic
@@ -242,30 +221,12 @@ Pattern: `test.describe` groups by feature area. Individual tests use `should` p
 
 ## 4. HTML Generation Standards
 
-### 4.1 Semantic Structure
+> **Authoritative sources:**
+> - `development_rules.md` §1 — DOM contract (CSS class/ID → HTML element mapping from TripPage.ts locators)
+> - `rendering-config.md` — Design system, component structure, themed container rule, SVG requirements
+> - `rendering-config.md` §2.5 — Agent Prompt Contract (9-item checklist for delegated HTML generation)
 
-Generated HTML must follow the DOM contract defined in [development_rules.md](development_rules.md). Every element that tests depend on must use the correct CSS class and ID:
-
-| Element | Required Selector |
-|---|---|
-| Page title | `h1.page-title` |
-| Page subtitle | `p.page-subtitle` |
-| Day section | `.day-card#day-{N}` |
-| Day banner title | `.day-card__banner-title` |
-| POI card | `.poi-card#poi-day-{N}-{M}` |
-| POI name | `.poi-card__name` |
-| POI rating | `.poi-card__rating` |
-| POI links | `.poi-card__link` |
-| Accessible badge | `.poi-card__accessible` |
-| Pro-tip | `.pro-tip` |
-| Overview section | `#overview` |
-| Budget section | `#budget` |
-| Advisory sections | `.advisory.advisory--{type}` |
-| Pricing grid | `.pricing-grid` → `.pricing-cell` |
-
-### 4.2 Data Attributes for Semantics
-
-Use `data-*` attributes to convey meaning without language dependency:
+**Key code examples** (supplementing the authoritative sources):
 
 ```html
 <!-- ✅ Good — machine-readable, language-independent -->
@@ -277,68 +238,22 @@ Use `data-*` attributes to convey meaning without language dependency:
 
 Use `data-link-exempt` on POI cards that legitimately have fewer than the standard link count (e.g., grocery stores, along-the-way stops).
 
-### 4.3 Accessibility
+**Accessibility checklist:**
+- `lang` attribute on `<html>` matching `langCode` from trip config
+- `dir="rtl"` on `<html>` for RTL languages
+- `aria-current="page"` on active navigation link
+- `role="img"` + `aria-label` on semantic SVGs (e.g., country flags)
+- Inline SVG icons — use Feather-style SVGs, never emoji for icons that need to render consistently
 
-- **`lang` attribute** on `<html>` matching `langCode` from trip config.
-- **`dir` attribute** on `<html>` for RTL languages (`dir="rtl"`).
-- **`aria-current="page"`** on active navigation link.
-- **`role="img"` + `aria-label`** on decorative SVGs (e.g., country flags).
-- **Inline SVG icons** — use Feather-style SVGs, never emoji for icons that need to render consistently.
-
-### 4.4 CSS Architecture
-
-All styles follow the design token system in [rendering_style_config.css](rendering_style_config.css):
-
-- **Use CSS custom properties** — `var(--space-4)`, `var(--color-brand-primary)`, not raw values.
-- **BEM naming** — Block: `.day-card`, Element: `.day-card__banner`, Modifier: `.advisory--warning`.
-- **Inline styles in HTML** — The generated HTML must embed all CSS in a `<style>` block (no external stylesheet links). This ensures the trip HTML is a self-contained, portable file.
-- **Dark mode** — All color choices must work with the `prefers-color-scheme: dark` media query override.
-- **Responsive** — Mobile breakpoint at `768px`. Sidebar hidden on mobile, pill nav shown instead.
-- **Themed container contrast** — Inside any container with a gradient or colored background that sets a non-default text `color` (e.g., `.day-card__banner`), every child element using a semantic tag (`h1`-`h6`, `p`, `a`) MUST have an explicit `color` declaration. Never rely on `color` inheritance — global tag resets override it. See `rendering-config.md` → "Themed Container Rule" for the full specification.
-
-  ```css
-  /* Allowed — explicit color on child */
-  .day-card__banner-title {
-    color: var(--color-text-inverse);
-  }
-
-  /* Forbidden — relying on inheritance from .day-card__banner */
-  .day-card__banner-title {
-    /* no color declaration — global h1-h6 reset overrides inherited color */
-  }
-  ```
-
-### 4.5 No External Dependencies in Output HTML
-
-Generated `trip_full_*.html` files must be **fully self-contained**:
-- All CSS inlined in `<style>`
-- All icons as inline SVGs
-- No external `<link>`, `<script src>`, or font CDN references
-- Images referenced by URL only (Google Maps, photo links)
+**Self-contained output:** Generated `trip_full_*.html` files must embed all CSS in `<style>` and all icons as inline SVGs. No external `<link>` or `<script src>` — **exception:** Google Fonts `<link>` tags are allowed.
 
 ---
 
 ## 5. File & Folder Conventions
 
-### 5.1 Trip Folder Structure
+> **Authoritative source for trip folders:** `content_format_rules.md` §Trip Folder Structure (naming rules, language suffixes, manifest schema)
 
-```
-generated_trips/trip_YYYY-MM-DD_HHmm/
-├── manifest.json
-├── overview_{lang}.md
-├── day_00_{lang}.md ... day_NN_{lang}.md
-├── budget_{lang}.md
-├── trip_full_{lang}.md
-├── trip_full_{lang}.html
-└── fragment_{section}_{lang}.html
-```
-
-- **Folder name** — `trip_YYYY-MM-DD_HHmm` (timestamp of generation, 24h format).
-- **Language suffix** — ISO 639-1 code: `ru`, `en`, `he`.
-- **Day numbering** — Zero-padded: `day_00`, `day_01`, ... `day_09`, `day_10`.
-- **Fragment naming** — `fragment_overview_{lang}.html`, `fragment_day_01_{lang}.html`, `fragment_budget_{lang}.html`.
-
-### 5.2 Test File Organization
+### Test File Organization
 
 | Path | Purpose | Naming |
 |---|---|---|
@@ -349,7 +264,7 @@ generated_trips/trip_YYYY-MM-DD_HHmm/
 | `tests/utils/*.ts` | Shared utilities | `{utility-name}.ts` (kebab-case) |
 | `tests/fixtures/*.ts` | Playwright fixtures | `{fixture-name}.ts` (kebab-case) |
 
-### 5.3 Config / Rule Files
+### Config / Rule Files
 
 | File | Governs |
 |---|---|
@@ -361,41 +276,11 @@ generated_trips/trip_YYYY-MM-DD_HHmm/
 | `automation_rules.md` | Test automation policies, flakiness rules |
 | `base_layout.html` | HTML template shell |
 
-**Rule files are not documentation** — they are executable specifications. Changes to rule files trigger the 6-phase development cycle.
+**Rule files are not documentation** — they are executable specifications. Changes to rule files trigger the development cycle.
 
 ---
 
-## 6. Manifest & Configuration Standards
-
-### 6.1 manifest.json Schema
-
-```jsonc
-{
-  "trip_details_file": "trip_details.md",
-  "destination": "Budapest",
-  "total_days": 4,
-  "languages": {
-    "ru": {
-      "phase_a_complete": true,
-      "days": {
-        "day_00": { "status": "complete", "title": "...", "last_modified": "ISO-8601" }
-      },
-      "budget_complete": true,
-      "assembly": {
-        "trip_full_md_built": "ISO-8601",
-        "trip_full_html_built": "ISO-8601",
-        "stale_days": []
-      }
-    }
-  }
-}
-```
-
-- Per-language state tracking (independent language generation).
-- `stale_days` array tracks which days need incremental rebuild.
-- All timestamps in ISO-8601 format.
-
-### 6.2 Environment Variables
+## 6. Environment Variables
 
 | Variable | Purpose | Default |
 |---|---|---|
@@ -410,13 +295,13 @@ generated_trips/trip_YYYY-MM-DD_HHmm/
 
 Every code review (human or AI) must verify:
 
-### Language Independence
+### Language Independence (see `automation_rules.md` §7)
 - [ ] No hardcoded strings in any human language (outside `trip-config.ts` / `language-config.ts`)
 - [ ] No text-based selectors (`hasText`, `:has-text()`) in POM or spec files
 - [ ] No hardcoded filenames (`trip_full_ru.html`) — derive from config
 - [ ] New language support requires changes in `LANGUAGE_LABELS` only
 
-### Test Quality
+### Test Quality (see `automation_rules.md` §3, §5, §6)
 - [ ] All selectors defined in Page Object classes, not in spec files
 - [ ] Read-only tests use `shared-page` fixture; interactive tests use standard `@playwright/test`
 - [ ] Soft assertions include descriptive failure messages with context (day number, POI name)
@@ -424,14 +309,14 @@ Every code review (human or AI) must verify:
 - [ ] Data-driven tests use `tripConfig` values, not hardcoded counts or strings
 - [ ] New spec file would pass the language-independence lint guard
 
-### HTML Output
+### HTML Output (see `rendering-config.md`, `development_rules.md` §1)
 - [ ] All testable elements have correct CSS classes and IDs per DOM contract
 - [ ] Semantic `data-*` attributes used for classification (not text content)
-- [ ] HTML is self-contained (no external links/scripts/fonts)
+- [ ] HTML is self-contained (no external links/scripts except Google Fonts)
 - [ ] Dark mode works (`prefers-color-scheme: dark` overrides are complete)
 - [ ] RTL layout works when `dir="rtl"` is set
 
-### Code Style
+### Code Style (see §2 above)
 - [ ] `readonly` on class fields assigned only in constructor
 - [ ] `const` by default, `let` only when reassignment needed
 - [ ] Explicit types on exported functions and interfaces
@@ -439,7 +324,7 @@ Every code review (human or AI) must verify:
 - [ ] No dead code, commented-out blocks, or `TODO` without a linked issue
 
 ### Architecture
-- [ ] Changes to rule files trigger the 6-phase development cycle
+- [ ] Changes to rule files trigger the development cycle
 - [ ] New test utility files follow kebab-case naming
 - [ ] Config values that differ per language go in `LANGUAGE_LABELS`, not in spec files
 - [ ] Manifest updated when trip content changes
