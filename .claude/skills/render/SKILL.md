@@ -23,6 +23,14 @@ Read these files (they are NOT loaded into conversation context by default):
 4. **`rendering_style_config.css`** — Full CSS to inline into `<style>` tag (replaces the `<link>` in base_layout.html)
 5. **`automation/code/tests/pages/TripPage.ts`** — Page Object Model defining the structural contract (CSS classes, IDs, locators the tests expect)
 
+## Node.js Preflight
+
+Before running any scripts, verify Node.js >= 18 is available:
+```bash
+node --version
+```
+Both scripts include an internal preflight check and will exit with a clear error if Node.js < 18.
+
 ## Workflow
 
 ### Step 1: Trip Completeness Validation
@@ -35,36 +43,91 @@ Before generating HTML, validate the trip folder per `development_rules.md` §2:
 
 If ANY check fails, report and stop — do NOT generate HTML from incomplete data.
 
-### Step 2: Per-Day Fragment Generation
+### Step 2: Fragment Generation (Script-Based)
 
-Follow `rendering-config.md` → "HTML Generation Pipeline (Fragment Master Mode)":
+**Step 2a — Shell fragment script:**
+Run `generate_shell_fragments.ts` to produce PAGE_TITLE, NAV_LINKS, and NAV_PILLS:
 
-**Step 2a — Sequential shell fragments:**
-1. Generate shell fragments (PAGE_TITLE, NAV_LINKS, NAV_PILLS) from `overview_LANG.md` + `manifest.json`
+```bash
+rtk npx tsx automation/scripts/generate_shell_fragments.ts \
+  --trip-folder "{trip_folder_path}" \
+  --lang "{lang_code}"
+```
 
-**Step 2b — Batch assignment:**
-4. Determine batch count from the batch sizing table in `rendering-config.md` § Step 2b (same table as Phase B in `content_format_rules.md`).
-5. Assign days to batches in chronological order.
+Check exit code. If non-zero: report the error message from stderr and stop — do NOT proceed to Step 2c.
+On success: `shell_fragments_{lang}.json` is written to the trip folder and consumed in Step 3.
 
-**Step 2c — Parallel fragment generation:**
-6. Spawn all subagents in a **single response block** (parallel execution): one overview subagent, one budget subagent, and one subagent per day batch.
-7. Overview subagent: receives core contract (§ 2.5 items 14-17), reads `overview_LANG.md` + `manifest.json`, writes `fragment_overview_LANG.html` to the trip folder.
-8. Budget subagent: receives core contract (§ 2.5 items 18-21), reads `budget_LANG.md` + `manifest.json`, writes `fragment_budget_LANG.html` to the trip folder.
-9. Day batch subagents: each receives the 9-item core contract (§ 2.5) + batch-specific items 10-13. Reads assigned `day_XX_LANG.md` files and writes `fragment_day_XX_LANG.html` files to the trip folder.
+**Step 2b — (Removed):** Batch assignment is no longer required. The script processes all files in a single sequential invocation.
 
-**Step 2d — Verification:**
-10. Verify all required fragments exist: `fragment_overview_LANG.html`, `fragment_day_00_LANG.html` through `fragment_day_NN_LANG.html`, and `fragment_budget_LANG.html`.
-11. If any missing: re-spawn only the failed subagent (overview, budget, or the failed day batch). Single retry per subagent. If still missing after retry, report and stop.
+**Step 2c — HTML fragment generation script:**
+Run `generate_html_fragments.ts` to produce all fragment files:
 
-All component rules, CSS class requirements, POI card structure, activity label linking, SVG attributes, CSS inlining, and flag rendering rules are defined in `rendering-config.md`. Follow that file — it is the single source of truth for rendering.
+```bash
+rtk npx tsx automation/scripts/generate_html_fragments.ts \
+  --trip-folder "{trip_folder_path}" \
+  --lang "{lang_code}"
+```
 
-**Incremental rebuild exception:** When in incremental mode (stale_days), generate only the stale day fragment(s) sequentially — do not use batch parallelization.
+The script generates all fragment types in one invocation:
+- `fragment_overview_{lang}.html`
+- `fragment_accommodation_{lang}.html` (only if `accommodation_{lang}.md` exists)
+- `fragment_car_rental_{lang}.html` (only if `car_rental_{lang}.md` exists)
+- `fragment_day_00_{lang}.html` through `fragment_day_NN_{lang}.html`
+- `fragment_budget_{lang}.html`
+
+Check exit code. If non-zero: report the per-file error messages from stderr and stop.
+No retry loop — errors require investigation (missing/malformed source files).
+
+**Step 2d — Fragment verification:**
+Verify all expected fragment files exist using Bash ls or Glob:
+- `fragment_overview_{lang}.html`
+- `fragment_accommodation_{lang}.html` (only if `accommodation_{lang}.md` exists)
+- `fragment_car_rental_{lang}.html` (only if `car_rental_{lang}.md` exists)
+- `fragment_day_00_{lang}.html` through `fragment_day_NN_{lang}.html`
+- `fragment_budget_{lang}.html`
+
+If any are missing: the script would have already exited with non-zero code and error message.
+Re-running the script without fixing the underlying cause will produce the same error.
+Report and stop — do NOT proceed to assembly.
+
+### Script Invocation Contract (replaces Agent Prompt Contract)
+
+Both scripts accept:
+- `--trip-folder <path>` — absolute or relative path to the trip folder (required)
+- `--lang <lang_code>` — ISO 639-1 language code matching file suffixes (required)
+- `--stale-days <comma-list>` — day numbers to regenerate (incremental mode; `generate_html_fragments.ts` only)
+
+Exit codes: 0 = success; 1 = validation or parse error (message to stderr).
+
+Scripts are located at `automation/scripts/` and run via `npx tsx`.
+Node.js >= 18 is required. Both scripts include a preflight version check and will exit
+with a clear error message if the requirement is not met.
 
 ### Step 3: Assembly & Export
 
+Read `{trip_folder}/shell_fragments_{lang}.json` (written by Step 2a):
+
+```typescript
+const shellFragments = JSON.parse(
+  fs.readFileSync(`${tripFolder}/shell_fragments_${lang}.json`, 'utf8')
+);
+const PAGE_TITLE = shellFragments.PAGE_TITLE;
+const NAV_LINKS  = shellFragments.NAV_LINKS;
+const NAV_PILLS  = shellFragments.NAV_PILLS;
+```
+
+Substitute into `base_layout.html` placeholders:
+- `{{PAGE_TITLE}}` → `PAGE_TITLE`
+- `{{NAV_LINKS}}`  → `NAV_LINKS`
+- `{{NAV_PILLS}}`  → `NAV_PILLS`
+
+Then concatenate all fragment files in section order (overview → accommodation? → car-rental? → day-00 … day-NN → budget) to produce `{{TRIP_CONTENT}}`.
+
+If `shell_fragments_{lang}.json` is missing: Step 2a did not complete successfully. Re-run Step 2a before proceeding.
+
 1. Read `base_layout.html` (do not modify the template)
-2. Assemble `{{TRIP_CONTENT}}` = overview + day fragments (in order) + budget
-3. Inject all placeholders
+2. Assemble `{{TRIP_CONTENT}}` = overview + accommodation (if exists) + car-rental (if exists) + day fragments (in order) + budget
+3. Inject all placeholders (PAGE_TITLE, NAV_LINKS, NAV_PILLS, TRIP_CONTENT)
 4. Write `trip_full_LANG.html` to the trip folder
 5. Update `manifest.json`: set `assembly.trip_full_html_built` timestamp
 
@@ -79,14 +142,29 @@ If validation fails, fix the HTML and re-run validation before reporting success
 ### Incremental Rebuild Mode
 
 When only specific days changed (detected via `manifest.json → assembly.stale_days`):
-1. Regenerate only the HTML fragments for stale days
+
+```bash
+rtk npx tsx automation/scripts/generate_html_fragments.ts \
+  --trip-folder "{trip_folder_path}" \
+  --lang "{lang_code}" \
+  --stale-days "{comma-separated day numbers}"
+```
+
+Re-run `generate_shell_fragments.ts` (which re-writes `shell_fragments_{lang}.json`) if ANY of the following structural changes occurred:
+- Days added or removed from the trip
+- A day title changed in `manifest.json` (update manifest first)
+- `accommodation_{lang}.md` added or removed
+- `car_rental_{lang}.md` added or removed
+
+Then proceed to in-place HTML section replacement:
+1. Regenerate only the HTML fragments for stale days (via `--stale-days` flag)
 2. In the existing `trip_full_LANG.html`, find and replace the `<div class="day-card" id="day-{N}">` sections
-3. If days were added/removed, regenerate NAV_LINKS and NAV_PILLS too
+3. If navigation changed (days added/removed/renamed), re-run shell fragment script and update NAV sections
 4. Run Step 4 validation on the rebuilt file
 
 ## Agent Prompt Contract
 
-When delegating HTML generation to a sub-agent, the prompt MUST include all 9 core items defined in `rendering-config.md` §2.5. For parallel day batch subagents, items 10-13 are also mandatory. For the overview subagent, items 14-17 are mandatory. For the budget subagent, items 18-21 are mandatory. Never delegate without the full contract.
+**Deprecated — replaced by deterministic scripts.** HTML generation no longer uses LLM subagents. The Script Invocation Contract in Step 2.5 above is the operative contract. Both scripts (`generate_shell_fragments.ts` and `generate_html_fragments.ts`) implement all rendering rules from `rendering-config.md` deterministically. No prompt engineering is required.
 
 ## Reference Files
 

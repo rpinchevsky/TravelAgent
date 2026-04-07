@@ -103,6 +103,10 @@ After HTML generation and BEFORE running Playwright regression, perform an autom
     `\.day-card__banner-title\s*\{[^}]*color\s*:` and `\.day-card__banner-date\s*\{[^}]*color\s*:`
     When new themed containers are added, extend this check with their child class names —
     see rendering-config.md "Themed Container Rule" for the maintained list.
+13. POI description flex-grow:  In the inlined <style>, the .poi-card__description rule must NOT contain
+    `flex: 1` or `flex-grow: 1`. These cause large empty gaps between paragraphs in multi-paragraph cards.
+    Regex: extract the `.poi-card__description { ... }` rule from <style> and assert it does NOT match
+    `flex\s*:\s*1\b` or `flex-grow\s*:\s*1\b`.
 ```
 
 ### How to run:

@@ -1,5 +1,153 @@
 # Release Notes
 
+## 2026-04-07 — POI Inline Images, Hebrew RTL Support, and Hebrew Section Name Parsing
+
+### Changes
+
+#### Modified File: `automation/scripts/generate_html_fragments.ts`
+
+- Added `imageUrl?: string` field to `PoiData` interface (parses `**Image:** <url>` markdown lines)
+- Image URL parser added in `POI_SECTION` case: matches `**Image:**`, `**Изображение:**`, `**תמונה:**`, `**Kép:**`
+- `imageUrl` excluded from POI description fallback accumulation
+- `renderPoiCard()` emits `<div class="poi-card__image-wrapper"><img loading="lazy" onerror="...">` before `.poi-card__body` when `imageUrl` is set
+- Schedule section detection expanded: now recognizes Hebrew `לוּחַ זְמַנִּים`, `לוח זמנים`, `סֵדֶר יוֹם`, `סדר יום` in addition to Russian `Расписание`
+- Pricing section detection expanded: now recognizes all Hebrew `עֲלוּת`/`עֶלֶת` variants (with/without definite article, with/without nikud)
+- Logistics section detection already included Hebrew `לוגיסטיקה` (no change needed)
+
+#### Modified File: `automation/scripts/generate_shell_fragments.ts`
+
+- Added `HTML_LANG_ATTRS_BY_LANG` lookup: `ru → lang="ru"`, `en → lang="en"`, `he → lang="he" dir="rtl"`
+- `HTML_LANG_ATTRS` added to `shell_fragments_{lang}.json` output
+- Step 3 assembly now substitutes `{{HTML_LANG_ATTRS}}` into `base_layout.html` `<html>` tag
+
+#### Modified File: `base_layout.html`
+
+- `<html lang="ru">` replaced with `<html {{HTML_LANG_ATTRS}}>` for dynamic language/direction injection
+
+#### New File: `generated_trips/trip_2026-04-07_1700/trip_full_he.html` (448 KB)
+
+- Hebrew family Budapest trip with nikud throughout
+- `<html lang="he" dir="rtl">` — full RTL layout
+- POI cards include inline `<img>` from Wikimedia Commons URLs
+- All 12 days with schedule tables, POI cards, grocery stops, backup plans
+
+#### Modified Files: `rendering-config.md`, `content_format_rules.md`, `trip_planning_rules.md`
+
+- POI inline image documented: `**Image:** <url>` field in day markdown format
+- Step 3 assembly updated: inject `HTML_LANG_ATTRS` placeholder
+- Trip planning rules: Layer 2c image sourcing from Wikipedia/Wikimedia
+
+#### Modified File: `automation/code/tests/regression/rtl-layout.spec.ts`
+
+- Navigation count tests (sidebar links, mobile pills, hrefs) now read manifest to account for optional accommodation/car-rental sections
+- Added `import * as fs` and `import { getManifestPath }` for manifest reading
+
+### Regression Results
+
+**21/21 passed** (`rtl-layout.spec.ts`, `desktop-chromium-rtl` project, `trip_full_he.html`)
+
+| Test Group | Count | Result |
+|---|---|---|
+| RTL Structural | 6 | ✅ All pass |
+| RTL Desktop Grid Layout | 5 | ✅ All pass |
+| RTL Navigation | 3 | ✅ All pass |
+| RTL Mobile Layout | 3 | ✅ All pass |
+| RTL CSS Overrides | 3 | ✅ All pass |
+| RTL Day Cards | 1 | ✅ All pass |
+
+### BRD Acceptance Criteria
+
+| REQ | Description | Status |
+|---|---|---|
+| REQ-1 | POI inline images in HTML output | ✅ Pass |
+| REQ-2 | Image discovery from Wikipedia/Wikimedia per POI | ✅ Pass |
+| REQ-3 | RTL HTML attributes injected dynamically | ✅ Pass |
+| REQ-4 | Hebrew with nikud throughout generated output | ✅ Pass |
+
+### Affected Files
+- `automation/scripts/generate_html_fragments.ts` (image parsing, Hebrew section names)
+- `automation/scripts/generate_shell_fragments.ts` (HTML_LANG_ATTRS)
+- `base_layout.html` (dynamic lang/dir attribute)
+- `automation/code/tests/regression/rtl-layout.spec.ts` (nav count with optional sections)
+- `rendering-config.md`, `content_format_rules.md`, `trip_planning_rules.md` (rules update)
+- `trip_details_he.md` (new: Hebrew trip configuration)
+- `generated_trips/trip_2026-04-07_1700/` (complete Hebrew trip output)
+
+---
+
+## 2026-04-03 — HTML Render Pipeline: Script-Based Generation (Options 3+4)
+
+### Changes
+
+#### New Files: `automation/scripts/generate_shell_fragments.ts`, `generate_html_fragments.ts`, `tsconfig.json`
+
+**generate_shell_fragments.ts** — Deterministic script that replaces the LLM shell-fragment subagent (Step 2a).
+Reads `manifest.json`, enumerates day files, and writes `shell_fragments_{lang}.json` containing
+`PAGE_TITLE`, `NAV_LINKS` (sidebar with inline SVGs), and `NAV_PILLS` (mobile nav pills).
+- CLI: `--trip-folder <path> --lang <lang_code>`
+- Language lookup tables: `TITLE_SUFFIX_BY_LANG`, `DESTINATION_NAMES_BY_LANG`, nav labels, SVG icons for all 6 section types
+
+**generate_html_fragments.ts** (~1900 lines) — Full markdown→HTML FSM-based template engine that replaces ALL LLM day/section subagents (Steps 2b–2d).
+- FSM states: `FRONT_MATTER`, `SCHEDULE_TABLE`, `MAP_LINK`, `POI_SECTION`, `PRICING_TABLE`, `PLAN_B`, `SKIP_SECTION`
+- Handles: day files, overview, accommodation, car rental, budget
+- POI card generation with `data-link-exempt` (QF-2), `data-link-type` attributes
+- Activity label normalization: `—` separator → `/` for Cyrillic/Hebrew bilingual labels
+- Logistics sections excluded via `SKIP_SECTION` state
+- Country flag SVGs (13 countries): `width="28" height="20" viewBox="0 0 24 18"`
+- Per-day POI parity assertion before writing output
+- `LINK_LABELS_BY_LANG` for ru/en/he
+- Incremental mode via `--stale-days` CLI flag
+
+**tsconfig.json** — Strict TypeScript config (ES2022 target) for the scripts folder.
+
+#### Modified File: `tests/utils/markdown-pois.ts` (1 fix)
+
+- Added H1/H2 sentinel reset: when encountering a non-day `## ` or `# ` heading (e.g., `## 💰 Общий бюджет`), `currentDay` is reset to `null` so budget/accommodation `###` subsections are not attributed to the last day in the parity count.
+
+#### Modified Files: `.claude/skills/render/SKILL.md`, `rendering-config.md`
+
+- Steps 2a–2d replaced with script invocations using `npx ts-node --transpile-only`
+- Step 2a → `generate_shell_fragments.ts`; Steps 2b–2c → `generate_html_fragments.ts`
+- §2.5 Agent Prompt Contract deprecated
+- Step 3 assembly updated to consume `shell_fragments_{lang}.json` for placeholder substitution
+
+### Regression Results
+
+**17 failed, 349 passed** (after 3 rounds of SA review, implementation, and test fixes).
+
+| Category | Count | Classification |
+|---|---|---|
+| Intake form tests | 9 | Pre-existing — unrelated to render pipeline |
+| Content quality (trip data) | 8 | Trip-specific content issues, not rendering bugs |
+| **Rendering pipeline failures** | **0** | **All structural/rendering tests pass** |
+
+Content quality failures (trip_2026-04-03_0021): accommodation/car-rental budget-grid integration (content doesn't embed cost lines in day pricing tables), POI language compliance (poi_languages config vs Russian-only trip), non-exempt POI missing links (sparse markdown POIs), POI descriptions missing in some entries, activity label "/" separator compliance.
+
+### BRD Acceptance Criteria
+
+| REQ | Description | Status |
+|---|---|---|
+| REQ-001 | LLM subagents replaced by deterministic scripts | ✅ Pass |
+| REQ-002 | HTML output structurally equivalent (structural parity) | ✅ Pass |
+| REQ-003 | Incremental mode via `--stale-days` | ✅ Pass |
+| REQ-004 | PE Review gate (3 rounds completed, Approved/Go) | ✅ Pass |
+
+### Performance Impact
+
+- Previous: 8 LLM subagents × ~75KB context each = ~600KB input + ~360KB HTML output per render
+- New: 2 TypeScript scripts, zero LLM calls, ~2–5s wall-clock for a 12-day trip
+- Token cost: 0 (no LLM invocations in render phase)
+
+### Affected Files
+- `automation/scripts/generate_shell_fragments.ts` (new)
+- `automation/scripts/generate_html_fragments.ts` (new)
+- `automation/scripts/tsconfig.json` (new)
+- `automation/code/tests/utils/markdown-pois.ts` (fix: H1/H2 sentinel reset)
+- `.claude/skills/render/SKILL.md` (updated steps)
+- `rendering-config.md` (updated pipeline)
+
+---
+
 ## 2026-04-02 — Car Rental Suggestion Mechanism: Rental Company Discovery, Price Comparison & Booking Links
 
 ### Changes
@@ -13,15 +161,15 @@
 - `rentalCtas` — `.rental-cta`
 
 **New helper methods:**
-- `getDayCarRentalSection(dayNumber)` — `#day-N .car-rental-section`
-- `getDayCarRentalCategories(dayNumber)` — `#day-N .car-rental-category`
+- `getCarRentalSection()` — `#car-rental` (top-level section, not inside day cards)
+- `getCarRentalCategories()` — `#car-rental .car-rental-category`
 - `getCarRentalCategoryTitle(cat)` — `.car-rental-category__title`
 - `getCarRentalCategoryTable(cat)` — `.car-rental-table`
 - `getCarRentalTableRows(table)` — `tbody tr`
 - `getCarRentalTableHeaderCells(table)` — `thead th`
 - `getCarRentalCategoryEstimate(cat)` — `.car-rental-category__estimate`
 - `getCarRentalCategoryRecommendation(cat)` — `.car-rental-category__recommendation`
-- `getDayRentalCtas(dayNumber)` — `#day-N .rental-cta`
+- `getRentalCtas()` — `#car-rental .rental-cta`
 - `getCarRentalProTip(section)` — `.pro-tip`
 
 #### Modified File: `tests/utils/trip-config.ts` (1 entry added to `excludedSections`)
@@ -188,8 +336,8 @@
 - `bookingCtas` — `.booking-cta` (named per QF-4: consistent plural form without DOM suffix)
 
 **New helper methods:**
-- `getDayAccommodationSection(dayNumber)` — `#day-N .accommodation-section`
-- `getDayAccommodationCards(dayNumber)` — `#day-N .accommodation-card`
+- `getAccommodationSection()` — `#accommodation` (top-level section, not inside day cards)
+- `getAccommodationCards()` — `#accommodation .accommodation-card`
 - `getAccommodationCardName(card)` — `.accommodation-card__name`
 - `getAccommodationCardRating(card)` — `.accommodation-card__rating`
 - `getAccommodationCardBookingCta(card)` — `.booking-cta`

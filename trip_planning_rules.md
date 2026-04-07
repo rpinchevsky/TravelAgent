@@ -16,6 +16,8 @@ Before any planning or answering, perform these steps:
 
 The trip generation pipeline uses a two-layer data source approach for POI details:
 
+> **Graceful degradation (all layers):** If any discovery source (Google Places, web search) fails after one retry (per Network & Connectivity Rules), omit that section and set `discovery_source: "skipped"` in manifest. All discovery is non-blocking — trip generation continues. Phone/rating fields from unavailable sources are omitted (not rendered as empty).
+
 ### Layer 1: Web Search & Fetch (Primary)
 - Web search discovers POIs, gets narrative descriptions, pro-tips, and family-specific context.
 - Web fetch retrieves official websites, photo galleries, and pricing.
@@ -26,15 +28,20 @@ The trip generation pipeline uses a two-layer data source approach for POI detai
 - Google Places provides structured fields: **phone number**, **rating** (with review count), **wheelchair accessibility**, verified hours, verified website URL.
 - **Precedence rule:** For structured fields (hours, website URL, phone, rating), Google Places data takes precedence over web fetch when both are available.
 - **Scope limitation:** Google Places does NOT replace web fetch for narrative content (descriptions, pro-tips, family-specific notes, photo gallery links) — only for structured fields.
-- **Graceful degradation:** If Google Places MCP is not configured or a place is not found, the pipeline continues with web fetch data only. Phone and rating fields are omitted (not rendered as empty).
 - **Default wheelchair behavior:** If the trip details file does not contain a `Wheelchair accessible` field, treat as `wheelchair accessible: no`.
+
+### Layer 2c: Inline Image URL (Per-POI)
+- For each POI, find a publicly accessible image URL and include it in the markdown as `**Image:** <url>` on a line by itself in the POI section (after the links block, before the description).
+- **Preferred source:** Wikipedia/Wikimedia Commons — URLs are permanently accessible, no authentication required. Use the thumbnail format: `https://upload.wikimedia.org/wikipedia/commons/thumb/...`
+- **Fallback:** Any freely accessible, permanently hosted image URL (not requiring login, not behind CDN auth). Avoid URLs with expiry tokens or API keys.
+- **Relevance requirement:** The image must be specific to the POI (the actual attraction, building, or location) — not a generic city photo.
+- **Graceful omission:** If no suitable image is found, omit the `**Image:**` line entirely. Cards without images render normally.
 
 ### Layer 2a: Google Places API (Accommodation Discovery)
 - For stay-block anchor days, query Google Places with `type=lodging` to discover accommodation options.
 - Uses the same MCP tool (`mcp__google-places__maps_search_places` → `mcp__google-places__maps_place_details`) as POI enrichment.
 - Provides: property name, rating, review count, price level, address, Google Maps link, phone, website, photos.
 - **Precedence rule:** Same as Layer 2 — Google Places structured fields take precedence over other sources.
-- **Graceful degradation:** Same as Layer 2 — if MCP unavailable or place not found, skip accommodation section. Trip generation continues without accommodation cards.
 
 ### Layer 2b: Web Search & Fetch (Car Rental Discovery)
 - For car rental block anchor days, discover rental company options via web search and web fetch.
@@ -46,33 +53,14 @@ The trip generation pipeline uses a two-layer data source approach for POI detai
 - **Transmission/fuel filter:** When company websites provide transmission and fuel type filtering, apply the traveler's preferences. Otherwise, annotate the preference in the section intro.
 - **Pickup/return location:** Verify branch availability (airport desk vs. city center office) when discoverable.
 - **Aggregator fallback:** If web search returns insufficient results, construct comparison links using well-known aggregators (rentalcars.com, kayak.com, autoeurope.com).
-- **Graceful degradation:** If no rental information can be discovered (network failure, insufficient results), omit the car rental section. Set `discovery_source: "skipped"` in manifest. Trip generation continues — car rental discovery is non-blocking.
-- Follows existing Network & Connectivity Rules (retry once, stop on second failure).
-
-**Booking Link URL Patterns (Data-Driven Reference):**
-
-| Company | URL Pattern | Pre-filled Parameters |
-|---|---|---|
-| SIXT | `https://www.sixt.com/car-rental/{city}/?{params}` | `pickup_date`, `return_date`, `pickup_station` |
-| Hertz | `https://www.hertz.com/rentacar/reservation/?{params}` | `pickUpDate`, `returnDate`, `pickUpLocationCode` |
-| Europcar | `https://www.europcar.com/en/car-hire/results?{params}` | `pickupDate`, `returnDate`, `pickupLocation` |
-| Enterprise | `https://www.enterprise.com/en/car-rental/results.html?{params}` | `pickupdate`, `returndate`, `pickuplocation` |
-| Avis | `https://www.avis.com/en/reserve?{params}` | `pickUpDate`, `returnDate`, `loc` |
-| Budget | `https://www.budget.com/en/reserve?{params}` | `pickUpDate`, `returnDate`, `loc` |
-
-**Aggregator fallback URL patterns:**
-
-| Aggregator | URL Pattern |
-|---|---|
-| rentalcars.com | `https://www.rentalcars.com/search-results?location={destination}&pick_date={pickup}&drop_date={return}` |
-| kayak.com | `https://www.kayak.com/cars/{destination}/{pickup}/{return}` |
-| autoeurope.com | `https://www.autoeurope.com/go/results/?{params}` |
-
-**URL construction rules:**
-- Dates in URL use ISO format (YYYY-MM-DD) or the format required by the specific company's URL pattern.
-- Location codes are destination-specific — use web fetch to discover the correct location code for the destination.
-- When a deep link cannot be reliably constructed, fall back to the company's homepage or destination-specific landing page.
-- All links use `target="_blank" rel="noopener noreferrer"`.
+**Booking URLs** (dates ISO YYYY-MM-DD, location codes destination-specific via web fetch, fallback to company homepage, all `target="_blank" rel="noopener noreferrer"`):
+- SIXT: `sixt.com/car-rental/{city}/?pickup_date=&return_date=&pickup_station=`
+- Hertz: `hertz.com/rentacar/reservation/?pickUpDate=&returnDate=&pickUpLocationCode=`
+- Europcar: `europcar.com/en/car-hire/results?pickupDate=&returnDate=&pickupLocation=`
+- Enterprise: `enterprise.com/en/car-rental/results.html?pickupdate=&returndate=&pickuplocation=`
+- Avis: `avis.com/en/reserve?pickUpDate=&returnDate=&loc=`
+- Budget: `budget.com/en/reserve?pickUpDate=&returnDate=&loc=`
+- **Aggregators (fallback):** rentalcars.com (`/search-results?location=&pick_date=&drop_date=`), kayak.com (`/cars/{dest}/{pickup}/{return}`), autoeurope.com (`/go/results/`)
 
 ---
 
@@ -135,48 +123,32 @@ Record stay blocks in `manifest.json` under `accommodation.stays[]` (see content
 During Phase B, the subagent generating an anchor day's file performs accommodation research:
 
 1. **Parse preferences:** Read the `## Hotel Assistance` section from the active trip details file. Extract: accommodation_type, location_priority, quality_level, must_have_amenities, pets, daily_budget, cancellation_preference. If section absent, use defaults: mid-range quality, city center location, no pet requirement, no amenity filtering.
-2. **Google Places query:** Call `mcp__google-places__maps_search_places` with:
-   - `query`: "{accommodation_type} {stay_area}" (e.g., "Apartment Budapest" or "Hotel Budapest city center")
-   - `type`: `lodging`
-   - Adjust query center based on `location_priority`: center = historic center, attractions = tourist district, transport = main station area, quiet = residential area, beach = waterfront.
+2. **Google Places queries (multi-type discovery):** Run **two** queries to ensure both traditional hotels and apartment-style properties surface. Merge results and deduplicate by `place_id`.
+   - **Query A (primary):** Call `mcp__google-places__maps_search_places` with:
+     - `query`: "{accommodation_type} {stay_area}" (e.g., "Hotel Budapest city center")
+     - `type`: `lodging`
+   - **Query B (apartment/apart-hotel):** Call `mcp__google-places__maps_search_places` with:
+     - `query`: "serviced apartments {stay_area}" (e.g., "serviced apartments Budapest city center")
+     - `type`: `lodging`
+   - Adjust query center for both queries based on `location_priority`: center = historic center, attractions = tourist district, transport = main station area, quiet = residential area, beach = waterfront.
 3. **Filter results:**
    - Exclude `business_status` = "CLOSED_PERMANENTLY" or "CLOSED_TEMPORARILY"
    - Hard filter: if `daily_budget` is specified, exclude properties whose `price_level` maps to a range clearly outside the budget
    - Hard filter: if `pets` = "Yes", note pet policy requirement (Google Places may not confirm — annotate as "verify with property")
    - Soft rank: prefer properties matching `quality_level` → `price_level` mapping
-4. **Select 2-3 options:** Choose properties at different price points (budget, mid-range, upscale) where possible. Minimum 2, maximum 3. If fewer than 2 results remain after filtering, broaden search to city-level and retry once.
+   - **Practical fit boost (soft):** When trip context matches any of the following, boost ranking of properties that offer multi-room layouts, kitchens, or self-catering facilities:
+     - Group size ≥ 4 persons
+     - Group includes children aged ≤ 5
+     - Stay duration ≥ 7 nights
+   - These are ranking boosts, not hard filters — a high-rated traditional hotel can still be selected.
+4. **Select 2-3 options with type diversity:** Choose properties at different price points (budget, mid-range, upscale) where possible. **At least one option must be a non-traditional-hotel type (apartment, apart-hotel, or serviced apartment) when such options exist in the merged result set.** Minimum 2, maximum 3. If fewer than 2 results remain after filtering, broaden search to city-level and retry once.
 5. **Enrich each option:** Call `mcp__google-places__maps_place_details` for each selected property to get: name, formatted_address, rating, user_ratings_total, price_level, website, international_phone_number, photos, url (Google Maps link).
 6. **Construct Booking.com deep link** for each option (see content_format_rules.md for URL format).
 7. **Write accommodation section** in the anchor day's markdown file (see content_format_rules.md for card template).
-8. **Graceful degradation:** If Google Places MCP is unavailable or returns no lodging results, skip the accommodation section entirely. Log in manifest as `"discovery_source": "skipped"`. Continue with day generation — accommodation is non-blocking.
 
-### Preference-to-Search Mapping
+### Price Level Mapping (Destination-Aware)
 
-| Preference Field | Google Places Influence | Card Annotation |
-|---|---|---|
-| accommodation_type | Query keyword (e.g., "Apartment", "Boutique Hotel") | Mentioned in card description |
-| location_priority | Search center point adjustment | Proximity noted in description |
-| quality_level | `price_level` filter: Budget=0-1, Mid-range=2, Upscale=3, Luxury=4 | Price level shown on card |
-| must_have_amenities | Not filterable via API; mentioned when verifiable | Listed in description; unverifiable ones noted as "check with property" |
-| pets | Hard filter annotation | Pet policy note in pro-tip |
-| daily_budget | Hard filter on `price_level` range | Budget alignment noted |
-| cancellation_preference | Not filterable via API | Mentioned in pro-tip (e.g., "Look for free cancellation on Booking.com") |
-
-### Price Level to Cost Range Mapping (Destination-Aware)
-
-Cost estimation uses Google Places `price_level` (0-4) mapped to destination-appropriate nightly ranges. The mapping is determined by the destination's market level, not hardcoded globally.
-
-**Budapest, Hungary (example):**
-
-| price_level | Label | HUF/night | EUR/night |
-|---|---|---|---|
-| 0 | Free / Бесплатно | — | — |
-| 1 | Budget / Бюджетный | 15,000–25,000 | 38–63 |
-| 2 | Mid-range / Средний | 25,000–50,000 | 63–125 |
-| 3 | Upscale / Высокий | 50,000–90,000 | 125–225 |
-| 4 | Luxury / Люксовый | 90,000+ | 225+ |
-
-When `price_level` is absent from Google Places data, omit the price level line from the card and note: "Price level unavailable — check Booking.com link for current rates" (in the reporting language).
+Maps Google Places `price_level` (0-4) to destination-appropriate nightly ranges. Determined by destination market level, not hardcoded. Example (Budapest): 0=Free, 1=Budget(15K-25K HUF/38-63€), 2=Mid(25K-50K/63-125€), 3=Up(50K-90K/125-225€), 4=Lux(90K+/225€+). When absent, omit price level line and note "check Booking.com link" (in reporting language).
 
 ---
 
@@ -211,18 +183,6 @@ During Phase B, the subagent generating a car rental anchor day's file performs 
 6. **Budget soft filter:** If daily_rental_budget is specified, deprioritize options outside the range. Do not exclude unless 3+ options remain within range.
 7. **Construct booking deep links** for each company (see Layer 2b Booking Link URL Patterns table for URL patterns).
 8. **Write car rental section** in the anchor day's markdown file (see content_format_rules.md for template).
-9. **Graceful degradation:** If web search fails or returns insufficient results, use aggregator fallback links. If all discovery fails, omit the section and set manifest `discovery_source: "skipped"`.
-
-### Preference-to-Search Mapping
-
-| Preference Field | Search Influence | Card Annotation |
-|---|---|---|
-| car_category | Query keyword per category (e.g., "Compact", "Full-size", "Premium") | Separate comparison table per category |
-| transmission | Search query qualifier | Noted in section intro |
-| fuel_type | Search query qualifier where applicable | Noted in section intro |
-| pickup_return | Branch location filtering (airport vs. city center) | Noted in section intro |
-| additional_equipment | Not filterable via web search; included in pro-tips | Listed in section intro; surcharges noted when discoverable |
-| daily_rental_budget | Soft filter — deprioritize outside range | Budget alignment noted in recommendation |
 
 ---
 

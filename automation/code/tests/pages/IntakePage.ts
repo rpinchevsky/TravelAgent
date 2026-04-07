@@ -453,13 +453,17 @@ export class IntakePage {
           continue;
         }
         const btn = this.continueButton();
-        // Use force click to bypass stability check during step transition animations
-        if (await btn.count() > 0) await btn.click({ force: true });
+        // Use JS evaluate click to bypass viewport/animation constraints under parallel execution.
+        if (await btn.count() > 0) {
+          await btn.evaluate((el: HTMLElement) => el.click());
+        }
       } else {
         // Step 3 (questionnaire) has animating slides that make the back button unstable.
-        // Use force click to bypass the stability check.
+        // Use JS evaluate click to bypass viewport/animation constraints.
         const btn = this.backButton();
-        if (await btn.count() > 0) await btn.click({ force: true });
+        if (await btn.count() > 0) {
+          await btn.evaluate((el: HTMLElement) => el.click());
+        }
       }
       // Handle depth overlay if it appears (Step 2 Continue triggers it)
       try {

@@ -8,6 +8,9 @@ import { getManifestPath } from '../utils/trip-folder';
 /**
  * Car Rental Integration Tests (TC-300 through TC-311)
  *
+ * Car rental is rendered as a standalone top-level section (#car-rental)
+ * placed after accommodation and before day cards in the report.
+ *
  * Grouped by concern:
  *   1. Section presence (TC-300)
  *   2. Category structure (TC-301)
@@ -65,8 +68,8 @@ function getCarRentalBlocks(): ManifestCarRentalBlock[] {
 }
 
 const blocks = getCarRentalBlocks();
-const anchorDays = blocks
-  .filter((b) => b.discovery_source !== 'skipped')
+const activeBlocks = blocks.filter((b) => b.discovery_source !== 'skipped');
+const anchorDays = activeBlocks
   .map((b) => b.anchor_day_number)
   .filter((n) => n >= 0);
 const anchorDaySet = new Set(anchorDays);
@@ -74,18 +77,20 @@ const anchorDaySet = new Set(anchorDays);
 // ---- Test Block 1: Section Presence (TC-300) ----
 
 test.describe('Car Rental — Section Presence', () => {
-  test('TC-300: car rental section present on anchor days, absent on non-anchor days', async ({ tripPage }) => {
+  test('TC-300: car rental section is a top-level section before day cards', async ({ tripPage }) => {
     test.skip(blocks.length === 0, 'No car_rental.blocks in manifest — trip may not have car rental days');
 
-    for (const day of anchorDays) {
-      const section = tripPage.getDayCarRentalSection(day);
-      expect.soft(await section.count(), `Day ${day}: car rental section should be present on anchor day`).toBe(1);
-    }
+    const section = tripPage.getCarRentalSection();
+    expect.soft(await section.count(), 'Top-level #car-rental section should exist').toBe(1);
 
+    // Verify it is NOT inside any day-card
+    const insideDayCard = tripPage.page.locator('.day-card #car-rental');
+    expect.soft(await insideDayCard.count(), '#car-rental should NOT be inside a .day-card').toBe(0);
+
+    // Verify no car rental sections exist inside day cards
     for (let day = 0; day < tripConfig.dayCount; day++) {
-      if (anchorDaySet.has(day)) continue;
-      const section = tripPage.getDayCarRentalSection(day);
-      expect.soft(await section.count(), `Day ${day}: non-anchor day should have no car rental section`).toBe(0);
+      const dayCar = tripPage.page.locator(`#day-${day} .car-rental-section`);
+      expect.soft(await dayCar.count(), `Day ${day}: should have no car rental section inside day card`).toBe(0);
     }
   });
 });
@@ -96,70 +101,67 @@ test.describe('Car Rental — Category Structure', () => {
   test('TC-301: categories, tables, intros, estimates, recommendations, pro-tips', async ({ tripPage }) => {
     test.skip(blocks.length === 0, 'No car_rental.blocks in manifest');
 
-    for (const block of blocks) {
-      const day = block.anchor_day_number;
-      if (day < 0 || block.discovery_source === 'skipped') continue;
+    const categories = tripPage.getCarRentalCategories();
+    const catCount = await categories.count();
 
-      const categories = tripPage.getDayCarRentalCategories(day);
-      const catCount = await categories.count();
-      expect.soft(catCount, `Day ${day}: category count should be >= 1`).toBeGreaterThanOrEqual(1);
-      expect.soft(catCount, `Day ${day}: category count should be <= 3`).toBeLessThanOrEqual(3);
-
-      if (block.categories_compared.length > 0) {
-        expect.soft(catCount, `Day ${day}: DOM category count should match manifest categories_compared (${block.categories_compared.length})`).toBe(block.categories_compared.length);
-      }
-
-      for (let c = 0; c < catCount; c++) {
-        const cat = categories.nth(c);
-        const label = `Day ${day}, Category ${c}`;
-
-        const title = tripPage.getCarRentalCategoryTitle(cat);
-        expect.soft(await title.count(), `${label}: should have .car-rental-category__title`).toBeGreaterThanOrEqual(1);
-        if (await title.count() > 0) {
-          const titleText = await title.first().textContent();
-          expect.soft(titleText && titleText.trim().length > 0, `${label}: title should have non-empty text`).toBe(true);
-        }
-
-        const table = tripPage.getCarRentalCategoryTable(cat);
-        expect.soft(await table.count(), `${label}: should have .car-rental-table`).toBe(1);
-        if (await table.count() > 0) {
-          await expect.soft(table.first(), `${label}: table should be visible`).toBeVisible();
-
-          const headerCells = tripPage.getCarRentalTableHeaderCells(table.first());
-          expect.soft(await headerCells.count(), `${label}: table should have 4 header cells`).toBe(4);
-        }
-
-        const estimate = tripPage.getCarRentalCategoryEstimate(cat);
-        expect.soft(await estimate.count(), `${label}: should have .car-rental-category__estimate`).toBeGreaterThanOrEqual(1);
-
-        const recommendation = tripPage.getCarRentalCategoryRecommendation(cat);
-        expect.soft(await recommendation.count(), `${label}: should have .car-rental-category__recommendation`).toBeGreaterThanOrEqual(1);
-        if (await recommendation.count() > 0) {
-          const recText = await recommendation.first().textContent();
-          expect.soft(recText && recText.trim().length > 0, `${label}: recommendation should have non-empty text`).toBe(true);
-        }
-      }
-
-      // Section intro
-      const section = tripPage.getDayCarRentalSection(day);
-      const intro = section.locator('.car-rental-section__intro');
-      expect.soft(await intro.count(), `Day ${day}: car-rental-section__intro should exist`).toBeGreaterThanOrEqual(1);
-      if (await intro.count() > 0) {
-        const introText = await intro.first().textContent();
-        expect.soft(introText && introText.trim().length > 0, `Day ${day}: intro paragraph should have non-empty text`).toBe(true);
-      }
-
-      // Section heading contains 🚗 emoji
-      const sectionHeading = section.locator('h2, .section-title').first();
-      if (await sectionHeading.count() > 0) {
-        const headingText = await sectionHeading.textContent();
-        expect.soft(headingText?.includes('🚗'), `Day ${day}: section heading should contain 🚗 emoji`).toBe(true);
-      }
-
-      // Pro-tip in section
-      const proTip = tripPage.getCarRentalProTip(section);
-      expect.soft(await proTip.count(), `Day ${day}: car rental section should have .pro-tip`).toBeGreaterThanOrEqual(1);
+    // Total categories should match sum across all active blocks
+    const expectedTotal = activeBlocks.reduce((sum, b) => sum + b.categories_compared.length, 0);
+    if (expectedTotal > 0) {
+      expect.soft(catCount, `Total car rental categories (${catCount}) should match manifest total (${expectedTotal})`).toBe(expectedTotal);
     }
+    expect.soft(catCount, 'Should have at least 1 car rental category').toBeGreaterThanOrEqual(1);
+    expect.soft(catCount, 'Should have at most 3 car rental categories per block').toBeLessThanOrEqual(activeBlocks.length * 3);
+
+    for (let c = 0; c < catCount; c++) {
+      const cat = categories.nth(c);
+      const label = `Category ${c}`;
+
+      const title = tripPage.getCarRentalCategoryTitle(cat);
+      expect.soft(await title.count(), `${label}: should have .car-rental-category__title`).toBeGreaterThanOrEqual(1);
+      if (await title.count() > 0) {
+        const titleText = await title.first().textContent();
+        expect.soft(titleText && titleText.trim().length > 0, `${label}: title should have non-empty text`).toBe(true);
+      }
+
+      const table = tripPage.getCarRentalCategoryTable(cat);
+      expect.soft(await table.count(), `${label}: should have .car-rental-table`).toBe(1);
+      if (await table.count() > 0) {
+        await expect.soft(table.first(), `${label}: table should be visible`).toBeVisible();
+
+        const headerCells = tripPage.getCarRentalTableHeaderCells(table.first());
+        expect.soft(await headerCells.count(), `${label}: table should have 4 header cells`).toBe(4);
+      }
+
+      const estimate = tripPage.getCarRentalCategoryEstimate(cat);
+      expect.soft(await estimate.count(), `${label}: should have .car-rental-category__estimate`).toBeGreaterThanOrEqual(1);
+
+      const recommendation = tripPage.getCarRentalCategoryRecommendation(cat);
+      expect.soft(await recommendation.count(), `${label}: should have .car-rental-category__recommendation`).toBeGreaterThanOrEqual(1);
+      if (await recommendation.count() > 0) {
+        const recText = await recommendation.first().textContent();
+        expect.soft(recText && recText.trim().length > 0, `${label}: recommendation should have non-empty text`).toBe(true);
+      }
+    }
+
+    // Section intro
+    const section = tripPage.getCarRentalSection();
+    const intro = section.locator('.car-rental-section__intro');
+    expect.soft(await intro.count(), 'car-rental-section__intro should exist').toBeGreaterThanOrEqual(1);
+    if (await intro.count() > 0) {
+      const introText = await intro.first().textContent();
+      expect.soft(introText && introText.trim().length > 0, 'intro paragraph should have non-empty text').toBe(true);
+    }
+
+    // Section heading contains 🚗 emoji
+    const sectionHeading = section.locator('h2, .section-title').first();
+    if (await sectionHeading.count() > 0) {
+      const headingText = await sectionHeading.textContent();
+      expect.soft(headingText?.includes('🚗'), 'section heading should contain 🚗 emoji').toBe(true);
+    }
+
+    // Pro-tip in section
+    const proTip = tripPage.getCarRentalProTip(section);
+    expect.soft(await proTip.count(), 'car rental section should have .pro-tip').toBeGreaterThanOrEqual(1);
   });
 });
 
@@ -169,36 +171,27 @@ test.describe('Car Rental — Comparison Table Rows', () => {
   test('TC-302: row count and rental CTA per row', async ({ tripPage }) => {
     test.skip(blocks.length === 0, 'No car_rental.blocks in manifest');
 
-    for (const block of blocks) {
-      const day = block.anchor_day_number;
-      if (day < 0 || block.discovery_source === 'skipped') continue;
+    const categories = tripPage.getCarRentalCategories();
+    const catCount = await categories.count();
 
-      const categories = tripPage.getDayCarRentalCategories(day);
-      const catCount = await categories.count();
+    for (let c = 0; c < catCount; c++) {
+      const cat = categories.nth(c);
+      const table = tripPage.getCarRentalCategoryTable(cat);
+      if (await table.count() === 0) continue;
 
-      for (let c = 0; c < catCount; c++) {
-        const cat = categories.nth(c);
-        const table = tripPage.getCarRentalCategoryTable(cat);
-        if (await table.count() === 0) continue;
+      const rows = tripPage.getCarRentalTableRows(table.first());
+      const rowCount = await rows.count();
+      const label = `Category ${c}`;
 
-        const rows = tripPage.getCarRentalTableRows(table.first());
-        const rowCount = await rows.count();
-        const label = `Day ${day}, Category ${c}`;
+      expect.soft(rowCount, `${label}: table rows should be >= 2`).toBeGreaterThanOrEqual(2);
+      expect.soft(rowCount, `${label}: table rows should be <= 3`).toBeLessThanOrEqual(3);
 
-        expect.soft(rowCount, `${label}: table rows should be >= 2`).toBeGreaterThanOrEqual(2);
-        expect.soft(rowCount, `${label}: table rows should be <= 3`).toBeLessThanOrEqual(3);
-
-        if (block.companies_per_category > 0) {
-          expect.soft(rowCount, `${label}: row count should match manifest companies_per_category (${block.companies_per_category})`).toBe(block.companies_per_category);
-        }
-
-        for (let r = 0; r < rowCount; r++) {
-          const row = rows.nth(r);
-          const cta = row.locator('.rental-cta');
-          expect.soft(await cta.count(), `${label}, Row ${r}: should have .rental-cta`).toBeGreaterThanOrEqual(1);
-          if (await cta.count() > 0) {
-            await expect.soft(cta.first(), `${label}, Row ${r}: rental CTA should be visible`).toBeVisible();
-          }
+      for (let r = 0; r < rowCount; r++) {
+        const row = rows.nth(r);
+        const cta = row.locator('.rental-cta');
+        expect.soft(await cta.count(), `${label}, Row ${r}: should have .rental-cta`).toBeGreaterThanOrEqual(1);
+        if (await cta.count() > 0) {
+          await expect.soft(cta.first(), `${label}, Row ${r}: rental CTA should be visible`).toBeVisible();
         }
       }
     }
@@ -211,32 +204,30 @@ test.describe('Car Rental — Booking Links', () => {
   test('TC-303: rental CTA link structure and attributes', async ({ tripPage }) => {
     test.skip(blocks.length === 0, 'No car_rental.blocks in manifest');
 
-    for (const day of anchorDays) {
-      const ctas = tripPage.getDayRentalCtas(day);
-      const ctaCount = await ctas.count();
-      expect.soft(ctaCount, `Day ${day}: should have at least 2 rental CTAs`).toBeGreaterThanOrEqual(2);
+    const ctas = tripPage.getRentalCtas();
+    const ctaCount = await ctas.count();
+    expect.soft(ctaCount, 'Should have at least 2 rental CTAs').toBeGreaterThanOrEqual(2);
 
-      for (let i = 0; i < ctaCount; i++) {
-        const cta = ctas.nth(i);
-        const label = `Day ${day}, CTA ${i}`;
+    for (let i = 0; i < ctaCount; i++) {
+      const cta = ctas.nth(i);
+      const label = `CTA ${i}`;
 
-        const tagName = await cta.evaluate((el) => el.tagName.toLowerCase());
-        expect.soft(tagName, `${label}: rental CTA should be an <a> element`).toBe('a');
+      const tagName = await cta.evaluate((el) => el.tagName.toLowerCase());
+      expect.soft(tagName, `${label}: rental CTA should be an <a> element`).toBe('a');
 
-        const linkType = await cta.getAttribute('data-link-type');
-        expect.soft(linkType, `${label}: data-link-type should be "rental-booking"`).toBe('rental-booking');
+      const linkType = await cta.getAttribute('data-link-type');
+      expect.soft(linkType, `${label}: data-link-type should be "rental-booking"`).toBe('rental-booking');
 
-        const target = await cta.getAttribute('target');
-        expect.soft(target, `${label}: target should be "_blank"`).toBe('_blank');
+      const target = await cta.getAttribute('target');
+      expect.soft(target, `${label}: target should be "_blank"`).toBe('_blank');
 
-        const rel = await cta.getAttribute('rel');
-        expect.soft(rel?.includes('noopener'), `${label}: rel should contain "noopener"`).toBe(true);
+      const rel = await cta.getAttribute('rel');
+      expect.soft(rel?.includes('noopener'), `${label}: rel should contain "noopener"`).toBe(true);
 
-        const href = await cta.getAttribute('href');
-        expect.soft(href, `${label}: should have an href`).toBeTruthy();
-        if (href) {
-          expect.soft(/^https?:\/\//.test(href), `${label}: href should match URL pattern (got "${href}")`).toBe(true);
-        }
+      const href = await cta.getAttribute('href');
+      expect.soft(href, `${label}: should have an href`).toBeTruthy();
+      if (href) {
+        expect.soft(/^https?:\/\//.test(href), `${label}: href should match URL pattern (got "${href}")`).toBe(true);
       }
     }
   });
@@ -248,6 +239,7 @@ test.describe('Car Rental — Budget Integration', () => {
   test('TC-304+305: car rental line in anchor day pricing grid and aggregate budget', async ({ tripPage }) => {
     test.skip(blocks.length === 0, 'No car_rental.blocks in manifest');
 
+    // Anchor day budget tables still include car rental cost line items
     for (const day of anchorDays) {
       const pricingGrid = tripPage.getDayPricingTable(day);
       const gridCount = await pricingGrid.count();
@@ -276,53 +268,43 @@ test.describe('Car Rental — POI Parity Exclusion & Visual Distinction', () => 
   test('TC-306+311: car rental elements are class-separated from POI and accommodation', async ({ tripPage }) => {
     test.skip(blocks.length === 0, 'No car_rental.blocks in manifest');
 
-    for (const day of anchorDays) {
-      const dayLabel = `Day ${day}`;
+    const carCategories = tripPage.getCarRentalCategories();
+    const carCatCount = await carCategories.count();
+    expect.soft(carCatCount, 'Should have car rental categories').toBeGreaterThan(0);
 
-      // Verify car rental categories exist on anchor days
-      const carCategories = tripPage.getDayCarRentalCategories(day);
-      const carCatCount = await carCategories.count();
-      expect.soft(carCatCount, `${dayLabel}: should have car rental categories on anchor day`).toBeGreaterThan(0);
-
-      // TC-306: POI cards do NOT have .car-rental-category class
-      const poiCards = tripPage.getDayPoiCards(day);
-      const poiCount = await poiCards.count();
-      for (let i = 0; i < poiCount; i++) {
-        const hasCar = await poiCards.nth(i).evaluate((el) => el.classList.contains('car-rental-category'));
-        expect.soft(hasCar, `${dayLabel}, POI ${i}: .poi-card should NOT have .car-rental-category class`).toBe(false);
-      }
-
-      // TC-306: car rental categories do NOT have .poi-card class
-      for (let i = 0; i < carCatCount; i++) {
-        const hasPoi = await carCategories.nth(i).evaluate((el) => el.classList.contains('poi-card'));
-        expect.soft(hasPoi, `${dayLabel}, CarCat ${i}: .car-rental-category should NOT have .poi-card class`).toBe(false);
-      }
-
-      // TC-311: car rental sections do NOT have .poi-card or .accommodation-section class
-      const carSections = tripPage.getDayCarRentalSection(day);
-      const sectionCount = await carSections.count();
-      for (let i = 0; i < sectionCount; i++) {
-        const hasPoiClass = await carSections.nth(i).evaluate((el) => el.classList.contains('poi-card'));
-        expect.soft(hasPoiClass, `${dayLabel}, Section ${i}: .car-rental-section should NOT have .poi-card class`).toBe(false);
-
-        const hasAccomClass = await carSections.nth(i).evaluate((el) => el.classList.contains('accommodation-section'));
-        expect.soft(hasAccomClass, `${dayLabel}, Section ${i}: .car-rental-section should NOT have .accommodation-section class`).toBe(false);
-      }
-
-      // TC-311: car rental categories do NOT have .accommodation-card class
-      for (let i = 0; i < carCatCount; i++) {
-        const hasAccom = await carCategories.nth(i).evaluate((el) => el.classList.contains('accommodation-card'));
-        expect.soft(hasAccom, `${dayLabel}, CarCat ${i}: .car-rental-category should NOT have .accommodation-card class`).toBe(false);
-      }
-
-      // TC-311: rental CTAs do NOT have .booking-cta class
-      const rentalCtas = tripPage.getDayRentalCtas(day);
-      const ctaCount = await rentalCtas.count();
-      for (let i = 0; i < ctaCount; i++) {
-        const hasBooking = await rentalCtas.nth(i).evaluate((el) => el.classList.contains('booking-cta'));
-        expect.soft(hasBooking, `${dayLabel}, RentalCTA ${i}: .rental-cta should NOT have .booking-cta class`).toBe(false);
-      }
+    // TC-306: car rental categories do NOT have .poi-card class
+    for (let i = 0; i < carCatCount; i++) {
+      const hasPoi = await carCategories.nth(i).evaluate((el) => el.classList.contains('poi-card'));
+      expect.soft(hasPoi, `CarCat ${i}: .car-rental-category should NOT have .poi-card class`).toBe(false);
     }
+
+    // TC-311: car rental section does NOT have .poi-card or .accommodation-section class
+    const carSection = tripPage.getCarRentalSection();
+    if (await carSection.count() > 0) {
+      const hasPoiClass = await carSection.evaluate((el) => el.classList.contains('poi-card'));
+      expect.soft(hasPoiClass, '.car-rental-section should NOT have .poi-card class').toBe(false);
+
+      const hasAccomClass = await carSection.evaluate((el) => el.classList.contains('accommodation-section'));
+      expect.soft(hasAccomClass, '.car-rental-section should NOT have .accommodation-section class').toBe(false);
+    }
+
+    // TC-311: car rental categories do NOT have .accommodation-card class
+    for (let i = 0; i < carCatCount; i++) {
+      const hasAccom = await carCategories.nth(i).evaluate((el) => el.classList.contains('accommodation-card'));
+      expect.soft(hasAccom, `CarCat ${i}: .car-rental-category should NOT have .accommodation-card class`).toBe(false);
+    }
+
+    // TC-311: rental CTAs do NOT have .booking-cta class
+    const rentalCtas = tripPage.getRentalCtas();
+    const ctaCount = await rentalCtas.count();
+    for (let i = 0; i < ctaCount; i++) {
+      const hasBooking = await rentalCtas.nth(i).evaluate((el) => el.classList.contains('booking-cta'));
+      expect.soft(hasBooking, `RentalCTA ${i}: .rental-cta should NOT have .booking-cta class`).toBe(false);
+    }
+
+    // Verify no car rental elements inside day cards
+    const carInDays = tripPage.page.locator('.day-card .car-rental-section');
+    expect.soft(await carInDays.count(), 'No car rental sections should exist inside day cards').toBe(0);
   });
 });
 

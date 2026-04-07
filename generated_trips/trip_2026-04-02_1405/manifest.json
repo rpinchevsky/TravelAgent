@@ -1,0 +1,62 @@
+{
+  "trip_details_file": "trip_details.md",
+  "destination": "Budapest, Hungary",
+  "arrival": "2026-08-20",
+  "departure": "2026-08-31",
+  "total_days": 12,
+  "created": "2026-04-02T14:05:00",
+  "languages": {
+    "ru": {
+      "phase_a_complete": true,
+      "days": {
+        "day_00": { "status": "complete", "title": "Прибытие · День Святого Иштвана", "last_modified": "2026-04-02T14:30:00" },
+        "day_01": { "status": "complete", "title": "Варошлигет — Зоопарк + Площадка", "last_modified": "2026-04-02T14:30:00" },
+        "day_02": { "status": "complete", "title": "Остров Маргит — Палатинус", "last_modified": "2026-04-02T14:30:00" },
+        "day_03": { "status": "complete", "title": "Будайский замок — Рыбацкий бастион", "last_modified": "2026-04-02T14:30:00" },
+        "day_04": { "status": "complete", "title": "Мини-верзум + Дунай + Рынок", "last_modified": "2026-04-02T14:30:00" },
+        "day_05": { "status": "complete", "title": "Детская ж/д + Будакесси", "last_modified": "2026-04-02T14:30:00" },
+        "day_06": { "status": "complete", "title": "CSOPA + Парк истории ж/д", "last_modified": "2026-04-02T14:30:00" },
+        "day_07": { "status": "complete", "title": "Медвежья ферма + Aquaworld", "last_modified": "2026-04-02T14:30:00" },
+        "day_08": { "status": "complete", "title": "Тропикариум + Аркады", "last_modified": "2026-04-02T14:30:00" },
+        "day_09": { "status": "complete", "title": "Цирк + Аутлет", "last_modified": "2026-04-02T14:30:00" },
+        "day_10": { "status": "complete", "title": "День рождения Итая 🎂", "last_modified": "2026-04-02T14:30:00" },
+        "day_11": { "status": "complete", "title": "Вылет", "last_modified": "2026-04-02T14:30:00" }
+      },
+      "budget_complete": true,
+      "assembly": {
+        "trip_full_md_built": "2026-04-02T14:35:00",
+        "trip_full_html_built": "2026-04-02T15:30:00",
+        "stale_days": []
+      }
+    }
+  },
+  "accommodation": {
+    "stays": [
+      {
+        "id": "stay_01",
+        "checkin": "2026-08-20",
+        "checkout": "2026-08-31",
+        "nights": 11,
+        "area": "Budapest, Hungary",
+        "anchor_day": "day_00",
+        "options_count": 3,
+        "discovery_source": "google_places"
+      }
+    ]
+  },
+  "car_rental": {
+    "blocks": [
+      {
+        "id": "rental_01",
+        "pickup_date": "2026-08-25",
+        "return_date": "2026-08-29",
+        "days": 5,
+        "pickup_location": "City center office",
+        "anchor_day": "day_05",
+        "categories_compared": ["Minivan", "Full-size SUV"],
+        "companies_per_category": 3,
+        "discovery_source": "web_search"
+      }
+    ]
+  }
+}

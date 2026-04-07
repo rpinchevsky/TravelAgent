@@ -9,6 +9,8 @@ generated_trips/
   trip_YYYY-MM-DD_HHmm/           # Trip folder (one folder per trip, all languages inside)
     manifest.json                  # Trip metadata + day index + per-language state
     overview_LANG.md               # Phase A table (e.g., overview_ru.md, overview_en.md)
+    accommodation_LANG.md          # Standalone hotel recommendations (one file per language)
+    car_rental_LANG.md             # Standalone car rental recommendations (optional, one per language)
     day_00_LANG.md                 # Day 0 (e.g., day_00_ru.md)
     day_01_LANG.md                 # Day 1
     day_NN_LANG.md                 # One file per day per language
@@ -28,7 +30,7 @@ generated_trips/
 
 ### manifest.json Schema
 
-Created during Phase A, updated after all days are generated (see Day Generation Protocol):
+Created during Phase A, updated after Phase B. Combined example:
 
 ```json
 {
@@ -42,96 +44,44 @@ Created during Phase A, updated after all days are generated (see Day Generation
     "ru": {
       "phase_a_complete": true,
       "days": {
-        "day_00": { "status": "complete", "title": "Прилёт", "last_modified": "2026-03-15T09:05:00" },
-        "day_01": { "status": "complete", "title": "Остров Маргит", "last_modified": "2026-03-15T09:08:00" },
-        "day_02": { "status": "pending", "title": "Варошлигет", "last_modified": null }
+        "day_00": { "status": "complete", "title": "Прилёт", "last_modified": "..." },
+        "day_01": { "status": "pending", "title": "Остров Маргит", "last_modified": null }
       },
+      "accommodation_complete": false,
+      "car_rental_complete": false,
       "budget_complete": false,
-      "assembly": {
-        "trip_full_md_built": "2026-03-15T09:30:00",
-        "trip_full_html_built": "2026-03-15T09:45:00",
-        "stale_days": []
-      }
+      "assembly": { "trip_full_md_built": "...", "trip_full_html_built": "...", "stale_days": [] }
     }
-  }
-}
-```
-
-**Field rules:**
-- `trip_details_file` — the filename of the trip details source file used to generate this trip (e.g., `"trip_details.md"`, `"Maryan.md"`). Defaults to `"trip_details.md"` if absent (backward compatibility with older manifests). Written during Phase A manifest creation.
-- `languages` — keyed by ISO 639-1 code. Each language has its own `phase_a_complete`, `days`, `budget_complete`, and `assembly` state. Adding a new language creates a new key (e.g., `"en": { ... }`).
-- `days` keys match filenames without the language suffix (e.g., `day_00` → `day_00_ru.md`).
-- `status` values: `"pending"` | `"complete"`.
-- `title` is populated from the Phase A overview table.
-- `stale_days` lists any days modified after the last full assembly — triggers incremental rebuild.
-- After editing a day, add it to `stale_days` and update its `last_modified`.
-
-**Accommodation metadata (written during Phase A, updated after Phase B):**
-
-```json
-{
+  },
   "accommodation": {
-    "stays": [
-      {
-        "id": "stay_01",
-        "checkin": "2026-08-20",
-        "checkout": "2026-08-31",
-        "nights": 11,
-        "area": "Budapest, Hungary",
-        "anchor_day": "day_00",
-        "options_count": 3,
-        "discovery_source": "google_places"
-      }
-    ]
-  }
-}
-```
-
-- `accommodation` is a top-level key (sibling to `languages`).
-- `stays` is an ordered array of stay block objects.
-- `id`: Sequential identifier (`stay_01`, `stay_02`, ...).
-- `checkin` / `checkout`: ISO date strings (YYYY-MM-DD). Check-in = first night, check-out = morning after last night.
-- `nights`: Integer convenience field — number of nights in the stay block (`checkout_date - checkin_date` in days). Eliminates ambiguity and off-by-one risks for consumers (budget calculation, anchor day intro line, Booking.com link description).
-- `area`: Geographic area name matching the Phase A overview area column.
-- `anchor_day`: Reference to the day file key (e.g., `day_00`) containing the accommodation cards.
-- `options_count`: Set to `0` during Phase A, updated to actual count (2-3) after Phase B accommodation discovery.
-- `discovery_source`: Set to `"pending"` during Phase A, updated to `"google_places"` after successful discovery, `"skipped"` if MCP unavailable or zero results, `"manual"` if overridden by user.
-- For multi-stay trips, multiple entries with non-overlapping date ranges.
-
-**Car rental metadata (written during Phase A, updated after Phase B):**
-
-```json
-{
+    "stays": [{
+      "id": "stay_01", "checkin": "2026-08-20", "checkout": "2026-08-31", "nights": 11,
+      "area": "Budapest, Hungary", "anchor_day": "day_00",
+      "options_count": 0, "discovery_source": "pending"
+    }]
+  },
   "car_rental": {
-    "blocks": [
-      {
-        "id": "rental_01",
-        "pickup_date": "2026-08-26",
-        "return_date": "2026-08-27",
-        "days": 2,
-        "pickup_location": "Airport",
-        "anchor_day": "day_06",
-        "categories_compared": ["Compact", "Full-size"],
-        "companies_per_category": 3,
-        "discovery_source": "web_search"
-      }
-    ]
+    "blocks": [{
+      "id": "rental_01", "pickup_date": "2026-08-26", "return_date": "2026-08-27", "days": 2,
+      "pickup_location": "Airport", "anchor_day": "day_06",
+      "categories_compared": [], "companies_per_category": 0, "discovery_source": "pending"
+    }]
   }
 }
 ```
 
-- `car_rental` is a top-level key (sibling to `languages` and `accommodation`).
-- `blocks` is an ordered array of car rental block objects.
-- `id`: Sequential identifier (`rental_01`, `rental_02`, ...).
-- `pickup_date` / `return_date`: ISO date strings (YYYY-MM-DD). Pickup = morning of first car day, return = evening of last car day.
-- `days`: Integer — number of rental days in the block.
-- `pickup_location`: Derived from `## Car Rental Assistance` pickup_return preference. If not specified, defaults to accommodation area.
-- `anchor_day`: Reference to the day file key (e.g., `day_06`) containing the car rental section.
-- `categories_compared`: List of car categories for which comparison tables were generated. Set to `[]` during Phase A, populated after Phase B.
-- `companies_per_category`: Set to `0` during Phase A, updated to actual count (2-3) after Phase B.
-- `discovery_source`: Set to `"pending"` during Phase A, updated to `"web_search"` after successful discovery, `"aggregator_fallback"` when only aggregator links were available, or `"skipped"` if discovery failed or `## Car Rental Assistance` was absent.
-- For trips with multiple non-adjacent car day groups, multiple entries exist in the `blocks` array.
-- When no car days exist in the itinerary, the `car_rental` object is present with an empty `blocks` array: `{ "car_rental": { "blocks": [] } }`.
+**Field semantics:**
+- `trip_details_file`: Defaults to `"trip_details.md"` if absent. `languages` keyed by ISO 639-1; each language has independent state.
+- `status`: `"pending"` | `"complete"`. Day keys = filenames without language suffix (e.g., `day_00` → `day_00_ru.md`).
+- `stale_days`: Days modified after last assembly — triggers incremental rebuild. After editing, add day here + update `last_modified`.
+- `checkin` = first night, `checkout` = morning after last night. `nights` = checkout − checkin.
+- `accommodation_complete` / `car_rental_complete`: Track whether standalone files have been generated for this language.
+- `options_count` / `companies_per_category`: `0` in Phase A, updated to 2-3 after Phase B.
+- `discovery_source`: `"pending"` → `"google_places"` | `"web_search"` | `"aggregator_fallback"` | `"skipped"` | `"manual"`.
+- `pickup_location`: From trip details `pickup_return`; defaults to accommodation area.
+- `anchor_day`: Identifies which day's budget table includes the accommodation/car rental cost line item. Accommodation and car rental recommendation content is in standalone files, not in day files.
+- `car_rental.blocks`: Empty `[]` when no car days. Multiple entries for non-adjacent car day groups.
+- `stays` / `blocks`: Non-overlapping date ranges. Multi-stay/multi-block trips have multiple entries.
 
 ---
 
@@ -155,7 +105,7 @@ Provide a table with:
 3. Write `manifest.json` with `trip_details_file` set to the active trip details filename, the language key under `languages`, all days listed as `"pending"`, `phase_a_complete: true`.
 4. Proceed directly to Phase B (do not wait for user approval).
 
-> **Car rental note:** The Phase A overview must NOT contain a detailed car rental recommendation section with pricing and company names. If car days exist, include a brief one-line reference: "Car rental details: see Day {N}" (localized), pointing to the anchor day. The anchor day's `## 🚗` section is the single source of truth for rental options, pricing, and booking links.
+> **Car rental note:** The Phase A overview must NOT contain a detailed car rental recommendation section with pricing and company names. Car rental recommendations are generated as a standalone file (`car_rental_LANG.md`) placed before the day-by-day content in the assembled report.
 
 ---
 
@@ -172,7 +122,7 @@ When generating `day_XX_LANG.md`, load only:
 
 Do NOT load other day files — Phase A provides all cross-day coordination.
 
-> **Note:** The trip details file may contain optional `## Hotel Assistance` and `## Car Rental Assistance` sections at the end. These sections carry structured accommodation and vehicle preferences. The `## Hotel Assistance` section **is consumed** by the accommodation discovery logic: on anchor days (the first day of each stay block), the subagent parses this section to parameterize Google Places lodging queries and annotate accommodation cards. If the section is absent, sensible defaults are used (mid-range, city center, no pet requirement). The `## Car Rental Assistance` section **is consumed** by the car rental discovery logic: on anchor days (the first day of each car rental block), the subagent parses this section to parameterize web search queries and generate price comparison tables. If the section is absent, car rental sections are skipped entirely — unlike accommodation, car rental is not a universal need and requires explicit preferences.
+> **Note:** The trip details file may contain optional `## Hotel Assistance` and `## Car Rental Assistance` sections at the end. These sections carry structured accommodation and vehicle preferences. They are **not consumed by day subagents** — instead, they are used after all day batches complete to generate standalone `accommodation_LANG.md` and `car_rental_LANG.md` files (see Standalone Accommodation & Car Rental Generation below). Day subagents do NOT generate `## 🏨` or `## 🚗` sections.
 
 ### Per-Day File Format
 
@@ -188,10 +138,7 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 | Время | Активность | Детали |
 |-------|-----------|--------|
 | ...   | ...       | ...    |
-<!-- Quick food stops (street food, grab-and-go snacks) go here as schedule rows,
-     NOT as separate ### POI sections. Example:
-     | 14:00 | 🍩 Кюртёшкалач | Édes Mackó — дымковый торт на углях, ~1 500 HUF 📍 [Maps](link) |
-     The "Детали" column carries the venue name, one-line description, price, and optional Maps link. -->
+<!-- Quick food stops go as schedule rows, NOT ### POI sections (see trip_planning_rules.md §5) -->
 
 ---
 
@@ -199,10 +146,11 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 
 📍 [Google Maps](https://maps.google.com/...)
 🌐 [Сайт](https://...)
-📸 [Фото](https://...)
+📸 [Фото Google](https://www.google.com/maps/place/...)
 📞 Телефон: +36 1 234 5678
 ⭐ 4.5/5 (2,340 отзывов)
 ♿ Доступно для колясок
+**Image:** https://upload.wikimedia.org/wikipedia/commons/thumb/...
 
 {Full POI content per Content Guidelines below}
 
@@ -210,12 +158,6 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 {Full POI content}
 
 ...
-
-## 🏨 {Accommodation label} (anchor days for stay blocks only)
-{2-3 accommodation option cards — see Accommodation Section below}
-
-## 🚗 {Car rental label} (anchor days for car rental blocks only)
-{Price comparison tables per category — see Car Rental Section below}
 
 ### Стоимость дня {N}
 
@@ -234,26 +176,26 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 {Backup plan content}
 ```
 
-> **Section placement order:** The template above shows all possible sections in their required order. The `## 🏨` and `## 🚗` sections appear only on anchor days (see below). The daily budget table always follows them.
+> **Section placement order:** The template above shows all possible sections in their required order. The daily budget table follows POI cards directly. Accommodation and car rental sections are NOT part of day files — they are generated as standalone files (see below).
 
-### Accommodation Section (Anchor Day Only)
+### Standalone Accommodation File (`accommodation_LANG.md`)
 
-On the first day of each stay block (the "anchor day"), include an accommodation section after the POI cards and before the daily budget table. This section is NOT present on non-anchor days.
+Accommodation recommendations are generated as a standalone file `accommodation_LANG.md` in the trip folder. This file is placed **before the day-by-day content** in the assembled report, allowing travelers to review lodging options before reading the daily itinerary.
 
-**Section placement order within anchor day files** (matches the Per-Day File Format template above):
+**Section placement order within day files** (no accommodation/car rental — those are standalone):
 1. Day header + schedule table
 2. POI cards (### headings)
-3. Accommodation section (## 🏨) — anchor days for stay blocks only
-4. Car rental section (## 🚗) — anchor days for car rental blocks only
-5. Daily budget table (### Стоимость дня)
-6. Grocery store (### 🛒)
-7. Along-the-way stops (### 🎯)
-8. Plan B (### 🅱️)
-9. *(end of file)*
+3. Daily budget table (### Стоимость дня) — anchor days still include accommodation/car budget line items
+4. Grocery store (### 🛒)
+5. Along-the-way stops (### 🎯)
+6. Plan B (### 🅱️)
+7. *(end of file)*
 
-> **Rationale:** The accommodation section appears before the daily budget table so that the reader encounters accommodation options before seeing their cost in the budget. The `## 🏨` heading (h2 level) acts as a major section divider between POI content and the operational/logistics sections that follow.
+> **Rationale:** Placing accommodation and car rental at the beginning of the report matches the natural trip-planning decision order — travelers book lodging and vehicles before reviewing daily activities. Budget line items remain on anchor days for per-day cost context.
 
-**Section format:**
+**Generation:** After all Phase B day batches complete, the main agent generates `accommodation_LANG.md` using the `## Hotel Assistance` section from the trip details file and Google Places lodging queries. If the `## Hotel Assistance` section is absent, sensible defaults are used (mid-range, city center, no pet requirement). Multi-stay trips include all stay blocks in a single file, separated by `---`.
+
+**File format:**
 
 ```
 ## 🏨 {localized_accommodation_label}
@@ -264,7 +206,7 @@ On the first day of each stay block (the "anchor day"), include an accommodation
 
 📍 [Google Maps]({google_maps_url})
 🌐 [{localized_website_label}]({website_url})
-📸 [{localized_photos_label}]({photos_url})
+📸 [{localized_photos_label — always include "Google", e.g. "Фото Google" / "Google Photos" / "תמונות Google"}]({google_maps_place_url})
 📞 {localized_phone_label}: {phone}
 ⭐ {rating}/5 ({review_count} {localized_reviews_label})
 💰 {localized_price_level_label}: {descriptive_price_level}
@@ -283,15 +225,9 @@ On the first day of each stay block (the "anchor day"), include an accommodation
 ```
 
 **Rules:**
-- The section heading uses `##` (h2), not `###` (h3), to distinguish from POI cards.
-- Individual accommodation option cards use `### 🏨` (h3) with the hotel emoji prefix.
-- `### 🏨` headings are NOT POI headings. They are excluded from POI Parity Checks and do not generate `.poi-card` elements in HTML.
-- Property names follow `poi_languages` convention (e.g., "Hotel Parlament Budapest / Отель Парламент Будапешт").
-- 2-3 cards per section, ordered from lowest to highest price level.
-- When a property has no website or phone from Google Places, those lines are omitted (not rendered as empty).
-- All labels (website, photos, phone, rating, price level, check prices, tip) use the reporting language.
-- The `💰` price level maps `price_level` (0-4) to localized descriptors per `trip_planning_rules.md`.
-- The Booking.com link label must be distinct from the website label — clearly communicates "check prices / book" intent (e.g., "Проверить цены" in Russian, not "Сайт").
+- Section heading: `##` (h2). Option cards: `### 🏨` (h3) — NOT POI headings (excluded from POI Parity Checks, no `.poi-card` in HTML).
+- 3-5 cards ordered lowest to highest price level. Omit missing fields (no empty lines). All labels use reporting language.
+- `💰` price level maps per `trip_planning_rules.md`. Booking.com link label must say "check prices" (e.g., "Проверить цены"), not "Сайт".
 
 **Booking.com Deep Link Format:**
 ```
@@ -306,9 +242,11 @@ https://www.booking.com/searchresults.html?ss={hotel_name}+{destination}&checkin
 - `{age}`: Each child's age calculated at check-in date (same age calculation as pipeline Pre-Flight Setup)
 - Multiple `age=` parameters, one per child
 
-### Car Rental Section (Anchor Day Only)
+### Standalone Car Rental File (`car_rental_LANG.md`)
 
-On the first day of each car rental block (the "anchor day"), include a car rental section after the accommodation section (or after POI cards if no accommodation) and before the daily budget table. This section is NOT present on non-anchor days or when `## Car Rental Assistance` is absent from the trip details file.
+Car rental recommendations are generated as a standalone file `car_rental_LANG.md` in the trip folder. This file is placed **after accommodation and before the day-by-day content** in the assembled report. This file is only generated when `## Car Rental Assistance` is present in the trip details file — unlike accommodation, car rental is not a universal need and requires explicit preferences.
+
+**Generation:** After all Phase B day batches complete (and after accommodation generation), the main agent generates `car_rental_LANG.md` using the `## Car Rental Assistance` section from the trip details file and web search queries. Multi-block trips include all rental blocks in a single file, separated by `---`.
 
 **Section format:**
 
@@ -343,15 +281,9 @@ On the first day of each car rental block (the "anchor day"), include a car rent
 ```
 
 **Rules:**
-- The section heading uses `##` (h2), not `###` (h3), to distinguish from POI cards — same pattern as accommodation.
-- Individual category sub-sections use `### 🚗` (h3) with the car emoji prefix.
-- `### 🚗` headings are NOT POI headings. They are excluded from POI Parity Checks and do not generate `.poi-card` elements in HTML.
-- Comparison table rows are sorted by daily rate ascending (cheapest first).
-- All labels use the reporting language (localized).
-- Booking links are formatted as clickable markdown links within the table.
-- The estimate disclaimer is italic (`*...*`).
-- The pro-tip follows the same `> **{label}:**` format as accommodation and POI pro-tips.
-- Maximum 3 categories per section. If the traveler selected more than 3, prioritize the 3 most relevant and note additional categories in the pro-tip.
+- Section heading: `##` (h2). Category sub-sections: `### 🚗` (h3) — NOT POI headings (excluded from POI Parity Checks, no `.poi-card` in HTML).
+- Table rows sorted by daily rate ascending. All labels localized. Estimate disclaimer italic.
+- Max 3 categories. If >3 selected, prioritize most relevant, note others in pro-tip.
 
 ### Day Generation Protocol
 
@@ -382,11 +314,13 @@ Batches are assigned in chronological order: batch 1 gets the lowest-numbered da
 The main agent spawns one subagent per batch using the Agent tool. **All subagent calls must appear in the same response block** so they execute in parallel, not sequentially.
 
 Each subagent receives this context:
-1. The active trip details file -- travelers, interests, schedule preferences.
-2. `overview_LANG.md` -- the Phase A master plan (for cross-day context).
-3. The assigned day rows from the Phase A table (only the rows for this batch).
-4. The trip folder path and language code.
-5. The list of day numbers to generate (e.g., "Generate day_03, day_04, day_05").
+1. `trip_planning_rules_phaseB.md` — Phase B extract of trip planning rules (NOT the full `trip_planning_rules.md`).
+2. `content_format_rules_phaseB.md` — Phase B extract of content format rules (NOT the full `content_format_rules.md`).
+3. The active trip details file — travelers, interests, schedule preferences.
+4. `overview_LANG.md` — the Phase A master plan (for cross-day context).
+5. The assigned day rows from the Phase A table (only the rows for this batch).
+6. The trip folder path and language code.
+7. The list of day numbers to generate (e.g., "Generate day_03, day_04, day_05").
 
 Each subagent:
 - Generates its assigned `day_XX_LANG.md` files following the Per-Day File Format and Per-Day Content Requirements (unchanged).
@@ -437,8 +371,8 @@ For **EVERY** location mentioned (attractions, landmarks, parks, and restaurants
 - **Google Maps**: A direct link to the specific entrance or pin.
 - **Official Website**: A link to the official site (or a reliable primary source like TripAdvisor if no site exists).
 - **Photo Gallery**: A link to visual galleries to help the family identify the spot.
-- **Phone number**: When available (sourced from Google Places or web fetch). Format: `📞 {localized_label}: {phone_number}` — the label is language-dependent (e.g., "Телефон" in Russian, "Phone" in English).
-- **Rating**: When available (sourced from Google Places). Format: `⭐ {rating}/5 ({review_count} {localized_reviews_label})` — e.g., `⭐ 4.5/5 (2,340 отзывов)`.
+- **Phone number**: When available from Google Places or web fetch. Format per Per-Day File Format template.
+- **Rating**: When available from Google Places. Format per Per-Day File Format template.
 
 #### 4. Logistics & Accessibility
 - Avoid advising public transport when start point is unknown.
@@ -457,14 +391,11 @@ For **EVERY** location mentioned (attractions, landmarks, parks, and restaurants
 - At least one alternative activity for the day in case of weather/closures.
 
 #### 8. Grocery Store (Nearest Supermarket)
-- **Required** on every day (including Day 0 — note if stores are closed due to holidays).
-- Format as a full `###` POI section with: store name + chain, distance from nearest day POI, Google Maps link.
-- This section MUST be rendered as a `poi-card` in HTML (tag: `🛒 МАГАЗИН`).
+- **Required** on every day (including Day 0). Format defined in Per-Day File Format template above.
+- Rendered as `poi-card` in HTML (tag: `🛒 МАГАЗИН`).
 
 #### 9. Optional Along-the-Way Stops
-- **Required** on every full day (Day 0 / departure day exempt).
-- Include 1–2 places from `kids_interests` that are within a 5–10 minute detour from the day's planned route.
-- Format as a `###` POI section with: name in `poi_languages`, one-line hook, Google Maps link, matched interest.
+- **Required** on every full day (Day 0 / departure day exempt). Rules and criteria defined in `trip_planning_rules.md` § Pre-Flight Setup.
 - Rendered as `poi-card` in HTML (tag: `🎯 ПО ПУТИ`).
 
 ---
@@ -479,9 +410,34 @@ For **EVERY** location mentioned (attractions, landmarks, parks, and restaurants
 
 ---
 
+## Standalone Accommodation & Car Rental Generation
+
+After all Phase B day batches complete, generate the standalone accommodation and car rental files **before** budget assembly. These are generated by the main agent directly (not as subagents — they are single files with focused scope).
+
+### Step 1: Generate `accommodation_LANG.md`
+
+**Context needed:** Trip details file (`## Hotel Assistance` section), manifest (stay blocks with dates), content format rules (card format, booking link format).
+
+- Use Google Places lodging queries parameterized by the Hotel Assistance preferences.
+- If `## Hotel Assistance` is absent, use sensible defaults (mid-range, city center, no pet requirement).
+- Multi-stay trips: include all stay blocks in one file, separated by `---`.
+- Update manifest: set `languages.LANG.accommodation_complete: true` and update `accommodation.stays[].options_count` and `discovery_source`.
+
+### Step 2: Generate `car_rental_LANG.md` (conditional)
+
+**Context needed:** Trip details file (`## Car Rental Assistance` section), manifest (rental blocks with dates), content format rules (table format).
+
+- Only generate if `## Car Rental Assistance` section exists in trip details.
+- Use web search queries parameterized by the Car Rental Assistance preferences.
+- Multi-block trips: include all rental blocks in one file, separated by `---`.
+- Update manifest: set `languages.LANG.car_rental_complete: true` and update `car_rental.blocks[].categories_compared`, `companies_per_category`, and `discovery_source`.
+- If no car rental preferences exist, skip this step and set `languages.LANG.car_rental_complete: true` (nothing to generate).
+
+---
+
 ## Budget Assembly
 
-After all days are complete for a given language:
+After all days + accommodation + car rental are complete for a given language:
 1. Read the `### Стоимость дня` section from each `day_XX_LANG.md`.
 2. Write `budget_LANG.md` with:
    - Per-day summary (day number, title, day total in HUF and EUR).
@@ -530,10 +486,17 @@ After all days are complete for a given language:
 After all days + budget are complete for a given language, assemble `trip_full_LANG.md` using a single Bash command:
 
 ```bash
-cd <trip_folder> && { cat overview_LANG.md; for f in day_[0-9][0-9]_LANG.md; do printf '\n---\n\n'; cat "$f"; done; printf '\n---\n\n'; cat budget_LANG.md; } > trip_full_LANG.md
+cd <trip_folder> && {
+  cat overview_LANG.md
+  [ -f accommodation_LANG.md ] && { printf '\n---\n\n'; cat accommodation_LANG.md; }
+  [ -f car_rental_LANG.md ] && { printf '\n---\n\n'; cat car_rental_LANG.md; }
+  for f in day_[0-9][0-9]_LANG.md; do printf '\n---\n\n'; cat "$f"; done
+  printf '\n---\n\n'
+  cat budget_LANG.md
+} > trip_full_LANG.md
 ```
 
-Replace `<trip_folder>` with the actual path and `LANG` with the language code (e.g., `ru`, `en`).
+Replace `<trip_folder>` with the actual path and `LANG` with the language code (e.g., `ru`, `en`). The `[ -f ... ]` tests ensure graceful handling when accommodation or car rental files don't exist.
 
 After the file is written, update `manifest.json`: under `languages.LANG.assembly`, set `trip_full_md_built` timestamp, clear `stale_days`.
 

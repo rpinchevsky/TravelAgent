@@ -65,10 +65,11 @@ When adding features, changing rules, or fixing gaps between requirements and im
 1. **Plan** — Read the trip details file (default: `trip_details.md`; override by specifying a filename, e.g., "generate trip from `Maryan.md`"), calculate ages, research destination (`trip_planning_rules.md`)
 2. **Phase A** — High-level summary table → create trip folder `generated_trips/trip_YYYY-MM-DD_HHmm/`, write `overview.md` + `manifest.json` (`content_format_rules.md`)
 3. **Phase B** — Parallel day generation in batches of 2 days per subagent, verify all files, update manifest once (`content_format_rules.md`)
-4. **Budget** — Aggregate per-day costs into `budget.md` (`content_format_rules.md`)
-5. **Assemble** — Bash command concat of all parts into `trip_full.md` (no subagent — see `content_format_rules.md`)
-6. **Generate HTML** — Invoke `/render` skill for per-day fragment generation, assembly into `trip_full_LANG.html`, and pre-regression validation
-7. **Smoke Test** — Invoke `/regression smoke` for smoke-level validation (structural integrity, navigation, sampled day content, manifest)
+4. **Hotels & Cars** — Generate standalone `accommodation_LANG.md` and `car_rental_LANG.md` (if applicable) using Hotel/Car Assistance preferences from trip details (`content_format_rules.md`)
+5. **Budget** — Aggregate per-day costs into `budget.md` (`content_format_rules.md`)
+6. **Assemble** — Bash command concat of all parts into `trip_full.md` (no subagent — see `content_format_rules.md`)
+7. **Generate HTML** — Invoke `/render` skill for per-day fragment generation, assembly into `trip_full_LANG.html`, and pre-regression validation
+8. **Smoke Test** — Invoke `/regression smoke` for smoke-level validation (structural integrity, navigation, sampled day content, manifest)
 
 ### Generation Timing Report
 Track the wall-clock start and end time of every phase above. After the pipeline completes (or aborts), present a summary table to the user:
@@ -81,10 +82,11 @@ Track the wall-clock start and end time of every phase above. After the pipeline
 | 1 | Plan | HH:MM:SS | HH:MM:SS | Xm Ys |
 | 2 | Phase A | … | … | … |
 | 3 | Phase B | … | … | … |
-| 4 | Budget | … | … | … |
-| 5 | Assemble | … | … | … |
-| 6 | Generate HTML | … | … | … |
-| 7 | Smoke Test | … | … | … |
+| 4 | Hotels & Cars | … | … | … |
+| 5 | Budget | … | … | … |
+| 6 | Assemble | … | … | … |
+| 7 | Generate HTML | … | … | … |
+| 8 | Smoke Test | … | … | … |
 | | **Total** | **HH:MM:SS** | **HH:MM:SS** | **Xm Ys** |
 ```
 

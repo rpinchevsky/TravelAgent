@@ -42,19 +42,19 @@ const CAR_SUB_QUESTION_KEYS = [
 // --- Hotel option counts for TC-205 ---
 const HOTEL_OPTION_COUNTS = [
   { key: 'hotelType', selector: '.option-grid .q-card', expected: 12 },
-  { key: 'hotelLocation', selector: '.question-options .q-card', expected: 5 },
-  { key: 'hotelStars', selector: '.question-options .q-card', expected: 4 },
+  { key: 'hotelLocation', selector: '.option-grid .q-card', expected: 5 },
+  { key: 'hotelStars', selector: '.option-grid .q-card', expected: 4 },
   { key: 'hotelAmenities', selector: '#hotelAmenitiesChips .chip-toggle', expected: 12, isChips: true },
   { key: 'hotelPets', selector: '.question-options .q-card', expected: 2 },
-  { key: 'hotelCancellation', selector: '.question-options .q-card', expected: 3 },
+  { key: 'hotelCancellation', selector: '.option-grid .q-card', expected: 3 },
 ] as const;
 
 // --- Car option counts for TC-215 ---
 const CAR_OPTION_COUNTS = [
   { key: 'carCategory', selector: '.option-grid .q-card', expected: 14 },
-  { key: 'carTransmission', selector: '.question-options .q-card', expected: 3 },
-  { key: 'carFuel', selector: '.question-options .q-card', expected: 5 },
-  { key: 'carPickup', selector: '.question-options .q-card', expected: 4 },
+  { key: 'carTransmission', selector: '.option-grid .q-card', expected: 3 },
+  { key: 'carFuel', selector: '.option-grid .q-card', expected: 5 },
+  { key: 'carPickup', selector: '.option-grid .q-card', expected: 4 },
   { key: 'carExtras', selector: '#carExtrasChips .chip-toggle', expected: 7, isChips: true },
 ] as const;
 
@@ -710,7 +710,7 @@ test.describe('Markdown Output — Sections Present (TC-218, TC-220, QF-3)', () 
     // Select first hotel type
     await intake.hotelTypeGrid.locator('.q-card').first().click();
     // Select first hotel location
-    await intake.page.locator('[data-question-key="hotelLocation"] .question-options .q-card').first().click();
+    await intake.page.locator('[data-question-key="hotelLocation"] .option-grid .q-card').first().click();
     // Select two amenity chips
     await intake.hotelAmenitiesChips.locator('.chip-toggle').nth(0).click();
     await intake.hotelAmenitiesChips.locator('.chip-toggle').nth(1).click();
@@ -721,7 +721,7 @@ test.describe('Markdown Output — Sections Present (TC-218, TC-220, QF-3)', () 
     // Select first car category
     await intake.carCategoryGrid.locator('.q-card').first().click();
     // Select first transmission
-    await intake.page.locator('[data-question-key="carTransmission"] .question-options .q-card').first().click();
+    await intake.page.locator('[data-question-key="carTransmission"] .option-grid .q-card').first().click();
     // Select one extras chip
     await intake.carExtrasChips.locator('.chip-toggle').first().click();
 
@@ -1301,7 +1301,10 @@ test.describe('Multi-Select Structural & ARIA (TC-375, TC-376, TC-377, TC-378)',
     expect(text?.trim().length, 'hint has non-empty text').toBeGreaterThan(0);
   });
 
-  test('TC-377: data-multi-select present on exactly 2 grids — hotelType and carCategory', async ({ page }) => {
+  test('TC-377: data-multi-select present on hotelType, carCategory, and all converted sub-question grids', async ({ page }) => {
+    // Since 04e5ba8, hotelLocation/hotelStars/hotelCancellation/carTransmission/carFuel/carPickup
+    // were also converted to multi-select. Verify hotelType and carCategory are always present,
+    // and the total count is at least 2.
     const result = await page.evaluate(() => {
       const grids = document.querySelectorAll('.option-grid[data-multi-select]');
       const parentKeys = Array.from(grids).map(g => {
@@ -1310,10 +1313,9 @@ test.describe('Multi-Select Structural & ARIA (TC-375, TC-376, TC-377, TC-378)',
       return { count: grids.length, parentKeys };
     });
 
-    expect(result.count, 'exactly 2 multi-select grids in DOM').toBe(2);
-    expect.soft(result.parentKeys, 'multi-select grids are in hotelType and carCategory').toEqual(
-      expect.arrayContaining(['hotelType', 'carCategory'])
-    );
+    expect(result.count, 'at least 2 multi-select grids in DOM').toBeGreaterThanOrEqual(2);
+    expect.soft(result.parentKeys, 'hotelType is a multi-select grid').toContain('hotelType');
+    expect.soft(result.parentKeys, 'carCategory is a multi-select grid').toContain('carCategory');
   });
 
   test('TC-378: multi-select grids have role="group" and aria-labelledby', async ({ page }) => {
@@ -1383,11 +1385,12 @@ test.describe('Multi-Select Checkmark Badge (TC-380)', () => {
 });
 
 // ============================================================================
-// TC-381: Single-select preserved — hotelLocation still uses radio behavior
-// TC-382: Single-select preserved — carTransmission still uses radio behavior
+// TC-381: hotelLocation multi-select — selecting multiple locations is allowed
+// TC-382: carTransmission multi-select — selecting multiple transmissions is allowed
+// (Replaces prior single-select guard; both converted to multi-select in 04e5ba8)
 // ============================================================================
-test.describe('Single-Select Regression Guard (TC-381, TC-382)', () => {
-  test('TC-381: hotelLocation still uses radio (single-select) behavior', async ({ page }) => {
+test.describe('Multi-Select Behavior Guard (TC-381, TC-382)', () => {
+  test('TC-381: hotelLocation uses multi-select — selecting card 0 does not deselect card 1', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(20);
     await intake.waitForI18nReady();
@@ -1395,21 +1398,17 @@ test.describe('Single-Select Regression Guard (TC-381, TC-382)', () => {
     await intake.hotelToggle.locator('.q-card[data-value="yes"]').click();
     await expect(intake.hotelSubQuestions).toHaveClass(/is-expanded/);
 
-    const locGrid = page.locator('[data-question-key="hotelLocation"] .question-options');
-    const card0 = locGrid.locator('.q-card').nth(0);
-    const card1 = locGrid.locator('.q-card').nth(1);
+    const grid = page.locator('[data-question-key="hotelLocation"] .option-grid[data-multi-select]');
+    const card0 = grid.locator('.q-card').nth(0);
+    const card1 = grid.locator('.q-card').nth(1);
 
     await card0.click();
-    await expect(card0).toHaveClass(/is-selected/);
     await card1.click();
+    await expect(card0).toHaveClass(/is-selected/);
     await expect(card1).toHaveClass(/is-selected/);
-    expect(
-      await card0.evaluate(el => el.classList.contains('is-selected')),
-      'hotelLocation card 0 deselected (radio behavior)'
-    ).toBe(false);
   });
 
-  test('TC-382: carTransmission still uses radio (single-select) behavior', async ({ page }) => {
+  test('TC-382: carTransmission uses multi-select — selecting card 0 does not deselect card 1', async ({ page }) => {
     const intake = new IntakePage(page);
     await intake.setupWithDepth(20);
     await intake.waitForI18nReady();
@@ -1417,18 +1416,14 @@ test.describe('Single-Select Regression Guard (TC-381, TC-382)', () => {
     await intake.carToggle.locator('.q-card[data-value="yes"]').click();
     await expect(intake.carSubQuestions).toHaveClass(/is-expanded/);
 
-    const transGrid = page.locator('[data-question-key="carTransmission"] .question-options');
-    const card0 = transGrid.locator('.q-card').nth(0);
-    const card1 = transGrid.locator('.q-card').nth(1);
+    const grid = page.locator('[data-question-key="carTransmission"] .option-grid[data-multi-select]');
+    const card0 = grid.locator('.q-card').nth(0);
+    const card1 = grid.locator('.q-card').nth(1);
 
     await card0.click();
-    await expect(card0).toHaveClass(/is-selected/);
     await card1.click();
+    await expect(card0).toHaveClass(/is-selected/);
     await expect(card1).toHaveClass(/is-selected/);
-    expect(
-      await card0.evaluate(el => el.classList.contains('is-selected')),
-      'carTransmission card 0 deselected (radio behavior)'
-    ).toBe(false);
   });
 });
 

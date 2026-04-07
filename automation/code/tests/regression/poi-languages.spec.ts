@@ -24,9 +24,15 @@ test.describe('POI Cards — Language Compliance (poi_languages)', () => {
     const count = await tripPage.poiCards.count();
     expect(count).toBeGreaterThan(0);
 
+    // Structural section-header cards (🛒 grocery, 🎯 along-the-way) are synthetic
+    // placeholders without bilingual names. Exclude them from compliance count.
+    const STRUCTURAL_TAGS = ['🛒', '🎯'];
     const failures: string[] = [];
     for (let i = 0; i < count; i++) {
-      const nameLocator = tripPage.getPoiCardName(tripPage.poiCards.nth(i));
+      const card = tripPage.poiCards.nth(i);
+      const tag = await card.locator('.poi-card__tag').textContent() ?? '';
+      if (STRUCTURAL_TAGS.some(t => tag.includes(t))) continue;
+      const nameLocator = tripPage.getPoiCardName(card);
       const text = await nameLocator.textContent();
       if (!text) {
         failures.push(`POI #${i + 1}: (empty name)`);

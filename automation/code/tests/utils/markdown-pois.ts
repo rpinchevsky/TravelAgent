@@ -43,6 +43,14 @@ export function getExpectedPoiCountsFromMarkdown(): Record<number, { count: numb
       continue;
     }
 
+    // Reset currentDay on any H1/H2 that isn't a day heading (e.g. budget, accommodation)
+    // so their ### subsections don't get attributed to the last day.
+    if (/^#{1,2}\s+\S/.test(line)) {
+      currentDay = null;
+      skipNextHeading = false;
+      continue;
+    }
+
     if (currentDay !== null && line.startsWith('### ')) {
       if (skipNextHeading) {
         skipNextHeading = false;

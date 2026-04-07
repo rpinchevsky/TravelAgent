@@ -143,9 +143,16 @@ test.describe('POI Cards — Content & Links', () => {
   });
 
   test('every POI card should have a description', async ({ tripPage }) => {
+    // Structural section-header cards (🛒 grocery, 🎯 along-the-way) are synthetic
+    // placeholders with no body text — they are already link-exempt and excluded from
+    // parity counts. Exempt them from the description requirement too.
+    const STRUCTURAL_TAGS = ['🛒', '🎯'];
     const count = await tripPage.poiCards.count();
     for (let i = 0; i < count; i++) {
-      const desc = tripPage.poiCards.nth(i).locator('.poi-card__description');
+      const card = tripPage.poiCards.nth(i);
+      const tag = await card.locator('.poi-card__tag').textContent() ?? '';
+      if (STRUCTURAL_TAGS.some(t => tag.includes(t))) continue;
+      const desc = card.locator('.poi-card__description').first();
       await expect(desc).toBeAttached();
     }
   });
@@ -186,6 +193,19 @@ test.describe('POI Cards — Content & Links', () => {
     }
   });
 
+  test('TC-160: POI card descriptions must not have flex-grow (prevents layout gaps in multi-paragraph cards)', async ({ tripPage }) => {
+    const violations = await tripPage.page.evaluate(() => {
+      const descriptions = Array.from(document.querySelectorAll('.poi-card__description'));
+      return descriptions
+        .filter(el => parseFloat(getComputedStyle(el).flexGrow) > 0)
+        .map(el => el.closest('.poi-card')?.querySelector('.poi-card__name')?.textContent?.trim() ?? 'unknown');
+    });
+    expect(
+      violations,
+      `POI descriptions with flex-grow > 0 (creates empty gaps):\n${violations.join('\n')}`
+    ).toHaveLength(0);
+  });
+
   test('TC-144: Rating elements have correct class and contain numeric value', async ({ tripPage }) => {
     const count = await tripPage.poiCardRatings.count();
     for (let i = 0; i < count; i++) {
@@ -195,5 +215,27 @@ test.describe('POI Cards — Content & Links', () => {
         `Rating ${i}: should contain a numeric value ("${text.trim()}")`
       ).toBe(true);
     }
+  });
+
+  test('TC-161: POI descriptions and pro-tips must not contain unrendered markdown links', async ({ tripPage }) => {
+    // Ensure [text](url) markdown syntax was converted to <a> tags by the renderer.
+    // Raw markdown in visible text means the script forgot to call renderInlineMd().
+    const violations = await tripPage.page.evaluate(() => {
+      const mdLinkPattern = /\[[^\]]+\]\(https?:\/\/[^)]+\)/;
+      const results: string[] = [];
+      for (const el of Array.from(document.querySelectorAll('.poi-card__description, .pro-tip span'))) {
+        const text = el.textContent ?? '';
+        if (mdLinkPattern.test(text)) {
+          const cardName = el.closest('.poi-card')?.querySelector('.poi-card__name')?.textContent?.trim() ?? 'unknown';
+          const snippet = text.match(mdLinkPattern)![0].slice(0, 60);
+          results.push(`${cardName}: "${snippet}"`);
+        }
+      }
+      return results;
+    });
+    expect(
+      violations,
+      `Unrendered markdown links found in POI descriptions/pro-tips:\n${violations.join('\n')}`
+    ).toHaveLength(0);
   });
 });

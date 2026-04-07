@@ -94,9 +94,12 @@ Quality over quantity, 10:00–18:00
 - **Fuel type:** Petrol, Hybrid
 - **Pickup & return:** City center office
 - **Additional equipment:** None
-- **Daily rental budget:** $40 - $150
+- **Daily rental budget:** $40 - $250
 
 ## Language Preference
 
 - **Reporting language:** Russian
 - **POI languages:** Hungarian, Russian
+
+## Hotels
+- ** The hotel from 21-08-2026 till 31-08-2026 is Adina Apartment Hotel Budapest

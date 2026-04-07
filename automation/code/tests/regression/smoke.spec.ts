@@ -43,7 +43,12 @@ test.describe('Smoke — Page Load & Sections', () => {
 
 test.describe('Smoke — Navigation', () => {
   test('sidebar and mobile nav link counts match section count', async ({ tripPage }) => {
-    const expectedCount = tripConfig.dayCount + 2; // overview + days + budget
+    const manifestPath = getManifestPath();
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+    const hasAccommodation = (manifest.accommodation?.stays?.length ?? 0) > 0;
+    const hasCarRental = (manifest.car_rental?.blocks?.length ?? 0) > 0;
+    const optionalSections = (hasAccommodation ? 1 : 0) + (hasCarRental ? 1 : 0);
+    const expectedCount = tripConfig.dayCount + 2 + optionalSections; // overview + optional(accommodation, car-rental) + days + budget
     await expect.soft(tripPage.sidebarLinks, 'sidebar link count').toHaveCount(expectedCount);
     await expect.soft(tripPage.mobilePills, 'mobile pill count').toHaveCount(expectedCount);
   });
@@ -80,8 +85,12 @@ test.describe('Smoke — POI Cards (spot-check)', () => {
       const nameText = await name.textContent();
       expect.soft(nameText!.trim().length, `POI ${idx}: name non-empty`).toBeGreaterThan(0);
 
-      const links = tripPage.getPoiCardLinks(card);
-      expect.soft(await links.count(), `POI ${idx}: has links`).toBeGreaterThanOrEqual(1);
+      // data-link-exempt cards (🛒/🎯 structural headers) legitimately have 0 links
+      const isExempt = (await card.getAttribute('data-link-exempt')) !== null;
+      if (!isExempt) {
+        const links = tripPage.getPoiCardLinks(card);
+        expect.soft(await links.count(), `POI ${idx}: has links`).toBeGreaterThanOrEqual(1);
+      }
     }
   });
 });

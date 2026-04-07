@@ -1,0 +1,60 @@
+{
+  "trip_details_file": "anna_trip_details_2026-08-20.md",
+  "destination": "Budapest, Hungary",
+  "arrival": "2026-08-20",
+  "departure": "2026-08-31",
+  "total_days": 12,
+  "created": "2026-04-04T13:03:00",
+  "languages": {
+    "ru": {
+      "phase_a_complete": true,
+      "days": {
+        "day_00": { "status": "complete", "title": "Прилёт + Национальный праздник", "last_modified": "2026-04-04T13:22:34" },
+        "day_01": { "status": "complete", "title": "Парламент и набережная Дуная", "last_modified": "2026-04-04T13:22:34" },
+        "day_02": { "status": "complete", "title": "Зоопарк и Городской парк", "last_modified": "2026-04-04T13:22:34" },
+        "day_03": { "status": "complete", "title": "Остров Маргит и купальня Палатинус", "last_modified": "2026-04-04T13:22:34" },
+        "day_04": { "status": "complete", "title": "Замковый район и Бастион Рыбаков", "last_modified": "2026-04-04T13:22:34" },
+        "day_05": { "status": "complete", "title": "Будайские горы — канатная дорога и детская железная дорога", "last_modified": "2026-04-04T13:22:34" },
+        "day_06": { "status": "complete", "title": "Тропикариум и замок Надьтетень", "last_modified": "2026-04-04T13:22:34" },
+        "day_07": { "status": "complete", "title": "Большой рынок и Еврейский квартал", "last_modified": "2026-04-04T13:22:34" },
+        "day_08": { "status": "complete", "title": "Дворец Чудес и Флиппер-музей", "last_modified": "2026-04-04T13:22:34" },
+        "day_09": { "status": "complete", "title": "Речной круиз и крафтовая пивоварня", "last_modified": "2026-04-04T13:22:34" },
+        "day_10": { "status": "complete", "title": "День рождения Итая — Ж/д музей и Городской парк", "last_modified": "2026-04-04T13:22:34" },
+        "day_11": { "status": "complete", "title": "Отъезд", "last_modified": "2026-04-04T13:22:34" }
+      },
+      "accommodation_complete": true,
+      "car_rental_complete": true,
+      "budget_complete": true,
+      "assembly": { "trip_full_md_built": "2026-04-04T13:27:59", "trip_full_html_built": "2026-04-04T14:02:00", "stale_days": [] }
+    }
+  },
+  "accommodation": {
+    "stays": [
+      {
+        "id": "stay_01",
+        "checkin": "2026-08-20",
+        "checkout": "2026-08-31",
+        "nights": 11,
+        "area": "Budapest, Hungary",
+        "anchor_day": "day_00",
+        "options_count": 3,
+        "discovery_source": "google_places"
+      }
+    ]
+  },
+  "car_rental": {
+    "blocks": [
+      {
+        "id": "rental_01",
+        "pickup_date": "2026-08-25",
+        "return_date": "2026-08-26",
+        "days": 2,
+        "pickup_location": "Hotel or Airport",
+        "anchor_day": "day_05",
+        "categories_compared": ["full-size", "suv-full-size", "luxury"],
+        "companies_per_category": 3,
+        "discovery_source": "web_search"
+      }
+    ]
+  }
+}

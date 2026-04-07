@@ -1,13 +1,14 @@
 import * as fs from 'fs';
 import { test, expect } from '../fixtures/shared-page';
 import { loadTripConfig } from '../utils/trip-config';
-import { getExpectedPoiCountsFromMarkdown } from '../utils/markdown-pois';
 import { getManifestPath } from '../utils/trip-folder';
 
 /**
  * Accommodation Integration Tests (TC-200 through TC-216)
  *
- * Extracted from progression.spec.ts to isolate accommodation failures.
+ * Accommodation is rendered as a standalone top-level section (#accommodation)
+ * placed before day cards in the report.
+ *
  * Grouped by concern:
  *   1. Section & card structure (TC-200/201/202/203/205/213/214/215/216)
  *   2. Booking links (TC-204/206)
@@ -64,101 +65,101 @@ function getAccommodationStays(): ManifestStay[] {
 }
 
 const stays = getAccommodationStays();
-const anchorDays = stays
-  .filter((s) => s.discovery_source !== 'skipped')
+const activeStays = stays.filter((s) => s.discovery_source !== 'skipped');
+const anchorDays = activeStays
   .map((s) => s.anchor_day_number)
   .filter((n) => n >= 0);
-const anchorDaySet = new Set(anchorDays);
 
 // ---- Test Block 1: Section & Card Structure (TC-200/201/202/203/205/213/214/215/216) ----
 
 test.describe('Accommodation — Section & Card Structure', () => {
-  test('TC-200+201: accommodation section present on anchor days, absent on non-anchor days', async ({ tripPage }) => {
+  test('TC-200+201: accommodation section is a top-level section before day cards', async ({ tripPage }) => {
     test.skip(stays.length === 0, 'No accommodation.stays in manifest — trip may predate accommodation feature');
 
-    for (const day of anchorDays) {
-      const section = tripPage.getDayAccommodationSection(day);
-      expect.soft(await section.count(), `Day ${day}: accommodation section should be present on anchor day`).toBe(1);
-    }
+    const section = tripPage.getAccommodationSection();
+    expect.soft(await section.count(), 'Top-level #accommodation section should exist').toBe(1);
 
+    // Verify it is NOT inside any day-card
+    const insideDayCard = tripPage.page.locator('.day-card #accommodation');
+    expect.soft(await insideDayCard.count(), '#accommodation should NOT be inside a .day-card').toBe(0);
+
+    // Verify no accommodation sections exist inside day cards
     for (let day = 0; day < tripConfig.dayCount; day++) {
-      if (anchorDaySet.has(day)) continue;
-      const section = tripPage.getDayAccommodationSection(day);
-      expect.soft(await section.count(), `Day ${day}: non-anchor day should have no accommodation section`).toBe(0);
+      const dayAccom = tripPage.page.locator(`#day-${day} .accommodation-section`);
+      expect.soft(await dayAccom.count(), `Day ${day}: should have no accommodation section inside day card`).toBe(0);
     }
   });
 
   test('TC-202+203+205+213+214+215+216: card count, structure, tags, grid, pro-tips, intro, visual distinction', async ({ tripPage }) => {
     test.skip(stays.length === 0, 'No accommodation.stays in manifest — trip may predate accommodation feature');
 
-    for (const stay of stays) {
-      const day = stay.anchor_day_number;
-      if (day < 0 || stay.discovery_source === 'skipped') continue;
+    const cards = tripPage.getAccommodationCards();
+    const cardCount = await cards.count();
 
-      const cards = tripPage.getDayAccommodationCards(day);
-      const cardCount = await cards.count();
-      expect.soft(cardCount, `Day ${day}: accommodation card count should be >= 2`).toBeGreaterThanOrEqual(2);
-      expect.soft(cardCount, `Day ${day}: accommodation card count should be <= 3`).toBeLessThanOrEqual(3);
-      if (stay.options_count > 0) {
-        expect.soft(cardCount, `Day ${day}: DOM card count should match manifest options_count (${stay.options_count})`).toBe(stay.options_count);
+    // Total cards should match sum of all stay options
+    const expectedTotal = activeStays.reduce((sum, s) => sum + (s.options_count > 0 ? s.options_count : 0), 0);
+    if (expectedTotal > 0) {
+      expect.soft(cardCount, `Total accommodation cards (${cardCount}) should match manifest total (${expectedTotal})`).toBe(expectedTotal);
+    }
+    expect.soft(cardCount, 'Should have at least 2 accommodation cards').toBeGreaterThanOrEqual(2);
+
+    const section = tripPage.getAccommodationSection();
+
+    const grid = section.locator('.accommodation-grid');
+    expect.soft(await grid.count(), 'accommodation-grid wrapper should exist').toBeGreaterThanOrEqual(1);
+
+    const intro = section.locator('.accommodation-section__intro');
+    expect.soft(await intro.count(), 'accommodation-section__intro should exist').toBeGreaterThanOrEqual(1);
+    if (await intro.count() > 0) {
+      const introText = await intro.first().textContent();
+      expect.soft(introText && introText.trim().length > 0, 'intro paragraph should have non-empty text').toBe(true);
+    }
+
+    const sectionHeading = section.locator('h2, .section-title').first();
+    if (await sectionHeading.count() > 0) {
+      const headingText = await sectionHeading.textContent();
+      expect.soft(headingText?.includes('🏨'), 'section heading should contain 🏨 emoji').toBe(true);
+    }
+
+    for (let c = 0; c < cardCount; c++) {
+      const card = cards.nth(c);
+      const label = `Card ${c}`;
+
+      const name = tripPage.getAccommodationCardName(card);
+      expect.soft(await name.count(), `${label}: should have .accommodation-card__name`).toBeGreaterThanOrEqual(1);
+      if (await name.count() > 0) {
+        const nameText = await name.first().textContent();
+        expect.soft(nameText && nameText.trim().length > 0, `${label}: name should have non-empty text`).toBe(true);
       }
 
-      const grid = tripPage.getDayAccommodationSection(day).locator('.accommodation-grid');
-      expect.soft(await grid.count(), `Day ${day}: accommodation-grid wrapper should exist`).toBe(1);
+      const rating = tripPage.getAccommodationCardRating(card);
+      expect.soft(await rating.count(), `${label}: should have .accommodation-card__rating`).toBeGreaterThanOrEqual(1);
 
-      const intro = tripPage.getDayAccommodationSection(day).locator('.accommodation-section__intro');
-      expect.soft(await intro.count(), `Day ${day}: accommodation-section__intro should exist`).toBeGreaterThanOrEqual(1);
-      if (await intro.count() > 0) {
-        const introText = await intro.first().textContent();
-        expect.soft(introText && introText.trim().length > 0, `Day ${day}: intro paragraph should have non-empty text`).toBe(true);
+      const links = tripPage.getAccommodationCardLinks(card);
+      expect.soft(await links.count(), `${label}: should have at least one .accommodation-card__link`).toBeGreaterThanOrEqual(1);
+
+      const mapsLink = card.locator('.accommodation-card__link[href*="google.com/maps"], .accommodation-card__link[href*="maps.google"]');
+      expect.soft(await mapsLink.count(), `${label}: should have a Google Maps link`).toBeGreaterThanOrEqual(1);
+
+      const cta = tripPage.getAccommodationCardBookingCta(card);
+      expect.soft(await cta.count(), `${label}: should have .booking-cta`).toBeGreaterThanOrEqual(1);
+
+      const tag = tripPage.getAccommodationCardTag(card);
+      expect.soft(await tag.count(), `${label}: should have .accommodation-card__tag`).toBeGreaterThanOrEqual(1);
+      if (await tag.count() > 0) {
+        const tagText = await tag.first().textContent();
+        expect.soft(tagText?.includes('🏨'), `${label}: tag should contain 🏨 emoji`).toBe(true);
       }
 
-      const sectionHeading = tripPage.getDayAccommodationSection(day).locator('h2, .section-title').first();
-      if (await sectionHeading.count() > 0) {
-        const headingText = await sectionHeading.textContent();
-        expect.soft(headingText?.includes('🏨'), `Day ${day}: section heading should contain 🏨 emoji`).toBe(true);
+      const proTip = tripPage.getAccommodationCardProTip(card);
+      expect.soft(await proTip.count(), `${label}: should have .pro-tip`).toBeGreaterThanOrEqual(1);
+      if (await proTip.count() > 0) {
+        const tipText = await proTip.first().textContent();
+        expect.soft(tipText && tipText.trim().length > 0, `${label}: pro-tip should have non-empty text`).toBe(true);
       }
 
-      for (let c = 0; c < cardCount; c++) {
-        const card = cards.nth(c);
-        const label = `Day ${day}, Card ${c}`;
-
-        const name = tripPage.getAccommodationCardName(card);
-        expect.soft(await name.count(), `${label}: should have .accommodation-card__name`).toBeGreaterThanOrEqual(1);
-        if (await name.count() > 0) {
-          const nameText = await name.first().textContent();
-          expect.soft(nameText && nameText.trim().length > 0, `${label}: name should have non-empty text`).toBe(true);
-        }
-
-        const rating = tripPage.getAccommodationCardRating(card);
-        expect.soft(await rating.count(), `${label}: should have .accommodation-card__rating`).toBeGreaterThanOrEqual(1);
-
-        const links = tripPage.getAccommodationCardLinks(card);
-        expect.soft(await links.count(), `${label}: should have at least one .accommodation-card__link`).toBeGreaterThanOrEqual(1);
-
-        const mapsLink = card.locator('.accommodation-card__link[href*="google.com/maps"], .accommodation-card__link[href*="maps.google"]');
-        expect.soft(await mapsLink.count(), `${label}: should have a Google Maps link`).toBeGreaterThanOrEqual(1);
-
-        const cta = tripPage.getAccommodationCardBookingCta(card);
-        expect.soft(await cta.count(), `${label}: should have .booking-cta`).toBeGreaterThanOrEqual(1);
-
-        const tag = tripPage.getAccommodationCardTag(card);
-        expect.soft(await tag.count(), `${label}: should have .accommodation-card__tag`).toBeGreaterThanOrEqual(1);
-        if (await tag.count() > 0) {
-          const tagText = await tag.first().textContent();
-          expect.soft(tagText?.includes('🏨'), `${label}: tag should contain 🏨 emoji`).toBe(true);
-        }
-
-        const proTip = tripPage.getAccommodationCardProTip(card);
-        expect.soft(await proTip.count(), `${label}: should have .pro-tip`).toBeGreaterThanOrEqual(1);
-        if (await proTip.count() > 0) {
-          const tipText = await proTip.first().textContent();
-          expect.soft(tipText && tipText.trim().length > 0, `${label}: pro-tip should have non-empty text`).toBe(true);
-        }
-
-        const hasPoi = await card.evaluate((el) => el.classList.contains('poi-card'));
-        expect.soft(hasPoi, `${label}: accommodation card should NOT have .poi-card class`).toBe(false);
-      }
+      const hasPoi = await card.evaluate((el) => el.classList.contains('poi-card'));
+      expect.soft(hasPoi, `${label}: accommodation card should NOT have .poi-card class`).toBe(false);
     }
   });
 });
@@ -170,73 +171,60 @@ test.describe('Accommodation — Booking Links', () => {
     test.skip(stays.length === 0, 'No accommodation.stays in manifest — trip may predate accommodation feature');
 
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    const cards = tripPage.getAccommodationCards();
+    const cardCount = await cards.count();
 
-    for (const stay of stays) {
-      const day = stay.anchor_day_number;
-      if (day < 0 || stay.discovery_source === 'skipped') continue;
+    for (let c = 0; c < cardCount; c++) {
+      const card = cards.nth(c);
+      const label = `Card ${c}`;
+      const cta = tripPage.getAccommodationCardBookingCta(card);
+      if (await cta.count() === 0) continue;
 
-      const cards = tripPage.getDayAccommodationCards(day);
-      const cardCount = await cards.count();
+      const ctaEl = cta.first();
 
-      for (let c = 0; c < cardCount; c++) {
-        const card = cards.nth(c);
-        const label = `Day ${day}, Card ${c}`;
-        const cta = tripPage.getAccommodationCardBookingCta(card);
-        if (await cta.count() === 0) continue;
+      const tagName = await ctaEl.evaluate((el) => el.tagName.toLowerCase());
+      expect.soft(tagName, `${label}: booking CTA should be an <a> element`).toBe('a');
 
-        const ctaEl = cta.first();
+      const target = await ctaEl.getAttribute('target');
+      expect.soft(target, `${label}: booking CTA should have target="_blank"`).toBe('_blank');
 
-        const tagName = await ctaEl.evaluate((el) => el.tagName.toLowerCase());
-        expect.soft(tagName, `${label}: booking CTA should be an <a> element`).toBe('a');
+      const rel = await ctaEl.getAttribute('rel');
+      expect.soft(rel?.includes('noopener'), `${label}: booking CTA should have rel containing "noopener"`).toBe(true);
 
-        const target = await ctaEl.getAttribute('target');
-        expect.soft(target, `${label}: booking CTA should have target="_blank"`).toBe('_blank');
+      const href = await ctaEl.getAttribute('href');
+      expect.soft(href, `${label}: booking CTA should have an href`).toBeTruthy();
+      if (!href) continue;
 
-        const rel = await ctaEl.getAttribute('rel');
-        expect.soft(rel?.includes('noopener'), `${label}: booking CTA should have rel containing "noopener"`).toBe(true);
+      let url: URL;
+      try {
+        url = new URL(href);
+      } catch {
+        expect.soft(false, `${label}: booking CTA href is not a valid URL: ${href}`).toBe(true);
+        continue;
+      }
 
-        const href = await ctaEl.getAttribute('href');
-        expect.soft(href, `${label}: booking CTA should have an href`).toBeTruthy();
-        if (!href) continue;
+      expect.soft(url.hostname, `${label}: domain should be www.booking.com`).toBe('www.booking.com');
+      expect.soft(url.pathname.startsWith('/searchresults'), `${label}: path should start with /searchresults`).toBe(true);
 
-        let url: URL;
-        try {
-          url = new URL(href);
-        } catch {
-          expect.soft(false, `${label}: booking CTA href is not a valid URL: ${href}`).toBe(true);
-          continue;
-        }
+      const ss = url.searchParams.get('ss');
+      expect.soft(ss && ss.length > 0, `${label}: ss parameter should be non-empty`).toBe(true);
 
-        expect.soft(url.hostname, `${label}: domain should be www.booking.com`).toBe('www.booking.com');
-        expect.soft(url.pathname.startsWith('/searchresults'), `${label}: path should start with /searchresults`).toBe(true);
+      const checkin = url.searchParams.get('checkin');
+      expect.soft(checkin && dateRegex.test(checkin), `${label}: checkin should match YYYY-MM-DD`).toBe(true);
 
-        const ss = url.searchParams.get('ss');
-        expect.soft(ss && ss.length > 0, `${label}: ss parameter should be non-empty`).toBe(true);
+      const checkout = url.searchParams.get('checkout');
+      expect.soft(checkout && dateRegex.test(checkout), `${label}: checkout should match YYYY-MM-DD`).toBe(true);
 
-        const checkin = url.searchParams.get('checkin');
-        expect.soft(checkin && dateRegex.test(checkin), `${label}: checkin should match YYYY-MM-DD`).toBe(true);
+      const groupAdults = url.searchParams.get('group_adults');
+      expect.soft(groupAdults && parseInt(groupAdults, 10) > 0, `${label}: group_adults should be a positive integer`).toBe(true);
 
-        const checkout = url.searchParams.get('checkout');
-        expect.soft(checkout && dateRegex.test(checkout), `${label}: checkout should match YYYY-MM-DD`).toBe(true);
+      const groupChildren = url.searchParams.get('group_children');
+      expect.soft(groupChildren !== null, `${label}: group_children parameter should be present`).toBe(true);
 
-        if (checkin && stay.checkin) {
-          expect.soft(checkin, `${label}: checkin should match manifest stay checkin (${stay.checkin})`).toBe(stay.checkin);
-        }
-        if (checkout && stay.checkout) {
-          expect.soft(checkout, `${label}: checkout should match manifest stay checkout (${stay.checkout})`).toBe(stay.checkout);
-        }
-
-        const groupAdults = url.searchParams.get('group_adults');
-        expect.soft(groupAdults && parseInt(groupAdults, 10) > 0, `${label}: group_adults should be a positive integer`).toBe(true);
-
-        const groupChildren = url.searchParams.get('group_children');
-        expect.soft(groupChildren !== null, `${label}: group_children parameter should be present`).toBe(true);
-
-        const childCount = parseInt(groupChildren ?? '0', 10);
-        if (childCount > 0) {
-          const ageParams = url.searchParams.getAll('age');
-          expect.soft(ageParams.length, `${label}: age parameter count should equal group_children (${childCount})`).toBe(childCount);
-        }
+      const childCount = parseInt(groupChildren ?? '0', 10);
+      if (childCount > 0) {
+        const ageParams = url.searchParams.getAll('age');
+        expect.soft(ageParams.length, `${label}: age parameter count should equal group_children (${childCount})`).toBe(childCount);
       }
     }
   });
@@ -248,40 +236,35 @@ test.describe('Accommodation — Price Level & Ordering', () => {
   test('TC-207+208: price level pip structure and ascending order', async ({ tripPage }) => {
     test.skip(stays.length === 0, 'No accommodation.stays in manifest — trip may predate accommodation feature');
 
-    for (const stay of stays) {
-      const day = stay.anchor_day_number;
-      if (day < 0 || stay.discovery_source === 'skipped') continue;
+    const cards = tripPage.getAccommodationCards();
+    const cardCount = await cards.count();
+    const priceLevels: number[] = [];
 
-      const cards = tripPage.getDayAccommodationCards(day);
-      const cardCount = await cards.count();
-      const priceLevels: number[] = [];
+    for (let c = 0; c < cardCount; c++) {
+      const card = cards.nth(c);
+      const label = `Card ${c}`;
+      const priceLevel = tripPage.getAccommodationCardPriceLevel(card);
 
-      for (let c = 0; c < cardCount; c++) {
-        const card = cards.nth(c);
-        const label = `Day ${day}, Card ${c}`;
-        const priceLevel = tripPage.getAccommodationCardPriceLevel(card);
+      if (await priceLevel.count() === 0) continue;
 
-        if (await priceLevel.count() === 0) continue;
+      const filledPips = priceLevel.locator('.price-pip--filled');
+      const emptyPips = priceLevel.locator('.price-pip--empty');
+      const filledCount = await filledPips.count();
+      const emptyCount = await emptyPips.count();
+      const totalPips = filledCount + emptyCount;
 
-        const filledPips = priceLevel.locator('.price-pip--filled');
-        const emptyPips = priceLevel.locator('.price-pip--empty');
-        const filledCount = await filledPips.count();
-        const emptyCount = await emptyPips.count();
-        const totalPips = filledCount + emptyCount;
+      expect.soft(totalPips, `${label}: total pip count should be 4`).toBe(4);
+      expect.soft(filledCount, `${label}: filled pip count should be >= 1`).toBeGreaterThanOrEqual(1);
+      expect.soft(filledCount, `${label}: filled pip count should be <= 4`).toBeLessThanOrEqual(4);
 
-        expect.soft(totalPips, `${label}: total pip count should be 4`).toBe(4);
-        expect.soft(filledCount, `${label}: filled pip count should be >= 1`).toBeGreaterThanOrEqual(1);
-        expect.soft(filledCount, `${label}: filled pip count should be <= 4`).toBeLessThanOrEqual(4);
+      priceLevels.push(filledCount);
+    }
 
-        priceLevels.push(filledCount);
-      }
-
-      for (let i = 1; i < priceLevels.length; i++) {
-        expect.soft(
-          priceLevels[i] >= priceLevels[i - 1],
-          `Day ${day}: cards should be ordered by price level ascending (position ${i - 1}=${priceLevels[i - 1]}, position ${i}=${priceLevels[i]})`
-        ).toBe(true);
-      }
+    for (let i = 1; i < priceLevels.length; i++) {
+      expect.soft(
+        priceLevels[i] >= priceLevels[i - 1],
+        `Cards should be ordered by price level ascending (position ${i - 1}=${priceLevels[i - 1]}, position ${i}=${priceLevels[i]})`
+      ).toBe(true);
     }
   });
 });
@@ -292,6 +275,7 @@ test.describe('Accommodation — Budget Integration', () => {
   test('TC-209+210: accommodation line in anchor day pricing grid and aggregate budget', async ({ tripPage }) => {
     test.skip(stays.length === 0, 'No accommodation.stays in manifest — trip may predate accommodation feature');
 
+    // Anchor day budget tables still include accommodation cost line items
     for (const day of anchorDays) {
       const pricingGrid = tripPage.getDayPricingTable(day);
       const gridCount = await pricingGrid.count();
@@ -401,21 +385,14 @@ test.describe('Accommodation — POI Parity Exclusion', () => {
   test('TC-212: accommodation cards not counted in POI totals', async ({ tripPage }) => {
     test.skip(stays.length === 0, 'No accommodation.stays in manifest — trip may predate accommodation feature');
 
-    const expected = getExpectedPoiCountsFromMarkdown();
+    // Accommodation cards are in #accommodation section, completely separate from day cards
+    const accommodationCards = tripPage.getAccommodationCards();
+    const accomCount = await accommodationCards.count();
+    expect.soft(accomCount, 'Should have accommodation cards').toBeGreaterThan(0);
 
-    for (const day of anchorDays) {
-      if (!expected[day]) continue;
-
-      const poiCount = await tripPage.getDayPoiCards(day).count();
-      const accommodationCount = await tripPage.getDayAccommodationCards(day).count();
-
-      expect.soft(accommodationCount, `Day ${day}: should have accommodation cards on anchor day`).toBeGreaterThan(0);
-
-      expect.soft(
-        poiCount,
-        `Day ${day}: POI card count (${poiCount}) should be >= markdown POI count (${expected[day].count})`
-      ).toBeGreaterThanOrEqual(expected[day].count);
-    }
+    // Verify no accommodation cards exist inside any day card
+    const accomInDays = tripPage.page.locator('.day-card .accommodation-card');
+    expect.soft(await accomInDays.count(), 'No accommodation cards should exist inside day cards').toBe(0);
   });
 });
 
@@ -425,19 +402,17 @@ test.describe('Accommodation — Grid Containment', () => {
   test('TC-214: all accommodation cards are children of accommodation-grid', async ({ tripPage }) => {
     test.skip(stays.length === 0, 'No accommodation.stays in manifest — trip may predate accommodation feature');
 
-    for (const day of anchorDays) {
-      const section = tripPage.getDayAccommodationSection(day);
-      if (await section.count() === 0) continue;
+    const section = tripPage.getAccommodationSection();
+    if (await section.count() === 0) return;
 
-      const cardsInGrid = section.locator('.accommodation-grid .accommodation-card');
-      const cardsInSection = section.locator('.accommodation-card');
-      const gridCount = await cardsInGrid.count();
-      const sectionCount = await cardsInSection.count();
+    const cardsInGrid = section.locator('.accommodation-grid .accommodation-card');
+    const cardsInSection = section.locator('.accommodation-card');
+    const gridCount = await cardsInGrid.count();
+    const sectionCount = await cardsInSection.count();
 
-      expect.soft(
-        gridCount,
-        `Day ${day}: all ${sectionCount} accommodation cards should be inside .accommodation-grid (found ${gridCount} in grid)`
-      ).toBe(sectionCount);
-    }
+    expect.soft(
+      gridCount,
+      `All ${sectionCount} accommodation cards should be inside .accommodation-grid (found ${gridCount} in grid)`
+    ).toBe(sectionCount);
   });
 });

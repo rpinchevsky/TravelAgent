@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
+import * as fs from 'fs';
 import { TripPage } from '../pages/TripPage';
 import { loadTripConfig } from '../utils/trip-config';
+import { getManifestPath } from '../utils/trip-folder';
 
 const tripConfig = loadTripConfig();
 
@@ -111,14 +113,28 @@ test.describe('RTL — Navigation', () => {
   });
 
   test('should have correct number of sidebar links', async () => {
-    // overview + dayCount days + budget
-    const expectedCount = tripConfig.dayCount + 2;
+    const manifestPath = getManifestPath();
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+    const hasAccommodation = (manifest.accommodation?.stays?.length ?? 0) > 0;
+    const hasCarRental = (manifest.car_rental?.blocks?.length ?? 0) > 0;
+    const optionalSections = (hasAccommodation ? 1 : 0) + (hasCarRental ? 1 : 0);
+    // overview + optional(accommodation, car-rental) + days + budget
+    const expectedCount = tripConfig.dayCount + 2 + optionalSections;
     await expect(tripPage.sidebarLinks).toHaveCount(expectedCount);
   });
 
   test('sidebar links should have correct hrefs', async () => {
+    const manifestPath = getManifestPath();
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+    const hasAccommodation = (manifest.accommodation?.stays?.length ?? 0) > 0;
+    const hasCarRental = (manifest.car_rental?.blocks?.length ?? 0) > 0;
+    const optionalHrefs = [
+      ...(hasAccommodation ? ['#accommodation'] : []),
+      ...(hasCarRental ? ['#car-rental'] : []),
+    ];
     const expectedHrefs = [
       '#overview',
+      ...optionalHrefs,
       ...Array.from({ length: tripConfig.dayCount }, (_, i) => `#day-${i}`),
       '#budget',
     ];
@@ -128,7 +144,13 @@ test.describe('RTL — Navigation', () => {
   });
 
   test('should have correct number of mobile pills', async () => {
-    const expectedCount = tripConfig.dayCount + 2;
+    const manifestPath = getManifestPath();
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+    const hasAccommodation = (manifest.accommodation?.stays?.length ?? 0) > 0;
+    const hasCarRental = (manifest.car_rental?.blocks?.length ?? 0) > 0;
+    const optionalSections = (hasAccommodation ? 1 : 0) + (hasCarRental ? 1 : 0);
+    // overview + optional(accommodation, car-rental) + days + budget
+    const expectedCount = tripConfig.dayCount + 2 + optionalSections;
     await expect(tripPage.mobilePills).toHaveCount(expectedCount);
   });
 });

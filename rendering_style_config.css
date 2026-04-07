@@ -755,14 +755,14 @@ a.activity-label:focus-visible {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   line-height: var(--line-height-body);
-  flex: 1;
 }
 
 .poi-card__links {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-  margin-top: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
 }
 
 .poi-card__link {

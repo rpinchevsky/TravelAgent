@@ -207,12 +207,12 @@ export class TripPage {
 
   // --- Accommodation helpers ---
 
-  getDayAccommodationSection(dayNumber: number): Locator {
-    return this.page.locator(`#day-${dayNumber} .accommodation-section`);
+  getAccommodationSection(): Locator {
+    return this.page.locator('#accommodation');
   }
 
-  getDayAccommodationCards(dayNumber: number): Locator {
-    return this.page.locator(`#day-${dayNumber} .accommodation-card`);
+  getAccommodationCards(): Locator {
+    return this.page.locator('#accommodation .accommodation-card');
   }
 
   getAccommodationCardName(card: Locator): Locator {
@@ -245,12 +245,12 @@ export class TripPage {
 
   // --- Car Rental helpers ---
 
-  getDayCarRentalSection(dayNumber: number): Locator {
-    return this.page.locator(`#day-${dayNumber} .car-rental-section`);
+  getCarRentalSection(): Locator {
+    return this.page.locator('#car-rental');
   }
 
-  getDayCarRentalCategories(dayNumber: number): Locator {
-    return this.page.locator(`#day-${dayNumber} .car-rental-category`);
+  getCarRentalCategories(): Locator {
+    return this.page.locator('#car-rental .car-rental-category');
   }
 
   getCarRentalCategoryTitle(cat: Locator): Locator {
@@ -277,8 +277,8 @@ export class TripPage {
     return cat.locator('.car-rental-category__recommendation');
   }
 
-  getDayRentalCtas(dayNumber: number): Locator {
-    return this.page.locator(`#day-${dayNumber} .rental-cta`);
+  getRentalCtas(): Locator {
+    return this.page.locator('#car-rental .rental-cta');
   }
 
   getCarRentalProTip(section: Locator): Locator {
