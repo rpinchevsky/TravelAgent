@@ -90,8 +90,8 @@ Created during Phase A, updated after Phase B. Combined example:
 Provide a table with:
 - Date/Day-of-week/Area.
 - Morning/Lunch/Afternoon summary.
-- CEO Audit Status (pass/fail).
 - **No day-number column:** Do NOT include a "День" / day-number column (0, 1, 2…). Use the date column as the primary row identifier.
+- **No audit column:** Do NOT include any audit/status column (e.g., "Аудит", "CEO Audit", "✅ Pass"). The CEO Audit checklist is a silent internal self-check only — it must never appear in the overview table.
 
 *Note: No links or prices in this phase.*
 

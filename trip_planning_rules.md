@@ -211,6 +211,23 @@ Always include a "Holiday Advisory" note explaining:
 
 ## Research & Quality Control
 
+### Search Persistence Policy (Mandatory)
+Before marking any piece of trip data as "not found" and omitting it, you **must** attempt at least 3 distinct search queries using different terms. This applies to:
+- **Images** — POI photos, Wikimedia Commons images
+- **Phone numbers** — try Google Places, official website, local directory
+- **Ratings** — try Google Places, TripAdvisor, local tourism sites
+- **Opening hours / prices** — try official site, Google Places, travel blogs
+- **Any other POI data field**
+
+**Query variation strategy:** If the first query returns no result, reformulate using:
+1. Local language name (e.g., "Stari Grad Budva" instead of "Budva Old Town")
+2. Broader category (e.g., "Kotor fortifications" instead of "Kotor city walls")
+3. Combined with destination or "Wikimedia Commons" / "Wikipedia"
+
+Only omit a field after all 3 query variations fail. Do not give up after a single failed search.
+
+**Exception:** The Network & Connectivity Rules (connectivity failures, timeouts) still apply — a connectivity failure after 1 retry is different from a search returning empty results.
+
 ### Live Verification
 - Use `Google Search` to confirm opening hours, prices, and special events for the specific `trip_context.timing`.
 - Search for "local secrets" (hidden playgrounds, non-tourist stalls) in the specific neighborhood being planned.

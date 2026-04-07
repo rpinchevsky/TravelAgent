@@ -139,6 +139,7 @@ const COUNTRY_NAME_TO_CODE: Record<string, string> = {
   'czechia': 'CZ',
   'austria': 'AT',
   'poland': 'PL',
+  'montenegro': 'ME',
 };
 
 // Inline SVG flags — compact rectangular (28x20, ratio 4:3)
@@ -156,6 +157,7 @@ const FLAG_SVG: Record<string, string> = {
   CZ: `<svg width="28" height="20" viewBox="0 0 24 18" role="img" aria-label="Czech Republic flag"><rect width="24" height="9" fill="#FFFFFF"/><rect y="9" width="24" height="9" fill="#D7141A"/><polygon points="0,0 12,9 0,18" fill="#11457E"/></svg>`,
   AT: `<svg width="28" height="20" viewBox="0 0 24 18" role="img" aria-label="Austria flag"><rect width="24" height="6" fill="#ED2939"/><rect y="6" width="24" height="6" fill="#FFFFFF"/><rect y="12" width="24" height="6" fill="#ED2939"/></svg>`,
   PL: `<svg width="28" height="20" viewBox="0 0 24 18" role="img" aria-label="Poland flag"><rect width="24" height="9" fill="#FFFFFF"/><rect y="9" width="24" height="9" fill="#DC143C"/></svg>`,
+  ME: `<svg width="28" height="20" viewBox="0 0 24 18" role="img" aria-label="Montenegro flag"><rect width="24" height="18" fill="#D4AF37"/><rect x="1.5" y="1.5" width="21" height="15" fill="#D0000C"/></svg>`,
 };
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -1247,7 +1249,7 @@ function renderPoiCard(poi: PoiData, dayNum: number, poiIndex: number, lang: str
   parts.push(`<div class="poi-card" id="poi-day-${dayNum}-${poiIndex}"${exemptAttr}>`);
   if (poi.imageUrl) {
     parts.push(`  <div class="poi-card__image-wrapper">`);
-    parts.push(`    <img src="${escapeHtml(poi.imageUrl)}" alt="${escapeHtml(poi.name)}" loading="lazy" onerror="this.parentElement.style.display='none'">`);
+    parts.push(`    <img src="${escapeHtml(poi.imageUrl)}" alt="${escapeHtml(poi.name)}" loading="lazy" onerror="this.style.display='none'">`);
     parts.push(`  </div>`);
   }
   parts.push(`  <div class="poi-card__body">`);
@@ -1482,16 +1484,18 @@ function parsePlanBCards(content: string): { intro: string; cards: PlanBCard[] }
 
 function renderPlanBCard(card: PlanBCard, labels: { maps: string; site: string; phone: string }): string {
   const parts: string[] = [];
-  parts.push(`      <div class="poi-card">`);
-  parts.push(`        <div class="poi-card__body">`);
+  // Plan B cards MUST NOT use poi-card class (rendering-config.md rule).
+  // They use plan-b-card to keep them out of POI parity checks and anchor ID requirements.
+  parts.push(`      <div class="plan-b-card">`);
+  parts.push(`        <div class="plan-b-card__body">`);
   if (card.rating) {
-    parts.push(`          <span class="poi-card__rating">⭐ ${escapeHtml(card.rating)}</span>`);
+    parts.push(`          <span class="plan-b-card__rating">⭐ ${escapeHtml(card.rating)}</span>`);
   }
   if (card.heading) {
-    parts.push(`          <h3 class="poi-card__name">${processInlineMd(card.heading)}</h3>`);
+    parts.push(`          <h3 class="plan-b-card__name">${processInlineMd(card.heading)}</h3>`);
   }
   for (const desc of card.descriptionLines) {
-    parts.push(`          <p class="poi-card__description">${processInlineMd(desc)}</p>`);
+    parts.push(`          <p class="plan-b-card__description">${processInlineMd(desc)}</p>`);
   }
   if (card.pricingRows && card.pricingRows.length > 1) {
     const [headers, ...bodyRows] = card.pricingRows;
@@ -1514,15 +1518,15 @@ function renderPlanBCard(card: PlanBCard, labels: { maps: string; site: string; 
   }
   const hasLinks = card.mapsUrl || card.siteUrl || card.phone;
   if (hasLinks) {
-    parts.push(`          <div class="poi-card__links">`);
+    parts.push(`          <div class="plan-b-card__links">`);
     if (card.mapsUrl) {
-      parts.push(`            <a class="poi-card__link" data-link-type="maps" href="${escapeHtml(card.mapsUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.mapPin} 📍 ${escapeHtml(labels.maps)}</a>`);
+      parts.push(`            <a class="plan-b-card__link" data-link-type="maps" href="${escapeHtml(card.mapsUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.mapPin} 📍 ${escapeHtml(labels.maps)}</a>`);
     }
     if (card.siteUrl) {
-      parts.push(`            <a class="poi-card__link" data-link-type="site" href="${escapeHtml(card.siteUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.globe} 🌐 ${escapeHtml(labels.site)}</a>`);
+      parts.push(`            <a class="plan-b-card__link" data-link-type="site" href="${escapeHtml(card.siteUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.globe} 🌐 ${escapeHtml(labels.site)}</a>`);
     }
     if (card.phone) {
-      parts.push(`            <a class="poi-card__link" data-link-type="phone" href="tel:${normalizePhone(card.phone)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.phone} 📞 ${escapeHtml(labels.phone)}</a>`);
+      parts.push(`            <a class="plan-b-card__link" data-link-type="phone" href="tel:${normalizePhone(card.phone)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.phone} 📞 ${escapeHtml(labels.phone)}</a>`);
     }
     parts.push(`          </div>`);
   }

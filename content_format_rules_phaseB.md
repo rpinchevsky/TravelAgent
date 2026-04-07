@@ -39,6 +39,7 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 📞 Телефон: +36 1 234 5678
 ⭐ 4.5/5 (2,340 отзывов)
 ♿ Доступно для колясок
+**Image:** https://upload.wikimedia.org/wikipedia/commons/thumb/...
 
 {Full POI content per Content Guidelines below}
 
