@@ -314,7 +314,7 @@ Batches are assigned in chronological order: batch 1 gets the lowest-numbered da
 The main agent spawns one subagent per batch using the Agent tool. **All subagent calls must appear in the same response block** so they execute in parallel, not sequentially.
 
 Each subagent receives this context:
-1. `trip_planning_rules_phaseB.md` — Phase B extract of trip planning rules (NOT the full `trip_planning_rules.md`).
+1. `trip_planning_rules.md` — full trip planning rules. Phase A-only sections are marked *(Phase A only)* — skip them.
 2. `content_format_rules_phaseB.md` — Phase B extract of content format rules (NOT the full `content_format_rules.md`).
 3. The active trip details file — travelers, interests, schedule preferences.
 4. `overview_LANG.md` — the Phase A master plan (for cross-day context).

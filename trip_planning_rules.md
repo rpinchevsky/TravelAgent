@@ -52,15 +52,7 @@ The trip generation pipeline uses a two-layer data source approach for POI detai
 - For each company, discover or estimate: company name, daily rate, total cost for rental period, booking/search page URL.
 - **Transmission/fuel filter:** When company websites provide transmission and fuel type filtering, apply the traveler's preferences. Otherwise, annotate the preference in the section intro.
 - **Pickup/return location:** Verify branch availability (airport desk vs. city center office) when discoverable.
-- **Aggregator fallback:** If web search returns insufficient results, construct comparison links using well-known aggregators (rentalcars.com, kayak.com, autoeurope.com).
-**Booking URLs** (dates ISO YYYY-MM-DD, location codes destination-specific via web fetch, fallback to company homepage, all `target="_blank" rel="noopener noreferrer"`):
-- SIXT: `sixt.com/car-rental/{city}/?pickup_date=&return_date=&pickup_station=`
-- Hertz: `hertz.com/rentacar/reservation/?pickUpDate=&returnDate=&pickUpLocationCode=`
-- Europcar: `europcar.com/en/car-hire/results?pickupDate=&returnDate=&pickupLocation=`
-- Enterprise: `enterprise.com/en/car-rental/results.html?pickupdate=&returndate=&pickuplocation=`
-- Avis: `avis.com/en/reserve?pickUpDate=&returnDate=&loc=`
-- Budget: `budget.com/en/reserve?pickUpDate=&returnDate=&loc=`
-- **Aggregators (fallback):** rentalcars.com (`/search-results?location=&pick_date=&drop_date=`), kayak.com (`/cars/{dest}/{pickup}/{return}`), autoeurope.com (`/go/results/`)
+- **Aggregator fallback:** If web search returns insufficient results, use well-known aggregators (rentalcars.com, kayak.com, autoeurope.com).
 
 ---
 
@@ -105,7 +97,7 @@ After initial itinerary draft, perform a dedicated research pass:
 
 ## Accommodation Selection
 
-### Stay Block Identification (Phase A)
+### Stay Block Identification *(Phase A only — Phase B subagents skip this section)*
 
 After building the Phase A overview table, analyze the area column across all days to identify distinct stay blocks:
 
@@ -154,7 +146,7 @@ Maps Google Places `price_level` (0-4) to destination-appropriate nightly ranges
 
 ## Car Rental Selection
 
-### Car Rental Block Identification (Phase A)
+### Car Rental Block Identification *(Phase A only — Phase B subagents skip this section)*
 
 After building the Phase A overview table, analyze the transportation column across all days to identify car rental blocks:
 
@@ -181,7 +173,7 @@ During Phase B, the subagent generating a car rental anchor day's file performs 
    - Booking/search page URL
 5. **Filtering:** Apply transmission and fuel type preferences when company data supports it. Apply pickup/return location preference when branch data is available.
 6. **Budget soft filter:** If daily_rental_budget is specified, deprioritize options outside the range. Do not exclude unless 3+ options remain within range.
-7. **Construct booking deep links** for each company (see Layer 2b Booking Link URL Patterns table for URL patterns).
+7. **Include** a direct booking/search URL for each company as discovered via web fetch.
 8. **Write car rental section** in the anchor day's markdown file (see content_format_rules.md for template).
 
 ---
