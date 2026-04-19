@@ -32,18 +32,18 @@ When adding features, changing rules, or fixing gaps between requirements and im
 |---|---|---|---|---|
 | 1 | PM (PM-Req) | `.claude/skills/dev-cycle/prompts/pm.md` | Rule files relevant to request | `business_requirements.md` |
 | 1b | UX/UI (UX-Design) | `.claude/skills/dev-cycle/prompts/ux-design.md` | BRD + design specs + current UI | `ux_design.md` |
-| 2 | Dev (Dev-Design) | `.claude/skills/dev-cycle/prompts/dev-design.md` | BRD + UX design + affected rule files | `high_level_design.md`, `detailed_design.md` |
+| 2 | Dev (Dev-Impl) | `.claude/skills/dev-cycle/prompts/dev-impl.md` | BRD + UX design + affected rule files | `high_level_design.md`, `detailed_design.md` + code & rule changes |
 | 3 | SA (SA-Review) | `.claude/skills/dev-cycle/prompts/sa-review.md` | BRD + UX design + HLD + DD + architecture rule files | `architecture_review.md` |
 | 4a | AE (AE-Plan) | `.claude/skills/dev-cycle/prompts/ae-test-plan.md` | BRD + DD + UX design + automation rules | `test_plan.md` |
 | 4b | QA-A (QA-Review) | `.claude/skills/dev-cycle/prompts/qa-review.md` | BRD + test plan + automation rules | `qa_architecture_review.md` |
-| 5 | Dev (Dev-Impl) + AE (AE-Impl) | `.claude/skills/dev-cycle/prompts/dev-impl.md` + `ae-impl.md` | DD + UX design + test plan + relevant files | Code & test changes |
+| 5 | Team Leader (Dev-Review) + AE (AE-Impl) | `.claude/skills/dev-cycle/prompts/dev-tl.md` + `ae-impl.md` | BRD + HLD + DD + implementation files | `code_review.md` + test changes |
 | 6 | — | `/render` → `/regression` (as subagents, not skills) | Generated trip files | HTML + test reports |
 
 **Orchestration rules:**
 - **Phase 1b (UX) gating:** Phase 1b runs only when the change involves GUI/UI elements. The orchestrator determines this from the BRD — if any requirement touches `trip_intake.html`, HTML rendering, or visual components, Phase 1b is triggered. Non-GUI changes (rule-only, content-only, test-only) skip Phase 1b entirely.
 - **UX approval:** The `ux_design.md` includes a sign-off table for PM and Dev Team Lead. The UX subagent self-validates coverage and sets status. If UX design has unresolved conflicts with the BRD, re-spawn UX with PM feedback. Max 1 retry — escalate to user if still blocked.
-- **Rejection loops:** If SA (Phase 3) rejects, re-spawn Dev (Phase 2) with `architecture_review.md` included in context, then re-run SA. If QA-A (Phase 4b) rejects, re-spawn AE (Phase 4a) with `qa_architecture_review.md` included in context, then re-run QA-A. Max 2 retry rounds per loop — escalate to user only if still blocked.
-- **Parallel execution:** Phase 5 runs Dev and AE subagents in parallel. File ownership: Dev owns rule files and content/rendering code. AE owns test specs, `TripPage.ts`, and `release_notes.md`. Neither modifies the other's files.
+- **Rejection loops:** If SA (Phase 3) rejects, re-spawn Dev (Phase 2) with `architecture_review.md` included in context, then re-run SA. If QA-A (Phase 4b) rejects, re-spawn AE (Phase 4a) with `qa_architecture_review.md` included in context, then re-run QA-A. If Team Leader (Phase 5) verdict is Rejected, re-spawn Dev (Phase 2) with `code_review.md` included in context, then re-run Team Leader. Max 2 retry rounds per loop — escalate to user only if still blocked.
+- **Parallel execution:** Phase 5 runs Team Leader and AE subagents in parallel. File ownership: Team Leader writes `code_review.md` only (does not modify code). AE owns test specs, `TripPage.ts`, and `release_notes.md`. Neither modifies the other's files.
 - **Phase 6:** Run as subagents (not skills) to keep main context clean. The subagent reads the render/regression skill files internally. Invoke render first (HTML must be fully generated), then regression.
 - **PM acceptance:** After Phase 6, report BRD acceptance criteria coverage to the user based on regression results.
 - **Reference doc:** `development_process.md` has full stakeholder responsibilities (not loaded into context — read only if needed).
