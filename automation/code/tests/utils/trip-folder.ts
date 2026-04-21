@@ -56,3 +56,22 @@ export function getManifestPath(): string {
   const folderPath = getLatestTripFolderPath('manifest.json');
   return path.join(folderPath, 'manifest.json');
 }
+
+/**
+ * Returns the absolute path to `trip_full_{suffix}.html` in the latest trip folder
+ * that contains that file.
+ * `suffix` defaults to 'en' but callers should pass the actual language suffix
+ * (e.g., from `tripConfig.labels.fileSuffix`).
+ */
+export function getHtmlPath(suffix = 'en'): string {
+  const filename = `trip_full_${suffix}.html`;
+  const folderPath = getLatestTripFolderPath(filename);
+  return path.join(folderPath, filename);
+}
+
+/**
+ * Returns the absolute path to the project root (two levels above `generated_trips/`).
+ */
+export function getProjectRoot(): string {
+  return PROJECT_ROOT;
+}

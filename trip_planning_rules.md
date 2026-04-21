@@ -29,11 +29,17 @@ The trip generation pipeline uses a two-layer data source approach for POI detai
 - **Precedence rule:** For structured fields (hours, website URL, phone, rating), Google Places data takes precedence over web fetch when both are available.
 - **Scope limitation:** Google Places does NOT replace web fetch for narrative content (descriptions, pro-tips, family-specific notes, photo gallery links) — only for structured fields.
 - **Default wheelchair behavior:** If the trip details file does not contain a `Wheelchair accessible` field, treat as `wheelchair accessible: no`.
+- **place_id persistence (Mandatory):** After calling `mcp__google-places__maps_place_details` for a POI, save the returned `place_id` into the day markdown file as `**place_id:** {place_id_value}` — a line by itself in the POI metadata block, after the links/phone/rating/accessibility lines and before the `**Image:**` line. Omit the line entirely if Google Places returned no result for this POI (no empty placeholder). This applies to all POI types: main attractions, restaurants, grocery stores (`### 🛒`), and along-the-way stops (`### 🎯`). The `place_id` is required for the embedded day map widget to render rich numbered pins.
 
 ### Layer 2c: Inline Image URL (Per-POI)
 - For each POI, find a publicly accessible image URL and include it in the markdown as `**Image:** <url>` on a line by itself in the POI section (after the links block, before the description).
-- **Preferred source:** Wikipedia/Wikimedia Commons — URLs are permanently accessible, no authentication required. Use the thumbnail format: `https://upload.wikimedia.org/wikipedia/commons/thumb/...`
-- **Fallback:** Any freely accessible, permanently hosted image URL (not requiring login, not behind CDN auth). Avoid URLs with expiry tokens or API keys.
+- **Image source fallback chain — try in order, stop at first success:**
+  1. **Wikimedia Commons (preferred):** `WebSearch` for `site:commons.wikimedia.org "<POI name>"` to get the exact filename, then construct the thumb URL: `https://upload.wikimedia.org/wikipedia/commons/thumb/{H1}/{H12}/{filename}/{size}-{filename}` where `{H1}/{H12}` is the first 1 and 2 hex chars of `md5(filename)`. **Never WebFetch Wikimedia pages directly** — direct fetches trigger IP-level 429 rate limiting that hides all POI images.
+  2. **Flickr Creative Commons:** `WebSearch` for `site:flickr.com "<POI name>"` — use the direct static image URL (`live.staticflickr.com/...`) only; these are permanently hosted.
+  3. **Official attraction or municipal tourism website:** `WebSearch` for `"<POI name>" photo site:<official-domain>` — extract the direct `<img src>` URL if it contains no CDN auth tokens.
+  4. **General web search:** `WebSearch` for `"<POI name>" photo` — take the first stable direct image URL found (must end in `.jpg`, `.png`, or `.webp` with no query-string tokens).
+  5. **Omit** — if all four sources fail, omit the `**Image:**` line entirely.
+- **Disallowed regardless of source:** URLs containing CDN auth tokens (`?X-Amz-`, `?Policy=`, `?Signature=`, `?token=`), TripAdvisor dynamic image URLs, Google Photos / Drive share URLs, social media CDNs (Instagram, Facebook).
 - **Relevance requirement:** The image must be specific to the POI (the actual attraction, building, or location) — not a generic city photo.
 - **Graceful omission:** If no suitable image is found, omit the `**Image:**` line entirely. Cards without images render normally.
 

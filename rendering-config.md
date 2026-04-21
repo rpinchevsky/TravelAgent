@@ -32,6 +32,9 @@
 ### POI Card Structure
 - **Inline image (Optional):** If the markdown source contains `**Image:** <url>` (or `**Изображение:**`, `**תמונה:**`), render `<div class="poi-card__image-wrapper"><img src="{url}" alt="{POI name}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>` as the **first child** of `.poi-card`, before `.poi-card__body`. If no image URL is present, omit the wrapper entirely. The `onerror` handler hides the wrapper if the image fails to load.
 - **Anchor ID (Mandatory):** Every `<div class="poi-card">` MUST have a unique `id` attribute following the pattern `id="poi-day-{D}-{N}"` where `{D}` is the day number and `{N}` is the 1-based POI index within that day. Example: `id="poi-day-1-1"`, `id="poi-day-1-2"`, `id="poi-day-2-1"`.
+- **place_id attribute (Conditional):** When a POI section in the source markdown contains a `**place_id:** {value}` line, the rendered `.poi-card` MUST include `data-place-id="{value}"` on the root `<div>`. When absent from the markdown, the attribute is omitted entirely — never rendered as empty.
+- **poi-name attribute (Mandatory):** Every `.poi-card` root `<div>` MUST include `data-poi-name="{POI name}"` regardless of whether a `place_id` is present. Used by the day map widget init script to populate info window names. Example: `data-poi-name="Stortorget / Stortorget (Malmö&#39;s Main Square)"`.
+- **Combined example:** `<div class="poi-card" id="poi-day-1-1" data-place-id="ChIJ..." data-poi-name="Stortorget">`
 - Tag: `<span class="poi-card__tag">` with emoji prefix (e.g., `🏊 Бассейн`, `🍽️ Ужин`, `🏛️ Музей`)
 - Rating: `<span class="poi-card__rating">` placed between `.poi-card__tag` and `<h3 class="poi-card__name">`. Contains a star icon (⭐ emoji) followed by the numeric rating and optional review count in parentheses. Example: `<span class="poi-card__rating">⭐ 4.5 (2,340)</span>`. If no rating exists in the markdown source, this element is not rendered. The review count uses locale-appropriate number formatting (e.g., comma separators).
 - Accessibility indicator: When present in the markdown source (`♿`), render as `<span class="poi-card__accessible">♿</span>` placed after `.poi-card__rating` (or after `.poi-card__tag` if no rating), before `<h3 class="poi-card__name">`. This is a simple inline badge, not a link.
@@ -104,9 +107,55 @@
 - Structure: `<div class="pricing-grid">` containing `<div class="pricing-cell">` items, each with `.pricing-cell__label`, `.pricing-cell__amount`, `.pricing-cell__currency`.
 - Do NOT use `itinerary-table` for pricing data.
 
-### Daily Route Map Link
-- **Placement:** Render `<a class="map-link">` **before** the `<div class="itinerary-table-wrapper">`, immediately after the `<div class="day-card__content">` opening tag.
-- Do NOT place it after the itinerary table.
+### Daily Route Map Link / Day Map Widget
+
+#### Behavior
+- When `maps_config.json` (project root) contains a non-blank `google_maps_api_key` AND the day has at least one POI with a `data-place-id` attribute, render the full **Day Map Widget** (see structure below).
+- When the API key is absent/blank OR the day has zero POIs with `place_id`, render the original fallback only: `<a class="map-link" href="{dir_url}" target="_blank" rel="noopener noreferrer">🗺️ {label}</a>`.
+- **Placement:** Immediately after `<div class="day-card__content">` opening tag, **before** `<div class="itinerary-table-wrapper">`.
+- Do NOT place after the itinerary table.
+
+#### Day Map Widget HTML Structure
+```html
+<div class="day-map-widget day-map-widget--loading" data-map-day="{N}"
+     role="region" aria-labelledby="map-day-{N}-label">
+  <span id="map-day-{N}-label" class="sr-only">{localized label}</span>
+  <div id="day-map-{N}" class="day-map-widget__canvas" tabindex="0"></div>
+  <a class="map-link day-map-widget__fallback" href="{existing maps/dir URL}"
+     target="_blank" rel="noopener noreferrer" aria-hidden="true">
+    🗺️ {mapLinkLabel}
+  </a>
+</div>
+```
+If the language is not in `MAP_ARIA_LABELS` (see below), the `<span>` label and `aria-labelledby` attribute are omitted entirely.
+
+#### `{{MAPS_SCRIPT}}` placeholder
+`base_layout.html` contains `{{MAPS_SCRIPT}}` before `</body>`. `generate_shell_fragments.ts` substitutes:
+- **Key present:** A `<script async>` tag loading the Maps JS API with `callback=initDayMaps` + an inline `<script>` block with the `initDayMaps` initialization function.
+- **Key absent or blank:** Empty string.
+
+The Maps JS API initialization function (`initDayMaps`) reads all `.day-map-widget[data-map-day]` elements, collects `.poi-card[data-place-id]` for that day section, creates `AdvancedMarkerElement` pins with brand colors (navy `#1A3C5E` / gold border `#C9972B` / white glyph `#FAFAFA`), calls `getDetails` to resolve lat/lng and fetch place photos, fits the map bounds to all pins, and wires click handlers to open a photo+name `InfoWindow`. The map uses `gestureHandling: 'cooperative'` (single-finger scroll passes through to page). On `tilesloaded`, `.day-map-widget--loading` class is removed (ends shimmer). On API failure, `.day-map-widget--error` is added and the fallback `<a>` becomes visible.
+
+#### `maps_config.json` — API key storage
+- **Location:** Project root `maps_config.json`
+- **Schema:** `{ "google_maps_api_key": "AIza..." }`
+- **Gitignored:** Yes — add `maps_config.json` to `.gitignore`
+- **Prerequisites:** Google Cloud project with Maps JavaScript API + Places API enabled (billing required). Domain-restrict the key via Google Cloud Console.
+- **v1 known limitations:** Dark map tiles (matching `prefers-color-scheme: dark`) are not supported in v1 — map tiles remain light in dark mode. Pin touch targets (~26px) are below the WCAG 44×44px recommendation — accepted as a limitation of the Google Maps default `AdvancedMarkerElement` size.
+
+#### MAP_ARIA_LABELS (localized map region label)
+Used for `aria-labelledby` of the `.day-map-widget` region. `{N}` is replaced with the day number:
+```
+ru: "Карта дня {N}"
+en: "Day {N} map"
+he: "מפת יום {N}"
+```
+
+#### Graceful degradation rules
+1. `maps_config.json` missing or key blank → `{{MAPS_SCRIPT}}` = empty string; all days emit `<a class="map-link">` (no widget).
+2. Day has zero POIs with `place_id` → emit `<a class="map-link">` for that day only.
+3. Day has mixed coverage (some POIs with `place_id`, some without) → widget renders; only pinnable POIs appear as pins; others remain as cards.
+4. Maps JS API fails at runtime → `.day-map-widget--error` class applied; `aria-hidden` removed from `.day-map-widget__fallback` → link becomes visible.
 
 ### Plan B (Backup Plan) Sections
 - **MUST** use `<div class="advisory advisory--info">` with the info SVG icon.
@@ -309,9 +358,9 @@ Scripts are located at `automation/scripts/` and run via `npx tsx`. Node.js >= 1
    - `fragment_day_00_LANG.html` through `fragment_day_NN_LANG.html` — day cards, in chronological order
    - `fragment_budget_LANG.html` — the `#budget` section
    All fragment types are read exclusively from their respective files. There is no inline or embedded fallback. Accommodation and car rental fragments are conditionally included only when their source markdown files exist.
-3. **Inject** all fragments into the placeholders (PAGE_TITLE, NAV_LINKS, NAV_PILLS, TRIP_CONTENT, HTML_LANG_ATTRS). For Hebrew, HTML_LANG_ATTRS = `lang="he" dir="rtl"`.
+3. **Inject** all fragments into the placeholders (PAGE_TITLE, NAV_LINKS, NAV_PILLS, TRIP_CONTENT, HTML_LANG_ATTRS, **MAPS_SCRIPT**). For Hebrew, HTML_LANG_ATTRS = `lang="he" dir="rtl"`. When the API key is absent, MAPS_SCRIPT is an empty string — substitute it as such (do not leave the literal `{{MAPS_SCRIPT}}` token in the output).
 4. **Save** the result as `trip_full_LANG.html` inside the trip folder.
-5. **Validation:** Ensure the original `base_layout.html` still contains its `{{PAGE_TITLE}}`, `{{NAV_LINKS}}`, `{{NAV_PILLS}}`, `{{TRIP_CONTENT}}`, `{{HTML_LANG_ATTRS}}` placeholders for future use.
+5. **Validation:** Ensure the original `base_layout.html` still contains its `{{PAGE_TITLE}}`, `{{NAV_LINKS}}`, `{{NAV_PILLS}}`, `{{TRIP_CONTENT}}`, `{{HTML_LANG_ATTRS}}`, `{{MAPS_SCRIPT}}` placeholders for future use.
 
 ### Incremental HTML Rebuild
 

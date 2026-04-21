@@ -69,6 +69,26 @@ test.describe('Smoke — Day Content (sampled)', () => {
       expect.soft(await pois.count(), `Day ${day}: POI card count >= 1`).toBeGreaterThanOrEqual(1);
     }
   });
+
+  // TC-217: Smoke — sampled days have a map element or fallback link
+  // Traces to: BRD REQ-003 / REQ-005 (widget or fallback always present per day)
+  test('TC-217: sampled days have either a .day-map-widget or a plain a.map-link (not both, not neither)', async ({ sharedPage }) => {
+    for (const day of sampleDays) {
+      const { widgetCount, plainLinkCount } = await sharedPage.evaluate((dayNum) => {
+        const section = document.querySelector(`#day-${dayNum}`);
+        if (!section) return { widgetCount: 0, plainLinkCount: 0 };
+        const widgets = section.querySelectorAll('.day-map-widget').length;
+        const plainLinks = section.querySelectorAll('a.map-link:not(.day-map-widget__fallback)').length;
+        return { widgetCount: widgets, plainLinkCount: plainLinks };
+      }, day);
+
+      const total = widgetCount + plainLinkCount;
+      expect.soft(
+        total,
+        `Day ${day}: expected exactly one map element (widget XOR plain map-link), found ${widgetCount} widget(s) and ${plainLinkCount} plain link(s)`
+      ).toBe(1);
+    }
+  });
 });
 
 test.describe('Smoke — POI Cards (spot-check)', () => {

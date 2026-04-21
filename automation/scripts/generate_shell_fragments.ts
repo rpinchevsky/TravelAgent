@@ -29,7 +29,7 @@ import * as path from 'path';
 
 const TITLE_SUFFIX_BY_LANG: Record<string, string> = {
   ru: 'Семейный маршрут',
-  en: 'Family Trip',
+  en: 'Family Itinerary',
   he: 'מסלול משפחתי',
 };
 
@@ -235,6 +235,267 @@ function buildNavPills(sections: NavSection[]): string {
     .join('\n');
 }
 
+// ─── Maps Config ────────────────────────────────────────────────────────────
+
+/**
+ * Read the Google Maps API key from maps_config.json in the project root.
+ * Returns empty string if the file is absent, unreadable, or the key is blank.
+ * Project root is two directories above automation/scripts/.
+ */
+function readMapsApiKey(scriptDir: string): string {
+  const projectRoot = path.resolve(scriptDir, '..', '..');
+  const configPath = path.join(projectRoot, 'maps_config.json');
+  if (!fs.existsSync(configPath)) return '';
+  try {
+    const raw = fs.readFileSync(configPath, 'utf8');
+    const cfg = JSON.parse(raw) as { google_maps_api_key?: string };
+    return (cfg.google_maps_api_key ?? '').trim();
+  } catch {
+    return '';
+  }
+}
+
+/** initDayMaps function body — injected into a <script> tag when API key is present. */
+const INIT_SCRIPT_BODY = `function initDayMaps() {
+  var widgets = document.querySelectorAll('.day-map-widget[data-map-day]');
+  if (!widgets.length) return;
+  widgets.forEach(function(widget) {
+    var dayN = widget.getAttribute('data-map-day');
+    var canvas = document.getElementById('day-map-' + dayN);
+    var fallback = widget.querySelector('.day-map-widget__fallback');
+    if (!canvas) return;
+
+    var daySection = document.getElementById('day-' + dayN);
+    if (!daySection) return;
+    var poiCards = Array.prototype.slice.call(
+      daySection.querySelectorAll('.poi-card[data-place-id]')
+    );
+    if (!poiCards.length) {
+      widget.classList.remove('day-map-widget--loading');
+      widget.classList.add('day-map-widget--error');
+      if (fallback) fallback.removeAttribute('aria-hidden');
+      return;
+    }
+
+    var map = new google.maps.Map(canvas, {
+      mapId: 'DEMO_MAP_ID',
+      gestureHandling: 'cooperative',
+      mapTypeControl: false,
+      fullscreenControl: true,
+      streetViewControl: false
+    });
+
+    var bounds = new google.maps.LatLngBounds();
+    var service = new google.maps.places.PlacesService(map);
+    var placedCount = 0;
+    var failedCount = 0;
+    var currentInfoIdx = -1;
+
+    // Build slide-in side panel — overlays right portion of map on marker click
+    var panel = document.createElement('div');
+    panel.className = 'dmp';
+    var photoWrap = document.createElement('div');
+    photoWrap.className = 'dmp__photo-wrap';
+    var panelPhotoEl = document.createElement('img');
+    panelPhotoEl.className = 'dmp__photo';
+    panelPhotoEl.alt = '';
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'dmp__close';
+    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.textContent = '\u00d7';
+    closeBtn.onclick = function() { panel.classList.remove('is-open'); currentInfoIdx = -1; };
+    photoWrap.appendChild(panelPhotoEl);
+    photoWrap.appendChild(closeBtn);
+    var panelBodyEl = document.createElement('div');
+    panelBodyEl.className = 'dmp__body';
+    var panelNameEl = document.createElement('div');
+    panelNameEl.className = 'dmp__name';
+    var panelMetaEl = document.createElement('div');
+    panelMetaEl.className = 'dmp__meta';
+    var panelNlEl = document.createElement('div');
+    panelNlEl.className = 'dmp__nl';
+    panelNlEl.textContent = 'Notes from Claude';
+    var panelDescEl = document.createElement('div');
+    panelDescEl.className = 'dmp__desc';
+    var panelPrevBtn = document.createElement('button');
+    panelPrevBtn.className = 'dmp__nb';
+    panelPrevBtn.innerHTML = '\u2039';
+    panelPrevBtn.onclick = function() { openInfo(currentInfoIdx - 1); };
+    var panelNextBtn = document.createElement('button');
+    panelNextBtn.className = 'dmp__nb';
+    panelNextBtn.innerHTML = '\u203a';
+    panelNextBtn.onclick = function() { openInfo(currentInfoIdx + 1); };
+    var panelCountEl = document.createElement('span');
+    panelCountEl.className = 'dmp__nc';
+    var panelNavEl = document.createElement('div');
+    panelNavEl.className = 'dmp__nav';
+    panelNavEl.appendChild(panelPrevBtn);
+    panelNavEl.appendChild(panelCountEl);
+    panelNavEl.appendChild(panelNextBtn);
+    panelBodyEl.appendChild(panelNameEl);
+    panelBodyEl.appendChild(panelMetaEl);
+    panelBodyEl.appendChild(panelNlEl);
+    panelBodyEl.appendChild(panelDescEl);
+    panelBodyEl.appendChild(panelNavEl);
+    panel.appendChild(photoWrap);
+    panel.appendChild(panelBodyEl);
+    widget.appendChild(panel);
+
+    // Pre-populate mData from HTML data attributes — available immediately
+    var mData = poiCards.map(function(card, i) {
+      return {
+        placeId: card.getAttribute('data-place-id'),
+        name:    card.getAttribute('data-poi-name') || String(i + 1),
+        tag:     card.getAttribute('data-poi-tag')  || '',
+        desc:    card.getAttribute('data-poi-description') || '',
+        rating:  null, reviews: null, photo: null,
+        marker: null, thumbEl: null, resolved: false
+      };
+    });
+
+    // Create markers: thumbnail photo + name label, wrapped so label sits below photo
+    mData.forEach(function(d, i) {
+      var wrapEl = document.createElement('div');
+      wrapEl.className = 'mmt-wrap';
+      var thumbEl = document.createElement('div');
+      thumbEl.className = 'mmt';
+      var imgEl = document.createElement('img');
+      imgEl.className = 'mmt__img';
+      var numEl = document.createElement('span');
+      numEl.className = 'mmt__num';
+      numEl.textContent = String(i + 1);
+      thumbEl.appendChild(imgEl);
+      thumbEl.appendChild(numEl);
+      var labelEl = document.createElement('div');
+      labelEl.className = 'mmt__label';
+      labelEl.textContent = d.name;
+      wrapEl.appendChild(thumbEl);
+      wrapEl.appendChild(labelEl);
+      d.thumbEl = thumbEl;
+
+      var marker = new google.maps.marker.AdvancedMarkerElement({
+        map: map, title: d.name, content: wrapEl
+      });
+      d.marker = marker;
+      (function(idx) {
+        // stopPropagation prevents Google Maps from opening its own place panel.
+        wrapEl.addEventListener('click', function(e) { e.stopPropagation(); openInfo(idx); });
+      }(i));
+    });
+
+    function openInfo(idx) {
+      if (idx < 0 || idx >= mData.length) return;
+      currentInfoIdx = idx;
+      var d = mData[idx];
+      var total = mData.length;
+      if (d.photo) {
+        panelPhotoEl.src = d.photo;
+        photoWrap.style.display = 'block';
+      } else {
+        photoWrap.style.display = 'none';
+      }
+      panelNameEl.textContent = d.name;
+      var meta = '';
+      if (d.rating) { meta = '\u2605 ' + d.rating; if (d.reviews) meta += ' (' + d.reviews + ')'; }
+      if (d.tag) { meta += (meta ? ' \u00b7 ' : '') + d.tag; }
+      panelMetaEl.textContent = meta;
+      panelMetaEl.style.display = meta ? '' : 'none';
+      if (d.desc) {
+        panelDescEl.textContent = d.desc;
+        panelDescEl.style.display = '';
+        panelNlEl.style.display = '';
+      } else {
+        panelDescEl.style.display = 'none';
+        panelNlEl.style.display = 'none';
+      }
+      panelCountEl.textContent = (idx + 1) + ' of ' + total;
+      panelPrevBtn.disabled = (idx === 0);
+      panelNextBtn.disabled = (idx === total - 1);
+      panel.classList.add('is-open');
+    }
+
+    // Fetch place details — position, photo, rating
+    mData.forEach(function(d, i) {
+      service.getDetails(
+        { placeId: d.placeId, fields: ['geometry', 'photos', 'rating', 'user_ratings_total'] },
+        function(place, status) {
+          if (status !== google.maps.places.PlacesServiceStatus.OK || !place || !place.geometry || !place.geometry.location) {
+            failedCount++;
+            checkAllSettled();
+            return;
+          }
+
+          d.marker.position = place.geometry.location;
+          bounds.extend(place.geometry.location);
+          d.resolved = true;
+          placedCount++;
+
+          if (place.rating) d.rating = String(place.rating);
+          if (place.user_ratings_total) {
+            d.reviews = String(place.user_ratings_total).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',');
+          }
+
+          if (place.photos && place.photos.length > 0) {
+            d.photo = place.photos[0].getUrl({ maxWidth: 400, maxHeight: 200 });
+            var thumbUrl = place.photos[0].getUrl({ maxWidth: 80, maxHeight: 80 });
+            var imgEl = d.thumbEl.querySelector('.mmt__img');
+            if (imgEl) {
+              imgEl.src = thumbUrl;
+              imgEl.onload = function() { d.thumbEl.classList.add('mmt--photo'); };
+            }
+          }
+
+          // Refresh open info window with newly-loaded data
+          if (currentInfoIdx === i) openInfo(i);
+
+          checkAllSettled();
+        }
+      );
+    });
+
+    function checkAllSettled() {
+      if (placedCount + failedCount < mData.length) return;
+      if (placedCount === 0) {
+        widget.classList.remove('day-map-widget--loading');
+        widget.classList.add('day-map-widget--error');
+        if (fallback) fallback.removeAttribute('aria-hidden');
+        return;
+      }
+      if (placedCount === 1) {
+        for (var k = 0; k < mData.length; k++) {
+          if (mData[k].resolved) { map.setCenter(mData[k].marker.position); map.setZoom(15); break; }
+        }
+      } else {
+        map.fitBounds(bounds);
+      }
+    }
+
+    map.addListener('tilesloaded', function() {
+      widget.classList.remove('day-map-widget--loading');
+      if (fallback) fallback.setAttribute('aria-hidden', 'true');
+    });
+  });
+}`;
+
+/**
+ * Build the MAPS_SCRIPT placeholder value.
+ * Returns a multi-line string containing the async Maps JS API loader + initDayMaps function,
+ * or empty string when apiKey is blank.
+ */
+function buildMapsScript(apiKey: string): string {
+  if (!apiKey) return '';
+  // apiKey is embedded in a JS string attribute — escape for HTML attribute context
+  const safeKey = apiKey.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  return [
+    `<script async`,
+    `  src="https://maps.googleapis.com/maps/api/js?key=${safeKey}&libraries=places,marker&v=weekly&callback=initDayMaps">`,
+    `</script>`,
+    `<script>`,
+    INIT_SCRIPT_BODY,
+    `</script>`,
+  ].join('\n');
+}
+
 // ─── Main ──────────────────────────────────────────────────────────────────
 
 function main(): void {
@@ -347,9 +608,13 @@ function main(): void {
   // Compute HTML lang/dir attributes for the <html> element
   const HTML_LANG_ATTRS = HTML_LANG_ATTRS_BY_LANG[lang] ?? `lang="${lang}"`;
 
+  // Read Maps API key and build MAPS_SCRIPT placeholder value
+  const mapsApiKey = readMapsApiKey(path.dirname(process.argv[1]));
+  const MAPS_SCRIPT = buildMapsScript(mapsApiKey);
+
   // Write output
   const outputPath = path.join(tripFolder, `shell_fragments_${lang}.json`);
-  const output = JSON.stringify({ PAGE_TITLE, NAV_LINKS, NAV_PILLS, HTML_LANG_ATTRS }, null, 2);
+  const output = JSON.stringify({ PAGE_TITLE, NAV_LINKS, NAV_PILLS, HTML_LANG_ATTRS, MAPS_SCRIPT }, null, 2);
   fs.writeFileSync(outputPath, output, 'utf8');
 
   console.log(`Shell fragments written to ${outputPath}`);

@@ -150,6 +150,7 @@ Each `day_XX_LANG.md` is self-contained and follows this structure:
 📞 Телефон: +36 1 234 5678
 ⭐ 4.5/5 (2,340 отзывов)
 ♿ Доступно для колясок
+**place_id:** ChIJN1t_tDeuEmsRUsoyG83frY4
 **Image:** https://upload.wikimedia.org/wikipedia/commons/thumb/...
 
 {Full POI content per Content Guidelines below}
@@ -359,7 +360,7 @@ Each day file MUST include all of the following:
   🗺️ [Открыть маршрут дня на Google Maps](https://www.google.com/maps/dir/POI1+Budapest/POI2+Budapest/.../)
   ```
 - **URL construction:** `https://www.google.com/maps/dir/` followed by each POI name (spaces → `+`, append `+Budapest` or `+Budapest+Hungary`), separated by `/`. Include all POIs in visit order.
-- **HTML rendering:** The `/render` skill maps this to `<a class="map-link" ...>`.
+- **HTML rendering:** The `/render` skill maps this to `<a class="map-link" ...>`. When `maps_config.json` (project root) has a non-blank `google_maps_api_key` and the day has at least one POI with a `**place_id:**` line, the renderer replaces this markdown line with a `<div class="day-map-widget">` widget containing an embedded Google Maps canvas. The original route URL is preserved as a hidden fallback `<a class="map-link">` inside the widget, revealed automatically if the Maps JS API fails to load.
 
 #### 2. Hourly Table (trip_context.daily_schedule)
 - Structured schedule with specific arrival/departure times.

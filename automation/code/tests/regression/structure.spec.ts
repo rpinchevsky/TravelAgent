@@ -60,3 +60,27 @@ test.describe('Structural Integrity', () => {
     expect(titleText).not.toMatch(flagEmojiPattern);
   });
 });
+
+test.describe('Day Mini-Map — No Duplicate Widget Per Day (TC-214) @with-key', () => {
+  // TC-214: No duplicate widget containers per day
+  // Traces to: DD §4 (risks — widget emitted once per day)
+  // @with-key — only meaningful when widgets are present
+  test('TC-214: each day section must contain at most one .day-map-widget @with-key', async ({ sharedPage }) => {
+    const violations = await sharedPage.evaluate(() => {
+      const daySections = Array.from(document.querySelectorAll('[id^="day-"]'));
+      const dupes: string[] = [];
+      for (const section of daySections) {
+        const widgets = section.querySelectorAll('.day-map-widget');
+        if (widgets.length > 1) {
+          dupes.push(`${section.id}: found ${widgets.length} .day-map-widget elements (expected at most 1)`);
+        }
+      }
+      return dupes;
+    });
+
+    expect(
+      violations,
+      `Day sections with duplicate .day-map-widget containers:\n${violations.join('\n')}`
+    ).toHaveLength(0);
+  });
+});

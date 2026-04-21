@@ -1,5 +1,6 @@
 import { test, expect } from '../fixtures/shared-page';
 import { loadTripConfig } from '../utils/trip-config';
+import { getPlaceIdsFromMarkdown } from '../utils/markdown-place-ids';
 
 /**
  * POI Cards — Content, Links & Structure
@@ -237,5 +238,121 @@ test.describe('POI Cards — Content & Links', () => {
       violations,
       `Unrendered markdown links found in POI descriptions/pro-tips:\n${violations.join('\n')}`
     ).toHaveLength(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Google Maps Day Mini-Map — POI Card Attribute Tests (TC-207, TC-208, TC-209)
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('POI Cards — data-poi-name Attribute (TC-207)', () => {
+  // TC-207: data-poi-name present and non-empty on all POI cards
+  // Traces to: REQ-006 AC-2, DD §1.6d (data-poi-name always emitted), REQ-006 AC-1
+  // Runs regardless of API key — attribute is always emitted.
+  test('TC-207: every .poi-card must have a non-empty data-poi-name attribute', async ({ tripPage }) => {
+    const count = await tripPage.poiCards.count();
+    expect(count, 'POI cards must exist on the page').toBeGreaterThan(0);
+
+    for (let i = 0; i < count; i++) {
+      const card = tripPage.poiCards.nth(i);
+      const dataName = await tripPage.getPoiCardDataName(card);
+      expect.soft(
+        dataName !== null && dataName.trim().length > 0,
+        `POI card[${i}]: data-poi-name must be present and non-empty (got "${dataName}")`
+      ).toBe(true);
+    }
+  });
+});
+
+test.describe('POI Cards — data-place-id Attribute (TC-208)', () => {
+  // TC-208: data-place-id present only on POI cards derived from enriched POIs
+  // Traces to: REQ-001 AC-1, REQ-001 AC-2, DD §1.6d, DD §1.6c
+  // Spot-check: first and last available day only to avoid O(N×POIs) test time.
+  // Skipped if the current trip has no **place_id:** entries in markdown.
+  test('TC-208: data-place-id attribute must match markdown place_id entries (spot-check)', async ({ sharedPage }) => {
+    const tripConfig = loadTripConfig();
+    const placeIdMap = getPlaceIdsFromMarkdown();
+    const dayNumbers = Object.keys(placeIdMap).map(Number).sort((a, b) => a - b);
+
+    if (dayNumbers.length === 0) {
+      // No place_id lines in current trip markdown — skip with message
+      console.log('TC-208: No **place_id:** entries found in trip markdown — test skipped (old trip without enrichment)');
+      return;
+    }
+
+    // Spot-check: first and last available day
+    const sampleDays = [...new Set([dayNumbers[0], dayNumbers[dayNumbers.length - 1]])];
+
+    for (const day of sampleDays) {
+      const entries = placeIdMap[day];
+      if (!entries || entries.length === 0) continue;
+
+      // Collect all poi-card data-poi-name and data-place-id values within this day
+      const dayCardData = await sharedPage.evaluate((dayNum) => {
+        const daySection = document.querySelector(`#day-${dayNum}`);
+        if (!daySection) return [] as Array<{ dataPoiName: string | null; dataPlaceId: string | null }>;
+        const cards = Array.from(daySection.querySelectorAll('.poi-card'));
+        return cards.map(card => ({
+          dataPoiName: card.getAttribute('data-poi-name'),
+          dataPlaceId: card.getAttribute('data-place-id'),
+        }));
+      }, day);
+
+      for (const mdEntry of entries) {
+        // Find the corresponding HTML card by matching data-poi-name to markdown heading
+        // We do a fuzzy match: strip emoji and check if card name contains the first segment
+        const mdNameClean = mdEntry.poiName.replace(/^[\p{Emoji}\p{Emoji_Presentation}\uFE0F\u200D ]+/u, '').trim();
+        const matchingCard = dayCardData.find(c =>
+          c.dataPoiName !== null && (
+            c.dataPoiName.includes(mdNameClean) ||
+            mdNameClean.includes(c.dataPoiName.split('/')[0].trim())
+          )
+        );
+
+        if (!matchingCard) continue; // POI not rendered (e.g., excluded section) — skip
+
+        if (mdEntry.placeId !== null) {
+          expect.soft(
+            matchingCard.dataPlaceId,
+            `Day ${day} POI "${mdEntry.poiName}": data-place-id must equal "${mdEntry.placeId}" from markdown`
+          ).toBe(mdEntry.placeId);
+        } else {
+          expect.soft(
+            matchingCard.dataPlaceId,
+            `Day ${day} POI "${mdEntry.poiName}": data-place-id must be absent (no **place_id:** in markdown)`
+          ).toBeNull();
+        }
+      }
+    }
+  });
+});
+
+test.describe('POI Cards — data-place-id Value Format (TC-209)', () => {
+  // TC-209: data-place-id values are valid Google Places IDs (heuristic format check)
+  // Traces to: REQ-001 AC-3, DD §1.6c
+  // Skipped if no .poi-card[data-place-id] elements found (old trip, no enrichment).
+  test('TC-209: data-place-id values must match Google Places ID format', async ({ sharedPage }) => {
+    const enrichedCards = sharedPage.locator('.poi-card[data-place-id]');
+    const count = await enrichedCards.count();
+
+    if (count === 0) {
+      console.log('TC-209: No .poi-card[data-place-id] elements found — test skipped (no enriched POIs in current trip)');
+      return;
+    }
+
+    // Relaxed format check: minimum 20 chars, alphanumeric + _ -
+    // Guards against parser bugs (empty string, whitespace, truncated value).
+    // Does not enforce specific prefix (ChIJ/EiA/GhIJ) to avoid false failures if
+    // Google introduces new Place ID formats. See QA QF-4 recommendation.
+    const placeIdPattern = /^[A-Za-z0-9_-]{20,}$/;
+
+    for (let i = 0; i < count; i++) {
+      const card = enrichedCards.nth(i);
+      const placeId = await card.getAttribute('data-place-id') ?? '';
+      expect.soft(
+        placeIdPattern.test(placeId),
+        `POI card[${i}]: data-place-id "${placeId}" does not match expected Google Places ID format (min 20 alphanumeric chars)`
+      ).toBe(true);
+    }
   });
 });

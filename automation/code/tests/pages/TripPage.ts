@@ -120,7 +120,12 @@ export class TripPage {
     this.rentalCtas = page.locator('.rental-cta');
 
     // Inline style
-    this.inlineStyle = page.locator('head style');
+    this.inlineStyle = page.locator('head style').first();
+
+    // Day Map Widget
+    this.dayMapWidgets = page.locator('.day-map-widget');
+    this.dayMapFallbacks = page.locator('a.map-link.day-map-widget__fallback');
+    this.plainMapLinks = page.locator('a.map-link:not(.day-map-widget__fallback)');
   }
 
   async goto() {
@@ -243,6 +248,11 @@ export class TripPage {
     return card.locator('.pro-tip');
   }
 
+  // --- Day Map Widget ---
+  readonly dayMapWidgets: Locator;        // all .day-map-widget elements
+  readonly dayMapFallbacks: Locator;      // a.map-link.day-map-widget__fallback (inside widgets)
+  readonly plainMapLinks: Locator;        // a.map-link that are NOT widget fallbacks
+
   // --- Car Rental helpers ---
 
   getCarRentalSection(): Locator {
@@ -283,5 +293,52 @@ export class TripPage {
 
   getCarRentalProTip(section: Locator): Locator {
     return section.locator('.pro-tip');
+  }
+
+  // --- Day Map Widget helpers ---
+
+  /**
+   * Returns the .day-map-widget within a specific day section.
+   */
+  getDayMapWidget(dayNumber: number): Locator {
+    return this.page.locator(`#day-${dayNumber} .day-map-widget`);
+  }
+
+  /**
+   * Returns the .day-map-widget__canvas within a specific day section.
+   */
+  getDayMapCanvas(dayNumber: number): Locator {
+    return this.page.locator(`#day-${dayNumber} .day-map-widget__canvas`);
+  }
+
+  /**
+   * Returns the .day-map-widget__fallback anchor within a specific day section.
+   */
+  getDayMapFallback(dayNumber: number): Locator {
+    return this.page.locator(`#day-${dayNumber} .day-map-widget__fallback`);
+  }
+
+  /**
+   * Returns the data-place-id attribute of a POI card (null if not set).
+   */
+  getPoiCardPlaceId(poiCard: Locator): Promise<string | null> {
+    return poiCard.getAttribute('data-place-id');
+  }
+
+  /**
+   * Returns the data-poi-name attribute of a POI card (null if not set).
+   * Distinct from getPoiCardName() which returns the Locator for .poi-card__name.
+   */
+  getPoiCardDataName(poiCard: Locator): Promise<string | null> {
+    return poiCard.getAttribute('data-poi-name');
+  }
+
+  /**
+   * Returns the computed CSS height (in px) of a .day-map-widget.
+   * Used by TC-202 (shimmer) and TC-212 (responsive height check).
+   */
+  async getDayMapWidgetComputedHeight(dayNumber: number): Promise<number> {
+    const widget = this.getDayMapWidget(dayNumber);
+    return widget.evaluate(el => parseFloat(getComputedStyle(el).height));
   }
 }

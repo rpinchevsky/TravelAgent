@@ -813,6 +813,246 @@ a.activity-label:focus-visible {
 
 
 /* --------------------------------------------------------------------------
+   8b. DAY MAP WIDGET — Embedded Google Maps per day
+   -------------------------------------------------------------------------- */
+
+.day-map-widget {
+  position: relative;
+  width: 100%;
+  height: 220px;           /* Mobile-first: 220px */
+  border-radius: var(--radius-container);
+  overflow: hidden;
+  margin-bottom: var(--space-4);
+  /* Loading state: shimmer skeleton */
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-raised) 25%,
+    var(--color-border) 50%,
+    var(--color-surface-raised) 75%
+  );
+  background-size: 200% 100%;
+  animation: day-map-shimmer 1.5s infinite ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-map-widget {
+    animation: none;
+    background: var(--color-surface-raised);
+  }
+}
+
+@keyframes day-map-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Desktop: taller map */
+@media (min-width: 768px) {
+  .day-map-widget {
+    height: 280px;
+  }
+}
+
+/* Map canvas fills container */
+.day-map-widget__canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Fallback route link — hidden when widget is active */
+.day-map-widget__fallback {
+  display: none;
+}
+
+/* Error/degraded state: hide canvas, show fallback link, stop shimmer */
+.day-map-widget--error {
+  animation: none;
+}
+
+.day-map-widget--error .day-map-widget__canvas {
+  display: none;
+}
+
+.day-map-widget--error .day-map-widget__fallback {
+  display: block;
+  padding: var(--space-2) 0;
+}
+
+/* Keyboard focus on map canvas */
+.day-map-widget__canvas:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* RTL overrides */
+[dir="rtl"] .day-map-widget__fallback {
+  text-align: right;
+}
+
+[dir="rtl"] .day-map-widget {
+  animation-name: day-map-shimmer-rtl;
+}
+
+@keyframes day-map-shimmer-rtl {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [dir="rtl"] .day-map-widget {
+    animation: none;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   8a-pre. MAP MARKER THUMBNAILS & INFO WINDOW
+   -------------------------------------------------------------------------- */
+
+/* Wrapper: holds thumbnail + name label, receives click/cursor */
+.mmt-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+/* Marker thumbnail — numbered placeholder, swaps to photo on resolve */
+.mmt {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  border: 3px solid var(--color-brand-accent);
+  overflow: hidden;
+  background: var(--color-brand-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  position: relative;
+}
+.mmt-wrap:hover .mmt {
+  transform: scale(1.12);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.55);
+}
+/* POI name label — always visible below the thumbnail */
+.mmt__label {
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #1A3C5E;
+  background: rgba(255,255,255,0.92);
+  border-radius: 3px;
+  padding: 1px 5px;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  line-height: 1.4;
+  pointer-events: none;
+}
+.mmt__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+.mmt__num {
+  color: var(--color-text-inverse);
+  font-weight: 700;
+  font-size: 15px;
+  font-family: Inter, sans-serif;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+}
+.mmt--photo .mmt__img { display: block; }
+.mmt--photo .mmt__num { display: none; }
+
+/* Side panel — slides in from right over the map on marker click */
+.dmp {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 260px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.22);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0 var(--radius-container) var(--radius-container) 0;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+}
+.dmp.is-open { transform: translateX(0); }
+.dmp__photo-wrap { position: relative; flex-shrink: 0; }
+.dmp__photo { width: 100%; height: 110px; object-fit: cover; display: block; }
+.dmp__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(0,0,0,0.52);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.dmp__close:hover { background: rgba(0,0,0,0.78); }
+.dmp__body { flex: 1; overflow-y: auto; padding: 10px 12px 8px; }
+.dmp__name { font-size: 14px; font-weight: 600; color: #1A3C5E; margin-bottom: 4px; line-height: 1.3; }
+.dmp__meta { font-size: 11px; color: #888; margin-bottom: 6px; }
+.dmp__nl {
+  font-size: 10px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+.dmp__desc { font-size: 11px; color: #444; line-height: 1.45; margin-bottom: 8px; }
+.dmp__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #eee;
+  padding-top: 7px;
+}
+.dmp__nb {
+  background: #1A3C5E;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.1s;
+}
+.dmp__nb:hover    { background: #C9972B; }
+.dmp__nb:disabled { background: #ccc; cursor: default; }
+.dmp__nc { font-size: 11px; color: #666; }
+
+/* --------------------------------------------------------------------------
    8a. ACCOMMODATION SECTION & CARDS
    Visually distinct from POI cards: warm amber accent, different layout
    -------------------------------------------------------------------------- */
@@ -1464,8 +1704,13 @@ a.activity-label:focus-visible {
 
 @media print {
   .sidebar,
-  .mobile-nav {
+  .mobile-nav,
+  .day-map-widget {
     display: none !important;
+  }
+
+  .day-map-widget__fallback {
+    display: block !important;
   }
 
   .page-wrapper {

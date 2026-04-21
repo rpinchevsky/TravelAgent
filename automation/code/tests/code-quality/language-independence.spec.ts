@@ -34,8 +34,10 @@ function getSpecFiles(dir: string, relative = ''): string[] {
   return results;
 }
 
+// Module-level so all test.describe blocks in this file can reference it
+const specFiles = getSpecFiles(TESTS_DIR);
+
 test.describe('Language Independence — Source Code Lint', () => {
-  const specFiles = getSpecFiles(TESTS_DIR);
 
   test('should have found test files to scan', () => {
     expect(specFiles.length).toBeGreaterThan(0);
@@ -126,6 +128,34 @@ test.describe('Language Independence — Source Code Lint', () => {
     expect(
       violations,
       `Hardcoded lang attribute values found in test source code:\n${violations.join('\n')}`
+    ).toHaveLength(0);
+  });
+});
+
+test.describe('Day Mini-Map — Language Independence Guard (TC-216)', () => {
+  // TC-216: data-poi-name attribute value is never hardcoded in spec files
+  // Traces to: REQ-006 AC-2 (tests use data-* attributes only, no language-specific strings)
+  // automation_rules §7.1 — no natural language text in test assertions
+  test('TC-216: no spec file should assert a specific hardcoded value for data-poi-name attribute', () => {
+    // Pattern: toHaveAttribute('data-poi-name', 'someString') or
+    // toHaveAttribute("data-poi-name", "someString") where the value is a non-empty literal
+    const hardcodedDataPoiNamePattern = /toHaveAttribute\s*\(\s*['"]data-poi-name['"]\s*,\s*['"][^'"]+['"]/;
+    const violations: string[] = [];
+
+    for (const file of specFiles) {
+      const content = fs.readFileSync(path.join(TESTS_DIR, file), 'utf-8');
+      const lines = content.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].trim().startsWith('//') || lines[i].trim().startsWith('*')) continue;
+        if (hardcodedDataPoiNamePattern.test(lines[i])) {
+          violations.push(`${file}:${i + 1}: ${lines[i].trim().substring(0, 100)}`);
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `Spec files asserting hardcoded data-poi-name values (language-specific string in test assertion):\n${violations.join('\n')}`
     ).toHaveLength(0);
   });
 });

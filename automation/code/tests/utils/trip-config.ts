@@ -82,7 +82,7 @@ export const LANGUAGE_LABELS: Record<string, LanguageLabels> = {
     pageTitlePattern: (dest, year) => `${dest} ${year} — Family Itinerary`,
     fileSuffix: 'en',
     dayHeadingRegex: /^#{1,2}\s+Day\s+(\d+)/,
-    destinationNames: {},
+    destinationNames: { 'Malmo': 'Malmö', 'Malmö': 'Malmö' },
   },
   Hebrew: {
     langCode: 'he',

@@ -1,5 +1,110 @@
 # Release Notes
 
+## 2026-04-21 — Google Maps Day Mini-Map: Automation Tests (TC-200 through TC-217)
+
+### Changes
+
+#### Modified File: `tests/pages/TripPage.ts` (3 new properties, 5 new methods)
+
+**New readonly properties (constructor-initialized):**
+- `dayMapWidgets` — `.day-map-widget`
+- `dayMapFallbacks` — `a.map-link.day-map-widget__fallback`
+- `plainMapLinks` — `a.map-link:not(.day-map-widget__fallback)`
+
+**New helper methods:**
+- `getDayMapWidget(dayNumber)` — `#day-${N} .day-map-widget`
+- `getDayMapCanvas(dayNumber)` — `#day-${N} .day-map-widget__canvas`
+- `getDayMapFallback(dayNumber)` — `#day-${N} .day-map-widget__fallback`
+- `getPoiCardPlaceId(poiCard)` — returns `data-place-id` attribute (null if absent)
+- `getPoiCardDataName(poiCard)` — returns `data-poi-name` attribute (null if absent)
+- `getDayMapWidgetComputedHeight(dayNumber)` — shared `getComputedStyle(el).height` helper for TC-202 and TC-212
+
+#### New File: `tests/utils/markdown-place-ids.ts`
+
+Reads `day_{NN}_{suffix}.md` files for the current trip and extracts `**place_id:**` values per POI. Returns `Record<number, PoiPlaceIdEntry[]>` keyed by day number. Used by TC-208 and TC-209. Follows the same interface conventions as `markdown-pois.ts`.
+
+#### Modified File: `tests/utils/trip-folder.ts` (2 new exports)
+
+- `getHtmlPath(suffix?)` — resolves `trip_full_{suffix}.html` path in latest trip folder
+- `getProjectRoot()` — returns project root path (used for `base_layout.html` lookup in TC-201)
+
+#### Modified File: `tests/regression/progression.spec.ts` (11 new tests)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-200 `@smoke` | No `{{MAPS_SCRIPT}}` literal in assembled HTML | REQ-002 AC-2, REQ-003 AC-3, DD §1.7c |
+| TC-201 | `{{MAPS_SCRIPT}}` placeholder present in `base_layout.html` | DD §1.4 |
+| TC-202 | `.day-map-widget--loading` shimmer animation active | REQ-003 AC-8, DD §1.5 |
+| TC-203 | Graceful degradation — no widget in keyless mode, plain map-link present | REQ-005 AC-1 |
+| TC-204 `@with-key` | Widget DOM structure: canvas, fallback, role=region, data-map-day | REQ-003 AC-1, DD §1.3 |
+| TC-205 `@with-key` | data-map-day matches #day-{N} section and canvas id | REQ-003 AC-1, DD §1.6f |
+| TC-206 `@with-key` | Widget precedes .itinerary-table-wrapper in document order | REQ-003 AC-2, UX §3 |
+| TC-210 `@with-key` | Fallback link href=google.com/maps/dir and aria-hidden=true | REQ-005 AC-4, REQ-005 AC-6 |
+| TC-211 `@with-key` | ARIA: role=region, aria-labelledby, sr-only span non-empty | REQ-003 AC-9, DD §1.6f |
+| TC-213 | Error state clears shimmer animation | DD §1.5, REQ-005 AC-4 |
+
+#### Modified File: `tests/regression/poi-cards.spec.ts` (3 new tests)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-207 | Every .poi-card has non-empty data-poi-name attribute | REQ-006 AC-2, DD §1.6d |
+| TC-208 | data-place-id present only on enriched POIs (spot-check vs markdown) | REQ-001 AC-1/AC-2, DD §1.6d |
+| TC-209 | data-place-id value format is valid Google Places ID | REQ-001 AC-3, DD §1.6c |
+
+#### Modified File: `tests/regression/structure.spec.ts` (1 new test)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-214 `@with-key` | No duplicate .day-map-widget containers per day | DD §4 risks |
+
+#### Modified File: `tests/regression/responsive.spec.ts` (2 new tests)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-212a `@with-key` | Desktop height >= 250px | REQ-003 AC-8, REQ-004 AC-1, DD §1.5 |
+| TC-212b `@with-key` | Mobile height <= 250px | REQ-003 AC-8, REQ-004 AC-1, DD §1.5 |
+
+#### Modified File: `tests/regression/smoke.spec.ts` (1 new test)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-217 `@smoke` | Sampled days have widget XOR plain map-link (exactly one, never both/neither) | REQ-003 / REQ-005 |
+
+#### Modified File: `tests/code-quality/language-independence.spec.ts` (1 new test)
+
+| TC | Test | Coverage |
+|----|------|----------|
+| TC-216 | No spec file asserts hardcoded data-poi-name value | REQ-006 AC-1/AC-2, automation_rules §7.1 |
+
+### Test Summary
+
+- **Total new tests:** 17 (TC-200 through TC-217; TC-215 removed as duplicate per QA QF-1)
+- **Regression (keyless, always-on in CI):** TC-200, TC-201, TC-202, TC-203, TC-207, TC-208, TC-209, TC-213, TC-216, TC-217 = **10 tests**
+- **Progression (@with-key, requires MAPS_API_KEY env var):** TC-204, TC-205, TC-206, TC-210, TC-211, TC-212a, TC-212b, TC-214 = **8 tests (6 logical TCs, TC-212 split into 2)**
+- **QA feedback addressed:**
+  - QF-1: TC-218 never created; TC-200 tagged `@smoke`
+  - QF-2: TC-202/TC-213 use `page.evaluate` + `getComputedStyle` (no CSS string scanning)
+  - QF-3: TC-212 split into two separate `test.describe` blocks (TC-212a desktop, TC-212b mobile)
+  - QF-4: TC-216 extended (language-independence lint); API key guard deferred to code-quality/api-key-guard.spec.ts (future)
+  - QF-5: Helper named `getPoiCardDataName` (not `getPoiCardPoisName`)
+  - QF-6: TC-204 uses two-pass approach (page.evaluate collects all data, then soft assertions with index context)
+  - QF-7: TC-217 uses `Day N: expected exactly one map element (widget XOR plain link), found X widget(s) and Y plain link(s)` message
+
+### Files Modified
+- `tests/pages/TripPage.ts` — 3 new properties + 5 new methods + 1 shared helper
+- `tests/utils/trip-folder.ts` — 2 new exports (getHtmlPath, getProjectRoot)
+- `tests/regression/progression.spec.ts` — 11 new tests in 10 describe blocks
+- `tests/regression/poi-cards.spec.ts` — 3 new tests in 3 describe blocks
+- `tests/regression/structure.spec.ts` — 1 new test in new describe block
+- `tests/regression/responsive.spec.ts` — 2 new tests in 2 describe blocks
+- `tests/regression/smoke.spec.ts` — 1 new test in existing describe block
+- `tests/code-quality/language-independence.spec.ts` — 1 new test in new describe block
+
+### Files Added
+- `tests/utils/markdown-place-ids.ts` — POI place_id extraction utility
+
+---
+
 ## 2026-04-07 — POI Inline Images, Hebrew RTL Support, and Hebrew Section Name Parsing
 
 ### Changes

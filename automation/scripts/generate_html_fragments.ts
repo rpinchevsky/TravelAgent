@@ -140,6 +140,8 @@ const COUNTRY_NAME_TO_CODE: Record<string, string> = {
   'austria': 'AT',
   'poland': 'PL',
   'montenegro': 'ME',
+  'sweden': 'SE',
+  'denmark': 'DK',
 };
 
 // Inline SVG flags — compact rectangular (28x20, ratio 4:3)
@@ -158,6 +160,8 @@ const FLAG_SVG: Record<string, string> = {
   AT: `<svg width="28" height="20" viewBox="0 0 24 18" role="img" aria-label="Austria flag"><rect width="24" height="6" fill="#ED2939"/><rect y="6" width="24" height="6" fill="#FFFFFF"/><rect y="12" width="24" height="6" fill="#ED2939"/></svg>`,
   PL: `<svg width="28" height="20" viewBox="0 0 24 18" role="img" aria-label="Poland flag"><rect width="24" height="9" fill="#FFFFFF"/><rect y="9" width="24" height="9" fill="#DC143C"/></svg>`,
   ME: `<svg width="28" height="20" viewBox="0 0 24 18" role="img" aria-label="Montenegro flag"><rect width="24" height="18" fill="#D4AF37"/><rect x="1.5" y="1.5" width="21" height="15" fill="#D0000C"/></svg>`,
+  SE: `<svg width="28" height="20" viewBox="0 0 24 18" role="img" aria-label="Sweden flag"><rect width="24" height="18" fill="#006AA7"/><rect y="7" width="24" height="4" fill="#FECC02"/><rect x="6" width="4" height="18" fill="#FECC02"/></svg>`,
+  DK: `<svg width="28" height="20" viewBox="0 0 24 18" role="img" aria-label="Denmark flag"><rect width="24" height="18" fill="#C60C30"/><rect y="7" width="24" height="4" fill="#FFFFFF"/><rect x="7" width="4" height="18" fill="#FFFFFF"/></svg>`,
 };
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -174,6 +178,7 @@ interface PoiData {
   photoUrl?: string;
   imageUrl?: string;
   phone?: string;
+  placeId?: string;           // Google Places place_id (from **place_id:** line)
   description: string[];
   proTip?: string;
   isAccommodation: false;
@@ -307,6 +312,30 @@ function escapeHtml(text: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// When a place_id is available, build a Google Maps href that is already HTML-attribute-safe.
+// Uses encodeURIComponent for the name (handles /, &, non-ASCII, etc.) and emits &amp; directly
+// for URL separators — bypassing sanitizeHref to avoid its encodeURI double-encoding of %XX sequences.
+// Falls back to sanitizeHref(fallbackUrl) when no place_id is available.
+function buildMapsHref(name: string, placeId?: string, fallbackUrl?: string): string | undefined {
+  if (placeId) {
+    const q = encodeURIComponent(name);
+    return `https://www.google.com/maps/search/?api=1&amp;query=${q}&amp;query_place_id=${placeId}`;
+  }
+  return fallbackUrl ? sanitizeHref(fallbackUrl) : undefined;
+}
+
+// Percent-encode non-ASCII characters in a URL (Swedish ö/å, Hebrew, Russian, etc.)
+// then HTML-escape for safe use in an href/src attribute.
+function sanitizeHref(url: string): string {
+  let encoded: string;
+  try {
+    encoded = encodeURI(decodeURI(url));
+  } catch {
+    encoded = encodeURI(url);
+  }
+  return escapeHtml(encoded);
 }
 
 function stripInlineMarkdown(text: string): string {
@@ -536,16 +565,16 @@ function parseDayFile(filePath: string, dayNumber: number): DayData {
         continue;
       }
 
-      // Schedule table (Russian: "Расписание", Hebrew: "לוּחַ זְמַנִּים" / "לוח זמנים" / "סֵדֶר יוֹם" / "סדר יום")
-      if (sectionName === 'Расписание' || sectionName.startsWith('לוּחַ זְמַנִּים') || sectionName.startsWith('לוח זמנים') || sectionName.startsWith('סֵדֶר יוֹם') || sectionName.startsWith('סדר יום')) {
+      // Schedule table (Russian: "Расписание", Hebrew: "לוּחַ זְמַנִּים" / "לוח זמנים" / "סֵדֶר יוֹם" / "סדר יום", English: "Schedule")
+      if (sectionName === 'Расписание' || sectionName === 'Schedule' || sectionName.startsWith('לוּחַ זְמַנִּים') || sectionName.startsWith('לוח זמנים') || sectionName.startsWith('סֵדֶר יוֹם') || sectionName.startsWith('סדר יום')) {
         finalizeCurrentPoi();
         state = 'SCHEDULE_TABLE';
         inScheduleBody = false;
         continue;
       }
 
-      // Pricing table (Russian: "Стоимость дня", Hebrew variants: "עֲלוּת/עֶלֶת יוֹם/הַיּוֹם")
-      if (sectionName.startsWith('Стоимость дня') || sectionName.startsWith('עֲלוּת') || sectionName.startsWith('עֶלֶת') || sectionName.startsWith('עלות')) {
+      // Pricing table (Russian: "Стоимость дня", Hebrew variants: "עֲלוּת/עֶלֶת יוֹם/הַיּוֹם", English: "Day N Cost")
+      if (sectionName.startsWith('Стоимость дня') || sectionName.startsWith('Day ') || sectionName.startsWith('עֲלוּת') || sectionName.startsWith('עֶלֶת') || sectionName.startsWith('עלות')) {
         finalizeCurrentPoi();
         state = 'PRICING_TABLE';
         continue;
@@ -592,7 +621,7 @@ function parseDayFile(filePath: string, dayNumber: number): DayData {
         } else if (trimmed.startsWith('**Дата:**') || trimmed.startsWith('**Date:**') || trimmed.startsWith('**תאריך:**')) {
           const val = trimmed.replace(/^\*\*[^*]+\*\*:?\s*/, '').trim();
           data.dateStr = val;
-        } else if (trimmed.startsWith('**Район:**') || trimmed.startsWith('**District:**') || trimmed.startsWith('**אזור:**')) {
+        } else if (trimmed.startsWith('**Район:**') || trimmed.startsWith('**District:**') || trimmed.startsWith('**Area:**') || trimmed.startsWith('**אזור:**')) {
           const val = trimmed.replace(/^\*\*[^*]+\*\*:?\s*/, '').trim();
           data.area = val;
         } else if (trimmed.startsWith('🗺️') || trimmed.startsWith('🗺')) {
@@ -654,6 +683,10 @@ function parseDayFile(filePath: string, dayNumber: number): DayData {
           }
         } else if (trimmed.startsWith('♿')) {
           currentPoi.accessible = true;
+        } else if (/^\*\*place_id\b/.test(trimmed)) {
+          // place_id: **place_id:** ChIJ... (language-agnostic ASCII key)
+          const pidMatch = trimmed.match(/^\*\*place_id[*:]*\s*(\S+)/);
+          if (pidMatch && currentPoi) currentPoi.placeId = pidMatch[1].trim();
         } else if (/^\*\*(?:Image|Изображение|תמונה|Kép)\b/.test(trimmed)) {
           // Inline image URL: **Image:** https://... (language-agnostic)
           const urlMatch = trimmed.match(/https?:\/\/\S+/);
@@ -700,6 +733,7 @@ function parseDayFile(filePath: string, dayNumber: number): DayData {
           !trimmed.startsWith('**Hours') &&
           !trimmed.startsWith('**Admission') &&
           !/^\*\*(?:Image|Изображение|תמונה|Kép)\b/.test(trimmed) &&
+          !/^\*\*place_id\b/.test(trimmed) &&
           trimmed.length > 0 &&
           !trimmed.startsWith('- ') && // list items (pricing) — keep for description
           !isTableSeparatorRow(trimmed)
@@ -1236,20 +1270,56 @@ function parseCarRentalFile(filePath: string): CarRentalData {
   return data;
 }
 
+// ─── Maps Config ────────────────────────────────────────────────────────────
+
+/**
+ * Read the Google Maps API key from maps_config.json in the project root.
+ * Returns empty string if the file is absent, unreadable, or the key is blank.
+ * Project root is two directories above automation/scripts/.
+ */
+function readMapsApiKey(scriptDir: string): string {
+  const projectRoot = path.resolve(scriptDir, '..', '..');
+  const configPath = path.join(projectRoot, 'maps_config.json');
+  if (!fs.existsSync(configPath)) return '';
+  try {
+    const raw = fs.readFileSync(configPath, 'utf8');
+    const cfg = JSON.parse(raw) as { google_maps_api_key?: string };
+    return (cfg.google_maps_api_key ?? '').trim();
+  } catch {
+    return '';
+  }
+}
+
+/** Localized labels for the day map widget aria-labelledby region. {N} is replaced with day number. */
+const MAP_ARIA_LABELS: Record<string, string> = {
+  ru: 'Карта дня {N}',
+  en: 'Day {N} map',
+  he: 'מפת יום {N}',
+};
+
 // ─── Render Functions ───────────────────────────────────────────────────────
 
 function renderPoiCard(poi: PoiData, dayNum: number, poiIndex: number, lang: string): string {
   const labels = LINK_LABELS_BY_LANG[lang];
   const parts: string[] = [];
 
-  // A card is exempt (QF-2 contract) if it has fewer than 3 total links of any type
-  const totalLinkCount = (poi.mapsUrl ? 1 : 0) + (poi.siteUrl ? 1 : 0) + (poi.photoUrl ? 1 : 0) + (poi.phone ? 1 : 0);
-  const exemptAttr = totalLinkCount < 3 ? ' data-link-exempt="true"' : '';
+  // buildMapsHref returns an already-HTML-safe href string — do NOT pass through sanitizeHref again.
+  const mapsHref = buildMapsHref(poi.name, poi.placeId, poi.mapsUrl);
 
-  parts.push(`<div class="poi-card" id="poi-day-${dayNum}-${poiIndex}"${exemptAttr}>`);
+  // A card is exempt (QF-2 contract) if it has fewer than 3 total links of any type
+  const totalLinkCount = (mapsHref ? 1 : 0) + (poi.siteUrl ? 1 : 0) + (poi.photoUrl ? 1 : 0) + (poi.phone ? 1 : 0);
+  const exemptAttr = totalLinkCount < 3 ? ' data-link-exempt="true"' : '';
+  const placeIdAttr = poi.placeId ? ` data-place-id="${escapeHtml(poi.placeId)}"` : '';
+  const poiNameAttr = ` data-poi-name="${escapeHtml(poi.name)}"`;
+  const poiTagAttr = poi.tag ? ` data-poi-tag="${escapeHtml(poi.tag)}"` : '';
+  const poiDescAttr = poi.description.length > 0
+    ? ` data-poi-description="${escapeHtml(poi.description[0])}"`
+    : '';
+
+  parts.push(`<div class="poi-card" id="poi-day-${dayNum}-${poiIndex}"${exemptAttr}${placeIdAttr}${poiNameAttr}${poiTagAttr}${poiDescAttr}>`);
   if (poi.imageUrl) {
     parts.push(`  <div class="poi-card__image-wrapper">`);
-    parts.push(`    <img src="${escapeHtml(poi.imageUrl)}" alt="${escapeHtml(poi.name)}" loading="lazy" onerror="this.style.display='none'">`);
+    parts.push(`    <img src="${sanitizeHref(poi.imageUrl)}" alt="${escapeHtml(poi.name)}" loading="lazy" onerror="this.style.display='none'">`);
     parts.push(`  </div>`);
   }
   parts.push(`  <div class="poi-card__body">`);
@@ -1278,19 +1348,19 @@ function renderPoiCard(poi: PoiData, dayNum: number, poiIndex: number, lang: str
   }
 
   parts.push(`    <div class="poi-card__links">`);
-  if (poi.mapsUrl) {
+  if (mapsHref) {
     parts.push(
-      `      <a class="poi-card__link" data-link-type="maps" href="${poi.mapsUrl}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.mapPin} 📍 ${escapeHtml(labels.maps)}</a>`
+      `      <a class="poi-card__link" data-link-type="maps" href="${mapsHref}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.mapPin} 📍 ${escapeHtml(labels.maps)}</a>`
     );
   }
   if (poi.siteUrl) {
     parts.push(
-      `      <a class="poi-card__link" data-link-type="site" href="${poi.siteUrl}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.globe} 🌐 ${escapeHtml(labels.site)}</a>`
+      `      <a class="poi-card__link" data-link-type="site" href="${sanitizeHref(poi.siteUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.globe} 🌐 ${escapeHtml(labels.site)}</a>`
     );
   }
   if (poi.photoUrl) {
     parts.push(
-      `      <a class="poi-card__link" data-link-type="photo" href="${poi.photoUrl}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.camera} 📸 ${escapeHtml(labels.photo)}</a>`
+      `      <a class="poi-card__link" data-link-type="photo" href="${sanitizeHref(poi.photoUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.camera} 📸 ${escapeHtml(labels.photo)}</a>`
     );
   }
   if (poi.phone) {
@@ -1520,10 +1590,10 @@ function renderPlanBCard(card: PlanBCard, labels: { maps: string; site: string; 
   if (hasLinks) {
     parts.push(`          <div class="plan-b-card__links">`);
     if (card.mapsUrl) {
-      parts.push(`            <a class="plan-b-card__link" data-link-type="maps" href="${escapeHtml(card.mapsUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.mapPin} 📍 ${escapeHtml(labels.maps)}</a>`);
+      parts.push(`            <a class="plan-b-card__link" data-link-type="maps" href="${sanitizeHref(card.mapsUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.mapPin} 📍 ${escapeHtml(labels.maps)}</a>`);
     }
     if (card.siteUrl) {
-      parts.push(`            <a class="plan-b-card__link" data-link-type="site" href="${escapeHtml(card.siteUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.globe} 🌐 ${escapeHtml(labels.site)}</a>`);
+      parts.push(`            <a class="plan-b-card__link" data-link-type="site" href="${sanitizeHref(card.siteUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.globe} 🌐 ${escapeHtml(labels.site)}</a>`);
     }
     if (card.phone) {
       parts.push(`            <a class="plan-b-card__link" data-link-type="phone" href="tel:${normalizePhone(card.phone)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.phone} 📞 ${escapeHtml(labels.phone)}</a>`);
@@ -1569,7 +1639,46 @@ function renderPlanB(content: string, title: string, lang: string): string {
   return parts.join('\n');
 }
 
-function renderDayFragment(day: DayData, lang: string): string {
+/**
+ * Render either a full day-map-widget (when API key present and day has ≥1 place_id POI)
+ * or the plain fallback map-link (when degraded).
+ */
+function renderDayMapWidget(day: DayData, lang: string, mapsApiKey: string): string {
+  const rawLabel = day.mapLinkLabel ?? '🗺️ Google Maps';
+  const mapLabel = rawLabel.startsWith('🗺') ? rawLabel : `🗺️ ${rawLabel}`;
+  const mapHref = sanitizeHref(day.mapLink!);
+
+  const poisWithPlaceId = day.pois.filter((p) => p.placeId);
+
+  // Degraded path: no API key or no pinnable POIs → plain map-link (original behavior)
+  if (!mapsApiKey || poisWithPlaceId.length === 0) {
+    return `    <a class="map-link" href="${mapHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(mapLabel)}</a>`;
+  }
+
+  // Widget path
+  const N = day.dayNumber;
+  const ariaLabelTemplate = MAP_ARIA_LABELS[lang] ?? '';
+  const ariaLabel = ariaLabelTemplate.replace('{N}', String(N));
+  const ariaAttrs = ariaLabel
+    ? ` role="region" aria-labelledby="map-day-${N}-label"`
+    : '';
+  const labelSpan = ariaLabel
+    ? `\n      <span id="map-day-${N}-label" class="sr-only">${escapeHtml(ariaLabel)}</span>`
+    : '';
+
+  const fallbackLink =
+    `      <a class="map-link day-map-widget__fallback" href="${mapHref}"` +
+    ` target="_blank" rel="noopener noreferrer" aria-hidden="true">${escapeHtml(mapLabel)}</a>`;
+
+  return [
+    `    <div class="day-map-widget day-map-widget--loading" data-map-day="${N}"${ariaAttrs}>${labelSpan}`,
+    `      <div id="day-map-${N}" class="day-map-widget__canvas" tabindex="0"></div>`,
+    fallbackLink,
+    `    </div>`,
+  ].join('\n');
+}
+
+function renderDayFragment(day: DayData, lang: string, mapsApiKey: string = ''): string {
   // POI parity assertion — BEFORE writing output
   let renderedPoiCount = 0;
   const poiCards = day.pois.map((poi, idx) => {
@@ -1596,14 +1705,9 @@ function renderDayFragment(day: DayData, lang: string): string {
   parts.push(`  </div>`);
   parts.push(`  <div class="day-card__content">`);
 
-  // Map link — BEFORE itinerary table
+  // Day map widget (or fallback link) — BEFORE itinerary table
   if (day.mapLink) {
-    const rawLabel = day.mapLinkLabel ?? 'Маршрут дня на Google Maps';
-    // Restore the 🗺️ prefix (stripped during markdown link parsing)
-    const mapLabel = rawLabel.startsWith('🗺') ? rawLabel : `🗺️ ${rawLabel}`;
-    parts.push(
-      `    <a class="map-link" href="${day.mapLink}" target="_blank" rel="noopener noreferrer">${escapeHtml(mapLabel)}</a>`
-    );
+    parts.push(renderDayMapWidget(day, lang, mapsApiKey));
     parts.push('');
   }
 
@@ -1756,7 +1860,7 @@ function processInlineMd(text: string): string {
         if (closeParen !== -1) {
           const linkText = text.slice(i + 1, closeBracket);
           const linkUrl = text.slice(closeBracket + 2, closeParen);
-          parts.push(`<a href="${escapeHtml(linkUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(linkText)}</a>`);
+          parts.push(`<a href="${sanitizeHref(linkUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(linkText)}</a>`);
           i = closeParen + 1;
           continue;
         }
@@ -1844,17 +1948,17 @@ function renderAccommodationCard(card: AccommodationCardData, lang: string): str
   parts.push(`  <div class="accommodation-card__links">`);
   if (card.mapsUrl) {
     parts.push(
-      `    <a class="accommodation-card__link" data-link-type="maps" href="${card.mapsUrl}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.mapPin} 📍 ${escapeHtml(labels.maps)}</a>`
+      `    <a class="accommodation-card__link" data-link-type="maps" href="${sanitizeHref(card.mapsUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.mapPin} 📍 ${escapeHtml(labels.maps)}</a>`
     );
   }
   if (card.siteUrl) {
     parts.push(
-      `    <a class="accommodation-card__link" data-link-type="site" href="${card.siteUrl}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.globe} 🌐 ${escapeHtml(labels.site)}</a>`
+      `    <a class="accommodation-card__link" data-link-type="site" href="${sanitizeHref(card.siteUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.globe} 🌐 ${escapeHtml(labels.site)}</a>`
     );
   }
   if (card.photoUrl) {
     parts.push(
-      `    <a class="accommodation-card__link" data-link-type="photo" href="${card.photoUrl}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.camera} 📸 ${escapeHtml(labels.photo)}</a>`
+      `    <a class="accommodation-card__link" data-link-type="photo" href="${sanitizeHref(card.photoUrl)}" target="_blank" rel="noopener noreferrer">${SVG_ICONS.camera} 📸 ${escapeHtml(labels.photo)}</a>`
     );
   }
   if (card.phone) {
@@ -1877,7 +1981,7 @@ function renderAccommodationCard(card: AccommodationCardData, lang: string): str
   parts.push(`  <div class="accommodation-card__description">${escapeHtml(card.description)}</div>`);
 
   parts.push(
-    `  <a class="booking-cta" data-link-type="booking" href="${card.bookingUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(card.bookingLabel)}</a>`
+    `  <a class="booking-cta" data-link-type="booking" href="${sanitizeHref(card.bookingUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(card.bookingLabel)}</a>`
   );
 
   if (card.proTip) {
@@ -1925,7 +2029,7 @@ function renderCarRentalCategory(cat: CarRentalCategoryData, lang: string): stri
     parts.push(`          <td>${escapeHtml(row.dailyRate)}</td>`);
     parts.push(`          <td>${escapeHtml(row.total)}</td>`);
     parts.push(
-      `          <td><a class="rental-cta" data-link-type="rental-booking" href="${row.bookingUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(row.bookingLabel)}</a></td>`
+      `          <td><a class="rental-cta" data-link-type="rental-booking" href="${sanitizeHref(row.bookingUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(row.bookingLabel)}</a></td>`
     );
     parts.push(`        </tr>`);
   }
@@ -2056,6 +2160,14 @@ function main(): void {
   // Validate link label tables
   validateLinkLabels(lang);
 
+  // Read Google Maps API key from project root maps_config.json
+  const mapsApiKey = readMapsApiKey(path.dirname(process.argv[1]));
+  if (mapsApiKey) {
+    console.log('Maps API key found — day map widgets will be rendered.');
+  } else {
+    console.log('No Maps API key — day map widgets will fall back to plain map links.');
+  }
+
   // Read manifest.json
   const manifestPath = path.join(tripFolder, 'manifest.json');
   if (!fs.existsSync(manifestPath)) {
@@ -2121,7 +2233,7 @@ function main(): void {
         // Not a hard error for arrival/departure days > 0 that may be light
       }
 
-      const html = renderDayFragment(dayData, lang);
+      const html = renderDayFragment(dayData, lang, mapsApiKey);
       const outputPath = path.join(tripFolder, `fragment_day_${pad2(dayNum)}_${lang}.html`);
       atomicWrite(outputPath, html);
       console.log(`  Written: ${outputPath}`);
