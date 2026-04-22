@@ -66,7 +66,7 @@ The trip generation pipeline uses a two-layer data source approach for POI detai
 
 ### 1. The Interest Hierarchy
 - **Primary:** Prioritize `trip_context.universal_interests`. These are the "must-haves" for the family unit.
-- **Secondary — Shared Kids:** Use the `### Kids Interests` section (shared across all children) to identify kid-focused activities that complement Universal Interests. These inform along-the-way stops (§ `По пути`) and backup plans.
+- **Secondary — Shared Kids:** Use the `### Kids Interests` section (shared across all children) to identify kid-focused activities that complement Universal Interests.
 - **Tertiary — Per-Child:** Look for opportunities to weave in `travelers.children[].specific_interests` (per-child column in the Children table) if they are geographically close to a Primary activity.
 - **Conflict Resolution:** If a "Universal" interest and a "Specific" interest conflict, prioritize the "Universal" activity but mention the "Specific" one as an alternative or quick stop.
 - **Avoidance:** Avoid `trip_context.places_to_avoid`. Those are places that you shall avoid during your trip creation.
@@ -76,7 +76,7 @@ The trip generation pipeline uses a two-layer data source approach for POI detai
 After initial itinerary draft, perform a dedicated research pass:
 1. Search: "[destination] unique attractions NOT found elsewhere + [each child's specific_interests]"
 2. Search: "[destination] endemic experiences families children animals/trains/etc"
-3. Cross-reference both `### Kids Interests` (shared) and each traveler's per-child `specific_interests` against results
+3. For each item in `### Kids Interests` (shared) and each traveler's per-child `specific_interests`, run a dedicated search: `"[destination] [interest]"` — then cross-reference all results with the itinerary
 4. Replace generic POIs (soft play, generic mall) with "Only Here" alternatives
 
 **Priority order:** "Only Here" POI > Universal Interest match > Generic attraction

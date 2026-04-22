@@ -4656,7 +4656,7 @@
       { name: 'Lake & Beach Relaxation',            energy: 'chill',  setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core'] },
       { name: 'Botanical Gardens & Arboretums',     energy: 'chill',  setting: 'nature', culture: 'culture', food: null,        evening: null,       audience: ['core', 'senior'] },
       { name: 'Cave Explorations',                  energy: 'active', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core', 'schoolAge'] },
-      { name: 'Horseback Riding in Nature',         energy: 'active', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core', 'girlKid'] },
+      { name: 'Horseback Riding in Nature',         energy: 'active', setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core', 'girlKid', 'boyKid'] },
       { name: 'River Rafting & Canoeing',           energy: 'active', setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['adultsOnly', 'teen'] },
       { name: 'Camping & Glamping',                 energy: 'mixed',  setting: 'nature', culture: 'both',    food: null,        evening: 'early',    audience: ['core'] },
       { name: 'Mountain Chairlifts & Cable Cars',   energy: 'mixed',  setting: 'nature', culture: 'both',    food: null,        evening: null,       audience: ['core', 'withKids'] },
@@ -4689,7 +4689,7 @@
 
       // ---- FUN & ENTERTAINMENT ----
       { name: 'Escape Rooms & Puzzle Experiences',  energy: 'mixed',  setting: 'city',   culture: 'fun',     food: null,        evening: 'stroll',   audience: ['adultsOnly', 'youngAdult'] },
-      { name: 'Amusement & Theme Parks',            energy: 'active', setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['youngAdult', 'teen', 'schoolAge'] },
+      { name: 'Amusement & Theme Parks',            energy: 'active', setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['youngAdult', 'teen', 'schoolAge', 'withKids'] },
       { name: 'Arcade Games & Entertainment Centers',energy: 'mixed', setting: 'city',   culture: 'fun',     food: null,        evening: 'stroll',   audience: ['schoolAge', 'teen'] },
       { name: 'Gaming Cafes & VR Arcades',          energy: 'mixed',  setting: 'city',   culture: 'fun',     food: null,        evening: 'stroll',   audience: ['youngAdult', 'teen'] },
       { name: 'Bowling & Laser Tag',                energy: 'mixed',  setting: 'city',   culture: 'fun',     food: null,        evening: 'stroll',   audience: ['schoolAge', 'teen', 'withKids'] },
@@ -4768,12 +4768,12 @@
       { name: 'Sandbox Parks & Toddler Rides',        energy: 'mixed', setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['toddler'] },
 
       // ---- PRESCHOOL (4-7) ----
-      { name: 'Circus & Magic Shows',                 energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool'] },
+      { name: 'Circus & Magic Shows',                 energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'schoolAge', 'teen'] },
       { name: 'Train & Vehicle Rides',                energy: 'mixed', setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'boyKid'] },
-      { name: 'Interactive Water Parks',              energy: 'active',setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'schoolAge'] },
-      { name: 'Plushie & Toy Shops',                  energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'girlKid'] },
+      { name: 'Interactive Water Parks',              energy: 'active',setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'schoolAge', 'teen'] },
+      { name: 'Plushie & Toy Shops',                  energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'girlKid', 'boyKid'] },
       { name: 'Carousel & Gentle Amusement Rides',    energy: 'chill', setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'toddler'] },
-      { name: 'Face Painting & Craft Workshops',      energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool'] },
+      { name: 'Face Painting & Craft Workshops',      energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'schoolAge'] },
       { name: 'Treasure Hunts & Scavenger Hunts',     energy: 'active',setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['preschool', 'schoolAge'] },
 
       // ---- SCHOOL-AGE (8-12) ----
@@ -4795,13 +4795,13 @@
       // ---- BOY-KID ----
       { name: 'Construction Vehicle & Heavy Machinery Exhibits', energy: 'mixed', setting: 'city', culture: 'both', food: null, evening: null, audience: ['boyKid'] },
       { name: 'Train Museums & Railway Rides',        energy: 'mixed', setting: 'both',   culture: 'culture', food: null,        evening: null,       audience: ['boyKid'] },
-      { name: 'Dinosaur Parks & Fossil Exhibits',     energy: 'mixed', setting: 'both',   culture: 'culture', food: null,        evening: null,       audience: ['boyKid'] },
-      { name: 'LEGO & Building Workshops',            energy: 'mixed', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['boyKid'] },
-      { name: 'Space & Rocket Exhibitions',           energy: 'mixed', setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['boyKid'] },
-      { name: 'Pirate-Themed Attractions',            energy: 'active',setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['boyKid'] },
+      { name: 'Dinosaur Parks & Fossil Exhibits',     energy: 'mixed', setting: 'both',   culture: 'culture', food: null,        evening: null,       audience: ['boyKid', 'girlKid'] },
+      { name: 'LEGO & Building Workshops',            energy: 'mixed', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['boyKid', 'girlKid'] },
+      { name: 'Space & Rocket Exhibitions',           energy: 'mixed', setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['boyKid', 'girlKid'] },
+      { name: 'Pirate-Themed Attractions',            energy: 'active',setting: 'both',   culture: 'fun',     food: null,        evening: null,       audience: ['boyKid', 'girlKid'] },
 
       // ---- GIRL-KID ----
-      { name: 'Art & Painting Studios',               energy: 'chill', setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['girlKid'] },
+      { name: 'Art & Painting Studios',               energy: 'chill', setting: 'city',   culture: 'culture', food: null,        evening: null,       audience: ['girlKid', 'boyKid'] },
       { name: 'Horse Riding & Pony Farms',            energy: 'active',setting: 'nature', culture: 'fun',     food: null,        evening: null,       audience: ['girlKid'] },
       { name: 'Bead & Bracelet Making Workshops',     energy: 'chill', setting: 'city',   culture: 'fun',     food: null,        evening: null,       audience: ['girlKid'] },
       { name: 'Ice Cream & Dessert Workshops',        energy: 'chill', setting: 'city',   culture: 'fun',     food: 'nice',      evening: null,       audience: ['girlKid', 'preschool'] },

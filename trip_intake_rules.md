@@ -343,10 +343,10 @@ When navigating between steps, selected chip states are saved to `Set` objects (
 | `withKids` | Family with Kids | 12 | Playgrounds, museums, aquariums, zoo, family cooking |
 | `toddler` | Toddler-Friendly (0-3) | 8 | Soft play, petting zoos, splash pads, sandbox parks |
 | `preschool` | Great for Ages 4-7 | 12 | Circus, puppet shows, train rides, treasure hunts, butterfly houses |
-| `schoolAge` | Fun for Ages 8-12 | 15 | Arcade, go-karts, trampolines, escape rooms, drone workshops |
-| `teen` | Teen-Approved (13+) | 16 | Theme parks, VR, skateparks, gaming cafes, water sports |
-| `boyKid` | Popular with Boys | 8 | Construction vehicles, dinosaur parks, LEGO, pirate attractions |
-| `girlKid` | Popular with Girls | 8 | Princess cafes, horse riding, dance studios, fairy gardens |
+| `schoolAge` | Fun for Ages 8-12 | 15 | Arcade, go-karts, trampolines, escape rooms, drone workshops, circus, water parks, craft workshops |
+| `teen` | Teen-Approved (13+) | 16 | Theme parks, VR, skateparks, gaming cafes, water sports, circus, water parks |
+| `boyKid` | Popular with Boys | 8 | Construction vehicles, dinosaur parks, LEGO, pirate attractions, horse riding, art studios |
+| `girlKid` | Popular with Girls | 8 | Horse riding, dance studios, LEGO, dinosaur parks, space, pirate attractions, toy shops |
 | `nature` | Nature & Outdoors | 12 | National parks, waterfalls, caves, camping, horseback riding |
 | `senior` | Comfortable for Seniors | 10 | Thermal baths, scenic trains, classical music, gardens |
 
