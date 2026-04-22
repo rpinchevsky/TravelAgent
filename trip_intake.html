@@ -4249,12 +4249,12 @@
         if (target > current) {
           for (let i = 0; i < target - current; i++) {
             const adultPlus = $('#adultPlus');
-            if (adultPlus) adultPlus.click();
+            if (adultPlus) adultPlus.dispatchEvent(new MouseEvent('click', { bubbles: false }));
           }
         } else if (target < current) {
           for (let i = 0; i < current - target; i++) {
             const adultMinus = $('#adultMinus');
-            if (adultMinus) adultMinus.click();
+            if (adultMinus) adultMinus.dispatchEvent(new MouseEvent('click', { bubbles: false }));
           }
         }
       }
@@ -4266,12 +4266,12 @@
         if (target > current) {
           for (let i = 0; i < target - current; i++) {
             const childPlus = $('#childPlus');
-            if (childPlus) childPlus.click();
+            if (childPlus) childPlus.dispatchEvent(new MouseEvent('click', { bubbles: false }));
           }
         } else if (target < current) {
           for (let i = 0; i < current - target; i++) {
             const childMinus = $('#childMinus');
-            if (childMinus) childMinus.click();
+            if (childMinus) childMinus.dispatchEvent(new MouseEvent('click', { bubbles: false }));
           }
         }
       }
